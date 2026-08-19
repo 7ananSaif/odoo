@@ -19,6 +19,12 @@
                                    decoration-success="ai_extraction_status == 'validated'"
                                    decoration-warning="ai_extraction_status == 'extracted'"
                                    decoration-info="ai_extraction_status == 'pending'"/>
+                            <!-- Live queue state: queued → extracting → ready.
+                                 The OWL widget (ai_status_widget) subscribes to
+                                 the invoice_agent bus.bus channel. -->
+                            <field name="ai_job_uuid" widget="ai_status_widget"
+                                   readonly="1"
+                                   invisible="ai_state not in ('queued', 'none')"/>
                             <field name="ai_review_required" widget="boolean_toggle"/>
                             <field name="ai_needs_review" widget="boolean_toggle"/>
                             <field name="ai_confidence" widget="progressbar"/>
@@ -87,6 +93,19 @@
                 <button name="action_suggest_extraction" type="object"
                         string="Suggest with AI"
                         icon="fa-magic"
+                        groups="invoice_agent.group_invoice_agent_user"
+                        class="btn-link"
+                        invisible="state != 'draft' or move_type not in ('in_invoice', 'in_refund')"/>
+
+                <!-- Extract — enqueues a durable AMQP job through the
+                     transactional outbox (week 8, ADR-004). The job is
+                     published to extract.request by the drain cron; the
+                     worker runs OCR + Claude off the request path. The
+                     synchronous FastAPI call that this replaced used to
+                     block an HTTP worker for the full 5-20 s round-trip. -->
+                <button name="action_request_ai_extraction" type="object"
+                        string="Extract"
+                        icon="fa-bolt"
                         groups="invoice_agent.group_invoice_agent_user"
                         class="btn-primary"
                         invisible="state != 'draft' or move_type not in ('in_invoice', 'in_refund')"/>
