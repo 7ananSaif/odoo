@@ -63,24 +63,22 @@ from .amqp import (
     EXCHANGE_NAME,
     QUEUE_EXTRACT,
     ROUTING_KEY_DONE,
-    ROUTING_KEY_REQUEST,
     ROUTING_KEY_STARTED,
     declare_topology,
 )
 from .claude import ClaudeService
 from .errors import BadRequestError, ClaudeRateLimitError, ClaudeUpstreamError
 from .llm_cache import cache_get, cache_set
-from .result_signing import sign_result
-from .retrieve import retrieve_vendor_context
-from .retry import DEAD_ROUTING_KEY, attempt_from_body, classify_failure
 from .metrics import (
     CLAUDE_API_DURATION,
-    RABBITMQ_QUEUE_DEPTH,
     WORKER_JOB_DURATION,
     WORKER_JOBS_TOTAL,
     Timer,
     record_claude_tokens,
 )
+from .result_signing import sign_result
+from .retrieve import retrieve_vendor_context
+from .retry import DEAD_ROUTING_KEY, attempt_from_body, classify_failure
 from .schemas import InvoiceExtraction
 from .validate import validate_extraction
 
@@ -224,8 +222,7 @@ class InvoiceConsumer:
                         )
                     except Exception:
                         _logger.exception(
-                            "invoice-ai worker: failed to cache result for "
-                            "move_id=%s",
+                            "invoice-ai worker: failed to cache result for move_id=%s",
                             move_id,
                         )
             except (ClaudeRateLimitError, ClaudeUpstreamError, BadRequestError) as exc:
@@ -329,7 +326,9 @@ class InvoiceConsumer:
                 job_elapsed,
             )
 
-    async def _publish_started(self, topic_exchange, job_uuid: str, move_id: int) -> None:
+    async def _publish_started(
+        self, topic_exchange, job_uuid: str, move_id: int
+    ) -> None:
         """Publish ``extract.started`` on the topic exchange (live UI state)."""
         await topic_exchange.publish(
             aio_pika.Message(

@@ -1,6 +1,10 @@
 import asyncio
 import os
-import xmlrpc.client
+
+# B411 suppression rationale: xmlrpc.client here only talks to the
+# operator-controlled ODOO_URL endpoint (default http://localhost:8069),
+# never parsing untrusted XML from arbitrary sources.
+import xmlrpc.client  # nosec B411
 
 import mcp.types as types
 from mcp.server import Server

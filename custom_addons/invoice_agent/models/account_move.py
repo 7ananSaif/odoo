@@ -573,9 +573,8 @@ class AccountMove(models.Model):
             auto_fill == DEFAULT_AUTO_FILL_THRESHOLD
             and self.journal_id.ai_agent_enabled
         ):
-            auto_fill = (
-                self.journal_id.ai_min_confidence or DEFAULT_AUTO_FILL_THRESHOLD
-            )
+            auto_fill = self.journal_id.ai_min_confidence or DEFAULT_AUTO_FILL_THRESHOLD
+
         return auto_fill, review
 
     # -------------------------------------------------------------------------
@@ -1860,7 +1859,7 @@ class AccountMove(models.Model):
             # Keep the model-reported value for backwards-compatible display
             # and audit exports. ``confidence_score`` remains the calibrated
             # value used for automated routing.
-            "ai_confidence": float(payload.get("overall_confidence") or score),
+            "ai_confidence": float(payload.get("extraction_confidence") or score),
         }
         if payload.get("extracted_vendor_id"):
             vals["partner_id"] = payload["extracted_vendor_id"]

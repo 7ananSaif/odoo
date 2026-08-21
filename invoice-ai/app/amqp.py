@@ -98,10 +98,14 @@ async def declare_topology(channel: aio_pika.abc.AbstractChannel) -> None:
     (PRECONDITION_FAILED) — a deliberate drift check.
     """
     await channel.declare_exchange(
-        EXCHANGE_NAME, aio_pika.ExchangeType.TOPIC, durable=True,
+        EXCHANGE_NAME,
+        aio_pika.ExchangeType.TOPIC,
+        durable=True,
     )
     await channel.declare_exchange(
-        DLX_EXCHANGE, aio_pika.ExchangeType.DIRECT, durable=True,
+        DLX_EXCHANGE,
+        aio_pika.ExchangeType.DIRECT,
+        durable=True,
     )
     for queue_name, routing_key in TOPOLOGY_BINDINGS:
         arguments: Any = None
@@ -118,7 +122,9 @@ async def declare_topology(channel: aio_pika.abc.AbstractChannel) -> None:
                 "x-delivery-limit": DELIVERY_LIMIT,
             }
         queue = await channel.declare_queue(
-            queue_name, durable=True, arguments=arguments,
+            queue_name,
+            durable=True,
+            arguments=arguments,
         )
         await queue.bind(EXCHANGE_NAME, routing_key=routing_key)
         _logger.debug("bound %s <- invoice.agent(%s)", queue_name, routing_key)
@@ -140,7 +146,9 @@ async def declare_topology(channel: aio_pika.abc.AbstractChannel) -> None:
                 "x-dead-letter-routing-key": ROUTING_KEY_REQUEST,
             }
         queue = await channel.declare_queue(
-            queue_name, durable=True, arguments=retry_arguments,
+            queue_name,
+            durable=True,
+            arguments=retry_arguments,
         )
         await queue.bind(DLX_EXCHANGE, routing_key=routing_key)
         _logger.debug(
