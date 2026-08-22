@@ -56,30 +56,33 @@ from collections.abc import Callable
 from typing import Any
 
 import aio_pika
-from aio_pika.abc import AbstractChannel, AbstractIncomingMessage
+from aio_pika.abc import AbstractChannel, AbstractExchange, AbstractIncomingMessage
 
 from .amqp import (
     DLX_EXCHANGE,
     EXCHANGE_NAME,
     QUEUE_EXTRACT,
     ROUTING_KEY_DONE,
-    ROUTING_KEY_REQUEST,
     ROUTING_KEY_STARTED,
     declare_topology,
 )
 from .claude import ClaudeService
 from .errors import BadRequestError, ClaudeRateLimitError, ClaudeUpstreamError
 from .llm_cache import cache_get, cache_set
-from .result_signing import sign_result
-from .retrieve import retrieve_vendor_context
-from .retry import DEAD_ROUTING_KEY, attempt_from_body, classify_failure
 from .metrics import (
     CLAUDE_API_DURATION,
-    RABBITMQ_QUEUE_DEPTH,
     WORKER_JOB_DURATION,
     WORKER_JOBS_TOTAL,
     Timer,
     record_claude_tokens,
+)
+from .result_signing import sign_result
+from .retrieve import retrieve_vendor_context
+from .retry import (
+    DEAD_ROUTING_KEY,
+    RetryDecision,
+    attempt_from_body,
+    classify_failure,
 )
 from .schemas import InvoiceExtraction
 from .validate import validate_extraction
@@ -131,10 +134,14 @@ class InvoiceConsumer:
         await channel.set_qos(prefetch_count=PREFETCH_COUNT)
 
         # (Re)declare the full topology on every connect — see amqp.py.
+        # declare_topology declares invoice.extract WITH its DLX arguments
+        # and binds it on extract.request. Do NOT re-declare it here with a
+        # bare (argument-less) declare — RabbitMQ treats an empty argument
+        # table as inequivalent to the queue's existing DLX args and closes
+        # the channel with 406 PRECONDITION_FAILED.
         await declare_topology(channel)
 
-        queue = await channel.declare_queue(QUEUE_EXTRACT, durable=True)
-        await queue.bind(EXCHANGE_NAME, routing_key=ROUTING_KEY_REQUEST)
+        queue = await channel.get_queue(QUEUE_EXTRACT)
 
         topic_exchange = await channel.get_exchange(EXCHANGE_NAME)
         dlx = await channel.get_exchange(DLX_EXCHANGE)
@@ -161,8 +168,8 @@ class InvoiceConsumer:
         self,
         channel: AbstractChannel,
         message: AbstractIncomingMessage,
-        topic_exchange,
-        dlx,
+        topic_exchange: AbstractExchange,
+        dlx: AbstractExchange,
     ) -> None:
         async with message.process(requeue=False):
             try:
@@ -220,8 +227,7 @@ class InvoiceConsumer:
                         )
                     except Exception:
                         _logger.exception(
-                            "invoice-ai worker: failed to cache result for "
-                            "move_id=%s",
+                            "invoice-ai worker: failed to cache result for move_id=%s",
                             move_id,
                         )
             except (ClaudeRateLimitError, ClaudeUpstreamError, BadRequestError) as exc:
@@ -233,6 +239,17 @@ class InvoiceConsumer:
                 decision = classify_failure(exc, attempt)
                 await self._route_failure(dlx, message, decision, topic_exchange)
                 return
+
+            # Cache writes store `parsed` as JSON (pydantic models are
+            # serialized in app/llm_cache.py). Re-validate it back to the
+            # model so the publish + validation paths below can call
+            # `model_dump()` / attribute access unchanged. Only dict input
+            # (the JSON form from cache) is re-validated — model instances
+            # and test doubles are left untouched.
+            parsed = result["parsed"]
+            if isinstance(parsed, dict):
+                parsed = InvoiceExtraction.model_validate(parsed)
+            result["parsed"] = parsed
 
             # --- Phase 2: RAG validation (retrieve + validate) ---
             # Best-effort: if retrieval or validation fails, the extraction
@@ -274,9 +291,11 @@ class InvoiceConsumer:
                         move_id,
                         validation_verdict.get("account_id"),
                         validation_verdict.get("account_confidence", 0),
-                        validation_usage.get("cache_read_input_tokens")
-                        if validation_usage
-                        else None,
+                        (
+                            validation_usage.get("cache_read_input_tokens")
+                            if validation_usage
+                            else None
+                        ),
                     )
             except Exception:
                 _logger.exception(
@@ -305,8 +324,7 @@ class InvoiceConsumer:
             WORKER_JOBS_TOTAL.labels(status="done").inc()
             WORKER_JOB_DURATION.observe(job_elapsed)
             _logger.info(
-                "invoice-ai worker: job %s move_id=%s done model=%s "
-                "validation=%s duration=%.1fs",
+                "invoice-ai worker: job %s move_id=%s done model=%s validation=%s duration=%.1fs",
                 job_uuid,
                 move_id,
                 result["model"],
@@ -314,7 +332,12 @@ class InvoiceConsumer:
                 job_elapsed,
             )
 
-    async def _publish_started(self, topic_exchange, job_uuid: str, move_id: int) -> None:
+    async def _publish_started(
+        self,
+        topic_exchange: AbstractExchange,
+        job_uuid: str,
+        move_id: int,
+    ) -> None:
         """Publish ``extract.started`` on the topic exchange (live UI state)."""
         await topic_exchange.publish(
             aio_pika.Message(
@@ -331,7 +354,11 @@ class InvoiceConsumer:
             routing_key=ROUTING_KEY_STARTED,
         )
 
-    async def _publish_result(self, topic_exchange, payload: dict) -> None:
+    async def _publish_result(
+        self,
+        topic_exchange: AbstractExchange,
+        payload: dict,
+    ) -> None:
         """Publish the JWT-signed ``extract.done`` result on the topic exchange."""
         token = self._sign(payload)
         await topic_exchange.publish(
@@ -345,10 +372,10 @@ class InvoiceConsumer:
 
     async def _route_failure(
         self,
-        dlx,
+        dlx: AbstractExchange,
         message: AbstractIncomingMessage,
-        decision,
-        topic_exchange=None,
+        decision: RetryDecision,
+        topic_exchange: AbstractExchange | None = None,
     ) -> None:
         """Route a failed job to the retry ladder or the dead queue.
 
@@ -380,10 +407,10 @@ class InvoiceConsumer:
 
     async def _dead_letter(
         self,
-        dlx,
+        dlx: AbstractExchange,
         message: AbstractIncomingMessage,
-        reason,
-        topic_exchange=None,
+        reason: Any,
+        topic_exchange: AbstractExchange | None = None,
     ) -> None:
         """Publish to the poison queue and let the original ack.
 
@@ -418,15 +445,14 @@ class InvoiceConsumer:
                     await self._publish_result(topic_exchange, failed_payload)
             except Exception:
                 _logger.exception(
-                    "invoice-ai worker: could not publish failed result for "
-                    "dead-lettered job",
+                    "invoice-ai worker: could not publish failed result for dead-lettered job",
                 )
         WORKER_JOBS_TOTAL.labels(status="dead-lettered").inc()
         _logger.warning("invoice-ai worker: dead-lettered job: %s", reason)
 
     async def _publish_to_dlx(
         self,
-        dlx,
+        dlx: AbstractExchange,
         routing_key: str,
         body: bytes,
         headers: dict | None = None,

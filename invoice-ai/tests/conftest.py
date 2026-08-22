@@ -107,7 +107,8 @@ def fake_claude():
 async def client():
     transport = ASGITransport(app=app)
     async with AsyncClient(
-        transport=transport, base_url="http://test",
+        transport=transport,
+        base_url="http://test",
     ) as async_client:
         yield async_client
 
@@ -125,11 +126,13 @@ def make_result(vendor_name="ACME SUPPLIES LLC") -> dict:
         amount_total=Decimal("1350.00"),
         lines=[
             InvoiceLine(
-                name="Server hosting", quantity=Decimal("1.0"),
+                name="Server hosting",
+                quantity=Decimal("1.0"),
                 price_unit=Decimal("850.00"),
             ),
             InvoiceLine(
-                name="Setup fee", quantity=Decimal("1.0"),
+                name="Setup fee",
+                quantity=Decimal("1.0"),
                 price_unit=Decimal("500.00"),
             ),
         ],

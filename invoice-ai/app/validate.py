@@ -26,7 +26,6 @@ Flow (called by the consumer after extract + retrieve)::
 from __future__ import annotations
 
 import logging
-from pathlib import Path
 from typing import Any
 
 from anthropic import (
@@ -108,8 +107,14 @@ def _build_validation_system_blocks(
 
     return [
         {"type": "text", "text": f"CHART OF ACCOUNTS:\n{coa_text}"},
-        {"type": "text", "text": f"VENDOR HISTORY:\n{vendor_history or '(no history)'}"},
-        {"type": "text", "text": f"GL ACCOUNT FREQUENCIES:\n{gl_frequencies or '(none)'}"},
+        {
+            "type": "text",
+            "text": f"VENDOR HISTORY:\n{vendor_history or '(no history)'}",
+        },
+        {
+            "type": "text",
+            "text": f"GL ACCOUNT FREQUENCIES:\n{gl_frequencies or '(none)'}",
+        },
         {
             "type": "text",
             "text": validation_rules,
@@ -135,10 +140,7 @@ def _format_vendor_history(candidates: list[dict[str, Any]]) -> str:
         move_id = bill.get("move_id", 0)
         rerank = bill.get("rerank_score")
         similarity = 1.0 - distance
-        header = (
-            f"[Bill {i}] move_id={move_id} "
-            f"similarity={similarity:.3f}"
-        )
+        header = f"[Bill {i}] move_id={move_id} similarity={similarity:.3f}"
         if rerank is not None:
             header += f" rerank_score={rerank:.3f}"
         parts.append(f"{header}\n{content}")
@@ -183,8 +185,7 @@ def _validate_citations(
             verdict.flags = list(verdict.flags) + [hallucinated_flag]
     if not verdict.evidence:
         _logger.warning(
-            "validate citation guard: no valid citations in verdict — "
-            "adding no_history flag"
+            "validate citation guard: no valid citations in verdict — adding no_history flag"
         )
         if "no_history" not in verdict.flags:
             verdict.flags = list(verdict.flags) + ["no_history"]
@@ -209,9 +210,7 @@ def _format_extraction_for_validation(extraction: InvoiceExtraction) -> str:
     if extraction.lines:
         line_parts = []
         for line in extraction.lines:
-            line_parts.append(
-                f"  - {line.name}: qty={line.quantity} unit_price={line.price_unit}"
-            )
+            line_parts.append(f"  - {line.name}: qty={line.quantity} unit_price={line.price_unit}")
         lines_text = "\n".join(line_parts)
 
     parts = [
@@ -282,6 +281,9 @@ async def validate_extraction(
     )
 
     # --- Call Claude with structured output ---
+    message: Any = None
+    verdict: ValidationVerdict | None = None
+
     try:
         message = await client.messages.parse(
             model=settings.anthropic_model,
@@ -290,7 +292,7 @@ async def validate_extraction(
             messages=[{"role": "user", "content": user_content}],
             output_format=ValidationVerdict,
         )
-        verdict: ValidationVerdict = message.parsed_output
+        verdict = message.parsed_output
     except TypeError:
         # Older SDK fallback — use messages.create with json_schema
         _logger.info("messages.parse unavailable for validation; using json_schema")
@@ -307,23 +309,36 @@ async def validate_extraction(
                 }
             },
         )
-        content_text = "".join(
-            getattr(block, "text", "") for block in message.content
-        )
+        content_text = "".join(getattr(block, "text", "") for block in message.content)
         verdict = ValidationVerdict.model_validate_json(content_text)
     except (APIStatusError, APIConnectionError) as exc:
         _logger.warning("validation Claude call failed: %s", exc)
         raise
 
+    if verdict is None:
+        raise ValueError("Failed to parse ValidationVerdict from response")
+
     usage = {
-        "input_tokens": getattr(message.usage, "input_tokens", None),
-        "cache_creation_input_tokens": getattr(
-            message.usage, "cache_creation_input_tokens", None,
+        "input_tokens": (getattr(message.usage, "input_tokens", None) if message else None),
+        "cache_creation_input_tokens": (
+            getattr(
+                message.usage,
+                "cache_creation_input_tokens",
+                None,
+            )
+            if message
+            else None
         ),
-        "cache_read_input_tokens": getattr(
-            message.usage, "cache_read_input_tokens", None,
+        "cache_read_input_tokens": (
+            getattr(
+                message.usage,
+                "cache_read_input_tokens",
+                None,
+            )
+            if message
+            else None
         ),
-        "output_tokens": getattr(message.usage, "output_tokens", None),
+        "output_tokens": (getattr(message.usage, "output_tokens", None) if message else None),
     }
 
     # --- Citation guard: reject hallucinated move_ids ---
@@ -345,7 +360,11 @@ async def validate_extraction(
     return {
         "verdict": verdict,
         "usage": usage,
-        "model": getattr(message, "model", settings.anthropic_model),
+        "model": (
+            getattr(message, "model", settings.anthropic_model)
+            if message
+            else settings.anthropic_model
+        ),
         "reranked": vendor_context.get("reranked", False),
         "rerank_model": vendor_context.get("rerank_model", ""),
     }

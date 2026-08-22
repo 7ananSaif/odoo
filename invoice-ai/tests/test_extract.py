@@ -52,14 +52,16 @@ async def test_extract_happy_path_text(fake_claude, client, default_result, auth
     assert body["usage"]["cache_read_input_tokens"] == 4400
     assert body["model"] == "claude-opus-4-8"
     # The service must pass the raw OCR text straight to the model.
-    assert fake_claude.last_args["text"] == (
-        "ACME SUPPLIES LLC\nTOTAL USD 1,350.00"
-    )
+    assert fake_claude.last_args["text"] == ("ACME SUPPLIES LLC\nTOTAL USD 1,350.00")
 
 
 @pytest.mark.anyio
 async def test_extract_with_pdf_upload_runs_ocr(
-    fake_claude, client, default_result, monkeypatch, auth_headers,
+    fake_claude,
+    client,
+    default_result,
+    monkeypatch,
+    auth_headers,
 ):
     """A PDF upload goes through OCR first, then Claude on the OCR text."""
     fake_claude.result = default_result
@@ -77,9 +79,7 @@ async def test_extract_with_pdf_upload_runs_ocr(
     )
 
     assert response.status_code == 200
-    assert fake_claude.last_args["text"] == (
-        "OCR-DERIVED TEXT\nTOTAL EUR 100.00"
-    )
+    assert fake_claude.last_args["text"] == ("OCR-DERIVED TEXT\nTOTAL EUR 100.00")
 
 
 @pytest.mark.anyio

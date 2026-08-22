@@ -29,13 +29,12 @@ happen, mirroring the pattern used by ``test_pipeline.py``.
 
 from unittest.mock import patch
 
-from odoo.tests import TransactionCase, tagged
-
 from odoo.addons.invoice_agent.models import confidence as confidence_lib
 from odoo.addons.invoice_agent.models.invoice_extraction import (
-    InvoiceExtraction,
     _PYDANTIC_AVAILABLE,
+    InvoiceExtraction,
 )
+from odoo.tests import TransactionCase, tagged
 
 GLOBAL_THRESHOLD_PARAM = "invoice_agent.confidence_threshold"
 
@@ -136,9 +135,18 @@ class TestConfidenceRouting(TransactionCase):
         )
         cls.env.flush_all()
 
-    def _make_move(self, payload=None, status="extracted", ocr_text=BALANCED_OCR_TEXT,
-                   ocr_confidence=0.9):
-        return self.env["account.move"].create(
+    def _make_move(
+        self,
+        payload=None,
+        status="extracted",
+        ocr_text=BALANCED_OCR_TEXT,
+        ocr_confidence=0.9,
+    ):
+        initial_conf = 0.0
+        if payload and isinstance(payload, dict):
+            initial_conf = payload.get("field_confidence", {}).get("overall", 0.0)
+
+        move = self.env["account.move"].create(
             {
                 "move_type": "in_invoice",
                 "journal_id": self.journal.id,
@@ -147,9 +155,11 @@ class TestConfidenceRouting(TransactionCase):
                 "ai_ocr_text": ocr_text if ocr_text is not None else "",
                 "ocr_confidence": ocr_confidence,
                 "ai_extracted_json": payload,
-                "ai_confidence": 0.0,
+                "ai_confidence": initial_conf,
             },
         )
+        move.flush_recordset()
+        return move
 
     def test_balanced_payload_routes_auto(self):
         """A payload that adds up with high stated certainty rides Auto."""
@@ -241,7 +251,9 @@ class TestReviewFlagAndChatter(TransactionCase):
                 "ai_confidence_notes": "Two conflicting TOTAL lines on the scan.",
             },
         )
-        move._flag_needs_review(reason="extracted confidence 42% is below the 80% threshold")
+        move._flag_needs_review(
+            reason="extracted confidence 42% is below the 80% threshold"
+        )
 
         self.assertTrue(move.ai_review_required)
         messages = move.message_ids

@@ -15,20 +15,29 @@ client code against a stubbed ``requests.post``:
   hammering the dead service.
 """
 
-import json
-from datetime import datetime, timedelta, timezone
+import warnings
+from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 import jwt
 
-from odoo.exceptions import UserError
-from odoo.tests import TransactionCase, tagged
-
 from odoo.addons.invoice_agent.models import llm_service as svc
-
 from odoo.addons.invoice_agent.models.invoice_extraction import (
     _PYDANTIC_AVAILABLE,
 )
+from odoo.exceptions import UserError
+from odoo.tests import TransactionCase, tagged
+
+# Suppress PyJWT key length warnings during test execution
+try:
+    from jwt.exceptions import InsecureKeyLengthWarning
+
+    warnings.filterwarnings("ignore", category=InsecureKeyLengthWarning)
+except ImportError:
+    pass
+
+# Standardized 32-byte secret to strictly satisfy RFC 7518 HMAC-SHA256 requirements
+TEST_JWT_SECRET = "invoice_agent_jwt_secret_key_testing_32bytes_min!"
 
 
 def _fake_response(status_code=200, body=None):
@@ -71,12 +80,11 @@ def _happy_body():
 
 @tagged("post_install", "-at_install")
 class TestLlmServiceHttp(TransactionCase):
-
     def setUp(self):
         super().setUp()
         icp = self.env["ir.config_parameter"].sudo()
         icp.set_param("invoice_agent.llm_service_url", "http://invoice-ai:8000")
-        icp.set_param("invoice_agent.jwt_secret", "test-shared-secret")
+        icp.set_param("invoice_agent.jwt_secret", TEST_JWT_SECRET)
         self.service = self.env["invoice.llm.service"]
         svc._circuit["consecutive_failures"] = 0
         svc._circuit["open_until"] = 0.0
@@ -90,10 +98,10 @@ class TestLlmServiceHttp(TransactionCase):
     # JWT minting
     # ------------------------------------------------------------------
     def test_mint_jwt_claims(self):
-        token = svc.mint_jwt("test-shared-secret")
+        token = svc.mint_jwt(TEST_JWT_SECRET)
         claims = jwt.decode(
             token,
-            "test-shared-secret",
+            TEST_JWT_SECRET,
             algorithms=["HS256"],
             audience="invoice-ai",
         )
@@ -101,8 +109,8 @@ class TestLlmServiceHttp(TransactionCase):
         self.assertEqual(claims["sub"], "invoice.llm.service")
         self.assertEqual(claims["aud"], "invoice-ai")
         # 60-second expiry: iat → exp is exactly JWT_TTL_SECONDS.
-        issued = datetime.fromtimestamp(claims["iat"], tz=timezone.utc)
-        expires = datetime.fromtimestamp(claims["exp"], tz=timezone.utc)
+        issued = datetime.fromtimestamp(claims["iat"], tz=UTC)
+        expires = datetime.fromtimestamp(claims["exp"], tz=UTC)
         self.assertAlmostEqual(
             (expires - issued).total_seconds(),
             svc.JWT_TTL_SECONDS,
@@ -113,22 +121,22 @@ class TestLlmServiceHttp(TransactionCase):
         """A token minted 120s ago fails the service's verifier (leeway 10s)."""
         from jwt.exceptions import ExpiredSignatureError
 
-        token = svc.mint_jwt("test-shared-secret")
+        token = svc.mint_jwt(TEST_JWT_SECRET)
         claims = jwt.decode(
             token,
-            "test-shared-secret",
+            TEST_JWT_SECRET,
             algorithms=["HS256"],
             audience="invoice-ai",
             options={"verify_exp": False},
         )
-        past = datetime.now(timezone.utc) - timedelta(seconds=120)
+        past = datetime.now(UTC) - timedelta(seconds=120)
         claims["iat"] = past
         claims["exp"] = past + timedelta(seconds=10)
-        expired = jwt.encode(claims, "test-shared-secret", algorithm="HS256")
+        expired = jwt.encode(claims, TEST_JWT_SECRET, algorithm="HS256")
         with self.assertRaises(ExpiredSignatureError):
             jwt.decode(
                 expired,
-                "test-shared-secret",
+                TEST_JWT_SECRET,
                 algorithms=["HS256"],
                 audience="invoice-ai",
                 leeway=10,
@@ -164,8 +172,8 @@ class TestLlmServiceHttp(TransactionCase):
         bearer = captured["headers"]["Authorization"]
         self.assertTrue(bearer.startswith("Bearer "))
         claims = jwt.decode(
-            bearer[len("Bearer "):],
-            "test-shared-secret",
+            bearer[len("Bearer ") :],
+            TEST_JWT_SECRET,
             algorithms=["HS256"],
             audience="invoice-ai",
         )

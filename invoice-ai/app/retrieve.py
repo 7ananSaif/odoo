@@ -35,13 +35,12 @@ The public entry point is ``retrieve_vendor_context``; the route in
 from __future__ import annotations
 
 import logging
-from collections import Counter
 from typing import Any
 
-import asyncpg
+import asyncpg  # type: ignore[import-untyped]
 
 from .config import settings
-from .embeddings import VOYAGE_DIMENSIONS, VoyageEmbedder
+from .embeddings import VoyageEmbedder
 from .rerank import VoyageReranker, VoyageRerankError
 
 _logger = logging.getLogger(__name__)
@@ -60,12 +59,11 @@ async def get_pool() -> asyncpg.Pool:
     ``postgresql://odoo:odoo@localhost:5432/odoo``).
     """
     global _pool  # noqa: PLW0603
-    if _pool is None or getattr(_pool, "_closed", False):  # type: ignore[union-attr]
+    if _pool is None or getattr(_pool, "_closed", True):
         dsn = settings.database_url
         if not dsn:
             raise RuntimeError(
-                "INVOICE_AI_DATABASE_URL is not configured — "
-                "cannot create an asyncpg pool."
+                "INVOICE_AI_DATABASE_URL is not configured — cannot create an asyncpg pool."
             )
         _pool = await asyncpg.create_pool(
             dsn,
@@ -79,7 +77,7 @@ async def get_pool() -> asyncpg.Pool:
 async def close_pool() -> None:
     """Shut down the pool gracefully (call on app shutdown)."""
     global _pool  # noqa: PLW0603
-    if _pool is not None and not _pool._closed:  # type: ignore[union-attr]
+    if _pool is not None and not getattr(_pool, "_closed", True):
         await _pool.close()
         _logger.info("retrieve: asyncpg pool closed")
     _pool = None
@@ -88,6 +86,7 @@ async def close_pool() -> None:
 # ---------------------------------------------------------------------------
 # Vector retrieval (Step 1-2: query construction + metadata prefiltering)
 # ---------------------------------------------------------------------------
+
 
 async def vector_search(
     partner_id: int,
@@ -140,6 +139,7 @@ async def vector_search(
 # GL account frequency (Step 3: vendor-context enrichment)
 # ---------------------------------------------------------------------------
 
+
 async def gl_account_frequencies(partner_id: int) -> dict[str, int]:
     """Count how often each GL account code appears in the vendor's history.
 
@@ -175,6 +175,7 @@ async def gl_account_frequencies(partner_id: int) -> dict[str, int]:
 # ---------------------------------------------------------------------------
 # Hybrid retrieval (Step 4: VAT/name + ref equality + dedup)
 # ---------------------------------------------------------------------------
+
 
 async def hybrid_retrieve(
     partner_id: int,
@@ -275,6 +276,7 @@ async def hybrid_retrieve(
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _vector_to_literal(vector: list[float]) -> str:
     """Format a float list as a pgvector literal: ``[0.1,0.2,...]``."""
     return "[" + ",".join(repr(float(v)) for v in vector) + "]"
@@ -317,6 +319,7 @@ async def _resolve_partner_id(
 # ---------------------------------------------------------------------------
 # High-level entry point (called by the route)
 # ---------------------------------------------------------------------------
+
 
 async def retrieve_vendor_context(
     *,
@@ -399,8 +402,7 @@ async def retrieve_vendor_context(
         except VoyageRerankError:
             # Degraded: keep original cosine ordering
             _logger.warning(
-                "retrieve rerank: reranker failed, keeping cosine ordering "
-                "(%d candidates)",
+                "retrieve rerank: reranker failed, keeping cosine ordering (%d candidates)",
                 len(candidates),
             )
     elif candidates:

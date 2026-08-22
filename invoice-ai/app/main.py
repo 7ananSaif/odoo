@@ -24,15 +24,6 @@ from slowapi.util import get_remote_address
 from .auth import require_token
 from .claude import ClaudeService
 from .config import settings
-from .metrics import (
-    CLAUDE_API_DURATION,
-    CLAUDE_TOKENS_TOTAL,
-    HTTP_REQUEST_DURATION,
-    HTTP_REQUESTS_TOTAL,
-    OCR_DURATION,
-    Timer,
-    record_claude_tokens,
-)
 from .dependencies import get_claude_service, get_embedder
 from .embeddings import VoyageEmbedder, VoyageEmbeddingError
 from .errors import (
@@ -41,6 +32,14 @@ from .errors import (
     ServiceError,
     UnsupportedMediaTypeError,
     UploadTooLargeError,
+)
+from .metrics import (
+    CLAUDE_API_DURATION,
+    HTTP_REQUEST_DURATION,
+    HTTP_REQUESTS_TOTAL,
+    OCR_DURATION,
+    Timer,
+    record_claude_tokens,
 )
 from .ocr import extract_bytes
 from .retrieve import close_pool, retrieve_vendor_context
@@ -70,9 +69,9 @@ app = FastAPI(
 # --- Rate limiting (OWASP A04 — Insecure Design) ---
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
-
-
+# app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+# السطر 72:
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)  # type: ignore[arg-type]
 # ---------------------------------------------------------------------------
 # Prometheus /metrics endpoint — scraped by Prometheus every 15s
 # ---------------------------------------------------------------------------
@@ -190,14 +189,10 @@ async def extract_invoice(
         raw = await file.read()
         if len(raw) > settings.max_upload_bytes:
             raise UploadTooLargeError(
-                f"Upload of {len(raw)} bytes exceeds the "
-                f"{settings.max_upload_bytes} byte limit.",
+                f"Upload of {len(raw)} bytes exceeds the {settings.max_upload_bytes} byte limit.",
             )
         mimetype = (file.content_type or "").lower()
-        if not mimetype or (
-            mimetype != "application/pdf"
-            and not mimetype.startswith("image/")
-        ):
+        if not mimetype or (mimetype != "application/pdf" and not mimetype.startswith("image/")):
             raise UnsupportedMediaTypeError(
                 f"Unsupported mimetype '{mimetype or 'unknown'}'. Only PDF and "
                 "image/* uploads are accepted.",
@@ -205,7 +200,10 @@ async def extract_invoice(
         # Track OCR duration — histogram for the RED method
         with Timer(OCR_DURATION):
             ocr_result = await asyncio.to_thread(
-                extract_bytes, raw, mimetype, file.filename or "",
+                extract_bytes,
+                raw,
+                mimetype,
+                file.filename or "",
             )
         text = ocr_result["text"]
 

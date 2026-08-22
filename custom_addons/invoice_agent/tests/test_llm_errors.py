@@ -15,12 +15,23 @@ The in-process Claude SDK mapping is gone; the addon now calls the
   breaker matrix — the focus here is the error mapping itself).
 """
 
+import warnings
 from unittest.mock import patch
 
+from odoo.addons.invoice_agent.models import llm_service as svc
 from odoo.exceptions import UserError
 from odoo.tests import TransactionCase, tagged
 
-from odoo.addons.invoice_agent.models import llm_service as svc
+# Suppress PyJWT key length warnings during test execution
+try:
+    from jwt.exceptions import InsecureKeyLengthWarning
+
+    warnings.filterwarnings("ignore", category=InsecureKeyLengthWarning)
+except ImportError:
+    pass
+
+# Standardized 32-byte secret to satisfy RFC 7518 HMAC-SHA256 requirements
+TEST_JWT_SECRET = "invoice_agent_jwt_secret_key_testing_32bytes_min!"
 
 
 class _FakeResponse:
@@ -41,12 +52,11 @@ def _error_body(code, message, retry_after=None):
 
 @tagged("post_install", "-at_install")
 class TestLlmHttpErrorChain(TransactionCase):
-
     def setUp(self):
         super().setUp()
         icp = self.env["ir.config_parameter"].sudo()
         icp.set_param("invoice_agent.llm_service_url", "http://invoice-ai:8000")
-        icp.set_param("invoice_agent.jwt_secret", "test-shared-secret")
+        icp.set_param("invoice_agent.jwt_secret", TEST_JWT_SECRET)
         self.service = self.env["invoice.llm.service"]
         svc._circuit["consecutive_failures"] = 0
         svc._circuit["open_until"] = 0.0
@@ -77,9 +87,12 @@ class TestLlmHttpErrorChain(TransactionCase):
         self.assertIn("17", ctx.exception.args[0])
 
     def test_401_maps_to_user_error(self):
-        with patch(
-            "requests.post",
-            return_value=_FakeResponse(401, _error_body("E4011", "bad token")),
+        with (
+            patch(
+                "requests.post",
+                return_value=_FakeResponse(401, _error_body("E4011", "bad token")),
+            ),
+            patch.object(svc._logger, "error"),
         ):
             with self.assertRaises(UserError) as ctx:
                 self.service.extract_invoice("invoice text")
@@ -104,9 +117,12 @@ class TestLlmHttpErrorChain(TransactionCase):
         self.assertIn("E4221", ctx.exception.args[0])
 
     def test_500_maps_to_aiservice_unavailable(self):
-        with patch(
-            "requests.post",
-            return_value=_FakeResponse(502, _error_body("E5031", "bad gateway")),
+        with (
+            patch(
+                "requests.post",
+                return_value=_FakeResponse(502, _error_body("E5031", "bad gateway")),
+            ),
+            patch.object(svc._logger, "error"),
         ):
             with self.assertRaises(svc.AIServiceUnavailable):
                 self.service.extract_invoice("invoice text")
@@ -131,9 +147,7 @@ class TestLlmHttpErrorChain(TransactionCase):
         self.assertIn("URL", ctx.exception.args[0])
 
     def test_missing_secret_raises_user_error(self):
-        self.env["ir.config_parameter"].sudo().set_param(
-            "invoice_agent.jwt_secret", ""
-        )
+        self.env["ir.config_parameter"].sudo().set_param("invoice_agent.jwt_secret", "")
         with self.assertRaises(UserError) as ctx:
             self.service.extract_invoice("invoice text")
         self.assertIn("JWT", ctx.exception.args[0])

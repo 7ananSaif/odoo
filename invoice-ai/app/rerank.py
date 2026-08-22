@@ -58,15 +58,15 @@ class VoyageReranker:
 
     def __init__(
         self,
-        client=None,
+        client: Any | None = None,
         api_key: str | None = None,
         model: str = RERANK_MODEL,
-    ):
-        self._client = client
+    ) -> None:
+        self._client: Any | None = client
         self._api_key = api_key
         self._model = model
 
-    def _ensure_client(self):
+    def _ensure_client(self) -> Any:
         """Lazily build the voyageai client on the first real rerank."""
         if self._client is None:
             import voyageai
@@ -118,12 +118,11 @@ class VoyageReranker:
 
         assert last_error is not None
         raise VoyageRerankError(
-            f"voyage rerank failed after {RERANK_RETRIES + 1} attempts: "
-            f"{last_error}",
+            f"voyage rerank failed after {RERANK_RETRIES + 1} attempts: {last_error}",
         ) from last_error
 
     @staticmethod
-    def _normalize(result, documents: list[str]) -> list[dict[str, Any]]:
+    def _normalize(result: Any, documents: list[str]) -> list[dict[str, Any]]:
         """Extract and validate rerank results into a uniform dict list."""
         raw_results = getattr(result, "results", None)
         if raw_results is None:
@@ -139,17 +138,17 @@ class VoyageReranker:
                     index = item.get("index")
                     score = item.get("relevance_score")
             if index is None or score is None:
-                raise VoyageRerankError(
-                    f"malformed rerank result (no index/score): {item!r}"
-                )
+                raise VoyageRerankError(f"malformed rerank result (no index/score): {item!r}")
             index = int(index)
             score = float(score)
             if 0 <= index < len(documents):
-                normalized.append({
-                    "index": index,
-                    "relevance_score": score,
-                    "original_text": documents[index],
-                })
+                normalized.append(
+                    {
+                        "index": index,
+                        "relevance_score": score,
+                        "original_text": documents[index],
+                    }
+                )
             else:
                 _logger.warning(
                     "voyage rerank: result index %d out of range for %d docs",

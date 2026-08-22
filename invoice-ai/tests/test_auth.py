@@ -101,7 +101,9 @@ async def test_healthz_never_requires_a_token(client):
 
 @pytest.mark.anyio
 async def test_extract_fails_closed_when_secret_not_configured(
-    client, fake_claude, monkeypatch,
+    client,
+    fake_claude,
+    monkeypatch,
 ):
     """A service without INVOICE_AI_JWT_SECRET refuses every request, even
     ones signed with a known secret — never silently accepts."""
