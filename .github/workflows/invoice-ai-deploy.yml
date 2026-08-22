@@ -115,7 +115,7 @@ jobs:
                       for i in $(seq 1 30); do
                           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
                               --connect-timeout 5 --max-time 10 \
-                              "http://127.0.0.1:8100/healthz" 2>/dev/null || echo "000")
+                              "http://127.0.0.1:8100/healthz" 2>/dev/null || true)
                           if [ "$STATUS" = "200" ]; then
                               ACTUAL_SHA=$(curl -s "http://127.0.0.1:8100/healthz" | \
                                   python3 -c \
@@ -137,6 +137,13 @@ jobs:
                       #    then fail the job loudly (red X on main).
                       # ------------------------------------------------------------------
                       if [ "$HEALTHY" != "true" ]; then
+                          # Dump diagnostics FIRST so the failure reason is visible
+                          # in the job log before any rollback attempt muddies it.
+                          echo "--- invoice-ai container status ---"
+                          docker compose ps -a invoice-ai || true
+                          echo "--- last 50 log lines ---"
+                          docker compose logs --tail=50 invoice-ai || true
+
                           echo "!!! DEPLOY FAILED — rolling back to $PREVIOUS_SHA"
                           if [ "$PREVIOUS_SHA" != "none" ]; then
                               INVOICE_AI_TAG="$PREVIOUS_SHA" docker compose -f docker-compose.yml \
@@ -144,7 +151,7 @@ jobs:
                               for i in $(seq 1 20); do
                                   STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
                                       --connect-timeout 5 --max-time 10 \
-                                      "http://127.0.0.1:8100/healthz" 2>/dev/null || echo "000")
+                                      "http://127.0.0.1:8100/healthz" 2>/dev/null || true)
                                   if [ "$STATUS" = "200" ]; then
                                       echo "Rollback verified — previous image healthy ($i/20)"
                                       exit 1
