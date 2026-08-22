@@ -31,6 +31,25 @@ jobs:
                   # pin to the SHA whose image CI just published.
                   ref: ${{ github.event.workflow_run.head_sha }}
 
+            # ------------------------------------------------------------------
+            # Sync the compose overlay to the server BEFORE deploying.
+            #
+            # The SSH script below consumes docker-compose.prod.yml from
+            # /opt/odoo on the EC2 host — it does NOT run from this checkout.
+            # Without this copy, the server keeps a stale overlay forever
+            # (this is exactly how the mixed-case GHCR reference survived
+            # being fixed in the repo: the fix never reached the host).
+            # ------------------------------------------------------------------
+            - name: Sync compose overlay to EC2
+              uses: appleboy/scp-action@v0.1.7
+              with:
+                  host: ${{ secrets.EC2_HOST }}
+                  username: ${{ secrets.EC2_USERNAME }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: 22
+                  source: "docker-compose.prod.yml"
+                  target: /opt/odoo
+
             - name: Deploy over SSH with health gate + auto rollback
               uses: appleboy/ssh-action@v1.0.3
               with:
