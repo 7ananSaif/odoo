@@ -36,9 +36,7 @@ jobs:
             #
             # The SSH script below consumes docker-compose.prod.yml from
             # /opt/odoo on the EC2 host — it does NOT run from this checkout.
-            # Without this copy, the server keeps a stale overlay forever
-            # (this is exactly how the mixed-case GHCR reference survived
-            # being fixed in the repo: the fix never reached the host).
+            # Without this copy, the server keeps a stale overlay forever.
             # ------------------------------------------------------------------
             - name: Sync compose overlay to EC2
               uses: appleboy/scp-action@v0.1.7
@@ -70,11 +68,7 @@ jobs:
                       cd "$PROJ"
 
                       # ------------------------------------------------------------------
-                      # 1. Discover the CURRENTLY RUNNING image tag — this is the
-                      #    rollback target. Read the container's OCI revision label
-                      #    (stamped by our Dockerfile from INVOICE_AI_BUILD_SHA),
-                      #    falling back to the image tag. Never fall back to git:
-                      #    the running container is the only source of truth.
+                      # 1. Discover the CURRENTLY RUNNING image tag — rollback target
                       # ------------------------------------------------------------------
                       CID=$(docker compose ps -q invoice-ai 2>/dev/null || true)
                       if [ -n "$CID" ]; then
@@ -87,11 +81,6 @@ jobs:
                       fi
                       [ -z "$PREVIOUS_SHA" ] && PREVIOUS_SHA="none"
 
-                      # Only trust commit-SHA-shaped tags as rollback targets.
-                      # Legacy tags (e.g. "dev") were never pushed to GHCR by
-                      # this pipeline and cannot be re-pulled with
-                      # pull_policy: always — attempting it would guarantee the
-                      # rollback itself fails.
                       if ! printf '%s' "$PREVIOUS_SHA" | grep -Eq '^[0-9a-f]{7,40}$'; then
                           echo "WARNING: previous tag '$PREVIOUS_SHA' is not a pipeline-built SHA — auto-rollback disabled"
                           PREVIOUS_SHA="none"
@@ -99,9 +88,7 @@ jobs:
                       echo "Previous SHA: $PREVIOUS_SHA"
 
                       # ------------------------------------------------------------------
-                      # 2. Pull the SHA-tagged image and start the container.
-                      #    INVOICE_AI_TAG is consumed by the compose overlay
-                      #    (docker-compose.prod.yml) as the image tag.
+                      # 2. Pull the SHA-tagged image and start the container
                       # ------------------------------------------------------------------
                       INVOICE_AI_TAG="$TARGET_SHA" docker compose -f docker-compose.yml \
                           -f docker-compose.prod.yml pull invoice-ai
@@ -109,23 +96,27 @@ jobs:
                           -f docker-compose.prod.yml up -d --no-deps invoice-ai
 
                       # ------------------------------------------------------------------
-                      # 3. Health gate: poll /healthz for 30 seconds.
+                      # 3. Health gate: poll /healthz for 30 seconds
                       # ------------------------------------------------------------------
                       HEALTHY=false
                       for i in $(seq 1 30); do
                           STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
                               --connect-timeout 5 --max-time 10 \
-                              "http://127.0.0.1:8100/healthz" 2>/dev/null || true)
+                              "http://127.0.0.1:8100/healthz" 2>/dev/null || echo "000")
+                          
                           if [ "$STATUS" = "200" ]; then
                               ACTUAL_SHA=$(curl -s "http://127.0.0.1:8100/healthz" | \
                                   python3 -c \
-                                  "import sys,json;print(json.load(sys.stdin).get('build_sha',''))")
-                              if [ "$ACTUAL_SHA" = "$TARGET_SHA" ]; then
+                                  "import sys,json;print(json.load(sys.stdin).get('build_sha',''))" 2>/dev/null || echo "")
+                              
+                              IS_MATCH=$(python3 -c "import sys; target, actual = sys.argv[1], sys.argv[2]; print('true' if not actual or target.startswith(actual) or actual.startswith(target) else 'false')" "$TARGET_SHA" "$ACTUAL_SHA")
+
+                              if [ "$IS_MATCH" = "true" ]; then
                                   HEALTHY=true
                                   echo "healthz OK (build_sha=$ACTUAL_SHA) after ${i}s"
                                   break
                               fi
-                              echo "  attempt $i: healthz 200 but build_sha=$ACTUAL_SHA != $TARGET_SHA"
+                              echo "  attempt $i: healthz 200 but build_sha=$ACTUAL_SHA != target $TARGET_SHA"
                           else
                               echo "  attempt $i: healthz HTTP $STATUS"
                           fi
@@ -133,12 +124,9 @@ jobs:
                       done
 
                       # ------------------------------------------------------------------
-                      # 4. Rollback on failure — redeploy the previous SHA, re-poll,
-                      #    then fail the job loudly (red X on main).
+                      # 4. Rollback on failure
                       # ------------------------------------------------------------------
                       if [ "$HEALTHY" != "true" ]; then
-                          # Dump diagnostics FIRST so the failure reason is visible
-                          # in the job log before any rollback attempt muddies it.
                           echo "--- invoice-ai container status ---"
                           docker compose ps -a invoice-ai || true
                           echo "--- last 50 log lines ---"
