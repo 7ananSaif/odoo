@@ -180,15 +180,12 @@ def _validate_citations(
             )
     verdict.evidence = valid_citations
     if hallucinated:
-        hallucinated_flag = (
-            f"hallucinated_citation:{','.join(str(m) for m in hallucinated)}"
-        )
+        hallucinated_flag = f"hallucinated_citation:{','.join(str(m) for m in hallucinated)}"
         if hallucinated_flag not in verdict.flags:
             verdict.flags = list(verdict.flags) + [hallucinated_flag]
     if not verdict.evidence:
         _logger.warning(
-            "validate citation guard: no valid citations in verdict — "
-            "adding no_history flag"
+            "validate citation guard: no valid citations in verdict — adding no_history flag"
         )
         if "no_history" not in verdict.flags:
             verdict.flags = list(verdict.flags) + ["no_history"]
@@ -213,9 +210,7 @@ def _format_extraction_for_validation(extraction: InvoiceExtraction) -> str:
     if extraction.lines:
         line_parts = []
         for line in extraction.lines:
-            line_parts.append(
-                f"  - {line.name}: qty={line.quantity} unit_price={line.price_unit}"
-            )
+            line_parts.append(f"  - {line.name}: qty={line.quantity} unit_price={line.price_unit}")
         lines_text = "\n".join(line_parts)
 
     parts = [
@@ -286,6 +281,9 @@ async def validate_extraction(
     )
 
     # --- Call Claude with structured output ---
+    message: Any = None
+    verdict: ValidationVerdict | None = None
+
     try:
         message = await client.messages.parse(
             model=settings.anthropic_model,
@@ -294,7 +292,7 @@ async def validate_extraction(
             messages=[{"role": "user", "content": user_content}],
             output_format=ValidationVerdict,
         )
-        verdict: ValidationVerdict = message.parsed_output
+        verdict = message.parsed_output
     except TypeError:
         # Older SDK fallback — use messages.create with json_schema
         _logger.info("messages.parse unavailable for validation; using json_schema")
@@ -317,19 +315,30 @@ async def validate_extraction(
         _logger.warning("validation Claude call failed: %s", exc)
         raise
 
+    if verdict is None:
+        raise ValueError("Failed to parse ValidationVerdict from response")
+
     usage = {
-        "input_tokens": getattr(message.usage, "input_tokens", None),
-        "cache_creation_input_tokens": getattr(
-            message.usage,
-            "cache_creation_input_tokens",
-            None,
+        "input_tokens": (getattr(message.usage, "input_tokens", None) if message else None),
+        "cache_creation_input_tokens": (
+            getattr(
+                message.usage,
+                "cache_creation_input_tokens",
+                None,
+            )
+            if message
+            else None
         ),
-        "cache_read_input_tokens": getattr(
-            message.usage,
-            "cache_read_input_tokens",
-            None,
+        "cache_read_input_tokens": (
+            getattr(
+                message.usage,
+                "cache_read_input_tokens",
+                None,
+            )
+            if message
+            else None
         ),
-        "output_tokens": getattr(message.usage, "output_tokens", None),
+        "output_tokens": (getattr(message.usage, "output_tokens", None) if message else None),
     }
 
     # --- Citation guard: reject hallucinated move_ids ---
@@ -351,7 +360,11 @@ async def validate_extraction(
     return {
         "verdict": verdict,
         "usage": usage,
-        "model": getattr(message, "model", settings.anthropic_model),
+        "model": (
+            getattr(message, "model", settings.anthropic_model)
+            if message
+            else settings.anthropic_model
+        ),
         "reranked": vendor_context.get("reranked", False),
         "rerank_model": vendor_context.get("rerank_model", ""),
     }

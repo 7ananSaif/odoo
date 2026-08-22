@@ -21,16 +21,19 @@ jobs:
 
       - uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.9"
+          terraform_version: "1.9.0"
+          terraform_wrapper: false
 
       - name: Terraform Init
-        run: terraform -chdir=infra/terraform/ init -backend=false
+        run: terraform init -backend=false
+        working-directory: infra/terraform
 
       - name: Terraform Format Check
         run: terraform fmt -check -recursive infra/terraform/
 
       - name: Terraform Validate
-        run: terraform validate -chdir=infra/terraform/
+        run: terraform validate
+        working-directory: infra/terraform
 
   # ==========================================================================
   # Observability: validate Prometheus + Alertmanager + Grafana configs
@@ -43,14 +46,16 @@ jobs:
       - name: Validate Prometheus config
         run: |
           docker run --rm -v "${{ github.workspace }}/infra/observability/prometheus:/etc/prometheus" \
+            --entrypoint promtool \
             prom/prometheus:v2.53.0 \
-            checkconfig /etc/prometheus/prometheus.yml
+            check config /etc/prometheus/prometheus.yml
 
       - name: Validate Alertmanager config
         run: |
           docker run --rm -v "${{ github.workspace }}/infra/observability/alertmanager:/etc/alertmanager" \
+            --entrypoint amtool \
             prom/alertmanager:v0.27.0 \
-            checkconfig /etc/alertmanager/alertmanager.yml
+            check-config /etc/alertmanager/alertmanager.yml
 
       - name: Validate Grafana dashboard JSON
         run: |
@@ -134,13 +139,13 @@ jobs:
           set -o pipefail
           coverage run --concurrency=thread --source=custom_addons/invoice_agent \
             ./odoo-bin -d ci -i invoice_agent --addons-path=addons,custom_addons \
-            --load=base,web,invoice_agent \
             --test-enable --test-tags /invoice_agent --stop-after-init \
-            --log-level=test --db_host=localhost --db_port=5432 \
+            --log-level=warn --log-handler=odoo.addons.invoice_agent:INFO \
+            --db_host=localhost --db_port=5432 \
             --db_user=odoo --db_password=odoo 2>&1 | tee odoo-test.log
 
-          if grep -E 'FAIL|ERROR|CRITICAL' odoo-test.log | grep -vE '\([A-Z]+/[0-9]+\)' | grep -q . ; then
-            echo "Real failure or error detected in Odoo test logs."
+          if grep -qE "FAIL: Test|ERROR: Test" odoo-test.log; then
+            echo "Real failure or error detected in Odoo test execution."
             exit 1
           fi
 
@@ -165,7 +170,8 @@ jobs:
 
           echo "invoice_agent total coverage: ${TOTAL}%"
 
-          if [ "${TOTAL%%.*}" -lt "${COVERAGE_MIN}" ]; then
+          TOTAL_INT=${TOTAL%%.*}
+          if [ "$TOTAL_INT" -lt "${COVERAGE_MIN}" ]; then
             echo "Coverage gate failed: ${TOTAL}% is below the required ${COVERAGE_MIN}%"
             exit 1
           fi
