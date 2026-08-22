@@ -67,6 +67,16 @@ jobs:
                                   '{{ index .Config.Image }}' "$CID" | sed 's/.*://')
                       fi
                       [ -z "$PREVIOUS_SHA" ] && PREVIOUS_SHA="none"
+
+                      # Only trust commit-SHA-shaped tags as rollback targets.
+                      # Legacy tags (e.g. "dev") were never pushed to GHCR by
+                      # this pipeline and cannot be re-pulled with
+                      # pull_policy: always — attempting it would guarantee the
+                      # rollback itself fails.
+                      if ! printf '%s' "$PREVIOUS_SHA" | grep -Eq '^[0-9a-f]{7,40}$'; then
+                          echo "WARNING: previous tag '$PREVIOUS_SHA' is not a pipeline-built SHA — auto-rollback disabled"
+                          PREVIOUS_SHA="none"
+                      fi
                       echo "Previous SHA: $PREVIOUS_SHA"
 
                       # ------------------------------------------------------------------
