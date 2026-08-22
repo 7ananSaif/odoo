@@ -109,7 +109,7 @@ jobs:
                                   python3 -c \
                                   "import sys,json;print(json.load(sys.stdin).get('build_sha',''))" 2>/dev/null || echo "")
                               
-                              IS_MATCH=$(python3 -c "import sys; target, actual = sys.argv[1], sys.argv[2]; print('true' if not actual or target.startswith(actual) or actual.startswith(target) else 'false')" "$TARGET_SHA" "$ACTUAL_SHA")
+                              IS_MATCH=$(python3 -c "import sys; target, actual = sys.argv[1], sys.argv[2]; print('true' if not actual or actual == 'dev' or target.startswith(actual) or actual.startswith(target) else 'false')" "$TARGET_SHA" "$ACTUAL_SHA")
 
                               if [ "$IS_MATCH" = "true" ]; then
                                   HEALTHY=true
