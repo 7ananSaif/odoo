@@ -27,9 +27,6 @@ permissions:
     contents: read
     packages: write # GHCR push needs this on GITHUB_TOKEN
 
-env:
-    IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/invoice-ai
-
 jobs:
     test:
         runs-on: ubuntu-latest
@@ -74,6 +71,13 @@ jobs:
         if: github.event_name == 'push'
         steps:
             - uses: actions/checkout@v4
+
+            # Docker image references MUST be lowercase — GitHub owner names
+            # like "7ananSaif" are invalid in a registry path and buildx
+            # rejects them ("repository name must be lowercase"). Bash's ${,,}
+            # expansion lowercases GITHUB_REPOSITORY_OWNER.
+            - name: Compute lowercase image name
+              run: echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/invoice-ai" >> "$GITHUB_ENV"
 
             - name: Set up BuildKit cache
               uses: docker/setup-buildx-action@v3
