@@ -1,0 +1,60 @@
+name: "Repair DB collation (EC2)"
+
+# One-time (repeatable) repair for PostgreSQL collation version mismatches.
+#
+# Trigger manually from the Actions tab: Run workflow.
+#
+# Why this exists: the db data volume was initialized under a trixie-based
+# Postgres image (glibc 2.41), but the pinned bookworm image provides glibc
+# 2.36. Indexes built under the old libc ordering can return wrongly-ordered
+# results, so the deploy pipeline's collation guard blocks every deploy until
+# indexes are rebuilt via scripts/fix_collation.sh.
+#
+# The script stops odoo/worker/invoice-ai, REINDEXes every database,
+# refreshes the recorded collation version, verifies zero mismatches remain,
+# and restarts the app containers. Expect minutes of downtime proportional
+# to database size. Safe to re-run.
+
+"on":
+    workflow_dispatch:
+
+concurrency:
+    group: db-collation-repair
+    cancel-in-progress: false
+
+permissions:
+    contents: read
+
+jobs:
+    repair:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            # Copy the repair script to the host. The script resolves its own
+            # project root from its location (dirname/..), so it must land at
+            # /opt/odoo/scripts/fix_collation.sh.
+            - name: Upload repair script to EC2
+              uses: appleboy/scp-action@v0.1.7
+              with:
+                  host: ${{ secrets.EC2_HOST }}
+                  username: ${{ secrets.EC2_USERNAME }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: 22
+                  source: "scripts/fix_collation.sh"
+                  target: /opt/odoo
+
+            - name: Run collation repair over SSH
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ secrets.EC2_HOST }}
+                  username: ${{ secrets.EC2_USERNAME }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: 22
+                  timeout: 120s
+                  # REINDEX of every database can take a while on large volumes.
+                  command_timeout: 60m
+                  script: |
+                      set -eo pipefail
+                      cd /opt/odoo
+                      bash scripts/fix_collation.sh
