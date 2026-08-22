@@ -21,6 +21,14 @@ services:
       # Redis — LLM extraction result cache (avoids redundant Claude calls)
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       LLM_CACHE_TTL_HOURS: "168"
+    # Loopback-only exposure of the health endpoint. The deploy pipeline
+    # (invoice-ai-deploy.yml) polls http://127.0.0.1:8100/healthz FROM THE
+    # HOST as its health gate — without this mapping the probe always gets
+    # connection-refused (HTTP 000) even when the container itself is fine.
+    # Nginx reaches the service over the private compose network as
+    # "invoice-ai:8100"; nothing outside the host can reach this port.
+    ports:
+      - "127.0.0.1:8100:8100"
     healthcheck:
       test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8100/healthz', timeout=5)\"" ]
       interval: 30s
@@ -315,6 +323,7 @@ services:
       - certbot-www:/var/www/certbot
       - certbot-conf:/etc/letsencrypt
     entrypoint: "/bin/sh -c 'trap exit TERM; while true; do certbot renew --quiet --webroot -w /var/www/certbot; sleep 12h & wait $${!}; done;'"
+
 volumes:
   odoo-db-data:
     name: odoo-db-data
