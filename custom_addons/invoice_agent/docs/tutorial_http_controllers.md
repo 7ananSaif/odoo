@@ -71,6 +71,7 @@ whole layer:
 ```python
 def route(route=None, **routing):
     ...
+
     def decorator(endpoint):
         ...
         if routing.get("type") == "json":

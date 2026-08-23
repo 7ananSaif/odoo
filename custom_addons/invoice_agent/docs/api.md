@@ -47,12 +47,15 @@ the credentials. The API key is passed **in place of the password**:
 import xmlrpc.client
 
 common = xmlrpc.client.ServerProxy("https://host/xmlrpc/2/common")
-uid = common.authenticate(db, "admin", API_KEY, {})   # -> 2
+uid = common.authenticate(db, "admin", API_KEY, {})  # -> 2
 
 models = xmlrpc.client.ServerProxy("https://host/xmlrpc/2/object")
 moves = models.execute_kw(
-    db, uid, API_KEY,
-    "account.move", "search_read",
+    db,
+    uid,
+    API_KEY,
+    "account.move",
+    "search_read",
     [[("id", "=", 42)]],
     {"fields": ["name", "ai_extraction_status", "ai_confidence"], "limit": 5},
 )
@@ -74,7 +77,7 @@ resp = requests.post(
     },
     json={"ids": [42], "fields": ["name", "ai_extraction_status", "ai_confidence"]},
 )
-moves = resp.json()   # raw return value of read(); no JSON-RPC envelope
+moves = resp.json()  # raw return value of read(); no JSON-RPC envelope
 ```
 
 ### 2.2 Body shape
