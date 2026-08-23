@@ -73,12 +73,14 @@ def route(route=None, **routing):
     ...
     def decorator(endpoint):
         ...
-        if routing.get('type') == 'json':
+        if routing.get("type") == "json":
             warnings.warn(
                 "Since 19.0, @route(type='json') is a deprecated alias to @route(type='jsonrpc')",
-                DeprecationWarning, ...)
-            routing['type'] = 'jsonrpc'
-        assert routing.get('type', 'http') in _dispatchers.keys(), ...
+                DeprecationWarning,
+                ...,
+            )
+            routing["type"] = "jsonrpc"
+        assert routing.get("type", "http") in _dispatchers.keys(), ...
         ...
 ```
 
@@ -186,13 +188,15 @@ Compatible with any request (`is_compatible_with` returns `True`).
 def dispatch(self, endpoint, args):
     self.request.params = dict(self.request.get_http_params(), **args)
     # CSRF check for unsafe methods when route wants it (default True)
-    if self.request.httprequest.method not in SAFE_HTTP_METHODS \
-       and endpoint.routing.get('csrf', True):
-        token = self.request.params.pop('csrf_token', None)
+    if (
+        self.request.httprequest.method not in SAFE_HTTP_METHODS
+        and endpoint.routing.get("csrf", True)
+    ):
+        token = self.request.params.pop("csrf_token", None)
         if not self.request.validate_csrf(token):
-            raise werkzeug.exceptions.BadRequest('Session expired (invalid CSRF token)')
+            raise werkzeug.exceptions.BadRequest("Session expired (invalid CSRF token)")
     if self.request.db:
-        return self.request.registry['ir.http']._dispatch(endpoint)
+        return self.request.registry["ir.http"]._dispatch(endpoint)
     return endpoint(**self.request.params)
 ```
 
@@ -405,14 +409,14 @@ does.
 
 ```python
 {
-    'context': {},
-    'create_time': time.time(),
-    'db': None,
-    'debug': '',
-    'login': None,
-    'uid': None,
-    'session_token': None,
-    '_trace': [],
+    "context": {},
+    "create_time": time.time(),
+    "db": None,
+    "debug": "",
+    "login": None,
+    "uid": None,
+    "session_token": None,
+    "_trace": [],
 }
 ```
 
@@ -497,14 +501,16 @@ returns `None`, and the decorator raises JSON 401.
 def _auth_method_bearer(cls):
     ...
     if token := get_http_authorization_bearer_token():
-        uid = request.env['res.users.apikeys']._check_credentials(scope='rpc', key=token)
+        uid = request.env["res.users.apikeys"]._check_credentials(
+            scope="rpc", key=token
+        )
         if not uid:
-            raise Unauthorized(e, www_authenticate=WWWAuthenticate('bearer'))
+            raise Unauthorized(e, www_authenticate=WWWAuthenticate("bearer"))
         ...
         request.update_env(user=uid)
         request.session.can_save = False  # stateless
     elif not request.env.uid:
-        raise Unauthorized(e, www_authenticate=WWWAuthenticate('bearer'))
+        raise Unauthorized(e, www_authenticate=WWWAuthenticate("bearer"))
     ...
 ```
 
