@@ -138,13 +138,24 @@ jobs:
                           DB_CLEAN=$(echo "$DB" | xargs)
                           [ -z "$DB_CLEAN" ] && continue
 
-                          echo "---> Upgrading module 'invoice_agent' on database: $DB_CLEAN"
-                          docker compose exec -T odoo odoo -d "$DB_CLEAN" -u invoice_agent --db_host=db --db_user=odoo --db_password=odoo --stop-after-init --log-level=warn
-
-                          if [ $? -ne 0 ]; then
-                              echo "ERROR: Upgrade failed on database: $DB_CLEAN"
+                          echo "---> $(date '+%F %T') Upgrading module 'invoice_agent' on database: $DB_CLEAN"
+                          # --log-level=info: a large production DB can migrate for
+                          # many minutes with zero output at 'warn' — invisible
+                          # progress makes a slow upgrade indistinguishable from a hang.
+                          # Hard cap of exactly 10 minutes per database: a hung
+                          # upgrade must fail the DB (exit 124) and flow into the
+                          # rollback path instead of stalling the deploy.
+                          if timeout 600 docker compose exec -T odoo \
+                                  odoo -d "$DB_CLEAN" -u invoice_agent \
+                                  --db_host=db --db_user=odoo --db_password=odoo \
+                                  --stop-after-init --log-level=info; then
+                              echo "---> $(date '+%F %T') Upgrade OK on $DB_CLEAN"
+                          else
+                              RC=$?
+                              echo "ERROR: Upgrade failed on database: $DB_CLEAN (exit $RC — 124/137 means the 10-minute cap killed it)"
                               UPGRADE_STATUS=1
                           fi
+
                       done
 
                       set -e
@@ -282,13 +293,17 @@ jobs:
                   username: ${{ secrets.EC2_USERNAME }}
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   port: 22
-                  # Must cover the full poll window below (~40 min) with headroom
-                  command_timeout: 50m
+                  # Hard cap of 10m for this SSH session, matching the upgrade cap.
+                  # The poll loop below must finish comfortably inside this window;
+                  # a deploy that needs longer is reported as STILL RUNNING and is
+                  # picked up by a re-run (which re-attaches to the live log).
+                  command_timeout: 10m
                   script: |
                       PID=$(cat /opt/odoo/deploy.pid)
                       LAST=0
-                      # 230 iterations x ~10s ≈ 38 min max poll window
-                      for i in $(seq 1 230); do
+                      # 50 iterations x ~10s ≈ 8.5 min max poll window — must
+                      # finish well inside the 10m command_timeout above.
+                      for i in $(seq 1 50); do
                           SIZE=$(wc -l < /opt/odoo/deploy.log 2>/dev/null || echo 0)
                           if [ "$SIZE" -gt "$LAST" ]; then
                               tail -n +"$((LAST + 1))" /opt/odoo/deploy.log
@@ -307,6 +322,17 @@ jobs:
                       SIZE=$(wc -l < /opt/odoo/deploy.log 2>/dev/null || echo 0)
                       if [ "$SIZE" -gt "$LAST" ]; then
                           tail -n +"$((LAST + 1))" /opt/odoo/deploy.log
+                      fi
+
+                      # Distinguish "poll window exhausted but deploy alive"
+                      # from a real failure — reporting the fallback code 1 here
+                      # previously masked a healthy in-flight deploy as failed.
+                      if [ ! -f /opt/odoo/deploy.exit ] && kill -0 "$PID" 2>/dev/null; then
+                          echo ""
+                          echo "Poll window exhausted (~9 min) but the deploy is STILL RUNNING."
+                          echo "It continues detached on the server — re-run this workflow to re-attach,"
+                          echo "or check on the host: tail -f /opt/odoo/deploy.log ; cat /opt/odoo/deploy.exit"
+                          exit 1
                       fi
 
                       CODE=$(cat /opt/odoo/deploy.exit 2>/dev/null || echo 1)
