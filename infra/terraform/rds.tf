@@ -74,36 +74,36 @@ resource "aws_db_parameter_group" "odoo" {
   description = "Custom PostgreSQL 16 parameter group for Odoo"
 
   # Memory tuning (db.t4g.medium = 8 GB)
+  # NOTE: RDS API rejects human-readable sizes ("4GB") - each parameter has
+  # its own unit: shared_buffers/effective_cache_size/wal_buffers are in
+  # 8 kB blocks; work_mem/maintenance_work_mem are in kB.
   parameter {
-    name  = "shared_buffers"
-    value = "4GB"
-  }
-
-  parameter {
-    name         = "shared_buffers.apply"
-    value        = "1"
+    name         = "shared_buffers"
+    value        = "524288" # 4 GB in 8 kB blocks
     apply_method = "pending-reboot"
   }
 
   parameter {
     name  = "effective_cache_size"
-    value = "12GB"
+    value = "1572864" # 12 GB in 8 kB blocks
   }
 
   parameter {
     name  = "work_mem"
-    value = "64MB"
+    value = "65536" # 64 MB in kB
   }
 
   parameter {
     name  = "maintenance_work_mem"
-    value = "1GB"
+    value = "1048576" # 1 GB in kB
   }
 
   # Connection limits
+  # NOTE: max_connections is a static parameter - requires reboot to apply
   parameter {
-    name  = "max_connections"
-    value = "200"
+    name         = "max_connections"
+    value        = "200"
+    apply_method = "pending-reboot"
   }
 
   # Query logging for diagnostics
@@ -124,9 +124,12 @@ resource "aws_db_parameter_group" "odoo" {
   }
 
   # WAL settings for durability
+  # NOTE: wal_buffers is measured in 8 kB units on RDS (64 MB = 8192)
+  # and is a static parameter - requires reboot to apply
   parameter {
-    name  = "wal_buffers"
-    value = "64MB"
+    name         = "wal_buffers"
+    value        = "8192"
+    apply_method = "pending-reboot"
   }
 
   parameter {
