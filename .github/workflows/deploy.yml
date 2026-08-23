@@ -156,17 +156,55 @@ jobs:
                           # --log-level=info: a large production DB can migrate for
                           # many minutes with zero output at 'warn' — invisible
                           # progress makes a slow upgrade indistinguishable from a hang.
-                          # Hard cap of exactly 10 minutes per database: a hung
-                          # upgrade must fail the DB (exit 124) and flow into the
-                          # rollback path instead of stalling the deploy.
-                          if timeout 600 docker compose exec -T odoo \
+                          # Silence watchdog: kill the upgrade ONLY if it produces
+                          # no output for 10 straight minutes. At INFO level a
+                          # healthy migration logs continuously even when slow;
+                          # a true hang is silent. A fixed 10-minute wall clock
+                          # (run #40) killed a healthy production migration
+                          # mid-flight, half-migrating the schema and forcing a
+                          # destructive rollback that left the site at 502.
+                          UP_LOG="/tmp/upgrade_${DB_CLEAN}.log"
+                          : > "$UP_LOG"
+                          docker compose exec -T odoo \
                                   odoo -d "$DB_CLEAN" -u invoice_agent \
                                   --db_host=db --db_user=odoo --db_password=odoo \
-                                  --stop-after-init --log-level=info; then
+                                  --stop-after-init --log-level=info > "$UP_LOG" 2>&1 &
+                          UP_PID=$!
+                          LAST_SIZE=0
+                          LAST_CHANGE=$(date +%s)
+                          SHOWN=0
+                          HUNG=0
+                          while kill -0 "$UP_PID" 2>/dev/null; do
+                              sleep 10
+                              SIZE=$(wc -c < "$UP_LOG" 2>/dev/null || echo 0)
+                              LINES=$(wc -l < "$UP_LOG" 2>/dev/null || echo 0)
+                              NOW=$(date +%s)
+                              if [ "$LINES" -gt "$SHOWN" ]; then
+                                  tail -n +"$((SHOWN + 1))" "$UP_LOG"
+                                  SHOWN=$LINES
+                              fi
+                              if [ "$SIZE" != "$LAST_SIZE" ]; then
+                                  LAST_SIZE=$SIZE
+                                  LAST_CHANGE=$NOW
+                              elif [ $((NOW - LAST_CHANGE)) -ge 600 ]; then
+                                  echo "ERROR: no upgrade output for 10 minutes on $DB_CLEAN — treating as hung, killing."
+                                  kill "$UP_PID" 2>/dev/null || true
+                                  sleep 5
+                                  kill -9 "$UP_PID" 2>/dev/null || true
+                                  HUNG=1
+                                  break
+                              fi
+                          done
+                          wait "$UP_PID" 2>/dev/null
+                          RC=$?
+                          if [ "$LINES" -gt "$SHOWN" ]; then
+                              tail -n +"$((SHOWN + 1))" "$UP_LOG"
+                          fi
+                          rm -f "$UP_LOG"
+                          if [ "$RC" -eq 0 ] && [ "$HUNG" -eq 0 ]; then
                               echo "---> $(date '+%F %T') Upgrade OK on $DB_CLEAN"
                           else
-                              RC=$?
-                              echo "ERROR: Upgrade failed on database: $DB_CLEAN (exit $RC — 124/137 means the 10-minute cap killed it)"
+                              echo "ERROR: Upgrade failed on database: $DB_CLEAN (exit $RC${HUNG:+ — killed after 10 min of silence})"
                               UPGRADE_STATUS=1
                           fi
 
@@ -212,6 +250,12 @@ jobs:
                               echo "  Attempt $i/30 — HTTP $STATUS, waiting..."
                               sleep 2
                           done
+
+                          if [ "$HEALTHY" != "true" ]; then
+                              echo "--- Health check failed — odoo container diagnostics ---"
+                              docker compose ps 2>&1 | head -n 20
+                              docker compose logs --tail=40 odoo 2>&1 | tail -n 40
+                          fi
                       fi
 
                       # ==================================================================
@@ -264,6 +308,11 @@ jobs:
                               if [ "$STATUS" = "200" ] || [ "$STATUS" = "303" ]; then
                                   echo "Rollback successful — System restored to stable state at $PREVIOUS_SHA"
                                   exit 1
+                              fi
+                              if [ $((i % 12)) -eq 0 ]; then
+                                  echo "--- Rollback diagnostics (attempt $i) ---"
+                                  docker compose ps 2>&1 | head -n 20
+                                  docker compose logs --tail=25 odoo 2>&1 | tail -n 25
                               fi
                               sleep 5
                           done
