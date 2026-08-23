@@ -23,30 +23,50 @@ jobs:
         steps:
             - uses: actions/checkout@v4
 
-            - name: Deploy to EC2 via SSH
+            # ==================================================================
+            # Step 1 — Install the deploy script on the server and launch it
+            # DETACHED (nohup). The previous design ran the whole deploy inside
+            # the SSH session; the long silent pg_dumpall produced no traffic,
+            # the connection was dropped mid-deploy
+            # ("remote command exited without exit status or exit signal")
+            # and GitHub marked the run failed while the server sat in a
+            # half-deployed state. With nohup, the deploy survives any SSH
+            # drop, and a re-run of this workflow re-attaches to the running
+            # deploy instead of starting a second concurrent one.
+            # ==================================================================
+            - name: Launch detached deploy on EC2
               uses: appleboy/ssh-action@v1.0.3
               with:
                   host: ${{ secrets.EC2_HOST }}
                   username: ${{ secrets.EC2_USERNAME }}
                   key: ${{ secrets.SSH_PRIVATE_KEY }}
                   port: 22
-                  # Default is 10m — the pre-upgrade pg_dumpall of all Odoo
-                  # databases alone can exceed that on large data volumes,
-                  # which would kill the SSH session mid-deploy.
-                  command_timeout: 30m
+                  command_timeout: 10m
                   script: |
                       set -e
-
                       cd /opt/odoo
+                      mkdir -p scripts backups
+
+                      # ------------------------------------------------------------------
+                      # Write the deploy script (quoted heredoc: no expansion here —
+                      # the script receives the target SHA as $1 at launch time).
+                      # ------------------------------------------------------------------
+                      cat > scripts/deploy_remote.sh <<'DEPLOY_SCRIPT_EOF'
+                      #!/usr/bin/env bash
+                      # deploy_remote.sh — runs detached on the EC2 host so an SSH
+                      # drop cannot kill it. Writes its exit code to
+                      # /opt/odoo/deploy.exit on exit; CI tails /opt/odoo/deploy.log.
+                      set -e
+                      cd /opt/odoo
+                      trap 'echo $? > /opt/odoo/deploy.exit' EXIT
+
+                      TARGET_SHA="$1"
+                      TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+                      PREVIOUS_SHA=$(git rev-parse HEAD)
 
                       # ==================================================================
                       # 1. Safely extract DOMAIN from .env file
                       # ==================================================================
-                      PREVIOUS_SHA=$(git rev-parse HEAD)
-                      TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-
-                      # استخراج قيمة DOMAIN بأمان وبشكل مباشر من ملف .env
-                      # يجب أن يكون DOMAIN معرّفاً في .env — لا يوجد أي قيمة احتياطية مضمّنة
                       if [ -f .env ] && grep -q "^DOMAIN=" .env; then
                           DOMAIN_NAME=$(grep "^DOMAIN=" .env | head -n 1 | cut -d '=' -f2 | tr -d '"' | tr -d "'" | tr -d '\r')
                       else
@@ -57,17 +77,22 @@ jobs:
                       echo "=== Deploy started at $TIMESTAMP ==="
                       echo "Target Domain: $DOMAIN_NAME"
                       echo "Current SHA:   $PREVIOUS_SHA"
-                      echo "Target SHA:    ${{ github.sha }}"
-
-                      # تنظيف أي تعديلات غير مسجلة محلياً لمنع توقف git pull
-                      git reset --hard HEAD
+                      echo "Target SHA:    $TARGET_SHA"
 
                       # ==================================================================
                       # 2. Pre-upgrade database cluster snapshot (All Databases)
+                      #
+                      # Streamed to the HOST backups/ dir instead of container /tmp:
+                      # survives container recreation, doesn't fill the container
+                      # overlay filesystem, and old snapshots get pruned.
                       # ==================================================================
-                      echo "Taking pre-upgrade DB snapshot..."
-                      docker compose exec -T db pg_dumpall -U odoo -f "/tmp/pre_deploy_${TIMESTAMP}.sql" \
+                      ls -1t backups/pre_deploy_*.sql 2>/dev/null | tail -n +3 | xargs -r rm -f
+                      docker compose exec -T db sh -c 'rm -f /tmp/pre_deploy_*.sql' 2>/dev/null || true
+
+                      echo "Taking pre-upgrade DB snapshot -> backups/pre_deploy_${TIMESTAMP}.sql ..."
+                      docker compose exec -T db pg_dumpall -U odoo > "backups/pre_deploy_${TIMESTAMP}.sql" \
                           || echo "WARNING: Pre-upgrade snapshot failed — continuing anyway"
+                      ls -lh "backups/pre_deploy_${TIMESTAMP}.sql" 2>/dev/null || true
 
                       # ==================================================================
                       # 2b. Collation version guard
@@ -90,10 +115,11 @@ jobs:
                       fi
 
                       # ==================================================================
-                      # 3. Pull latest code and rebuild
+                      # 3. Checkout the exact target SHA and rebuild
                       # ==================================================================
-                      echo "Pulling latest code..."
-                      git pull origin production
+                      echo "Fetching and checking out $TARGET_SHA ..."
+                      git fetch origin production
+                      git reset --hard "$TARGET_SHA"
 
                       echo "Rebuilding and restarting stack..."
                       docker compose up -d --build
@@ -114,7 +140,7 @@ jobs:
 
                           echo "---> Upgrading module 'invoice_agent' on database: $DB_CLEAN"
                           docker compose exec -T odoo odoo -d "$DB_CLEAN" -u invoice_agent --db_host=db --db_user=odoo --db_password=odoo --stop-after-init --log-level=warn
-                          
+
                           if [ $? -ne 0 ]; then
                               echo "ERROR: Upgrade failed on database: $DB_CLEAN"
                               UPGRADE_STATUS=1
@@ -153,7 +179,6 @@ jobs:
                                   echo "  Attempt $i/30 — HTTPS check: HTTP $STATUS"
                               fi
 
-                              # Odoo يعيد عادة 200 OK أو 303 Redirect عند طلب صفحة الدخول
                               if [ "$STATUS" = "200" ] || [ "$STATUS" = "303" ]; then
                                   HEALTHY=true
                                   echo "Health check passed (HTTP $STATUS) after ${i}s"
@@ -192,19 +217,17 @@ jobs:
                           echo "!!! DEPLOY FAILED — Initiating Hard Rollback !!!"
                           echo "Rolling back code to $PREVIOUS_SHA..."
 
-                          # إرجاع الكود قسرياً للنسخة السابقة
                           git reset --hard "$PREVIOUS_SHA"
                           docker compose up -d --build
 
-                          if docker compose exec -T db test -f "/tmp/pre_deploy_${TIMESTAMP}.sql"; then
+                          if [ -f "backups/pre_deploy_${TIMESTAMP}.sql" ] && [ -s "backups/pre_deploy_${TIMESTAMP}.sql" ]; then
                               echo "Restoring databases from pre-upgrade snapshot..."
                               docker compose stop odoo
-                              docker compose exec -T db psql -U odoo -d postgres -f "/tmp/pre_deploy_${TIMESTAMP}.sql" || true
+                              docker compose exec -T db psql -U odoo -d postgres < "backups/pre_deploy_${TIMESTAMP}.sql" || true
                           fi
 
                           docker compose restart odoo
 
-                          # التحقق من نجاح عملية الـ Rollback
                           for i in $(seq 1 20); do
                               STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://${DOMAIN_NAME}/web/login" 2>/dev/null || echo "000")
                               if [ "$STATUS" = "200" ] || [ "$STATUS" = "303" ]; then
@@ -221,9 +244,72 @@ jobs:
                       # ==================================================================
                       # 9. Clean up DB dump on success
                       # ==================================================================
-                      docker compose exec -T db rm -f "/tmp/pre_deploy_${TIMESTAMP}.sql" || true
+                      rm -f "backups/pre_deploy_${TIMESTAMP}.sql"
 
                       echo ""
                       echo "=== Deploy completed successfully ==="
-                      echo "SHA: ${{ github.sha }}"
+                      echo "SHA: $TARGET_SHA"
                       echo "Time: $(date)"
+                      DEPLOY_SCRIPT_EOF
+
+                      chmod +x scripts/deploy_remote.sh
+
+                      # ------------------------------------------------------------------
+                      # Launch detached, or re-attach if a deploy is already running
+                      # (e.g. a previous run's SSH dropped — the nohup'd script kept
+                      # going server-side).
+                      # ------------------------------------------------------------------
+                      if [ -f deploy.pid ] && kill -0 "$(cat deploy.pid)" 2>/dev/null; then
+                          echo "Deploy already running (PID $(cat deploy.pid)) — re-attaching to its log."
+                      else
+                          rm -f deploy.exit
+                          nohup bash scripts/deploy_remote.sh "${{ github.sha }}" > /opt/odoo/deploy.log 2>&1 &
+                          echo $! > deploy.pid
+                          echo "Deploy launched detached with PID $(cat deploy.pid)"
+                      fi
+
+            # ==================================================================
+            # Step 2 — Stream the deploy log until the detached script exits.
+            # Polling every 10s with heartbeats keeps constant traffic on the
+            # SSH connection, preventing the idle-connection drop that killed
+            # the previous design. If THIS session drops too, the deploy still
+            # completes server-side; re-running the workflow re-attaches.
+            # ==================================================================
+            - name: Stream deploy log until completion
+              uses: appleboy/ssh-action@v1.0.3
+              with:
+                  host: ${{ secrets.EC2_HOST }}
+                  username: ${{ secrets.EC2_USERNAME }}
+                  key: ${{ secrets.SSH_PRIVATE_KEY }}
+                  port: 22
+                  # Must cover the full poll window below (~40 min) with headroom
+                  command_timeout: 50m
+                  script: |
+                      PID=$(cat /opt/odoo/deploy.pid)
+                      LAST=0
+                      # 230 iterations x ~10s ≈ 38 min max poll window
+                      for i in $(seq 1 230); do
+                          SIZE=$(wc -l < /opt/odoo/deploy.log 2>/dev/null || echo 0)
+                          if [ "$SIZE" -gt "$LAST" ]; then
+                              tail -n +"$((LAST + 1))" /opt/odoo/deploy.log
+                              LAST=$SIZE
+                          fi
+                          if ! kill -0 "$PID" 2>/dev/null; then
+                              break
+                          fi
+                          if [ $((i % 6)) -eq 0 ]; then
+                              echo "[poller] deploy still running (~$((i * 10))s elapsed)"
+                          fi
+                          sleep 10
+                      done
+
+                      # Flush any remaining output
+                      SIZE=$(wc -l < /opt/odoo/deploy.log 2>/dev/null || echo 0)
+                      if [ "$SIZE" -gt "$LAST" ]; then
+                          tail -n +"$((LAST + 1))" /opt/odoo/deploy.log
+                      fi
+
+                      CODE=$(cat /opt/odoo/deploy.exit 2>/dev/null || echo 1)
+                      rm -f /opt/odoo/deploy.exit
+                      echo "Deploy script exited with code: $CODE"
+                      exit "$CODE"
