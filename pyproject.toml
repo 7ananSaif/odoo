@@ -56,3 +56,7 @@ ignore_missing_imports = true
 
 # pip install pre-commit
 # pre-commit install
+# The CI runs:
+# - `ruff check custom_addons/invoice_agent --config pyproject.toml`
+# - `ruff format custom_addons/invoice_agent --config pyproject.toml --check`
+# ruff check custom_addons/invoice_agent --config pyproject.toml; ruff format custom_addons/invoice_agent --config pyproject.toml --check; git status --short; git diff --stat

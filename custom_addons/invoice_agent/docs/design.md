@@ -58,9 +58,9 @@ machine; it does **not** duplicate any accounting data — it points at the `acc
 
 ```python
 class InvoiceAgentExtraction(models.Model):
-    _name = 'invoice.agent.extraction'
-    _description = 'AI Invoice Extraction Run'
-    _order = 'create_date desc'
+    _name = "invoice.agent.extraction"
+    _description = "AI Invoice Extraction Run"
+    _order = "create_date desc"
 ```
 
 | Field | Type | Purpose |
@@ -163,19 +163,21 @@ if/when multi-company is in scope.
 
 ```python
 {
-    'name': 'Invoice Agent',
-    'version': '19.0.1.0.0',
-    'category': 'Accounting/Accounting',
-    'depends': ['account'],          # account brings account.move, .line, .journal, res.partner ext,
-                                     # ir.attachment, and the whole accounting security group set
-    'data': [
-        'security/ir.model.access.csv',        # security first — always
-        'views/invoice_agent_extraction_views.xml',
-        'views/account_move_views.xml',        # xpath splices onto the bill form
+    "name": "Invoice Agent",
+    "version": "19.0.1.0.0",
+    "category": "Accounting/Accounting",
+    "depends": [
+        "account"
+    ],  # account brings account.move, .line, .journal, res.partner ext,
+    # ir.attachment, and the whole accounting security group set
+    "data": [
+        "security/ir.model.access.csv",  # security first — always
+        "views/invoice_agent_extraction_views.xml",
+        "views/account_move_views.xml",  # xpath splices onto the bill form
     ],
-    'application': False,
-    'installable': True,
-    'license': 'LGPL-3',
+    "application": False,
+    "installable": True,
+    "license": "LGPL-3",
 }
 ```
 

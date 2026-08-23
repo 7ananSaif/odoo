@@ -531,11 +531,11 @@ CSRF protects *browser-session* requests against cross-site forgery. Odoo's
 implementation (in `Request.csrf_token` / `Request.validate_csrf`):
 
 ```python
-secret   = env['ir.config_parameter'].sudo().get_param('database.secret')
-max_ts   = int(time.time() + (time_limit or CSRF_TOKEN_SALT))  # 1y
-msg      = f'{session.sid[:STORED_SESSION_BYTES]}{max_ts}'.encode()  # 42+chars
-hm       = hmac.new(secret.encode('ascii'), msg, hashlib.sha1).hexdigest()
-token    = f'{hm}o{max_ts}'
+secret = env["ir.config_parameter"].sudo().get_param("database.secret")
+max_ts = int(time.time() + (time_limit or CSRF_TOKEN_SALT))  # 1y
+msg = f"{session.sid[:STORED_SESSION_BYTES]}{max_ts}".encode()  # 42+chars
+hm = hmac.new(secret.encode("ascii"), msg, hashlib.sha1).hexdigest()
+token = f"{hm}o{max_ts}"
 ```
 
 So the token is an HMAC-SHA1 of `(first 42 chars of the session id, expiry)`
@@ -564,17 +564,22 @@ Everything above is exercised in
 `custom_addons/invoice_agent/controllers/main.py`. Line-by-line:
 
 ```python
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024          # 10 MiB guard
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MiB guard
 ALLOWED_MIMETYPES = ("application/pdf",)
 ```
 
 **Upload route**:
 
 ```python
-@http.route("/invoice_agent/upload",
-            type="http", auth="none", methods=["POST"],
-            csrf=False, save_session=False)
-@_require_bearer_auth                            # our decorator
+@http.route(
+    "/invoice_agent/upload",
+    type="http",
+    auth="none",
+    methods=["POST"],
+    csrf=False,
+    save_session=False,
+)
+@_require_bearer_auth  # our decorator
 def invoice_agent_upload(self, **kwargs):
 ```
 
@@ -607,13 +612,15 @@ the file becomes attached to the upcoming `account.move`.
 Then the move is created **already inside the extraction state machine**:
 
 ```python
-move = request.env["account.move"].create({
-    "move_type": "in_invoice",
-    "ai_source_attachment_id": attachment.id,
-    "ai_extraction_status": "pending",
-    "ai_confidence": 0.0,
-})
-move._invoice_agent_schedule_extraction()   # placeholder → "processing"
+move = request.env["account.move"].create(
+    {
+        "move_type": "in_invoice",
+        "ai_source_attachment_id": attachment.id,
+        "ai_extraction_status": "pending",
+        "ai_confidence": 0.0,
+    }
+)
+move._invoice_agent_schedule_extraction()  # placeholder → "processing"
 ```
 
 `account.move.journal_id` is `required=True` but `compute='_compute_journal_id'`
@@ -627,8 +634,9 @@ Finally `request.make_json_response({...}, status=201)` returns the id.
 **Status route**:
 
 ```python
-@http.route("/invoice_agent/status/<int:move_id>",
-            type="jsonrpc", auth="user", methods=["POST"])
+@http.route(
+    "/invoice_agent/status/<int:move_id>", type="jsonrpc", auth="user", methods=["POST"]
+)
 def invoice_agent_status(self, move_id, **kwargs):
     move = request.env["account.move"].browse(move_id)
     if not move.exists():
