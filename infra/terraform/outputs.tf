@@ -1,5 +1,5 @@
 # =============================================================================
-# outputs.tf — Useful values for downstream scripts, documentation, and addons
+# outputs.tf - Useful values for downstream scripts, documentation, and addons
 # =============================================================================
 
 # ---------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 # =============================================================================
-# variables.tf — Input variables for the Odoo Invoice Agent infrastructure
+# variables.tf - Input variables for the Odoo Invoice Agent infrastructure
 # =============================================================================
 
 # ---------------------------------------------------------------------------
@@ -65,7 +65,7 @@ variable "data_subnet_cidrs" {
 variable "db_engine_version" {
   description = "PostgreSQL engine version"
   type        = string
-  default     = "16.4"
+  default     = "16.15"
 }
 
 variable "db_instance_class" {

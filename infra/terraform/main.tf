@@ -1,5 +1,5 @@
 # =============================================================================
-# main.tf — Provider configuration, backend, and common data sources
+# main.tf - Provider configuration, backend, and common data sources
 # =============================================================================
 
 terraform {

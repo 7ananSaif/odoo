@@ -71,14 +71,17 @@ whole layer:
 ```python
 def route(route=None, **routing):
     ...
+
     def decorator(endpoint):
         ...
-        if routing.get('type') == 'json':
+        if routing.get("type") == "json":
             warnings.warn(
                 "Since 19.0, @route(type='json') is a deprecated alias to @route(type='jsonrpc')",
-                DeprecationWarning, ...)
-            routing['type'] = 'jsonrpc'
-        assert routing.get('type', 'http') in _dispatchers.keys(), ...
+                DeprecationWarning,
+                ...,
+            )
+            routing["type"] = "jsonrpc"
+        assert routing.get("type", "http") in _dispatchers.keys(), ...
         ...
 ```
 
@@ -186,13 +189,15 @@ Compatible with any request (`is_compatible_with` returns `True`).
 def dispatch(self, endpoint, args):
     self.request.params = dict(self.request.get_http_params(), **args)
     # CSRF check for unsafe methods when route wants it (default True)
-    if self.request.httprequest.method not in SAFE_HTTP_METHODS \
-       and endpoint.routing.get('csrf', True):
-        token = self.request.params.pop('csrf_token', None)
+    if (
+        self.request.httprequest.method not in SAFE_HTTP_METHODS
+        and endpoint.routing.get("csrf", True)
+    ):
+        token = self.request.params.pop("csrf_token", None)
         if not self.request.validate_csrf(token):
-            raise werkzeug.exceptions.BadRequest('Session expired (invalid CSRF token)')
+            raise werkzeug.exceptions.BadRequest("Session expired (invalid CSRF token)")
     if self.request.db:
-        return self.request.registry['ir.http']._dispatch(endpoint)
+        return self.request.registry["ir.http"]._dispatch(endpoint)
     return endpoint(**self.request.params)
 ```
 
@@ -405,14 +410,14 @@ does.
 
 ```python
 {
-    'context': {},
-    'create_time': time.time(),
-    'db': None,
-    'debug': '',
-    'login': None,
-    'uid': None,
-    'session_token': None,
-    '_trace': [],
+    "context": {},
+    "create_time": time.time(),
+    "db": None,
+    "debug": "",
+    "login": None,
+    "uid": None,
+    "session_token": None,
+    "_trace": [],
 }
 ```
 
@@ -497,14 +502,16 @@ returns `None`, and the decorator raises JSON 401.
 def _auth_method_bearer(cls):
     ...
     if token := get_http_authorization_bearer_token():
-        uid = request.env['res.users.apikeys']._check_credentials(scope='rpc', key=token)
+        uid = request.env["res.users.apikeys"]._check_credentials(
+            scope="rpc", key=token
+        )
         if not uid:
-            raise Unauthorized(e, www_authenticate=WWWAuthenticate('bearer'))
+            raise Unauthorized(e, www_authenticate=WWWAuthenticate("bearer"))
         ...
         request.update_env(user=uid)
         request.session.can_save = False  # stateless
     elif not request.env.uid:
-        raise Unauthorized(e, www_authenticate=WWWAuthenticate('bearer'))
+        raise Unauthorized(e, www_authenticate=WWWAuthenticate("bearer"))
     ...
 ```
 
@@ -525,11 +532,11 @@ CSRF protects *browser-session* requests against cross-site forgery. Odoo's
 implementation (in `Request.csrf_token` / `Request.validate_csrf`):
 
 ```python
-secret   = env['ir.config_parameter'].sudo().get_param('database.secret')
-max_ts   = int(time.time() + (time_limit or CSRF_TOKEN_SALT))  # 1y
-msg      = f'{session.sid[:STORED_SESSION_BYTES]}{max_ts}'.encode()  # 42+chars
-hm       = hmac.new(secret.encode('ascii'), msg, hashlib.sha1).hexdigest()
-token    = f'{hm}o{max_ts}'
+secret = env["ir.config_parameter"].sudo().get_param("database.secret")
+max_ts = int(time.time() + (time_limit or CSRF_TOKEN_SALT))  # 1y
+msg = f"{session.sid[:STORED_SESSION_BYTES]}{max_ts}".encode()  # 42+chars
+hm = hmac.new(secret.encode("ascii"), msg, hashlib.sha1).hexdigest()
+token = f"{hm}o{max_ts}"
 ```
 
 So the token is an HMAC-SHA1 of `(first 42 chars of the session id, expiry)`
@@ -558,17 +565,22 @@ Everything above is exercised in
 `custom_addons/invoice_agent/controllers/main.py`. Line-by-line:
 
 ```python
-MAX_UPLOAD_BYTES = 10 * 1024 * 1024          # 10 MiB guard
+MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MiB guard
 ALLOWED_MIMETYPES = ("application/pdf",)
 ```
 
 **Upload route**:
 
 ```python
-@http.route("/invoice_agent/upload",
-            type="http", auth="none", methods=["POST"],
-            csrf=False, save_session=False)
-@_require_bearer_auth                            # our decorator
+@http.route(
+    "/invoice_agent/upload",
+    type="http",
+    auth="none",
+    methods=["POST"],
+    csrf=False,
+    save_session=False,
+)
+@_require_bearer_auth  # our decorator
 def invoice_agent_upload(self, **kwargs):
 ```
 
@@ -601,13 +613,15 @@ the file becomes attached to the upcoming `account.move`.
 Then the move is created **already inside the extraction state machine**:
 
 ```python
-move = request.env["account.move"].create({
-    "move_type": "in_invoice",
-    "ai_source_attachment_id": attachment.id,
-    "ai_extraction_status": "pending",
-    "ai_confidence": 0.0,
-})
-move._invoice_agent_schedule_extraction()   # placeholder → "processing"
+move = request.env["account.move"].create(
+    {
+        "move_type": "in_invoice",
+        "ai_source_attachment_id": attachment.id,
+        "ai_extraction_status": "pending",
+        "ai_confidence": 0.0,
+    }
+)
+move._invoice_agent_schedule_extraction()  # placeholder → "processing"
 ```
 
 `account.move.journal_id` is `required=True` but `compute='_compute_journal_id'`
@@ -621,8 +635,9 @@ Finally `request.make_json_response({...}, status=201)` returns the id.
 **Status route**:
 
 ```python
-@http.route("/invoice_agent/status/<int:move_id>",
-            type="jsonrpc", auth="user", methods=["POST"])
+@http.route(
+    "/invoice_agent/status/<int:move_id>", type="jsonrpc", auth="user", methods=["POST"]
+)
 def invoice_agent_status(self, move_id, **kwargs):
     move = request.env["account.move"].browse(move_id)
     if not move.exists():
