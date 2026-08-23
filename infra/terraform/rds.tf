@@ -1,5 +1,5 @@
 # =============================================================================
-# rds.tf — Multi-AZ PostgreSQL 16 for Odoo
+# rds.tf - Multi-AZ PostgreSQL 16 for Odoo
 #
 # - db.t4g.medium (2 vCPU, 8 GB RAM)
 # - Multi-AZ synchronous standby for HA
@@ -9,7 +9,7 @@
 # =============================================================================
 
 # ---------------------------------------------------------------------------
-# Secrets Manager — store the master password separately
+# Secrets Manager - store the master password separately
 # ---------------------------------------------------------------------------
 resource "random_password" "db_master" {
   length           = 32
@@ -39,7 +39,7 @@ resource "aws_secretsmanager_secret_version" "db_master" {
 }
 
 # ---------------------------------------------------------------------------
-# Secrets Manager — Odoo application user (lower-privilege)
+# Secrets Manager - Odoo application user (lower-privilege)
 # ---------------------------------------------------------------------------
 resource "random_password" "db_odoo_user" {
   length           = 32
@@ -65,7 +65,7 @@ resource "aws_secretsmanager_secret_version" "db_odoo_user" {
 }
 
 # ---------------------------------------------------------------------------
-# Parameter group — tuned for Odoo on 8 GB RAM instance
+# Parameter group - tuned for Odoo on 8 GB RAM instance
 # ---------------------------------------------------------------------------
 resource "aws_db_parameter_group" "odoo" {
   name   = "${local.name_prefix}-pg16"
@@ -145,13 +145,13 @@ resource "aws_db_parameter_group" "odoo" {
 }
 
 # ---------------------------------------------------------------------------
-# DB subnet group — data subnets only (no internet)
+# DB subnet group - data subnets only (no internet)
 # ---------------------------------------------------------------------------
 resource "aws_db_subnet_group" "odoo" {
   name       = "${local.name_prefix}-db-subnets"
   subnet_ids = aws_subnet.data[*].id
 
-  description = "Data subnets for RDS — no internet access"
+  description = "Data subnets for RDS - no internet access"
 
   tags = {
     Name = "${local.name_prefix}-db-subnet-group"
@@ -159,7 +159,7 @@ resource "aws_db_subnet_group" "odoo" {
 }
 
 # ---------------------------------------------------------------------------
-# RDS instance — Multi-AZ PostgreSQL 16
+# RDS instance - Multi-AZ PostgreSQL 16
 # ---------------------------------------------------------------------------
 resource "aws_db_instance" "odoo" {
   identifier = "${local.name_prefix}-db"
@@ -184,7 +184,7 @@ resource "aws_db_instance" "odoo" {
   # High availability
   multi_az = true
 
-  # Networking — data subnets, isolated from internet
+  # Networking - data subnets, isolated from internet
   db_subnet_group_name   = aws_db_subnet_group.odoo.name
   vpc_security_group_ids = [aws_security_group.data.id]
   publicly_accessible    = false

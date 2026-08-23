@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-# db-migrate.sh — Migrate local Docker Postgres to RDS
+# db-migrate.sh - Migrate local Docker Postgres to RDS
 #
 # Prerequisites:
 #   - Terraform output for RDS endpoint is available
@@ -24,7 +24,7 @@ if [[ "${1:-}" == "--dry-run" ]]; then
 fi
 
 # ---------------------------------------------------------------------------
-# Configuration — override via environment or leave as defaults
+# Configuration - override via environment or leave as defaults
 # ---------------------------------------------------------------------------
 RDS_HOST="${RDS_HOST:-}"
 RDS_PORT="${RDS_PORT:-5432}"
@@ -107,7 +107,7 @@ docker compose stop odoo
 echo "  Odoo stopped."
 
 # ---------------------------------------------------------------------------
-# Step 3: Take final local dump (with Odoo stopped — consistent snapshot)
+# Step 3: Take final local dump (with Odoo stopped - consistent snapshot)
 # ---------------------------------------------------------------------------
 echo ""
 echo "--- Step 3: Final dump with Odoo stopped ---"

@@ -1,5 +1,5 @@
 # =============================================================================
-# security_groups.tf — Tiered security groups
+# security_groups.tf - Tiered security groups
 #
 # ALB SG:   80/443 from internet → forwards to App SG
 # App SG:   8069 only from ALB SG, outbound 443 via NAT (pip/npm)
@@ -52,7 +52,7 @@ resource "aws_vpc_security_group_egress_rule" "alb_to_app" {
 # ---------------------------------------------------------------------------
 resource "aws_security_group" "app" {
   name        = "${local.name_prefix}-app-sg"
-  description = "Odoo app tier — inbound from ALB, outbound to internet via NAT"
+  description = "Odoo app tier - inbound from ALB, outbound to internet via NAT"
   vpc_id      = aws_vpc.main.id
 
   tags = {
@@ -120,11 +120,11 @@ resource "aws_vpc_security_group_egress_rule" "app_to_redis" {
 }
 
 # ---------------------------------------------------------------------------
-# Data (RDS) Security Group — inbound from app tier only
+# Data (RDS) Security Group - inbound from app tier only
 # ---------------------------------------------------------------------------
 resource "aws_security_group" "data" {
   name                   = "${local.name_prefix}-data-sg"
-  description            = "RDS PostgreSQL — inbound from app tier only"
+  description            = "RDS PostgreSQL - inbound from app tier only"
   vpc_id                 = aws_vpc.main.id
   revoke_rules_on_delete = true
 
@@ -142,6 +142,6 @@ resource "aws_vpc_security_group_ingress_rule" "data_from_app" {
   description                  = "PostgreSQL from app tier only"
 }
 
-# No egress rules — data subnet is isolated. Default VPC egress is removed
+# No egress rules - data subnet is isolated. Default VPC egress is removed
 # by setting `revoke_rules_on_delete = true` on the security group.
 # RDS does not need to initiate outbound connections.

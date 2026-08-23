@@ -1,5 +1,5 @@
 # =============================================================================
-# alertmanager.yml — Alert routing for the Invoice Agent
+# alertmanager.yml - Alert routing for the Invoice Agent
 #
 # Routes:
 #   - Critical alerts → Slack webhook (immediate)
@@ -13,7 +13,7 @@
 global:
   resolve_timeout: 5m
 
-# Route tree — first match wins
+# Route tree - first match wins
 route:
   receiver: "slack-default"
   group_by: ["alertname", "severity", "job"]
@@ -37,8 +37,8 @@ route:
       group_interval: 15m
       repeat_interval: 6h
 
-# Receivers — replace webhook URLs and email addresses with real values.
-# NOTE: Alertmanager does NOT perform shell/env expansion — keep these
+# Receivers - replace webhook URLs and email addresses with real values.
+# NOTE: Alertmanager does NOT perform shell/env expansion - keep these
 # literal. The alertmanager config file is mounted read-only (see
 # docker-compose.observability.yml), so no envsubst happens either.
 receivers:

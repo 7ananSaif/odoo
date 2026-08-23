@@ -1,5 +1,5 @@
 # =============================================================================
-# s3.tf — S3 buckets for attachments, backups, and logs
+# s3.tf - S3 buckets for attachments, backups, and logs
 #
 # Three buckets with:
 # - SSE-KMS encryption (shared key with auto-rotation)
@@ -28,7 +28,7 @@ resource "aws_kms_alias" "s3" {
 }
 
 # ---------------------------------------------------------------------------
-# Attachments bucket — Odoo filestore (documents, invoices, images)
+# Attachments bucket - Odoo filestore (documents, invoices, images)
 # ---------------------------------------------------------------------------
 resource "aws_s3_bucket" "attachments" {
   bucket = "${local.name_prefix}-attachments"
@@ -83,7 +83,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "attachments" {
 }
 
 # ---------------------------------------------------------------------------
-# Backups bucket — nightly pg_dump
+# Backups bucket - nightly pg_dump
 # ---------------------------------------------------------------------------
 resource "aws_s3_bucket" "backups" {
   bucket = "${local.name_prefix}-backups"
@@ -145,7 +145,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "backups" {
 }
 
 # ---------------------------------------------------------------------------
-# Logs bucket — application logs and audit trail
+# Logs bucket - application logs and audit trail
 # ---------------------------------------------------------------------------
 resource "aws_s3_bucket" "logs" {
   bucket = "${local.name_prefix}-logs"

@@ -1,5 +1,5 @@
 # =============================================================================
-# variables.tf — Input variables for the Odoo Invoice Agent infrastructure
+# variables.tf - Input variables for the Odoo Invoice Agent infrastructure
 # =============================================================================
 
 # ---------------------------------------------------------------------------

@@ -1,10 +1,10 @@
 # =============================================================================
-# subnets.tf — Public, Application (private), and Data (private) subnets
+# subnets.tf - Public, Application (private), and Data (private) subnets
 #
 # Tiering rationale:
-#   Public  (10.20.0.x / 10.20.1.x)  — ALB, NAT Gateway, SSM endpoint
-#   App     (10.20.10.x / 10.20.11.x) — Odoo EC2, worker containers
-#   Data    (10.20.20.x / 10.20.21.x) — RDS PostgreSQL (no internet)
+#   Public  (10.20.0.x / 10.20.1.x)  - ALB, NAT Gateway, SSM endpoint
+#   App     (10.20.10.x / 10.20.11.x) - Odoo EC2, worker containers
+#   Data    (10.20.20.x / 10.20.21.x) - RDS PostgreSQL (no internet)
 # =============================================================================
 
 # ---------------------------------------------------------------------------
@@ -24,7 +24,7 @@ resource "aws_subnet" "public" {
 }
 
 # ---------------------------------------------------------------------------
-# Application (private) subnets — Odoo lives here, no public IP
+# Application (private) subnets - Odoo lives here, no public IP
 # ---------------------------------------------------------------------------
 resource "aws_subnet" "app" {
   count             = length(var.azs)
@@ -39,7 +39,7 @@ resource "aws_subnet" "app" {
 }
 
 # ---------------------------------------------------------------------------
-# Data (private) subnets — RDS lives here, completely isolated
+# Data (private) subnets - RDS lives here, completely isolated
 # ---------------------------------------------------------------------------
 resource "aws_subnet" "data" {
   count             = length(var.azs)
@@ -54,7 +54,7 @@ resource "aws_subnet" "data" {
 }
 
 # ---------------------------------------------------------------------------
-# NAT Gateway — placed in first public subnet for private-subnet egress
+# NAT Gateway - placed in first public subnet for private-subnet egress
 # ---------------------------------------------------------------------------
 resource "aws_nat_gateway" "main" {
   allocation_id = aws_eip.nat.id
@@ -68,7 +68,7 @@ resource "aws_nat_gateway" "main" {
 }
 
 # ---------------------------------------------------------------------------
-# VPC Endpoint for S3 — keeps S3 traffic off the public internet
+# VPC Endpoint for S3 - keeps S3 traffic off the public internet
 # ---------------------------------------------------------------------------
 resource "aws_vpc_endpoint" "s3" {
   vpc_id            = aws_vpc.main.id
