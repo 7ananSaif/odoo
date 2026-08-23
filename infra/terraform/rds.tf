@@ -167,10 +167,11 @@ resource "aws_db_subnet_group" "odoo" {
 resource "aws_db_instance" "odoo" {
   identifier = "${local.name_prefix}-db"
 
-  # Engine
+  # TEMPORARY (free-tier): db.t4g.micro instead of var.db_instance_class (db.t4g.medium).
+  # REVERT after account plan upgrade: restore to var.db_instance_class.
   engine               = "postgres"
   engine_version       = var.db_engine_version
-  instance_class       = var.db_instance_class
+  instance_class       = "db.t4g.micro" # TEMPORARY - revert to var.db_instance_class
   parameter_group_name = aws_db_parameter_group.odoo.name
 
   # Storage
@@ -184,8 +185,9 @@ resource "aws_db_instance" "odoo" {
   username = var.db_master_username
   password = random_password.db_master.result
 
-  # High availability
-  multi_az = true
+  # TEMPORARY (free-tier): single-AZ instead of Multi-AZ.
+  # REVERT after account plan upgrade: restore to multi_az = true.
+  multi_az = false # TEMPORARY - revert to true
 
   # Networking - data subnets, isolated from internet
   db_subnet_group_name   = aws_db_subnet_group.odoo.name
@@ -193,8 +195,9 @@ resource "aws_db_instance" "odoo" {
   publicly_accessible    = false
   port                   = 5432
 
-  # Backup & recovery
-  backup_retention_period   = var.db_backup_retention_period
+  # TEMPORARY (free-tier): 1-day backups instead of var.db_backup_retention_period (7).
+  # REVERT after account plan upgrade: restore to var.db_backup_retention_period.
+  backup_retention_period   = 1 # TEMPORARY - revert to var.db_backup_retention_period
   backup_window             = var.db_backup_window
   maintenance_window        = var.db_maintenance_window
   copy_tags_to_snapshot     = true
@@ -202,9 +205,10 @@ resource "aws_db_instance" "odoo" {
   final_snapshot_identifier = "${local.name_prefix}-final-snapshot"
   skip_final_snapshot       = false
 
-  # Monitoring
-  performance_insights_enabled          = true
-  performance_insights_retention_period = 7
+  # TEMPORARY (free-tier): Performance Insights disabled.
+  # REVERT after account plan upgrade: restore enabled=true / retention=7.
+  performance_insights_enabled          = false # TEMPORARY - revert to true
+  performance_insights_retention_period = 0     # TEMPORARY - revert to 7
   monitoring_interval                   = 60
   monitoring_role_arn                   = aws_iam_role.rds_monitoring.arn
   enabled_cloudwatch_logs_exports       = ["postgresql", "upgrade"]
