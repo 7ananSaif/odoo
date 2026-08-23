@@ -60,6 +60,15 @@ jobs:
                       cd /opt/odoo
                       trap 'echo $? > /opt/odoo/deploy.exit' EXIT
 
+                      # Single-instance guard: a previous run's detached deploy
+                      # may still be alive when a new workflow run launches —
+                      # two concurrent deploys would corrupt each other's state.
+                      exec 9>/opt/odoo/deploy.lock
+                      if ! flock -n 9; then
+                          echo "ERROR: another deploy is already running on this host — aborting."
+                          exit 3
+                      fi
+
                       TARGET_SHA="$1"
                       TIMESTAMP=$(date +%Y%m%d_%H%M%S)
                       PREVIOUS_SHA=$(git rev-parse HEAD)
@@ -90,7 +99,12 @@ jobs:
                       docker compose exec -T db sh -c 'rm -f /tmp/pre_deploy_*.sql' 2>/dev/null || true
 
                       echo "Taking pre-upgrade DB snapshot -> backups/pre_deploy_${TIMESTAMP}.sql ..."
-                      docker compose exec -T db pg_dumpall -U odoo > "backups/pre_deploy_${TIMESTAMP}.sql" \
+                      # -c (--clean): emit DROP statements before CREATE so the
+                      # snapshot can be replayed over the LIVE cluster during
+                      # rollback. Without it, every CREATE hits an existing
+                      # object ("constraint ... already exists") and nothing is
+                      # actually restored.
+                      docker compose exec -T db pg_dumpall -U odoo -c > "backups/pre_deploy_${TIMESTAMP}.sql" \
                           || echo "WARNING: Pre-upgrade snapshot failed — continuing anyway"
                       ls -lh "backups/pre_deploy_${TIMESTAMP}.sql" 2>/dev/null || true
 
@@ -239,13 +253,19 @@ jobs:
 
                           docker compose restart odoo
 
-                          for i in $(seq 1 20); do
-                              STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://${DOMAIN_NAME}/web/login" 2>/dev/null || echo "000")
+                          # Odoo needs several minutes to boot after a full DB
+                          # restore — 20x2s (~40s) always exhausted and reported
+                          # a healthy rollback as failed. Allow up to ~5 minutes.
+                          for i in $(seq 1 60); do
+                              STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+                                  --connect-timeout 5 --max-time 10 \
+                                  "https://${DOMAIN_NAME}/web/login" 2>/dev/null || echo "000")
+                              echo "  Rollback check $i/60 — HTTP $STATUS"
                               if [ "$STATUS" = "200" ] || [ "$STATUS" = "303" ]; then
                                   echo "Rollback successful — System restored to stable state at $PREVIOUS_SHA"
                                   exit 1
                               fi
-                              sleep 2
+                              sleep 5
                           done
 
                           echo "!!! CRITICAL: Automatic Rollback failed — manual intervention required !!!"
