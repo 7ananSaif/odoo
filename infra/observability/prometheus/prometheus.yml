@@ -1,5 +1,5 @@
 # =============================================================================
-# prometheus.yml — Scrape configuration for the Invoice Agent observability stack
+# prometheus.yml - Scrape configuration for the Invoice Agent observability stack
 #
 # Targets:
 #   - node_exporter:   host metrics (CPU, RAM, disk, network)
@@ -16,7 +16,7 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
-# Alertmanager endpoint — Prometheus sends fired alerts here
+# Alertmanager endpoint - Prometheus sends fired alerts here
 alerting:
   alertmanagers:
     - static_configs:
@@ -36,7 +36,7 @@ scrape_configs:
       - targets: ["localhost:9090"]
 
   # ---------------------------------------------------------------------------
-  # Host metrics — node_exporter (USE method: Utilization, Saturation, Errors)
+  # Host metrics - node_exporter (USE method: Utilization, Saturation, Errors)
   #
   # Key metrics:
   #   CPU:       node_cpu_seconds_total → rate → % idle/system/user/etc
@@ -53,7 +53,7 @@ scrape_configs:
           instance: "odoo-ec2"
 
   # ---------------------------------------------------------------------------
-  # PostgreSQL metrics — postgres_exporter
+  # PostgreSQL metrics - postgres_exporter
   #
   # Key metrics:
   #   Connections:     pg_stat_database_numbackends
@@ -70,7 +70,7 @@ scrape_configs:
           instance: "rds-primary"
 
   # ---------------------------------------------------------------------------
-  # Redis metrics — redis_exporter
+  # Redis metrics - redis_exporter
   #
   # Key metrics:
   #   Hit ratio:     redis_keyspace_hits_total / (hits + misses)
@@ -87,7 +87,7 @@ scrape_configs:
           instance: "elasticache-primary"
 
   # ---------------------------------------------------------------------------
-  # Invoice AI application metrics — RED method (Rate, Errors, Duration)
+  # Invoice AI application metrics - RED method (Rate, Errors, Duration)
   #
   # Key metrics (instrumented with prometheus_client):
   #   HTTP:     http_requests_total{method,endpoint,status}

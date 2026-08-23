@@ -1,13 +1,13 @@
 # =============================================================================
-# routes.tf — Route tables and associations
+# routes.tf - Route tables and associations
 #
 # Public RT:  0.0.0.0/0 → IGW       (direct internet)
 # App RT:     0.0.0.0/0 → NAT GW    (outbound only, no inbound)
-# Data RT:    (no internet route)     — completely isolated
+# Data RT:    (no internet route)     - completely isolated
 # =============================================================================
 
 # ---------------------------------------------------------------------------
-# Public route table — direct internet via IGW
+# Public route table - direct internet via IGW
 # ---------------------------------------------------------------------------
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
@@ -29,7 +29,7 @@ resource "aws_route_table_association" "public" {
 }
 
 # ---------------------------------------------------------------------------
-# App route table — outbound via NAT Gateway (no direct internet ingress)
+# App route table - outbound via NAT Gateway (no direct internet ingress)
 # ---------------------------------------------------------------------------
 resource "aws_route_table" "app" {
   vpc_id = aws_vpc.main.id
@@ -51,17 +51,17 @@ resource "aws_route_table_association" "app" {
 }
 
 # ---------------------------------------------------------------------------
-# Data route table — NO internet route (completely isolated)
+# Data route table - NO internet route (completely isolated)
 #
 # Instances in data subnets can only communicate with app subnets via
-# security group rules. No 0.0.0.0/0 route exists — not even through NAT.
+# security group rules. No 0.0.0.0/0 route exists - not even through NAT.
 # This means RDS cannot be reached from the internet under any
 # circumstance.
 # ---------------------------------------------------------------------------
 resource "aws_route_table" "data" {
   vpc_id = aws_vpc.main.id
 
-  # Intentionally NO route block — data subnets are isolated
+  # Intentionally NO route block - data subnets are isolated
 
   tags = {
     Name = "${local.name_prefix}-data-rt"

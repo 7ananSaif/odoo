@@ -1,5 +1,5 @@
 # =============================================================================
-# vpc.tf — VPC, Internet Gateway, and Elastic IP for NAT
+# vpc.tf - VPC, Internet Gateway, and Elastic IP for NAT
 # =============================================================================
 
 resource "aws_vpc" "main" {
@@ -13,7 +13,7 @@ resource "aws_vpc" "main" {
 }
 
 # ---------------------------------------------------------------------------
-# Internet Gateway — allows public subnets to reach the internet
+# Internet Gateway - allows public subnets to reach the internet
 # ---------------------------------------------------------------------------
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id

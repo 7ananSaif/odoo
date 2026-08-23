@@ -1,5 +1,5 @@
 # =============================================================================
-# rds.tf — Multi-AZ PostgreSQL 16 for Odoo
+# rds.tf - Multi-AZ PostgreSQL 16 for Odoo
 #
 # - db.t4g.medium (2 vCPU, 8 GB RAM)
 # - Multi-AZ synchronous standby for HA
@@ -9,7 +9,7 @@
 # =============================================================================
 
 # ---------------------------------------------------------------------------
-# Secrets Manager — store the master password separately
+# Secrets Manager - store the master password separately
 # ---------------------------------------------------------------------------
 resource "random_password" "db_master" {
   length           = 32
@@ -39,7 +39,7 @@ resource "aws_secretsmanager_secret_version" "db_master" {
 }
 
 # ---------------------------------------------------------------------------
-# Secrets Manager — Odoo application user (lower-privilege)
+# Secrets Manager - Odoo application user (lower-privilege)
 # ---------------------------------------------------------------------------
 resource "random_password" "db_odoo_user" {
   length           = 32
@@ -65,7 +65,7 @@ resource "aws_secretsmanager_secret_version" "db_odoo_user" {
 }
 
 # ---------------------------------------------------------------------------
-# Parameter group — tuned for Odoo on 8 GB RAM instance
+# Parameter group - tuned for Odoo on 8 GB RAM instance
 # ---------------------------------------------------------------------------
 resource "aws_db_parameter_group" "odoo" {
   name   = "${local.name_prefix}-pg16"
@@ -74,36 +74,36 @@ resource "aws_db_parameter_group" "odoo" {
   description = "Custom PostgreSQL 16 parameter group for Odoo"
 
   # Memory tuning (db.t4g.medium = 8 GB)
+  # NOTE: RDS API rejects human-readable sizes ("4GB") - each parameter has
+  # its own unit: shared_buffers/effective_cache_size/wal_buffers are in
+  # 8 kB blocks; work_mem/maintenance_work_mem are in kB.
   parameter {
-    name  = "shared_buffers"
-    value = "4GB"
-  }
-
-  parameter {
-    name         = "shared_buffers.apply"
-    value        = "1"
+    name         = "shared_buffers"
+    value        = "524288" # 4 GB in 8 kB blocks
     apply_method = "pending-reboot"
   }
 
   parameter {
     name  = "effective_cache_size"
-    value = "12GB"
+    value = "1572864" # 12 GB in 8 kB blocks
   }
 
   parameter {
     name  = "work_mem"
-    value = "64MB"
+    value = "65536" # 64 MB in kB
   }
 
   parameter {
     name  = "maintenance_work_mem"
-    value = "1GB"
+    value = "1048576" # 1 GB in kB
   }
 
   # Connection limits
+  # NOTE: max_connections is a static parameter - requires reboot to apply
   parameter {
-    name  = "max_connections"
-    value = "200"
+    name         = "max_connections"
+    value        = "200"
+    apply_method = "pending-reboot"
   }
 
   # Query logging for diagnostics
@@ -124,9 +124,12 @@ resource "aws_db_parameter_group" "odoo" {
   }
 
   # WAL settings for durability
+  # NOTE: wal_buffers is measured in 8 kB units on RDS (64 MB = 8192)
+  # and is a static parameter - requires reboot to apply
   parameter {
-    name  = "wal_buffers"
-    value = "64MB"
+    name         = "wal_buffers"
+    value        = "8192"
+    apply_method = "pending-reboot"
   }
 
   parameter {
@@ -145,13 +148,13 @@ resource "aws_db_parameter_group" "odoo" {
 }
 
 # ---------------------------------------------------------------------------
-# DB subnet group — data subnets only (no internet)
+# DB subnet group - data subnets only (no internet)
 # ---------------------------------------------------------------------------
 resource "aws_db_subnet_group" "odoo" {
   name       = "${local.name_prefix}-db-subnets"
   subnet_ids = aws_subnet.data[*].id
 
-  description = "Data subnets for RDS — no internet access"
+  description = "Data subnets for RDS - no internet access"
 
   tags = {
     Name = "${local.name_prefix}-db-subnet-group"
@@ -159,15 +162,16 @@ resource "aws_db_subnet_group" "odoo" {
 }
 
 # ---------------------------------------------------------------------------
-# RDS instance — Multi-AZ PostgreSQL 16
+# RDS instance - Multi-AZ PostgreSQL 16
 # ---------------------------------------------------------------------------
 resource "aws_db_instance" "odoo" {
   identifier = "${local.name_prefix}-db"
 
-  # Engine
+  # TEMPORARY (free-tier): db.t4g.micro instead of var.db_instance_class (db.t4g.medium).
+  # REVERT after account plan upgrade: restore to var.db_instance_class.
   engine               = "postgres"
   engine_version       = var.db_engine_version
-  instance_class       = var.db_instance_class
+  instance_class       = "db.t4g.micro" # TEMPORARY - revert to var.db_instance_class
   parameter_group_name = aws_db_parameter_group.odoo.name
 
   # Storage
@@ -181,17 +185,19 @@ resource "aws_db_instance" "odoo" {
   username = var.db_master_username
   password = random_password.db_master.result
 
-  # High availability
-  multi_az = true
+  # TEMPORARY (free-tier): single-AZ instead of Multi-AZ.
+  # REVERT after account plan upgrade: restore to multi_az = true.
+  multi_az = false # TEMPORARY - revert to true
 
-  # Networking — data subnets, isolated from internet
+  # Networking - data subnets, isolated from internet
   db_subnet_group_name   = aws_db_subnet_group.odoo.name
   vpc_security_group_ids = [aws_security_group.data.id]
   publicly_accessible    = false
   port                   = 5432
 
-  # Backup & recovery
-  backup_retention_period   = var.db_backup_retention_period
+  # TEMPORARY (free-tier): 1-day backups instead of var.db_backup_retention_period (7).
+  # REVERT after account plan upgrade: restore to var.db_backup_retention_period.
+  backup_retention_period   = 1 # TEMPORARY - revert to var.db_backup_retention_period
   backup_window             = var.db_backup_window
   maintenance_window        = var.db_maintenance_window
   copy_tags_to_snapshot     = true
@@ -199,9 +205,10 @@ resource "aws_db_instance" "odoo" {
   final_snapshot_identifier = "${local.name_prefix}-final-snapshot"
   skip_final_snapshot       = false
 
-  # Monitoring
-  performance_insights_enabled          = true
-  performance_insights_retention_period = 7
+  # TEMPORARY (free-tier): Performance Insights disabled.
+  # REVERT after account plan upgrade: restore enabled=true / retention=7.
+  performance_insights_enabled          = false # TEMPORARY - revert to true
+  performance_insights_retention_period = 0     # TEMPORARY - revert to 7
   monitoring_interval                   = 60
   monitoring_role_arn                   = aws_iam_role.rds_monitoring.arn
   enabled_cloudwatch_logs_exports       = ["postgresql", "upgrade"]

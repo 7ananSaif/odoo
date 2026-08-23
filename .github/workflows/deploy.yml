@@ -109,23 +109,76 @@ jobs:
                       ls -lh "backups/pre_deploy_${TIMESTAMP}.sql" 2>/dev/null || true
 
                       # ==================================================================
-                      # 2b. Collation version guard
+                      # 2b. Collation version guard + automatic repair
                       #
                       # A mismatch means the OS libc collation changed under a
                       # live data volume (e.g. the db image's Debian base
                       # drifted). Indexes built under the old collation can be
                       # misordered — deploying on top of it risks silent data
-                      # corruption. Fail loudly and direct to the repair script.
+                      # corruption. Previously this failed the deploy and
+                      # demanded a manual SSH repair, which blocked every
+                      # deploy until someone intervened. Now the deploy
+                      # self-heals: stop the app containers, REINDEX every
+                      # database under the current libc, refresh the recorded
+                      # collation version, verify zero mismatches remain, then
+                      # continue. Only runs when a mismatch actually exists,
+                      # so it is a rare one-time cost inside a downtime window
+                      # the deploy already owns. Manual fallback remains:
+                      # bash scripts/fix_collation.sh (or the
+                      # "Repair DB collation (EC2)" workflow).
                       # ==================================================================
                       COLLATION_MISMATCH=$(docker compose exec -T db psql -U odoo -d postgres -t -A -c \
                           "SELECT d.datname FROM pg_database d WHERE d.datallowconn AND d.datcollversion IS DISTINCT FROM (SELECT c.collversion FROM pg_collation c WHERE c.collname = 'default');" \
                           | tr -d '\r' || true)
 
                       if [ -n "$COLLATION_MISMATCH" ]; then
-                          echo "ERROR: collation version mismatch detected in databases:"
+                          echo "WARNING: collation version mismatch detected in databases:"
                           echo "$COLLATION_MISMATCH"
-                          echo "Run 'bash scripts/fix_collation.sh' on the EC2 host (stops app containers), then re-deploy."
-                          exit 1
+                          echo "Running automatic collation repair (app containers stopped during REINDEX)..."
+
+                          docker compose stop odoo worker invoice-ai || true
+
+                          until docker compose exec -T db pg_isready -U odoo -d postgres -q; do
+                              echo "Waiting for db to be ready..."
+                              sleep 2
+                          done
+
+                          REPAIR_DBS=$(docker compose exec -T db psql -U odoo -d postgres -t -A -c \
+                              "SELECT datname FROM pg_database WHERE datallowconn ORDER BY datname;" \
+                              | tr -d '\r' || true)
+
+                          REPAIR_FAILED=0
+                          for RDB in $REPAIR_DBS; do
+                              [ -z "$RDB" ] && continue
+                              echo "--- Repairing database: $RDB ---"
+                              if ! docker compose exec -T db psql -U odoo -d "$RDB" -c "REINDEX DATABASE;"; then
+                                  echo "ERROR: REINDEX failed on database: $RDB"
+                                  REPAIR_FAILED=1
+                                  continue
+                              fi
+                              if ! docker compose exec -T db psql -U odoo -d "$RDB" -c \
+                                  "ALTER DATABASE \"${RDB}\" REFRESH COLLATION VERSION;"; then
+                                  echo "ERROR: REFRESH COLLATION VERSION failed on database: $RDB"
+                                  REPAIR_FAILED=1
+                              fi
+                          done
+
+                          REMAINING_MISMATCH=$(docker compose exec -T db psql -U odoo -d postgres -t -A -c \
+                              "SELECT d.datname FROM pg_database d WHERE d.datallowconn AND d.datcollversion IS DISTINCT FROM (SELECT c.collversion FROM pg_collation c WHERE c.collname = 'default');" \
+                              | tr -d '\r' || true)
+
+                          if [ "$REPAIR_FAILED" -ne 0 ] || [ -n "$REMAINING_MISMATCH" ]; then
+                              echo "ERROR: automatic collation repair failed."
+                              if [ -n "$REMAINING_MISMATCH" ]; then
+                                  echo "Databases still mismatched: $REMAINING_MISMATCH"
+                              fi
+                              echo "Run 'bash scripts/fix_collation.sh' on the EC2 host manually, then re-deploy."
+                              exit 1
+                          fi
+
+                          echo "Collation repair complete — restarting application containers..."
+                          docker compose up -d odoo worker invoice-ai
+                          echo "Continuing deploy."
                       fi
 
                       # ==================================================================

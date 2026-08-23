@@ -1,5 +1,5 @@
 # =============================================================================
-# docker-compose.observability.yml — Prometheus / Grafana / Exporters stack
+# docker-compose.observability.yml - Prometheus / Grafana / Exporters stack
 #
 # Usage:
 #   docker compose -f docker-compose.observability.yml up -d
@@ -11,7 +11,7 @@
 
 services:
   # ---------------------------------------------------------------------------
-  # Prometheus — metrics collection engine (pull-based)
+  # Prometheus - metrics collection engine (pull-based)
   # ---------------------------------------------------------------------------
   prometheus:
     image: prom/prometheus:v2.53.0
@@ -42,7 +42,7 @@ services:
           memory: 128M
 
   # ---------------------------------------------------------------------------
-  # Grafana — dashboard & visualization layer
+  # Grafana - dashboard & visualization layer
   # ---------------------------------------------------------------------------
   grafana:
     image: grafana/grafana:11.1.0
@@ -73,7 +73,7 @@ services:
           memory: 128M
 
   # ---------------------------------------------------------------------------
-  # Node Exporter — host metrics (CPU, RAM, disk, network)
+  # Node Exporter - host metrics (CPU, RAM, disk, network)
   # ---------------------------------------------------------------------------
   node-exporter:
     image: prom/node-exporter:v1.8.1
@@ -105,7 +105,7 @@ services:
           memory: 64M
 
   # ---------------------------------------------------------------------------
-  # PostgreSQL Exporter — RDS / local Postgres metrics
+  # PostgreSQL Exporter - RDS / local Postgres metrics
   # ---------------------------------------------------------------------------
   postgres-exporter:
     image: prometheuscommunity/postgres-exporter:v0.15.0
@@ -129,7 +129,7 @@ services:
           memory: 64M
 
   # ---------------------------------------------------------------------------
-  # Redis Exporter — ElastiCache / local Redis metrics
+  # Redis Exporter - ElastiCache / local Redis metrics
   # ---------------------------------------------------------------------------
   redis-exporter:
     image: oliver006/redis_exporter:v1.61.0
@@ -154,7 +154,7 @@ services:
           memory: 64M
 
   # ---------------------------------------------------------------------------
-  # Alertmanager — routes Prometheus alerts to Slack / email
+  # Alertmanager - routes Prometheus alerts to Slack / email
   # ---------------------------------------------------------------------------
   alertmanager:
     image: prom/alertmanager:v0.27.0

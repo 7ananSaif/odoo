@@ -1,14 +1,14 @@
 # =============================================================================
-# alert_rules.yml — Prometheus alerting rules for the Invoice Agent
+# alert_rules.yml - Prometheus alerting rules for the Invoice Agent
 #
 # Rules:
-#   1. PipelineErrorRateHigh    — invoice-ai error rate > 2% for 5 minutes
-#   2. RDSConnectionsNearCap    — PostgreSQL connections > 85% of max_connections
-#   3. PipelineLatencyHigh      — p95 extraction latency > 60s for 5 minutes
-#   4. RedisMemoryHigh          — Redis memory usage > 80%
-#   5. NodeCPUHigh              — host CPU > 85% for 10 minutes
-#   6. NodeDiskSpaceLow         — host disk free < 10%
-#   7. WorkerQueueBacklog       — RabbitMQ queue depth > 50 for 5 minutes
+#   1. PipelineErrorRateHigh    - invoice-ai error rate > 2% for 5 minutes
+#   2. RDSConnectionsNearCap    - PostgreSQL connections > 85% of max_connections
+#   3. PipelineLatencyHigh      - p95 extraction latency > 60s for 5 minutes
+#   4. RedisMemoryHigh          - Redis memory usage > 80%
+#   5. NodeCPUHigh              - host CPU > 85% for 10 minutes
+#   6. NodeDiskSpaceLow         - host disk free < 10%
+#   7. WorkerQueueBacklog       - RabbitMQ queue depth > 50 for 5 minutes
 #
 # Recording rules pre-compute expensive expressions so dashboard panels load
 # fast and alert evaluations don't re-scan raw metrics.
@@ -16,7 +16,7 @@
 
 groups:
   # ---------------------------------------------------------------------------
-  # Recording rules — pre-computed aggregates for dashboards
+  # Recording rules - pre-computed aggregates for dashboards
   # ---------------------------------------------------------------------------
   - name: recording_rules
     interval: 30s
@@ -85,7 +85,7 @@ groups:
           )
 
   # ---------------------------------------------------------------------------
-  # Alerting rules — fire when thresholds are breached
+  # Alerting rules - fire when thresholds are breached
   # ---------------------------------------------------------------------------
   - name: alerting_rules
     rules:
@@ -226,7 +226,7 @@ groups:
             Check worker health, Claude API latency, or scale workers.
 
       # -----------------------------------------------------------------------
-      # Security: JWT 401 spike — potential brute-force or secret drift
+      # Security: JWT 401 spike - potential brute-force or secret drift
       # -----------------------------------------------------------------------
       - alert: AuthFailuresSpike
         expr: >
@@ -245,7 +245,7 @@ groups:
             between Odoo and invoice-ai.
 
       # -----------------------------------------------------------------------
-      # Security: Unusual extraction volume — potential abuse
+      # Security: Unusual extraction volume - potential abuse
       # -----------------------------------------------------------------------
       - alert: ExtractionAbuse
         expr: >

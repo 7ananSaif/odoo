@@ -1,5 +1,5 @@
 # =============================================================================
-# iam.tf — EC2 instance profile for S3 + Secrets Manager access
+# iam.tf - EC2 instance profile for S3 + Secrets Manager access
 #
 # Scoped to:
 # - Attachments bucket: GetObject, PutObject, DeleteObject, ListBucket

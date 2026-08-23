@@ -1,5 +1,5 @@
 # =============================================================================
-# elasticache.tf — Redis 7 cluster for Odoo sessions + LLM extraction cache
+# elasticache.tf - Redis 7 cluster for Odoo sessions + LLM extraction cache
 #
 # - cache.t4g.medium (2 nodes: 1 primary + 1 replica)
 # - Multi-AZ automatic failover
@@ -33,7 +33,7 @@ resource "aws_secretsmanager_secret_version" "redis_auth" {
 }
 
 # ---------------------------------------------------------------------------
-# ElastiCache subnet group — data subnets only (no internet)
+# ElastiCache subnet group - data subnets only (no internet)
 # ---------------------------------------------------------------------------
 resource "aws_elasticache_subnet_group" "redis" {
   name       = "${local.name_prefix}-redis-subnets"
@@ -47,11 +47,11 @@ resource "aws_elasticache_subnet_group" "redis" {
 }
 
 # ---------------------------------------------------------------------------
-# Security group — app tier only, port 6379
+# Security group - app tier only, port 6379
 # ---------------------------------------------------------------------------
 resource "aws_security_group" "redis" {
   name        = "${local.name_prefix}-redis-sg"
-  description = "ElastiCache Redis — inbound from app tier only"
+  description = "ElastiCache Redis - inbound from app tier only"
   vpc_id      = aws_vpc.main.id
 
   tags = {
@@ -78,7 +78,7 @@ resource "aws_vpc_security_group_egress_rule" "redis_default" {
 }
 
 # ---------------------------------------------------------------------------
-# Parameter group — tuned for session + cache workload
+# Parameter group - tuned for session + cache workload
 # ---------------------------------------------------------------------------
 resource "aws_elasticache_parameter_group" "redis" {
   name        = "${local.name_prefix}-redis-params"
@@ -101,7 +101,7 @@ resource "aws_elasticache_parameter_group" "redis" {
 }
 
 # ---------------------------------------------------------------------------
-# Replication Group — Multi-AZ Redis 7.1
+# Replication Group - Multi-AZ Redis 7.1
 # ---------------------------------------------------------------------------
 resource "aws_elasticache_replication_group" "redis" {
   replication_group_id = "${local.name_prefix}-redis"
