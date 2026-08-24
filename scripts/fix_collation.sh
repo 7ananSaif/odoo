@@ -92,12 +92,24 @@ done
 # -----------------------------------------------------------------------------
 echo ""
 echo "=== Verification ==="
-# pg_collation's "default" row carries the collversion of the CURRENT OS
-# libc — exactly what datcollversion is compared against when Postgres
-# emits its mismatch warning.
-MISMATCHES=$(docker compose exec -T db psql -U "${POSTGRES_USER:-odoo}" -d postgres -t -A -c \
-    "SELECT d.datname FROM pg_database d WHERE d.datallowconn AND d.datcollversion IS DISTINCT FROM (SELECT c.collversion FROM pg_collation c WHERE c.collname = 'default');" \
-    | tr -d '\r' || true)
+# NOTE: do NOT compare datcollversion against pg_collation's 'default' row —
+# that row has collprovider 'd' and its collversion is ALWAYS NULL, so such a
+# comparison flags every database unconditionally (false positive that failed
+# deploys even after a successful REINDEX + REFRESH).
+#
+# Ground truth instead: Postgres itself emits
+#   WARNING: database "X" has a collation version mismatch
+# on connect whenever datcollversion differs from the libc version actually
+# running. Probing each database and grepping for that warning can never
+# disagree with what Postgres would warn about in production.
+MISMATCHES=""
+for VDB in $DATABASES; do
+    [ -z "$VDB" ] && continue
+    if docker compose exec -T db psql -U "${POSTGRES_USER:-odoo}" -d "$VDB" -c "SELECT 1;" 2>&1 \
+        | grep -qi "collation version mismatch"; then
+        MISMATCHES="${MISMATCHES}${VDB}"$'\n'
+    fi
+done
 
 if [ -n "$MISMATCHES" ]; then
     echo "WARNING: databases still reporting a different collation version:"

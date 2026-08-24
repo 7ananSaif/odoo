@@ -108,6 +108,30 @@ jobs:
                           || echo "WARNING: Pre-upgrade snapshot failed — continuing anyway"
                       ls -lh "backups/pre_deploy_${TIMESTAMP}.sql" 2>/dev/null || true
 
+                      # Postgres emits "WARNING: database "X" has a collation
+                      # version mismatch" on connect whenever datcollversion
+                      # differs from the libc version actually running. That
+                      # warning is ground truth. Do NOT compare datcollversion
+                      # against pg_collation's 'default' row instead: that row
+                      # has collprovider 'd' and its collversion is ALWAYS NULL,
+                      # so such a comparison flags every database unconditionally
+                      # (this false positive failed deploys even after a clean
+                      # REINDEX + REFRESH COLLATION VERSION).
+                      list_mismatched_dbs() {
+                          local dbs db mismatches=""
+                          dbs=$(docker compose exec -T db psql -U odoo -d postgres -t -A -c \
+                              "SELECT datname FROM pg_database WHERE datallowconn ORDER BY datname;" \
+                              | tr -d '\r')
+                          for db in $dbs; do
+                              [ -z "$db" ] && continue
+                              if docker compose exec -T db psql -U odoo -d "$db" -c "SELECT 1;" 2>&1 \
+                                  | grep -qi "collation version mismatch"; then
+                                  mismatches+="$db"$'\n'
+                              fi
+                          done
+                          printf '%s' "$mismatches"
+                      }
+
                       # ==================================================================
                       # 2b. Collation version guard + automatic repair
                       #
@@ -127,9 +151,7 @@ jobs:
                       # bash scripts/fix_collation.sh (or the
                       # "Repair DB collation (EC2)" workflow).
                       # ==================================================================
-                      COLLATION_MISMATCH=$(docker compose exec -T db psql -U odoo -d postgres -t -A -c \
-                          "SELECT d.datname FROM pg_database d WHERE d.datallowconn AND d.datcollversion IS DISTINCT FROM (SELECT c.collversion FROM pg_collation c WHERE c.collname = 'default');" \
-                          | tr -d '\r' || true)
+                      COLLATION_MISMATCH=$(list_mismatched_dbs || true)
 
                       if [ -n "$COLLATION_MISMATCH" ]; then
                           echo "WARNING: collation version mismatch detected in databases:"
@@ -163,15 +185,18 @@ jobs:
                               fi
                           done
 
-                          REMAINING_MISMATCH=$(docker compose exec -T db psql -U odoo -d postgres -t -A -c \
-                              "SELECT d.datname FROM pg_database d WHERE d.datallowconn AND d.datcollversion IS DISTINCT FROM (SELECT c.collversion FROM pg_collation c WHERE c.collname = 'default');" \
-                              | tr -d '\r' || true)
+                          REMAINING_MISMATCH=$(list_mismatched_dbs || true)
 
                           if [ "$REPAIR_FAILED" -ne 0 ] || [ -n "$REMAINING_MISMATCH" ]; then
                               echo "ERROR: automatic collation repair failed."
                               if [ -n "$REMAINING_MISMATCH" ]; then
                                   echo "Databases still mismatched: $REMAINING_MISMATCH"
                               fi
+                              # The app containers were stopped for REINDEX.
+                              # Exiting without bringing them back up left the
+                              # site down until the next successful deploy.
+                              echo "Restarting application containers before exiting..."
+                              docker compose up -d odoo worker invoice-ai || true
                               echo "Run 'bash scripts/fix_collation.sh' on the EC2 host manually, then re-deploy."
                               exit 1
                           fi
