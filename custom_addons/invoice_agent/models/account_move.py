@@ -1606,26 +1606,53 @@ class AccountMove(models.Model):
         failures degrade the move to ``ocr_state='failed'`` with
         ``ocr_error_message`` set, so a bad scan cannot take down the cron
         or poison the rest of the batch.
+
+        Transaction discipline (two bugs this fixes):
+
+        * Aborted-txn-at-entry: the cron runner can hand this job a
+          connection whose transaction a PRIOR failing job already
+          aborted (data-dependent, e.g. only in the production ``odoo``
+          DB). Postgres refuses every query inside an aborted txn, so
+          the unguarded claim ``search`` used to raise
+          ``psycopg2.errors.InFailedSqlTransaction`` 0.2s into every
+          tick and the job was reported failed. Resetting the txn
+          before claiming, and guarding the claim, degrades that to a
+          no-op tick instead of a cron failure.
+        * Commit ordering: the old loop committed BEFORE processing and
+          rolled back in ``finally`` — which silently discarded every
+          successful OCR result. Now each move commits on success and
+          rolls back on failure, so results persist and one bad scan
+          still cannot poison the batch.
         """
-        moves = self.search(
-            [("ocr_state", "=", "pending"), ("ai_source_attachment_id", "!=", False)],
-            order="write_date asc, id asc",
-            limit=batch_size,
-        )
         processed = 0
+        try:
+            self.env.cr.rollback()  # clear any aborted txn inherited from prior jobs
+            moves = self.search(
+                [
+                    ("ocr_state", "=", "pending"),
+                    ("ai_source_attachment_id", "!=", False),
+                ],
+                order="write_date asc, id asc",
+                limit=batch_size,
+            )
+        except Exception:
+            _logger.exception(
+                "OCR cron could not claim pending moves — skipping this tick",
+            )
+            return 0
+
         for move in moves:
             try:
-                self.env.cr.commit()  # fresh txn per record — see contract above
                 move._ocr_process_one(move.id)
                 processed += 1
+                self.env.cr.commit()  # persist this record, isolate it from the batch
             except Exception:
                 _logger.exception(
                     "OCR cron failed for move %s — marked failed and continuing",
                     move.display_name,
                 )
-            finally:
-                self.env.cr.rollback()
-                self.env.cr.commit()
+                self.env.cr.rollback()  # drop any partial work from this record
+                self.env.cr.commit()  # leave a clean txn for the next record
         return processed
 
     def _ocr_process_one(self, move_id):
