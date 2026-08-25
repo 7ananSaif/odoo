@@ -369,8 +369,20 @@ jobs:
 
                           if [ -f "backups/pre_deploy_${TIMESTAMP}.sql" ] && [ -s "backups/pre_deploy_${TIMESTAMP}.sql" ]; then
                               echo "Restoring databases from pre-upgrade snapshot..."
-                              docker compose stop odoo
-                              docker compose exec -T db psql -U odoo -d postgres < "backups/pre_deploy_${TIMESTAMP}.sql" || true
+                              # Stop EVERY container holding a DB connection.
+                              # Previously only 'odoo' was stopped while worker
+                              # and invoice-ai kept live connections, so the
+                              # dump's DROP DATABASE failed, psql continued on
+                              # error, and the cluster was left half-restored —
+                              # the source of chronic InFailedSqlTransaction
+                              # errors and ORM KeyError crashes afterwards.
+                              docker compose stop odoo worker invoice-ai
+                              # ON_ERROR_STOP: a failed restore must abort loudly
+                              # instead of silently leaving a broken database.
+                              docker compose exec -T db psql -U odoo -d postgres \
+                                  -v ON_ERROR_STOP=1 \
+                                  < "backups/pre_deploy_${TIMESTAMP}.sql" \
+                                  || echo "WARNING: snapshot restore reported errors — verify DB state manually"
                           fi
 
                           docker compose restart odoo
