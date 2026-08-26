@@ -252,6 +252,20 @@ jobs:
                           LAST_CHANGE=$(date +%s)
                           SHOWN=0
                           HUNG=0
+                          # db_is_busy: is Postgres actually doing work on this
+                          # database right now? Returns 0 (true) when either an
+                          # index build is in progress (pg_stat_progress_create_
+                          # index) or a client-backend query is actively running.
+                          db_is_busy() {
+                              docker compose exec -T db psql -U odoo -d "$1" -t -A -c \
+                                  "SELECT 1 FROM pg_stat_progress_create_index WHERE datname = '$1'
+                                   UNION ALL
+                                   SELECT 1 FROM pg_stat_activity
+                                   WHERE datname = '$1' AND state = 'active'
+                                     AND backend_type = 'client backend'
+                                     AND pid <> pg_backend_pid()
+                                   LIMIT 1;" 2>/dev/null | grep -q 1
+                          }
                           while kill -0 "$UP_PID" 2>/dev/null; do
                               sleep 10
                               SIZE=$(wc -c < "$UP_LOG" 2>/dev/null || echo 0)
@@ -265,12 +279,24 @@ jobs:
                                   LAST_SIZE=$SIZE
                                   LAST_CHANGE=$NOW
                               elif [ $((NOW - LAST_CHANGE)) -ge 600 ]; then
-                                  echo "ERROR: no upgrade output for 10 minutes on $DB_CLEAN — treating as hung, killing."
-                                  kill "$UP_PID" 2>/dev/null || true
-                                  sleep 5
-                                  kill -9 "$UP_PID" 2>/dev/null || true
-                                  HUNG=1
-                                  break
+                                  # Log silence alone does NOT mean hung: a healthy
+                                  # migration can be silent for a long time while
+                                  # Postgres builds a slow index with zero log output
+                                  # (run #43: the invoice_agent_vendor_doc vector(1024)
+                                  # HNSW cosine index on the production DB took >10 min
+                                  # silently; the old output-only watchdog killed it,
+                                  # half-migrating the schema and forcing a rollback).
+                                  # Only kill when the DB shows NO active work either.
+                                  if db_is_busy "$DB_CLEAN"; then
+                                      LAST_CHANGE=$NOW
+                                  else
+                                      echo "ERROR: no upgrade output for 10 minutes on $DB_CLEAN and no active DB work — treating as hung, killing."
+                                      kill "$UP_PID" 2>/dev/null || true
+                                      sleep 5
+                                      kill -9 "$UP_PID" 2>/dev/null || true
+                                      HUNG=1
+                                      break
+                                  fi
                               fi
                           done
                           wait "$UP_PID" 2>/dev/null
@@ -282,7 +308,7 @@ jobs:
                           if [ "$RC" -eq 0 ] && [ "$HUNG" -eq 0 ]; then
                               echo "---> $(date '+%F %T') Upgrade OK on $DB_CLEAN"
                           else
-                              echo "ERROR: Upgrade failed on database: $DB_CLEAN (exit $RC${HUNG:+ — killed after 10 min of silence})"
+                              echo "ERROR: Upgrade failed on database: $DB_CLEAN (exit $RC${HUNG:+ — killed after 10 min of silence AND no DB activity})"
                               UPGRADE_STATUS=1
                           fi
 
@@ -369,8 +395,20 @@ jobs:
 
                           if [ -f "backups/pre_deploy_${TIMESTAMP}.sql" ] && [ -s "backups/pre_deploy_${TIMESTAMP}.sql" ]; then
                               echo "Restoring databases from pre-upgrade snapshot..."
-                              docker compose stop odoo
-                              docker compose exec -T db psql -U odoo -d postgres < "backups/pre_deploy_${TIMESTAMP}.sql" || true
+                              # Stop EVERY container holding a DB connection.
+                              # Previously only 'odoo' was stopped while worker
+                              # and invoice-ai kept live connections, so the
+                              # dump's DROP DATABASE failed, psql continued on
+                              # error, and the cluster was left half-restored —
+                              # the source of chronic InFailedSqlTransaction
+                              # errors and ORM KeyError crashes afterwards.
+                              docker compose stop odoo worker invoice-ai
+                              # ON_ERROR_STOP: a failed restore must abort loudly
+                              # instead of silently leaving a broken database.
+                              docker compose exec -T db psql -U odoo -d postgres \
+                                  -v ON_ERROR_STOP=1 \
+                                  < "backups/pre_deploy_${TIMESTAMP}.sql" \
+                                  || echo "WARNING: snapshot restore reported errors — verify DB state manually"
                           fi
 
                           docker compose restart odoo
