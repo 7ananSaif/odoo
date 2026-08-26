@@ -41,7 +41,7 @@ class InvoiceAgentExtractionLine(models.Model):
     )
 
     # SQL constraint to ensure field confidence is within valid range
-    check_field_confidence_range = models.Constraint(
+    _check_field_confidence_range = models.Constraint(
         "CHECK(field_confidence IS NULL OR (field_confidence >= 0.0 AND field_confidence <= 1.0))",
         "Line Field Confidence score must strictly remain between 0.00 and 1.00.",
     )

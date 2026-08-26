@@ -103,7 +103,7 @@ class InvoiceAgentJob(models.Model):
         help="Number of dead-letter hops the broker stamped for this job.",
     )
 
-    job_uuid_unique = models.Constraint(
+    _job_uuid_unique = models.Constraint(
         "UNIQUE(job_uuid)",
         "Each extraction job must have a unique job_uuid — a redelivered "
         "message must never create a second outbox row.",
