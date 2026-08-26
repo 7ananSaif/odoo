@@ -2491,11 +2491,11 @@ class AccountMove(models.Model):
             "message": message,
         }
 
-    check_ai_confidence_range = models.Constraint(
+    _check_ai_confidence_range = models.Constraint(
         "CHECK(ai_confidence IS NULL OR (ai_confidence >= 0.0 AND ai_confidence <= 1.0))",
         "Overall AI Confidence score must strictly remain between 0.00 and 1.00.",
     )
-    ai_job_uuid_unique = models.Constraint(
+    _ai_job_uuid_unique = models.Constraint(
         "UNIQUE(ai_job_uuid)",
         "Each bill may only carry one AI job UUID — a redelivered or "
         "double-published job can never resolve to two draft moves.",
