@@ -52,7 +52,8 @@ class InvoiceAgentJob(models.Model):
     # v0.9: the correlation id is persisted on the outbox row itself (mirrors
     # account.move.ai_job_uuid) so the dead-letter taskboard can correlate a
     # poison message back to the exact outbox row. UNIQUE — see
-    # _sql_constraints — enforces the same job is never published twice.
+    # job_uuid_unique (models.Constraint) — enforces the same job is never
+    # published twice.
     job_uuid = fields.Char(
         string="Job UUID",
         index=True,
@@ -102,16 +103,11 @@ class InvoiceAgentJob(models.Model):
         help="Number of dead-letter hops the broker stamped for this job.",
     )
 
-    _sql_constraints = [
-        (
-            "job_uuid_unique",
-            "UNIQUE(job_uuid)",
-            (
-                "Each extraction job must have a unique job_uuid — a redelivered "
-                "message must never create a second outbox row."
-            ),
-        ),
-    ]
+    _job_uuid_unique = models.Constraint(
+        "UNIQUE(job_uuid)",
+        "Each extraction job must have a unique job_uuid — a redelivered "
+        "message must never create a second outbox row.",
+    )
 
     # ------------------------------------------------------------------
     # Drain API — called by ir.cron every minute

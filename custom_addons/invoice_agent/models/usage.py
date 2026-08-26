@@ -122,13 +122,8 @@ class InvoiceAgentUsage(models.Model):
             )
         return result
 
-    _sql_constraints = [
-        (
-            "check_usage_tokens_non_negative",
-            (
-                "CHECK(input_tokens >= 0 AND output_tokens >= 0 AND "
-                "cache_creation_input_tokens >= 0 AND cache_read_input_tokens >= 0)"
-            ),  # noqa: E501
-            "Token counts must not be negative.",
-        ),
-    ]
+    _check_usage_tokens_non_negative = models.Constraint(
+        "CHECK(input_tokens >= 0 AND output_tokens >= 0 AND "
+        "cache_creation_input_tokens >= 0 AND cache_read_input_tokens >= 0)",
+        "Token counts must not be negative.",
+    )
