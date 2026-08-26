@@ -51,10 +51,7 @@ class InvoiceAgentAppliedJob(models.Model):
         help="When the result was applied (first delivery only).",
     )
 
-    _sql_constraints = [
-        (
-            "job_uuid_unique",
-            "UNIQUE(job_uuid)",
-            "A job result may only be applied once per job_uuid.",
-        ),
-    ]
+    _job_uuid_unique = models.Constraint(
+        "UNIQUE(job_uuid)",
+        "A job result may only be applied once per job_uuid.",
+    )

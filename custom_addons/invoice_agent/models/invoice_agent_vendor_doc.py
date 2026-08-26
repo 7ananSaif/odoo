@@ -82,16 +82,14 @@ class InvoiceAgentVendorDoc(models.Model):
     # no vector field type, and exposing it as a Json/Char would break the
     # pgvector operators. Searches go through raw SQL, never the ORM.
 
-    _sql_constraints = [
-        (
-            "move_id_unique",
-            "UNIQUE(move_id)",
-            (
-                "One RAG document per posted bill — a redelivered embed job "
-                "upserts, never duplicates."
-            ),
-        ),
-    ]
+    # New-style constraint (Odoo dropped _sql_constraints support): without
+    # this UNIQUE(move_id), upsert_embedding()'s ON CONFLICT (move_id) has
+    # no matching constraint and every embed upsert would fail.
+    _move_id_unique = models.Constraint(
+        "UNIQUE(move_id)",
+        "One RAG document per posted bill — a redelivered embed job "
+        "upserts, never duplicates.",
+    )
 
     # ------------------------------------------------------------------
     # schema bootstrap (raw SQL — ORM has no vector type)
