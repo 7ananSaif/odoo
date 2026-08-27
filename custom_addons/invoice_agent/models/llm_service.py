@@ -313,9 +313,9 @@ class InvoiceLlmService(models.AbstractModel):
         ``ir.config_parameter`` → True (RAG enabled) by default.
         """
         raw = self.env["ir.config_parameter"].sudo().get_param(RAG_ENABLED_PARAM)
-        if raw is None:
+        if not raw:
             return DEFAULT_RAG_ENABLED
-        return raw.lower() in ("true", "1", "yes")
+        return str(raw).lower() in ("true", "1", "yes")
 
     # ------------------------------------------------------------------
     # HTTP call to invoice-ai
