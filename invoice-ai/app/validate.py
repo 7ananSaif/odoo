@@ -180,7 +180,9 @@ def _validate_citations(
             )
     verdict.evidence = valid_citations
     if hallucinated:
-        hallucinated_flag = f"hallucinated_citation:{','.join(str(m) for m in hallucinated)}"
+        hallucinated_flag = (
+            f"hallucinated_citation:{','.join(str(m) for m in hallucinated)}"
+        )
         if hallucinated_flag not in verdict.flags:
             verdict.flags = list(verdict.flags) + [hallucinated_flag]
     if not verdict.evidence:
@@ -210,7 +212,9 @@ def _format_extraction_for_validation(extraction: InvoiceExtraction) -> str:
     if extraction.lines:
         line_parts = []
         for line in extraction.lines:
-            line_parts.append(f"  - {line.name}: qty={line.quantity} unit_price={line.price_unit}")
+            line_parts.append(
+                f"  - {line.name}: qty={line.quantity} unit_price={line.price_unit}"
+            )
         lines_text = "\n".join(line_parts)
 
     parts = [
@@ -319,7 +323,9 @@ async def validate_extraction(
         raise ValueError("Failed to parse ValidationVerdict from response")
 
     usage = {
-        "input_tokens": (getattr(message.usage, "input_tokens", None) if message else None),
+        "input_tokens": (
+            getattr(message.usage, "input_tokens", None) if message else None
+        ),
         "cache_creation_input_tokens": (
             getattr(
                 message.usage,
@@ -338,7 +344,9 @@ async def validate_extraction(
             if message
             else None
         ),
-        "output_tokens": (getattr(message.usage, "output_tokens", None) if message else None),
+        "output_tokens": (
+            getattr(message.usage, "output_tokens", None) if message else None
+        ),
     }
 
     # --- Citation guard: reject hallucinated move_ids ---
