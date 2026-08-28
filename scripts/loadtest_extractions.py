@@ -7,7 +7,7 @@ calls succeed, cache-read tokens register (prompt-cache proof) and the
 invoice.agent.usage ledger records spend.
 
 Run inside an Odoo env where anthropic + pydantic exist:
-    venv\Scripts\python.exe odoo-bin shell -d <db> -c \
+    venv\\Scripts\\python.exe odoo-bin shell -d <db> -c \
         "env = {}; exec(open('scripts/loadtest_extractions.py').read())"
 
 or paste into `odoo-bin shell`.

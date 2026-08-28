@@ -42,7 +42,7 @@ import json
 import math
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -600,7 +600,7 @@ def main():
         out_path = Path(args.out)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         record = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "model": "claude-opus-4-8",
             "prompt_path": str(Path(args.prompt)),
             "input_mode": args.input_mode,
@@ -635,7 +635,7 @@ def main():
     # Keep the legacy baseline line in docs/performance.md for continuity.
     perf_doc = REPO_ROOT / "docs" / "performance.md"
     baseline_line = (
-        f"Eval run ({datetime.now(timezone.utc):%Y-%m-%d}, {args.input_mode}, "
+        f"Eval run ({datetime.now(UTC):%Y-%m-%d}, {args.input_mode}, "
         f"{Path(args.prompt).name}): {overall * 100:.1f}%"
     )
     if perf_doc.exists():

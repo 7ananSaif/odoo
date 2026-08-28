@@ -205,9 +205,8 @@ def char_accuracy(ground_truth, ocr_text):
 # ---------------------------------------------------------------------------
 def tesseract_extract(pdf_path, psm, dpi):
     """pdf2image -> pytesseract on every page; returns (text, mean_conf)."""
-    from pdf2image import convert_from_path
-
     import pytesseract
+    from pdf2image import convert_from_path
 
     images = convert_from_path(pdf_path, dpi=dpi)
     text_parts = []
