@@ -65,7 +65,7 @@ def generate_invoice(c: canvas.Canvas, index: int) -> None:
 
     # Header
     c.setFont("Helvetica-Bold", 18)
-    c.drawString(20 * mm, 270 * mm, f"INVOICE")
+    c.drawString(20 * mm, 270 * mm, "INVOICE")
     c.setFont("Helvetica", 10)
     c.drawString(20 * mm, 260 * mm, f"Invoice #: INV-{index:05d}")
     c.drawString(150 * mm, 270 * mm, f"Date: 2026-08-{15 + (index % 15):02d}")
