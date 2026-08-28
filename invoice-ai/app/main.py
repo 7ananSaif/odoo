@@ -192,7 +192,9 @@ async def extract_invoice(
                 f"Upload of {len(raw)} bytes exceeds the {settings.max_upload_bytes} byte limit.",
             )
         mimetype = (file.content_type or "").lower()
-        if not mimetype or (mimetype != "application/pdf" and not mimetype.startswith("image/")):
+        if not mimetype or (
+            mimetype != "application/pdf" and not mimetype.startswith("image/")
+        ):
             raise UnsupportedMediaTypeError(
                 f"Unsupported mimetype '{mimetype or 'unknown'}'. Only PDF and "
                 "image/* uploads are accepted.",
