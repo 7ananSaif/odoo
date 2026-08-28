@@ -68,6 +68,7 @@ from .amqp import (
 )
 from .claude import ClaudeService
 from .errors import BadRequestError, ClaudeRateLimitError, ClaudeUpstreamError
+from .result_signing import ResultSigningError
 from .llm_cache import cache_get, cache_set
 from .metrics import (
     CLAUDE_API_DURATION,
@@ -317,7 +318,19 @@ class InvoiceConsumer:
             if validation_verdict is not None:
                 payload["validation"] = validation_verdict
                 payload["validation_usage"] = validation_usage
-            await self._publish_result(topic_exchange, payload)
+            try:
+                await self._publish_result(topic_exchange, payload)
+            except ResultSigningError as exc:
+                # Config error (missing INVOICE_AI_JWT_SECRET) — retrying can
+                # never fix a missing secret. Dead-letter the job so it is
+                # visible on the taskboard instead of looping forever.
+                await self._dead_letter(dlx, message, exc, topic_exchange)
+                return
+            except Exception as exc:
+                # Any other publish failure: route through the retry/dead logic.
+                decision = classify_failure(exc, attempt)
+                await self._route_failure(dlx, message, decision, topic_exchange)
+                return
 
             # Record successful job metrics
             job_elapsed = __import__("time").monotonic() - job_start
