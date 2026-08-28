@@ -68,7 +68,6 @@ from .amqp import (
 )
 from .claude import ClaudeService
 from .errors import BadRequestError, ClaudeRateLimitError, ClaudeUpstreamError
-from .result_signing import ResultSigningError
 from .llm_cache import cache_get, cache_set
 from .metrics import (
     CLAUDE_API_DURATION,
@@ -77,7 +76,7 @@ from .metrics import (
     Timer,
     record_claude_tokens,
 )
-from .result_signing import sign_result
+from .result_signing import ResultSigningError, sign_result
 from .retrieve import retrieve_vendor_context
 from .retry import (
     DEAD_ROUTING_KEY,
