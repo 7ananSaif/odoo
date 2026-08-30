@@ -257,7 +257,16 @@ class _InvoiceAgentResultConsumer:
             time.sleep(5)
 
     def _on_open(self, connection):
-        channel = connection.channel()
+        # ``connection.channel()`` is ASYNC: the returned channel is still
+        # "opening" until the broker replies. Calling basic_qos/queue_declare
+        # on it immediately raises ChannelWrongStateError ("Channel is
+        # opening, but is not usable yet") which aborts the connection and
+        # drops the consumer into a 5s reconnect loop — invoice.result is
+        # never consumed. Register an on_open_callback so the channel is
+        # fully open before we raise QoS / declare / bind / consume.
+        connection.channel(on_open_callback=self._on_channel_open)
+
+    def _on_channel_open(self, channel):
         channel.basic_qos(prefetch_count=10)
         channel.queue_declare(queue=QUEUE_RESULT, durable=True)
         channel.queue_bind(
@@ -296,7 +305,9 @@ class _InvoiceAgentResultConsumer:
     def _handle_started(self, payload):
         import odoo
 
-        registry = odoo.registry(odoo.tools.config["db_name"])
+        from odoo.modules.registry import Registry
+
+        registry = Registry(odoo.tools.config["db_name"])
         cursor = registry.cursor()
         try:
             env = odoo.api.Environment(cursor, odoo.SUPERUSER_ID, {})
@@ -313,7 +324,9 @@ class _InvoiceAgentResultConsumer:
     def _handle_done(self, payload):
         import odoo
 
-        registry = odoo.registry(odoo.tools.config["db_name"])
+        from odoo.modules.registry import Registry
+
+        registry = Registry(odoo.tools.config["db_name"])
         cursor = registry.cursor()
         try:
             env = odoo.api.Environment(cursor, odoo.SUPERUSER_ID, {})
