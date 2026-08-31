@@ -228,10 +228,9 @@ class InvoiceLlmService(models.AbstractModel):
         (ir.config_parameter / Settings). Reading the env var first means the
         whole stack is configured in ONE place — the ``.env`` file.
         """
-        url = (
-            os.environ.get("INVOICE_AI_LLM_SERVICE_URL")
-            or self.env["ir.config_parameter"].sudo().get_param(LLM_SERVICE_URL_PARAM)
-        )
+        url = os.environ.get("INVOICE_AI_LLM_SERVICE_URL") or self.env[
+            "ir.config_parameter"
+        ].sudo().get_param(LLM_SERVICE_URL_PARAM)
         if not url:
             raise UserError(
                 _(
@@ -251,10 +250,9 @@ class InvoiceLlmService(models.AbstractModel):
         (ir.config_parameter / Settings). Reading the env var first means the
         whole stack is configured in ONE place — the ``.env`` file.
         """
-        secret = (
-            os.environ.get("INVOICE_AI_JWT_SECRET")
-            or self.env["ir.config_parameter"].sudo().get_param(JWT_SECRET_PARAM)
-        )
+        secret = os.environ.get("INVOICE_AI_JWT_SECRET") or self.env[
+            "ir.config_parameter"
+        ].sudo().get_param(JWT_SECRET_PARAM)
         if not secret:
             raise UserError(
                 _(
@@ -272,10 +270,9 @@ class InvoiceLlmService(models.AbstractModel):
 
         ``INVOICE_AI_CONFIDENCE_THRESHOLD`` (.env) → ``invoice_agent.confidence_threshold`` (Settings) → ``None``.
         """
-        raw = (
-            os.environ.get("INVOICE_AI_CONFIDENCE_THRESHOLD")
-            or self.env["ir.config_parameter"].sudo().get_param(CONFIDENCE_THRESHOLD_PARAM)
-        )
+        raw = os.environ.get("INVOICE_AI_CONFIDENCE_THRESHOLD") or self.env[
+            "ir.config_parameter"
+        ].sudo().get_param(CONFIDENCE_THRESHOLD_PARAM)
         if not raw:
             return None
         try:
@@ -297,10 +294,9 @@ class InvoiceLlmService(models.AbstractModel):
 
         ``INVOICE_AI_AUTO_FILL_THRESHOLD`` (.env) → ``invoice_agent.auto_fill_threshold`` (Settings) → 0.90 default.
         """
-        raw = (
-            os.environ.get("INVOICE_AI_AUTO_FILL_THRESHOLD")
-            or self.env["ir.config_parameter"].sudo().get_param(AUTO_FILL_THRESHOLD_PARAM)
-        )
+        raw = os.environ.get("INVOICE_AI_AUTO_FILL_THRESHOLD") or self.env[
+            "ir.config_parameter"
+        ].sudo().get_param(AUTO_FILL_THRESHOLD_PARAM)
         if not raw:
             return DEFAULT_AUTO_FILL_THRESHOLD
         try:
@@ -318,10 +314,9 @@ class InvoiceLlmService(models.AbstractModel):
 
         ``INVOICE_AI_REVIEW_THRESHOLD`` (.env) → ``invoice_agent.review_threshold`` (Settings) → 0.60 default.
         """
-        raw = (
-            os.environ.get("INVOICE_AI_REVIEW_THRESHOLD")
-            or self.env["ir.config_parameter"].sudo().get_param(REVIEW_THRESHOLD_PARAM)
-        )
+        raw = os.environ.get("INVOICE_AI_REVIEW_THRESHOLD") or self.env[
+            "ir.config_parameter"
+        ].sudo().get_param(REVIEW_THRESHOLD_PARAM)
         if not raw:
             return DEFAULT_REVIEW_THRESHOLD
         try:
@@ -340,10 +335,9 @@ class InvoiceLlmService(models.AbstractModel):
 
         ``INVOICE_AI_RAG_ENABLED`` (.env) → ``invoice_agent.rag_enabled`` (Settings) → True default.
         """
-        raw = (
-            os.environ.get("INVOICE_AI_RAG_ENABLED")
-            or self.env["ir.config_parameter"].sudo().get_param(RAG_ENABLED_PARAM)
-        )
+        raw = os.environ.get("INVOICE_AI_RAG_ENABLED") or self.env[
+            "ir.config_parameter"
+        ].sudo().get_param(RAG_ENABLED_PARAM)
         if not raw:
             return DEFAULT_RAG_ENABLED
         return str(raw).lower() in ("true", "1", "yes")

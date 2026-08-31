@@ -315,7 +315,6 @@ class _InvoiceAgentResultConsumer:
         if self._db_name:
             return self._db_name
         import odoo
-
         from odoo.modules.registry import Registry
 
         name = odoo.tools.config.get("db_name")
@@ -324,13 +323,14 @@ class _InvoiceAgentResultConsumer:
         if not name and Registry.registries:
             name = next(iter(Registry.registries))
         if not name:
-            raise RuntimeError("invoice_agent: cannot resolve database name for result consumer")
+            raise RuntimeError(
+                "invoice_agent: cannot resolve database name for result consumer"
+            )
         self._db_name = name
         return name
 
     def _handle_started(self, payload):
         import odoo
-
         from odoo.modules.registry import Registry
 
         registry = Registry(self._resolve_db_name())
@@ -349,7 +349,6 @@ class _InvoiceAgentResultConsumer:
 
     def _handle_done(self, payload):
         import odoo
-
         from odoo.modules.registry import Registry
 
         registry = Registry(self._resolve_db_name())
