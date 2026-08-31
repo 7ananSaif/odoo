@@ -46,6 +46,7 @@ Invoice Agent):
 
 import json
 import logging
+import os
 import time
 from datetime import UTC
 
@@ -220,38 +221,58 @@ class InvoiceLlmService(models.AbstractModel):
     # ------------------------------------------------------------------
     @api.model
     def _service_url(self):
-        """Base URL of the invoice-ai service, e.g. http://invoice-ai:8000."""
-        url = self.env["ir.config_parameter"].sudo().get_param(LLM_SERVICE_URL_PARAM)
+        """Base URL of the invoice-ai service, e.g. http://invoice-ai:8000.
+
+        Resolved from ``INVOICE_AI_LLM_SERVICE_URL`` (the ``.env`` variable the
+        worker and Odoo share) first, then ``invoice_agent.llm_service_url``
+        (ir.config_parameter / Settings). Reading the env var first means the
+        whole stack is configured in ONE place — the ``.env`` file.
+        """
+        url = os.environ.get("INVOICE_AI_LLM_SERVICE_URL") or self.env[
+            "ir.config_parameter"
+        ].sudo().get_param(LLM_SERVICE_URL_PARAM)
         if not url:
             raise UserError(
                 _(
-                    "The AI service URL is not configured. Set it in Settings → "
-                    "Invoice Agent → LLM Service URL (e.g. "
-                    "http://invoice-ai:8000).",
+                    "The AI service URL is not configured. Set "
+                    "INVOICE_AI_LLM_SERVICE_URL in .env (or Settings → "
+                    "Invoice Agent → LLM Service URL).",
                 ),
             )
         return url.rstrip("/")
 
     @api.model
     def _jwt_secret(self):
-        """The shared HS256 secret (must match the service's JWT_SECRET)."""
-        secret = self.env["ir.config_parameter"].sudo().get_param(JWT_SECRET_PARAM)
+        """The shared HS256 secret (must match the service's JWT_SECRET).
+
+        Resolved from ``INVOICE_AI_JWT_SECRET`` (the ``.env`` variable the
+        worker and Odoo share) first, then ``invoice_agent.jwt_secret``
+        (ir.config_parameter / Settings). Reading the env var first means the
+        whole stack is configured in ONE place — the ``.env`` file.
+        """
+        secret = os.environ.get("INVOICE_AI_JWT_SECRET") or self.env[
+            "ir.config_parameter"
+        ].sudo().get_param(JWT_SECRET_PARAM)
         if not secret:
             raise UserError(
                 _(
-                    "The AI service JWT secret is not configured. Set it in "
-                    "Settings → Invoice Agent → JWT Secret — it must equal the "
-                    "service's INVOICE_AI_JWT_SECRET.",
+                    "The AI service JWT secret is not configured. Set "
+                    "INVOICE_AI_JWT_SECRET in .env (or Settings → Invoice "
+                    "Agent → JWT Secret) — it must equal the service's "
+                    "INVOICE_AI_JWT_SECRET.",
                 ),
             )
         return secret
 
     @api.model
     def confidence_threshold(self):
-        """Resolve the global auto-approval threshold (0..1)."""
-        raw = (
-            self.env["ir.config_parameter"].sudo().get_param(CONFIDENCE_THRESHOLD_PARAM)
-        )
+        """Resolve the global auto-approval threshold (0..1).
+
+        ``INVOICE_AI_CONFIDENCE_THRESHOLD`` (.env) → ``invoice_agent.confidence_threshold`` (Settings) → ``None``.
+        """
+        raw = os.environ.get("INVOICE_AI_CONFIDENCE_THRESHOLD") or self.env[
+            "ir.config_parameter"
+        ].sudo().get_param(CONFIDENCE_THRESHOLD_PARAM)
         if not raw:
             return None
         try:
@@ -271,11 +292,11 @@ class InvoiceLlmService(models.AbstractModel):
     def auto_fill_threshold(self):
         """Resolve the auto-fill threshold (above this: pre-fill + ready).
 
-        ``ir.config_parameter`` → 0.90 default.
+        ``INVOICE_AI_AUTO_FILL_THRESHOLD`` (.env) → ``invoice_agent.auto_fill_threshold`` (Settings) → 0.90 default.
         """
-        raw = (
-            self.env["ir.config_parameter"].sudo().get_param(AUTO_FILL_THRESHOLD_PARAM)
-        )
+        raw = os.environ.get("INVOICE_AI_AUTO_FILL_THRESHOLD") or self.env[
+            "ir.config_parameter"
+        ].sudo().get_param(AUTO_FILL_THRESHOLD_PARAM)
         if not raw:
             return DEFAULT_AUTO_FILL_THRESHOLD
         try:
@@ -291,9 +312,11 @@ class InvoiceLlmService(models.AbstractModel):
         Between review_threshold and auto_fill_threshold → needs_review
         kanban column.  Below review_threshold → needs_human flag.
 
-        ``ir.config_parameter`` → 0.60 default.
+        ``INVOICE_AI_REVIEW_THRESHOLD`` (.env) → ``invoice_agent.review_threshold`` (Settings) → 0.60 default.
         """
-        raw = self.env["ir.config_parameter"].sudo().get_param(REVIEW_THRESHOLD_PARAM)
+        raw = os.environ.get("INVOICE_AI_REVIEW_THRESHOLD") or self.env[
+            "ir.config_parameter"
+        ].sudo().get_param(REVIEW_THRESHOLD_PARAM)
         if not raw:
             return DEFAULT_REVIEW_THRESHOLD
         try:
@@ -310,9 +333,11 @@ class InvoiceLlmService(models.AbstractModel):
         extraction results without the validation envelope — reverting to
         v0.9 extraction-only behaviour.
 
-        ``ir.config_parameter`` → True (RAG enabled) by default.
+        ``INVOICE_AI_RAG_ENABLED`` (.env) → ``invoice_agent.rag_enabled`` (Settings) → True default.
         """
-        raw = self.env["ir.config_parameter"].sudo().get_param(RAG_ENABLED_PARAM)
+        raw = os.environ.get("INVOICE_AI_RAG_ENABLED") or self.env[
+            "ir.config_parameter"
+        ].sudo().get_param(RAG_ENABLED_PARAM)
         if not raw:
             return DEFAULT_RAG_ENABLED
         return str(raw).lower() in ("true", "1", "yes")

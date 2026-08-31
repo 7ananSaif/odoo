@@ -67,11 +67,15 @@ class VoyageEmbedder:
         self,
         client: Any = None,
         api_key: str | None = None,
-        model: str = VOYAGE_MODEL,
+        model: str | None = None,
+        dimensions: int | None = None,
     ):
         self._client = client
         self._api_key = api_key
-        self._model = model
+        # Model/dimensions come from env (settings.voyage_model / .voyage_dimensions)
+        # by default; explicit args win (tests inject a fake client + model).
+        self._model = model or settings.voyage_model
+        self._dimensions = dimensions or settings.voyage_dimensions
 
     def _ensure_client(self) -> Any:
         """Lazily build the voyageai client on the first real embed.
@@ -103,7 +107,7 @@ class VoyageEmbedder:
             "voyage: embedded %d documents (model=%s dim=%d)",
             len(batch),
             self._model,
-            VOYAGE_DIMENSIONS,
+            self._dimensions,
         )
         return vectors
 
@@ -140,12 +144,11 @@ class VoyageEmbedder:
             f"voyage embedding failed after {VOYAGE_RETRIES + 1} attempts: {last_error}",
         ) from last_error
 
-    @staticmethod
-    def _normalize(result: Any, *, expected: int) -> list[list[float]]:
+    def _normalize(self, result: Any, *, expected: int) -> list[list[float]]:
         """Extract and validate vectors from a voyageai Client.embed result.
 
         ``result.embeddings`` is a list of ``Embedding`` objects; each has a
-        ``float_list`` attribute of exactly ``VOYAGE_DIMENSIONS`` floats.
+        ``float_list`` attribute of exactly ``self._dimensions`` floats.
         """
         raw = getattr(result, "embeddings", None)
         if raw is None:
@@ -167,10 +170,10 @@ class VoyageEmbedder:
                 f"voyage returned {len(extracted)} vectors for {expected} texts",
             )
         for vector in extracted:
-            if len(vector) != VOYAGE_DIMENSIONS:
+            if len(vector) != self._dimensions:
                 raise VoyageEmbeddingError(
                     f"voyage returned a {len(vector)}-dim vector; expected "
-                    f"{VOYAGE_DIMENSIONS} (model={VOYAGE_MODEL})",
+                    f"{self._dimensions} (model={self._model})",
                 )
         return extracted
 
