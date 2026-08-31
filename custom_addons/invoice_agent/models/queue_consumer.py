@@ -218,6 +218,7 @@ class _InvoiceAgentResultConsumer:
 
     def __init__(self):
         self._thread = None
+        self._db_name = None
 
     def start(self):
         if not _PIKA_AVAILABLE:
@@ -302,12 +303,37 @@ class _InvoiceAgentResultConsumer:
         finally:
             channel.basic_ack(delivery_tag=method.delivery_tag)
 
+    def _resolve_db_name(self):
+        """Return the Odoo database this worker should write into.
+
+        In a multi-database server (the default compose setup) Odoo routes
+        requests per-database, so ``odoo.tools.config["db_name"]`` is empty
+        and cannot be trusted from a daemon thread with no request context.
+        Resolve the database name once and cache it: config first, then the
+        addon's ``odoo`` database, then any already-loaded registry.
+        """
+        if self._db_name:
+            return self._db_name
+        import odoo
+
+        from odoo.modules.registry import Registry
+
+        name = odoo.tools.config.get("db_name")
+        if not name and "odoo" in Registry.registries:
+            name = "odoo"
+        if not name and Registry.registries:
+            name = next(iter(Registry.registries))
+        if not name:
+            raise RuntimeError("invoice_agent: cannot resolve database name for result consumer")
+        self._db_name = name
+        return name
+
     def _handle_started(self, payload):
         import odoo
 
         from odoo.modules.registry import Registry
 
-        registry = Registry(odoo.tools.config["db_name"])
+        registry = Registry(self._resolve_db_name())
         cursor = registry.cursor()
         try:
             env = odoo.api.Environment(cursor, odoo.SUPERUSER_ID, {})
@@ -326,7 +352,7 @@ class _InvoiceAgentResultConsumer:
 
         from odoo.modules.registry import Registry
 
-        registry = Registry(odoo.tools.config["db_name"])
+        registry = Registry(self._resolve_db_name())
         cursor = registry.cursor()
         try:
             env = odoo.api.Environment(cursor, odoo.SUPERUSER_ID, {})
@@ -431,9 +457,16 @@ class _InvoiceAgentResultConsumer:
         import jwt
         from jwt.exceptions import InvalidTokenError
 
-        from .llm_service import JWT_SECRET_PARAM
-
-        secret = env["ir.config_parameter"].sudo().get_param(JWT_SECRET_PARAM)
+        # Resolve the shared secret exactly as the request path does
+        # (invoice.llm.service._jwt_secret: INVOICE_AI_JWT_SECRET env first,
+        # then the invoice_agent.jwt_secret ir.config_parameter). One source
+        # of truth means the worker's signing secret and this consumer's
+        # verifying secret can never drift. A missing secret just rejects the
+        # result — never a traceback.
+        try:
+            secret = env["invoice.llm.service"]._jwt_secret()
+        except Exception:
+            secret = None
         token = payload.get("token") or ""
         if not secret or not token:
             _logger.warning("invoice_agent: missing secret/token for result")
