@@ -228,6 +228,10 @@ services:
       PASSWORD: ${ODOO_DB_PASSWORD:-odoo}
       # Pass Anthropic API key securely from environment
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      # Shared JWT secret for extract.done result verification. Must equal
+      # INVOICE_AI_JWT_SECRET in .env (the worker signs with it; the Odoo
+      # result consumer verifies with it). Set in .env not source.
+      INVOICE_AI_JWT_SECRET: ${INVOICE_AI_JWT_SECRET:-}
       # RabbitMQ — forwarded so queue.publisher connects with the same
       # credentials the broker container was created with (RABBITMQ_HOST
       # defaults to the compose service name "rabbitmq" in code).

@@ -55,3 +55,25 @@ class InvoiceAgentAppliedJob(models.Model):
         "UNIQUE(job_uuid)",
         "A job result may only be applied once per job_uuid.",
     )
+
+    def init(self):
+        """Guarantee the UNIQUE(job_uuid) index on every module load.
+
+        ``models.Constraint`` are only materialized during module
+        install/upgrade; a table created before this constraint existed
+        (or a schema that drifted) can end up WITHOUT the unique index,
+        which makes the consumer's ``INSERT ... ON CONFLICT (job_uuid)
+        DO NOTHING`` in ``queue_consumer._claim_job_uuid`` raise
+        "no unique or exclusion constraint matching the ON CONFLICT
+        specification" and every result fails to apply. This idempotent
+        ``CREATE UNIQUE INDEX IF NOT EXISTS`` closes that gap on every
+        registry load, so ``ON CONFLICT`` always has a constraint to match.
+        """
+        super().init()
+        self.env.cr.execute(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS
+            invoice_agent_applied_job_job_uuid_unique_idx
+            ON invoice_agent_applied_job (job_uuid)
+            """
+        )
