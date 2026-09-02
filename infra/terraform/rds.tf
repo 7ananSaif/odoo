@@ -214,7 +214,7 @@ resource "aws_db_instance" "odoo" {
   enabled_cloudwatch_logs_exports       = ["postgresql", "upgrade"]
 
   # Protection
-  deletion_protection = true
+  deletion_protection = false
 
   # Require SSL connections
   apply_immediately = false
@@ -224,7 +224,7 @@ resource "aws_db_instance" "odoo" {
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }
 

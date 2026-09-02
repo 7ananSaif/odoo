@@ -1,0 +1,75 @@
+# =============================================================================
+# eksctl cluster config — Odoo Invoice Agent on EKS
+#
+# Region/account/VPC are the ones already created by Terraform
+# (infra/terraform). Subnet IDs below are placeholders: substitute the real IDs
+# from `terraform output` (see infra/terraform/subnets.tf + outputs.tf).
+#
+# Provision:
+#   eksctl create cluster -f infra/eks/cluster.yaml
+#
+# Verify:
+#   eksctl get cluster --region eu-west-1
+#   kubectl get nodes
+#   aws eks describe-cluster --name odoo-eks --query 'cluster.identity.oidc.issuer' --output text
+# =============================================================================
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: odoo-eks
+  region: eu-west-1
+  version: "1.30"
+
+# IAM OIDC provider — required for IRSA (IAM roles for service accounts),
+# e.g. the AWS Load Balancer Controller and External Secrets Operator.
+iam:
+  withOIDC: true
+
+# Reuse the VPC/subnets Terraform already built (10.20.0.0/16).
+# private  -> app subnets  10.20.10.0/24, 10.20.11.0/24
+# public   -> public subnets 10.20.0.0/24, 10.20.1.0/24
+# Fill each `id` from terraform output. eksctl requires concrete subnet IDs.
+vpc:
+  subnets:
+    private:
+      eu-west-1a:
+        id: subnet-APP_1A # <- terraform output app_subnet_ids[0]
+      eu-west-1b:
+        id: subnet-APP_1B # <- terraform output app_subnet_ids[1]
+    public:
+      eu-west-1a:
+        id: subnet-PUB_1A # <- terraform output public_subnet_ids[0]
+      eu-west-1b:
+        id: subnet-PUB_1B # <- terraform output public_subnet_ids[1]
+
+managedNodeGroups:
+  - name: odoo-workers
+    instanceType: m5.large
+    minSize: 1
+    maxSize: 4
+    desiredCapacity: 2
+    privateNetworking: true
+    subnets:
+      - eu-west-1a
+      - eu-west-1b
+    volumeSize: 100
+    volumeType: gp3
+    labels:
+      role: odoo
+    iam:
+      withAddonPolicies:
+        ebs: true
+    tags:
+      Name: odoo-eks-worker
+      Project: odoo-invoice-agent
+      Environment: production
+
+addons:
+  - name: aws-ebs-csi-driver
+    version: latest
+
+cloudWatch:
+  clusterLogging:
+    enableTypes:
+      ["api", "audit", "authenticator", "controllerManager", "scheduler"]

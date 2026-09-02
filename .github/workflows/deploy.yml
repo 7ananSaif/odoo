@@ -1,4 +1,8 @@
-name: Deploy — EC2 Production
+name: Deploy — EKS Production
+
+# Sole path to production: helm upgrade --install to the odoo-eks cluster,
+# authenticated via GitHub Actions OIDC -> IAM role (no long-lived AWS keys).
+# The old SSH + docker compose EC2 path has been retired (see infra/runbook.md).
 
 on:
     push:
@@ -8,7 +12,9 @@ concurrency:
     group: deploy-production
     cancel-in-progress: false
 
+# OIDC token needed for configure-aws-credentials (IAM role assumption).
 permissions:
+    id-token: write
     contents: read
 
 jobs:
@@ -19,508 +25,93 @@ jobs:
     deploy:
         needs: [ci]
         runs-on: ubuntu-latest
+        environment: production
 
         steps:
             - uses: actions/checkout@v4
 
-            # ==================================================================
-            # Step 1 — Install the deploy script on the server and launch it
-            # DETACHED (nohup). The previous design ran the whole deploy inside
-            # the SSH session; the long silent pg_dumpall produced no traffic,
-            # the connection was dropped mid-deploy
-            # ("remote command exited without exit status or exit signal")
-            # and GitHub marked the run failed while the server sat in a
-            # half-deployed state. With nohup, the deploy survives any SSH
-            # drop, and a re-run of this workflow re-attaches to the running
-            # deploy instead of starting a second concurrent one.
-            # ==================================================================
-            - name: Launch detached deploy on EC2
-              uses: appleboy/ssh-action@v1.0.3
+            # ------------------------------------------------------------------
+            # EKS auth via OIDC — assume a short-lived IAM role. The role's
+            # trust policy allows the GitHub repo + environment to assume it,
+            # so no AWS_ACCESS_KEY_ID / SECRET are stored as secrets.
+            # ------------------------------------------------------------------
+            - name: Configure AWS credentials (OIDC)
+              uses: aws-actions/configure-aws-credentials@v4
               with:
-                  host: ${{ secrets.EC2_HOST }}
-                  username: ${{ secrets.EC2_USERNAME }}
-                  key: ${{ secrets.SSH_PRIVATE_KEY }}
-                  port: 22
-                  command_timeout: 10m
-                  script: |
-                      set -e
-                      cd /opt/odoo
-                      mkdir -p scripts backups
+                  aws-region: eu-west-1
+                  role-to-assume: ${{ secrets.AWS_EKS_DEPLOY_ROLE_ARN }}
 
-                      # ------------------------------------------------------------------
-                      # Write the deploy script (quoted heredoc: no expansion here —
-                      # the script receives the target SHA as $1 at launch time).
-                      # ------------------------------------------------------------------
-                      cat > scripts/deploy_remote.sh <<'DEPLOY_SCRIPT_EOF'
-                      #!/usr/bin/env bash
-                      # deploy_remote.sh — runs detached on the EC2 host so an SSH
-                      # drop cannot kill it. Writes its exit code to
-                      # /opt/odoo/deploy.exit on exit; CI tails /opt/odoo/deploy.log.
-                      set -e
-                      cd /opt/odoo
-                      trap 'echo $? > /opt/odoo/deploy.exit' EXIT
+            # ------------------------------------------------------------------
+            # Point kubectl at the EKS cluster.
+            # ------------------------------------------------------------------
+            - name: Update kubeconfig
+              run: aws eks update-kubeconfig --name odoo-eks --region eu-west-1
 
-                      # Single-instance guard: a previous run's detached deploy
-                      # may still be alive when a new workflow run launches —
-                      # two concurrent deploys would corrupt each other's state.
-                      exec 9>/opt/odoo/deploy.lock
-                      if ! flock -n 9; then
-                          echo "ERROR: another deploy is already running on this host — aborting."
-                          exit 3
-                      fi
-
-                      TARGET_SHA="$1"
-                      TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-                      PREVIOUS_SHA=$(git rev-parse HEAD)
-
-                      # ==================================================================
-                      # 1. Safely extract DOMAIN from .env file
-                      # ==================================================================
-                      if [ -f .env ] && grep -q "^DOMAIN=" .env; then
-                          DOMAIN_NAME=$(grep "^DOMAIN=" .env | head -n 1 | cut -d '=' -f2 | tr -d '"' | tr -d "'" | tr -d '\r')
-                      else
-                          echo "ERROR: DOMAIN is not set in .env — refusing to deploy without a target domain."
-                          exit 1
-                      fi
-
-                      echo "=== Deploy started at $TIMESTAMP ==="
-                      echo "Target Domain: $DOMAIN_NAME"
-                      echo "Current SHA:   $PREVIOUS_SHA"
-                      echo "Target SHA:    $TARGET_SHA"
-
-                      # ==================================================================
-                      # 2. Pre-upgrade database cluster snapshot (All Databases)
-                      #
-                      # Streamed to the HOST backups/ dir instead of container /tmp:
-                      # survives container recreation, doesn't fill the container
-                      # overlay filesystem, and old snapshots get pruned.
-                      # ==================================================================
-                      ls -1t backups/pre_deploy_*.sql 2>/dev/null | tail -n +3 | xargs -r rm -f
-                      docker compose exec -T db sh -c 'rm -f /tmp/pre_deploy_*.sql' 2>/dev/null || true
-
-                      echo "Taking pre-upgrade DB snapshot -> backups/pre_deploy_${TIMESTAMP}.sql ..."
-                      # -c (--clean): emit DROP statements before CREATE so the
-                      # snapshot can be replayed over the LIVE cluster during
-                      # rollback. Without it, every CREATE hits an existing
-                      # object ("constraint ... already exists") and nothing is
-                      # actually restored.
-                      docker compose exec -T db pg_dumpall -U odoo -c > "backups/pre_deploy_${TIMESTAMP}.sql" \
-                          || echo "WARNING: Pre-upgrade snapshot failed — continuing anyway"
-                      ls -lh "backups/pre_deploy_${TIMESTAMP}.sql" 2>/dev/null || true
-
-                      # Postgres emits "WARNING: database "X" has a collation
-                      # version mismatch" on connect whenever datcollversion
-                      # differs from the libc version actually running. That
-                      # warning is ground truth. Do NOT compare datcollversion
-                      # against pg_collation's 'default' row instead: that row
-                      # has collprovider 'd' and its collversion is ALWAYS NULL,
-                      # so such a comparison flags every database unconditionally
-                      # (this false positive failed deploys even after a clean
-                      # REINDEX + REFRESH COLLATION VERSION).
-                      list_mismatched_dbs() {
-                          local dbs db mismatches=""
-                          dbs=$(docker compose exec -T db psql -U odoo -d postgres -t -A -c \
-                              "SELECT datname FROM pg_database WHERE datallowconn ORDER BY datname;" \
-                              | tr -d '\r')
-                          for db in $dbs; do
-                              [ -z "$db" ] && continue
-                              if docker compose exec -T db psql -U odoo -d "$db" -c "SELECT 1;" 2>&1 \
-                                  | grep -qi "collation version mismatch"; then
-                                  mismatches+="$db"$'\n'
-                              fi
-                          done
-                          printf '%s' "$mismatches"
-                      }
-
-                      # ==================================================================
-                      # 2b. Collation version guard + automatic repair
-                      #
-                      # A mismatch means the OS libc collation changed under a
-                      # live data volume (e.g. the db image's Debian base
-                      # drifted). Indexes built under the old collation can be
-                      # misordered — deploying on top of it risks silent data
-                      # corruption. Previously this failed the deploy and
-                      # demanded a manual SSH repair, which blocked every
-                      # deploy until someone intervened. Now the deploy
-                      # self-heals: stop the app containers, REINDEX every
-                      # database under the current libc, refresh the recorded
-                      # collation version, verify zero mismatches remain, then
-                      # continue. Only runs when a mismatch actually exists,
-                      # so it is a rare one-time cost inside a downtime window
-                      # the deploy already owns. Manual fallback remains:
-                      # bash scripts/fix_collation.sh (or the
-                      # "Repair DB collation (EC2)" workflow).
-                      # ==================================================================
-                      COLLATION_MISMATCH=$(list_mismatched_dbs || true)
-
-                      if [ -n "$COLLATION_MISMATCH" ]; then
-                          echo "WARNING: collation version mismatch detected in databases:"
-                          echo "$COLLATION_MISMATCH"
-                          echo "Running automatic collation repair (app containers stopped during REINDEX)..."
-
-                          docker compose stop odoo worker invoice-ai || true
-
-                          until docker compose exec -T db pg_isready -U odoo -d postgres -q; do
-                              echo "Waiting for db to be ready..."
-                              sleep 2
-                          done
-
-                          REPAIR_DBS=$(docker compose exec -T db psql -U odoo -d postgres -t -A -c \
-                              "SELECT datname FROM pg_database WHERE datallowconn ORDER BY datname;" \
-                              | tr -d '\r' || true)
-
-                          REPAIR_FAILED=0
-                          for RDB in $REPAIR_DBS; do
-                              [ -z "$RDB" ] && continue
-                              echo "--- Repairing database: $RDB ---"
-                              if ! docker compose exec -T db psql -U odoo -d "$RDB" -c "REINDEX DATABASE;"; then
-                                  echo "ERROR: REINDEX failed on database: $RDB"
-                                  REPAIR_FAILED=1
-                                  continue
-                              fi
-                              if ! docker compose exec -T db psql -U odoo -d "$RDB" -c \
-                                  "ALTER DATABASE \"${RDB}\" REFRESH COLLATION VERSION;"; then
-                                  echo "ERROR: REFRESH COLLATION VERSION failed on database: $RDB"
-                                  REPAIR_FAILED=1
-                              fi
-                          done
-
-                          REMAINING_MISMATCH=$(list_mismatched_dbs || true)
-
-                          if [ "$REPAIR_FAILED" -ne 0 ] || [ -n "$REMAINING_MISMATCH" ]; then
-                              echo "ERROR: automatic collation repair failed."
-                              if [ -n "$REMAINING_MISMATCH" ]; then
-                                  echo "Databases still mismatched: $REMAINING_MISMATCH"
-                              fi
-                              # The app containers were stopped for REINDEX.
-                              # Exiting without bringing them back up left the
-                              # site down until the next successful deploy.
-                              echo "Restarting application containers before exiting..."
-                              docker compose up -d odoo worker invoice-ai || true
-                              echo "Run 'bash scripts/fix_collation.sh' on the EC2 host manually, then re-deploy."
-                              exit 1
-                          fi
-
-                          echo "Collation repair complete — restarting application containers..."
-                          docker compose up -d odoo worker invoice-ai
-                          echo "Continuing deploy."
-                      fi
-
-                      # ==================================================================
-                      # 3. Checkout the exact target SHA and rebuild
-                      # ==================================================================
-                      echo "Fetching and checking out $TARGET_SHA ..."
-                      git fetch origin production
-                      git reset --hard "$TARGET_SHA"
-
-                      echo "Rebuilding and restarting stack..."
-                      docker compose up -d --build
-
-                      # ==================================================================
-                      # 4. Run module upgrade for ALL databases on the server
-                      # ==================================================================
-                      echo "Fetching all databases and upgrading invoice_agent..."
-                      set +e
-
-                      DATABASES=$(docker compose exec -T db psql -U odoo -d postgres -t -c "SELECT datname FROM pg_database WHERE datistemplate = false AND datname NOT IN ('postgres', 'template1');" | tr -d '\r')
-
-                      UPGRADE_STATUS=0
-
-                      for DB in $DATABASES; do
-                          DB_CLEAN=$(echo "$DB" | xargs)
-                          [ -z "$DB_CLEAN" ] && continue
-
-                          echo "---> $(date '+%F %T') Upgrading module 'invoice_agent' on database: $DB_CLEAN"
-                          # --log-level=info: a large production DB can migrate for
-                          # many minutes with zero output at 'warn' — invisible
-                          # progress makes a slow upgrade indistinguishable from a hang.
-                          # Silence watchdog: kill the upgrade ONLY if it produces
-                          # no output for 10 straight minutes. At INFO level a
-                          # healthy migration logs continuously even when slow;
-                          # a true hang is silent. A fixed 10-minute wall clock
-                          # (run #40) killed a healthy production migration
-                          # mid-flight, half-migrating the schema and forcing a
-                          # destructive rollback that left the site at 502.
-                          UP_LOG="/tmp/upgrade_${DB_CLEAN}.log"
-                          : > "$UP_LOG"
-                          docker compose exec -T odoo \
-                                  odoo -d "$DB_CLEAN" -u invoice_agent \
-                                  --db_host=db --db_user=odoo --db_password=odoo \
-                                  --stop-after-init --log-level=info > "$UP_LOG" 2>&1 &
-                          UP_PID=$!
-                          LAST_SIZE=0
-                          LAST_CHANGE=$(date +%s)
-                          SHOWN=0
-                          HUNG=0
-                          # db_is_busy: is Postgres actually doing work on this
-                          # database right now? Returns 0 (true) when either an
-                          # index build is in progress (pg_stat_progress_create_
-                          # index) or a client-backend query is actively running.
-                          db_is_busy() {
-                              docker compose exec -T db psql -U odoo -d "$1" -t -A -c \
-                                  "SELECT 1 FROM pg_stat_progress_create_index WHERE datname = '$1'
-                                   UNION ALL
-                                   SELECT 1 FROM pg_stat_activity
-                                   WHERE datname = '$1' AND state = 'active'
-                                     AND backend_type = 'client backend'
-                                     AND pid <> pg_backend_pid()
-                                   LIMIT 1;" 2>/dev/null | grep -q 1
-                          }
-                          while kill -0 "$UP_PID" 2>/dev/null; do
-                              sleep 10
-                              SIZE=$(wc -c < "$UP_LOG" 2>/dev/null || echo 0)
-                              LINES=$(wc -l < "$UP_LOG" 2>/dev/null || echo 0)
-                              NOW=$(date +%s)
-                              if [ "$LINES" -gt "$SHOWN" ]; then
-                                  tail -n +"$((SHOWN + 1))" "$UP_LOG"
-                                  SHOWN=$LINES
-                              fi
-                              if [ "$SIZE" != "$LAST_SIZE" ]; then
-                                  LAST_SIZE=$SIZE
-                                  LAST_CHANGE=$NOW
-                              elif [ $((NOW - LAST_CHANGE)) -ge 600 ]; then
-                                  # Log silence alone does NOT mean hung: a healthy
-                                  # migration can be silent for a long time while
-                                  # Postgres builds a slow index with zero log output
-                                  # (run #43: the invoice_agent_vendor_doc vector(1024)
-                                  # HNSW cosine index on the production DB took >10 min
-                                  # silently; the old output-only watchdog killed it,
-                                  # half-migrating the schema and forcing a rollback).
-                                  # Only kill when the DB shows NO active work either.
-                                  if db_is_busy "$DB_CLEAN"; then
-                                      LAST_CHANGE=$NOW
-                                  else
-                                      echo "ERROR: no upgrade output for 10 minutes on $DB_CLEAN and no active DB work — treating as hung, killing."
-                                      kill "$UP_PID" 2>/dev/null || true
-                                      sleep 5
-                                      kill -9 "$UP_PID" 2>/dev/null || true
-                                      HUNG=1
-                                      break
-                                  fi
-                              fi
-                          done
-                          wait "$UP_PID" 2>/dev/null
-                          RC=$?
-                          if [ "$LINES" -gt "$SHOWN" ]; then
-                              tail -n +"$((SHOWN + 1))" "$UP_LOG"
-                          fi
-                          rm -f "$UP_LOG"
-                          if [ "$RC" -eq 0 ] && [ "$HUNG" -eq 0 ]; then
-                              echo "---> $(date '+%F %T') Upgrade OK on $DB_CLEAN"
-                          else
-                              echo "ERROR: Upgrade failed on database: $DB_CLEAN (exit $RC${HUNG:+ — killed after 10 min of silence AND no DB activity})"
-                              UPGRADE_STATUS=1
-                          fi
-
-                      done
-
-                      set -e
-
-                      if [ $UPGRADE_STATUS -ne 0 ]; then
-                          echo "ERROR: Odoo module upgrade failed during initialization!"
-                          HEALTHY=false
-                      else
-                          # ==============================================================
-                          # 5. Restart Odoo to boot in server mode
-                          # ==============================================================
-                          echo "Restarting Odoo..."
-                          docker compose restart odoo
-
-                          # ==============================================================
-                          # 6. HTTPS health check using extracted DOMAIN
-                          # ==============================================================
-                          echo "Running HTTPS health check through nginx for domain: $DOMAIN_NAME..."
-                          HEALTHY=false
-                          for i in $(seq 1 30); do
-                              STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-                                  --connect-timeout 5 \
-                                  --max-time 10 \
-                                  "https://${DOMAIN_NAME}/web/login" \
-                                  2>/dev/null || echo "000")
-
-                              if [ "$STATUS" = "000" ] || [ "$STATUS" = "502" ] || [ "$STATUS" = "503" ]; then
-                                  STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-                                      http://localhost:8069/web/login 2>/dev/null || echo "000")
-                                  echo "  Attempt $i/30 — HTTPS failed, direct check: HTTP $STATUS"
-                              else
-                                  echo "  Attempt $i/30 — HTTPS check: HTTP $STATUS"
-                              fi
-
-                              if [ "$STATUS" = "200" ] || [ "$STATUS" = "303" ]; then
-                                  HEALTHY=true
-                                  echo "Health check passed (HTTP $STATUS) after ${i}s"
-                                  break
-                              fi
-                              echo "  Attempt $i/30 — HTTP $STATUS, waiting..."
-                              sleep 2
-                          done
-
-                          if [ "$HEALTHY" != "true" ]; then
-                              echo "--- Health check failed — odoo container diagnostics ---"
-                              docker compose ps 2>&1 | head -n 20
-                              docker compose logs --tail=40 odoo 2>&1 | tail -n 40
-                          fi
-                      fi
-
-                      # ==================================================================
-                      # 7. Verify websocket endpoint if healthy
-                      # ==================================================================
-                      if [ "$HEALTHY" = "true" ]; then
-                          echo "Checking websocket upgrade endpoint..."
-                          WS_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-                              -H "Connection: Upgrade" \
-                              -H "Upgrade: websocket" \
-                              -H "Sec-WebSocket-Version: 13" \
-                              -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" \
-                              --max-time 5 \
-                              "https://${DOMAIN_NAME}/websocket" \
-                              2>/dev/null || echo "000")
-                          if [ "$WS_STATUS" = "101" ]; then
-                              echo "Websocket endpoint: OK (HTTP 101 Switching Protocols)"
-                          else
-                              echo "WARNING: Websocket endpoint returned HTTP $WS_STATUS (expected 101)"
-                          fi
-                      fi
-
-                      # ==================================================================
-                      # 8. Automated Rollback System
-                      # ==================================================================
-                      if [ "$HEALTHY" != "true" ]; then
-                          echo ""
-                          echo "!!! DEPLOY FAILED — Initiating Hard Rollback !!!"
-                          echo "Rolling back code to $PREVIOUS_SHA..."
-
-                          git reset --hard "$PREVIOUS_SHA"
-                          docker compose up -d --build
-
-                          if [ -f "backups/pre_deploy_${TIMESTAMP}.sql" ] && [ -s "backups/pre_deploy_${TIMESTAMP}.sql" ]; then
-                              echo "Restoring databases from pre-upgrade snapshot..."
-                              # Stop EVERY container holding a DB connection.
-                              # Previously only 'odoo' was stopped while worker
-                              # and invoice-ai kept live connections, so the
-                              # dump's DROP DATABASE failed, psql continued on
-                              # error, and the cluster was left half-restored —
-                              # the source of chronic InFailedSqlTransaction
-                              # errors and ORM KeyError crashes afterwards.
-                              docker compose stop odoo worker invoice-ai
-                              # ON_ERROR_STOP: a failed restore must abort loudly
-                              # instead of silently leaving a broken database.
-                              docker compose exec -T db psql -U odoo -d postgres \
-                                  -v ON_ERROR_STOP=1 \
-                                  < "backups/pre_deploy_${TIMESTAMP}.sql" \
-                                  || echo "WARNING: snapshot restore reported errors — verify DB state manually"
-                          fi
-
-                          docker compose restart odoo
-
-                          # Odoo needs several minutes to boot after a full DB
-                          # restore — 20x2s (~40s) always exhausted and reported
-                          # a healthy rollback as failed. Allow up to ~5 minutes.
-                          for i in $(seq 1 60); do
-                              STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-                                  --connect-timeout 5 --max-time 10 \
-                                  "https://${DOMAIN_NAME}/web/login" 2>/dev/null || echo "000")
-                              echo "  Rollback check $i/60 — HTTP $STATUS"
-                              if [ "$STATUS" = "200" ] || [ "$STATUS" = "303" ]; then
-                                  echo "Rollback successful — System restored to stable state at $PREVIOUS_SHA"
-                                  exit 1
-                              fi
-                              if [ $((i % 12)) -eq 0 ]; then
-                                  echo "--- Rollback diagnostics (attempt $i) ---"
-                                  docker compose ps 2>&1 | head -n 20
-                                  docker compose logs --tail=25 odoo 2>&1 | tail -n 25
-                              fi
-                              sleep 5
-                          done
-
-                          echo "!!! CRITICAL: Automatic Rollback failed — manual intervention required !!!"
-                          exit 2
-                      fi
-
-                      # ==================================================================
-                      # 9. Clean up DB dump on success
-                      # ==================================================================
-                      rm -f "backups/pre_deploy_${TIMESTAMP}.sql"
-
-                      echo ""
-                      echo "=== Deploy completed successfully ==="
-                      echo "SHA: $TARGET_SHA"
-                      echo "Time: $(date)"
-                      DEPLOY_SCRIPT_EOF
-
-                      chmod +x scripts/deploy_remote.sh
-
-                      # ------------------------------------------------------------------
-                      # Launch detached, or re-attach if a deploy is already running
-                      # (e.g. a previous run's SSH dropped — the nohup'd script kept
-                      # going server-side).
-                      # ------------------------------------------------------------------
-                      if [ -f deploy.pid ] && kill -0 "$(cat deploy.pid)" 2>/dev/null; then
-                          echo "Deploy already running (PID $(cat deploy.pid)) — re-attaching to its log."
-                      else
-                          rm -f deploy.exit
-                          nohup bash scripts/deploy_remote.sh "${{ github.sha }}" > /opt/odoo/deploy.log 2>&1 &
-                          echo $! > deploy.pid
-                          echo "Deploy launched detached with PID $(cat deploy.pid)"
-                      fi
-
-            # ==================================================================
-            # Step 2 — Stream the deploy log until the detached script exits.
-            # Polling every 10s with heartbeats keeps constant traffic on the
-            # SSH connection, preventing the idle-connection drop that killed
-            # the previous design. If THIS session drops too, the deploy still
-            # completes server-side; re-running the workflow re-attaches.
-            # ==================================================================
-            - name: Stream deploy log until completion
-              uses: appleboy/ssh-action@v1.0.3
+            # ------------------------------------------------------------------
+            # Install helm.
+            # ------------------------------------------------------------------
+            - name: Set up Helm
+              uses: azure/setup-helm@v4
               with:
-                  host: ${{ secrets.EC2_HOST }}
-                  username: ${{ secrets.EC2_USERNAME }}
-                  key: ${{ secrets.SSH_PRIVATE_KEY }}
-                  port: 22
-                  # Hard cap of 10m for this SSH session, matching the upgrade cap.
-                  # The poll loop below must finish comfortably inside this window;
-                  # a deploy that needs longer is reported as STILL RUNNING and is
-                  # picked up by a re-run (which re-attaches to the live log).
-                  command_timeout: 10m
-                  script: |
-                      PID=$(cat /opt/odoo/deploy.pid)
-                      LAST=0
-                      # 50 iterations x ~10s ≈ 8.5 min max poll window — must
-                      # finish well inside the 10m command_timeout above.
-                      for i in $(seq 1 50); do
-                          SIZE=$(wc -l < /opt/odoo/deploy.log 2>/dev/null || echo 0)
-                          if [ "$SIZE" -gt "$LAST" ]; then
-                              tail -n +"$((LAST + 1))" /opt/odoo/deploy.log
-                              LAST=$SIZE
-                          fi
-                          if ! kill -0 "$PID" 2>/dev/null; then
-                              break
-                          fi
-                          if [ $((i % 6)) -eq 0 ]; then
-                              echo "[poller] deploy still running (~$((i * 10))s elapsed)"
-                          fi
-                          sleep 10
-                      done
+                  version: v3.15.0
 
-                      # Flush any remaining output
-                      SIZE=$(wc -l < /opt/odoo/deploy.log 2>/dev/null || echo 0)
-                      if [ "$SIZE" -gt "$LAST" ]; then
-                          tail -n +"$((LAST + 1))" /opt/odoo/deploy.log
-                      fi
+            # ------------------------------------------------------------------
+            # Record the current release revision before upgrading, so we can
+            # roll back to it if the post-deploy smoke test fails.
+            # ------------------------------------------------------------------
+            - name: Capture previous helm revision
+              id: revision
+              run: |
+                  set -e
+                  # If the release doesn't exist yet (first deploy) there is no
+                  # previous revision to roll back to.
+                  if helm history odoo -n odoo >/dev/null 2>&1; then
+                      PREV=$(helm history odoo -n odoo --max 2 2>/dev/null \
+                          | awk 'NR==2 {print $1}' || echo "0")
+                      echo "prev=$PREV" >> "$GITHUB_OUTPUT"
+                      echo "Previous revision: $PREV"
+                  else
+                      echo "prev=0" >> "$GITHUB_OUTPUT"
+                      echo "No existing release — first deploy."
+                  fi
 
-                      # Distinguish "poll window exhausted but deploy alive"
-                      # from a real failure — reporting the fallback code 1 here
-                      # previously masked a healthy in-flight deploy as failed.
-                      if [ ! -f /opt/odoo/deploy.exit ] && kill -0 "$PID" 2>/dev/null; then
-                          echo ""
-                          echo "Poll window exhausted (~9 min) but the deploy is STILL RUNNING."
-                          echo "It continues detached on the server — re-run this workflow to re-attach,"
-                          echo "or check on the host: tail -f /opt/odoo/deploy.log ; cat /opt/odoo/deploy.exit"
-                          exit 1
-                      fi
+            # ------------------------------------------------------------------
+            # The deploy — a single helm upgrade --install. --atomic makes helm
+            # roll back the release automatically if the chart fails to apply or
+            # the post-install hooks (if any) fail, and keeps the release in a
+            # healthy state instead of leaving a half-updated one.
+            # ------------------------------------------------------------------
+            - name: helm upgrade --install
+              run: |
+                  helm upgrade --install odoo infra/helm/odoo-stack \
+                    -f infra/helm/odoo-stack/values.production.yaml \
+                    -n odoo --create-namespace \
+                    --atomic --timeout 10m
 
-                      CODE=$(cat /opt/odoo/deploy.exit 2>/dev/null || echo 1)
-                      rm -f /opt/odoo/deploy.exit
-                      echo "Deploy script exited with code: $CODE"
-                      exit "$CODE"
+            # ------------------------------------------------------------------
+            # Post-deploy smoke test — the same smoke test used on the old EC2
+            # path, now against the EKS-backed ALB/domain.
+            # ------------------------------------------------------------------
+            - name: Smoke test
+              id: smoke
+              run: |
+                  set -e
+                  chmod +x scripts/smoke-test.sh
+                  ./scripts/smoke-test.sh "${{ secrets.DOMAIN }}"
+
+            # ------------------------------------------------------------------
+            # Automatic rollback — if the smoke test fails, roll the release
+            # back to the previous revision (sub-5-minute bar, matching the old
+            # EC2 rollback).
+            # ------------------------------------------------------------------
+            - name: Roll back on smoke failure
+              if: ${{ steps.smoke.outcome != 'success' || failure() }}
+              run: |
+                  PREV="${{ steps.revision.outputs.prev }}"
+                  if [ "$PREV" != "0" ]; then
+                      echo "Smoke test failed — rolling back to revision $PREV"
+                      helm rollback odoo "$PREV" -n odoo --timeout 10m
+                  else
+                      echo "Smoke test failed and there is no previous revision — manual intervention required"
+                      exit 1
+                  fi
