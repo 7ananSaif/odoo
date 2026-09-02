@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  labels:
+    app: odoo-test
+data:
+  APP_MODE: "production"
+  ODOO_DB_HOST: "postgres"
+  ODOO_DB_PORT: "5432"
+  ODOO_DB_USER: "odoo"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+  labels:
+    app: odoo-test
+type: Opaque
+stringData:
+  POSTGRES_PASSWORD: "change-me-strong-password"
+  ODOO_DB_PASSWORD: "change-me-strong-password"
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-test
+  labels:
+    app: odoo-test
+spec:
+  restartPolicy: Never
+  containers:
+    - name: env-test
+      image: busybox:1.36
+      command:
+        [
+          "sh",
+          "-c",
+          "echo APP_MODE=$APP_MODE; echo ODOO_DB_HOST=$ODOO_DB_HOST; echo POSTGRES_PASSWORD=$POSTGRES_PASSWORD; sleep 3600",
+        ]
+      envFrom:
+        - configMapRef:
+            name: app-config
+      env:
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_PASSWORD

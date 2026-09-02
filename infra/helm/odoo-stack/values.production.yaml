@@ -1,0 +1,37 @@
+# Production overlay — merged on top of values.yaml.
+# Secrets are NOT stored here; `secret.existingSecret: true` references a
+# Secret provisioned via AWS Secrets Manager / External Secrets Operator.
+
+postgres:
+  resources:
+    requests:
+      cpu: 1
+      memory: 2Gi
+    limits:
+      cpu: "4"
+      memory: 8Gi
+  storage:
+    size: 100Gi
+  # In production you typically move Postgres OUT of the cluster to Amazon RDS.
+  # Set `postgres.enabled: false` and point `config.odooDbHost` at the RDS
+  # endpoint instead.
+
+odoo:
+  replicaCount: 3
+  resources:
+    requests:
+      cpu: "2"
+      memory: 4Gi
+    limits:
+      cpu: "6"
+      memory: 8Gi
+  filestore:
+    size: 100Gi
+
+# In prod DB host points at RDS endpoint (or keep `postgres` if in-cluster).
+config:
+  odooDbHost: postgres # -> replace with RDS endpoint when using RDS
+
+secret:
+  existingSecret: true
+  name: odoo-production-secrets

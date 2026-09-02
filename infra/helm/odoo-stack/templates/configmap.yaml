@@ -1,0 +1,15 @@
+{{- if .Values.config }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "odoo-stack.fullname" . }}-config
+  labels:
+    {{- include "odoo-stack.labels" . | nindent 4 }}
+data:
+  ODOO_DB_HOST: {{ .Values.config.odooDbHost | quote }}
+  ODOO_DB_PORT: {{ .Values.config.odooDbPort | quote }}
+  ODOO_DB_USER: {{ .Values.config.odooDbUser | quote }}
+  {{- range $key, $value := .Values.config.extra }}
+  {{ $key }}: {{ $value | quote }}
+  {{- end }}
+{{- end }}

@@ -1,0 +1,83 @@
+{{- if .Values.odoo.enabled }}
+{{- $secretName := ternary .Values.secret.name (printf "%s-secret" (include "odoo-stack.fullname" .)) .Values.secret.existingSecret }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "odoo-stack.fullname" . }}-odoo
+  labels:
+    {{- include "odoo-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: odoo
+spec:
+  replicas: {{ .Values.odoo.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "odoo-stack.odooSelectorLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        {{- include "odoo-stack.odooSelectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: odoo
+          image: "{{ .Values.odoo.image.repository }}:{{ .Values.odoo.image.tag }}"
+          imagePullPolicy: {{ .Values.odoo.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.odoo.port }}
+              protocol: TCP
+          env:
+            - name: HOST
+              value: {{ .Values.config.odooDbHost | quote }}
+            - name: PORT
+              value: {{ .Values.config.odooDbPort | quote }}
+            - name: USER
+              value: {{ .Values.config.odooDbUser | quote }}
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: ODOO_DB_PASSWORD
+            {{- range $key, $value := .Values.config.extra }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- range .Values.odoo.extraEnv }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.odoo.resources | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.odoo.readinessProbe.path }}
+              port: {{ .Values.odoo.port }}
+            initialDelaySeconds: {{ .Values.odoo.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.odoo.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.odoo.readinessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.odoo.readinessProbe.failureThreshold }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.odoo.livenessProbe.path }}
+              port: {{ .Values.odoo.port }}
+            initialDelaySeconds: {{ .Values.odoo.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.odoo.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.odoo.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.odoo.livenessProbe.failureThreshold }}
+          volumeMounts:
+            - name: filestore
+              mountPath: /var/lib/odoo
+            {{- range .Values.odoo.extraVolumeMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+            {{- end }}
+      volumes:
+        - name: filestore
+          persistentVolumeClaim:
+            claimName: {{ include "odoo-stack.fullname" . }}-filestore
+        {{- range .Values.odoo.extraVolumes }}
+        - name: {{ .name }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+{{- end }}
