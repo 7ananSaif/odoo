@@ -1,0 +1,30 @@
+# Staging overlay — merged on top of values.yaml.
+# Secrets are NOT stored here; `secret.existingSecret: true` makes the chart
+# reference a Secret you provision out-of-band (External Secrets).
+
+postgres:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+  storage:
+    size: 20Gi
+
+odoo:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 1
+      memory: 2Gi
+    limits:
+      cpu: "3"
+      memory: 4Gi
+  filestore:
+    size: 20Gi
+
+secret:
+  existingSecret: true
+  name: odoo-staging-secrets

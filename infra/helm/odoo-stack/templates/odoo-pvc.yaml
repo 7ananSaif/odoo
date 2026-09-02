@@ -1,0 +1,18 @@
+{{- if .Values.odoo.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "odoo-stack.fullname" . }}-filestore
+  labels:
+    {{- include "odoo-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: odoo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  {{- if .Values.odoo.filestore.storageClassName }}
+  storageClassName: {{ .Values.odoo.filestore.storageClassName | quote }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.odoo.filestore.size }}
+{{- end }}

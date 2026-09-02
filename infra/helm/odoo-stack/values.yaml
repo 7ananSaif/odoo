@@ -1,0 +1,110 @@
+# Default values (LOCAL environment).
+# Overrides live in values.staging.yaml and values.production.yaml.
+# Secrets are never committed here: set `secret.existingSecret: true` in
+# staging/prod and reference a Secret you provision out-of-band (External
+# Secrets / AWS Secrets Manager).
+
+# --- Postgres -------------------------------------------------------------
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "16"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  port: 5432
+  database: odoo
+  user: odoo
+  # Resource requests/limits (local baseline; see README for sizing notes)
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  # postgres readiness probe uses pg_isready
+  readinessProbe:
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  livenessProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 15
+    timeoutSeconds: 5
+    failureThreshold: 3
+  # persistent storage
+  storage:
+    size: 8Gi
+    storageClassName: "" # empty -> cluster default (kind local-path)
+
+# --- Odoo web -------------------------------------------------------------
+odoo:
+  enabled: true
+  image:
+    repository: odoo
+    tag: "17.0"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  port: 8069
+  # filestore / addons persistent volume
+  filestore:
+    size: 10Gi
+    storageClassName: ""
+  # resource requests/limits; see README for baseline rationale
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+  # Odoo /web/health endpoint readiness + liveness
+  readinessProbe:
+    path: /web/health
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  livenessProbe:
+    path: /web/health
+    initialDelaySeconds: 60
+    periodSeconds: 15
+    timeoutSeconds: 5
+    failureThreshold: 3
+  # optional additional env for the app container
+  extraEnv: []
+  # extra volumes/volumeMounts placeholder (e.g. custom addons)
+  extraVolumes: []
+  extraVolumeMounts: []
+
+# --- ConfigMap (non-sensitive) -------------------------------------------
+config:
+  # These become the Odoo DB connection values used by the entrypoint.
+  odooDbHost: postgres
+  odooDbPort: "5432"
+  odooDbUser: odoo
+  # extra non-sensitive key/value pairs
+  extra: {}
+
+# --- Secret (sensitive) ---------------------------------------------------
+secret:
+  # When true, the chart does NOT render a Secret; it expects an existing
+  # Secret named `secret.name` to be present. Use for staging/prod.
+  existingSecret: false
+  name: odoo-secrets
+  # POSTGRES_PASSWORD + ODOO_DB_PASSWORD. LOCAL-ONLY placeholders.
+  postgresPassword: "change-me"
+  odooDbPassword: "change-me"
+  # Only used when existingSecret is false.
+
+# --- Services -------------------------------------------------------------
+service:
+  type: ClusterIP
+  odooPort: 8069
+  postgresPort: 5432
+
+# --- Release metadata -----------------------------------------------------
+labels:
+  app: odoo-stack
