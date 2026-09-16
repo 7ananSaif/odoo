@@ -1,7 +1,45 @@
 # Architecture — Invoice Agent on AWS
 
-> **Last updated:** 2026-08-19
-> **Status:** IaC-managed VPC + RDS on private subnets behind ALB, S3 for attachments/backups, Redis for sessions/cache
+> **Last updated:** 2026-09-15
+> **Reviewed against live environment:** 2026-09-15 (AWS account `652631466276`, region `eu-west-1`)
+
+## 0. Current delivery status (read first)
+
+**Nothing in this document is running in AWS today.** Every AWS resource
+described below is *defined in Terraform* and is *the intended production
+shape* — but the live account holds none of it.
+
+Verified on 2026-09-15 with the AWS CLI against account `652631466276`:
+
+| Check | Command | Result |
+|---|---|---|
+| Terraform state | `infra/terraform/terraform.tfstate` | `"outputs": {}`, `"resources": []` (serial 360, written 2026-08-24) |
+| VPC `10.20.0.0/16` | `aws ec2 describe-vpcs --region eu-west-1` | absent (only the `172.31.0.0/16` default VPC in `us-east-1`) |
+| EC2 instances | `aws ec2 describe-instances --region eu-west-1` | `[]` |
+| Elastic IPs | `aws ec2 describe-addresses --region eu-west-1` | `[]` |
+| RDS instances | `aws rds describe-db-instances --region eu-west-1` | `[]` |
+| ElastiCache groups | `aws elasticache describe-replication-groups --region eu-west-1` | `[]` |
+| EKS clusters | `aws eks list-clusters --region eu-west-1` | `[]` |
+| S3 buckets | `aws s3api list-buckets` | `[]` |
+| Security groups | `aws ec2 describe-security-groups` (name contains `invoice-agent`) | `[]` |
+| KMS key | `aws kms describe-key --key-id 5311057a-… --region eu-west-1` | `SSE-KMS key for Odoo S3 buckets` — **`PendingDeletion`**, created 2026-08-23 |
+
+What this means: the stack was applied around **2026-08-23** and torn down on
+**2026-08-24**. The only surviving artifact is the Terraform-managed KMS key,
+which is scheduled for deletion. **The EC2 host and the VPC do not exist**, so
+the only thing that can be verified end-to-end today is the **local Docker
+Compose stack** (`docker-compose.yml`), which this document also describes.
+
+The Terraform in `infra/terraform/` is valid (`terraform validate` → Success)
+and is the recovery path — `terraform apply` inside `infra/terraform/`
+re-creates the whole topology below. See
+[`docs/runbooks/disaster-recovery.md`](runbooks/disaster-recovery.md) scenario B.
+
+### Two tracked "temporary free-tier" overrides
+
+`infra/terraform/rds.tf` currently carries `TEMPORARY (free-tier)` overrides
+that deliberately diverge from the production target. They are called out in
+§4 and must be reverted after the account plan is upgraded.
 
 ---
 
@@ -63,8 +101,18 @@
 |----------------|---------|----------|
 | **ALB SG** | 80/443 from `0.0.0.0/0` | 8069 to App SG only |
 | **App SG** | 8069 from ALB SG only | 5432 to Data SG, 6379 to Redis SG, 443/80/53 to internet (NAT) |
-| **Data SG** | 5432 from App SG only | None (default egress revoked) |
+| **Data SG** | 5432 from App SG only | None (`revoke_rules_on_delete = true`) |
 | **Redis SG** | 6379 from App SG only | 6379 within VPC (replication) |
+| **SSM Endpoints SG** | 443 from App SG **only** | None |
+
+> **SSH hardening posture: there is no SSH.** No security group opens port 22 —
+> not even from an admin `/32` — and no key pair or bastion exists. Host access
+> is **SSM Session Manager only**, which is why `infra/terraform/ssm.tf`
+> provisions the three interface endpoints that make it work (`ssm`,
+> `ssmmessages`, `ec2messages`). The app instances live in the private app
+> subnets with **no public IP**, so an SSH port would be unreachable anyway.
+> Getting *off* SSH is the point: no long-lived credential, every session
+> audited in CloudTrail, no inbound port to leave open by accident.
 
 ### Traffic Flow
 
@@ -84,36 +132,58 @@ Odoo (8069) → ElastiCache (6379) → Redis replication
 
 | Tier | CIDR | Purpose | Internet Access |
 |------|------|---------|-----------------|
-| Public | `10.20.0.0/24`, `10.20.1.0/24` | ALB, NAT Gateway, SSM | IGW (inbound + outbound) |
-| App | `10.20.10.0/24`, `10.20.11.0/24` | Odoo EC2, worker containers | NAT only (outbound) |
+| Public | `10.20.0.0/24`, `10.20.1.0/24` | ALB, NAT Gateway | IGW (inbound + outbound) |
+| App | `10.20.10.0/24`, `10.20.11.0/24` | Odoo EC2, worker containers, **SSM interface endpoints** | NAT only (outbound) |
 | Data | `10.20.20.0/24`, `10.20.21.0/24` | RDS PostgreSQL, ElastiCache Redis | **None** |
 
 ## 4. RDS Configuration
 
-| Property | Value |
-|----------|-------|
-| Engine | PostgreSQL 16.4 |
-| Instance | db.t4g.medium (2 vCPU, 8 GB RAM) |
-| Multi-AZ | Yes (synchronous standby) |
-| Storage | 50 GB gp3, auto-scaling to 200 GB |
-| Encryption | Enabled (AWS KMS) |
-| Backup retention | 7 days with PITR |
-| Performance Insights | Enabled (7-day free tier) |
-| Enhanced monitoring | 60s interval |
-| Parameter group | Custom: shared_buffers=4GB, work_mem=64MB, max_connections=200 |
-| Force SSL | Yes |
-| Deletion protection | Yes |
+Column 2 is what `infra/terraform/rds.tf` **actually declares today**; column 3 is
+the production target to restore after the account plan upgrade. Every
+`TEMPORARY` value is flagged in-line in the Terraform with a `REVERT` comment.
+
+| Property | Code today (`rds.tf`) | Production target |
+|----------|----------------------|-------------------|
+| Engine | PostgreSQL `16.15` (`var.db_engine_version`) | same |
+| Instance | **`db.t4g.micro`** — TEMPORARY free-tier override | `var.db_instance_class` → `db.t4g.medium` (2 vCPU, 8 GB) |
+| Multi-AZ | **`false`** — TEMPORARY | `true` (synchronous standby) |
+| Storage | 50 GB gp3, auto-scaling to 200 GB | same |
+| Encryption | Enabled (AWS KMS) | same |
+| Backup retention | **1 day** — TEMPORARY | `var.db_backup_retention_period` → 7 days with PITR |
+| Performance Insights | **disabled** (`retention_period = 0`) — TEMPORARY | enabled, 7-day retention |
+| Enhanced monitoring | 60s interval (`monitoring_interval = 60`) | same |
+| Parameter group | Custom: `shared_buffers=4GB`, `work_mem=64MB`, `max_connections=200` | same |
+| Force SSL | Yes (`rds.force_ssl = 1`) | same |
+| Deletion protection | **`false`** — TEMPORARY | `true` |
+| Publicly accessible | `false` | same |
+| Database name | `odoo` (`var.db_name`) | same |
+
+> **Sizing warning — do not apply as-is on the free tier.** The parameter group
+> below is tuned for an **8 GB** instance (`shared_buffers` = 4 GB = 50% of RAM).
+> On the temporary `db.t4g.micro` (~1 GB RAM) PostgreSQL will refuse to start
+> with a `shared_buffers` above the instance's shared-memory limit. Before
+> applying on the free tier, set `shared_buffers` to `131072` (1 GB in 8 kB
+> blocks) — this mismatch is a live example of config drift between a doc and
+> the code it describes.
 
 ### Parameter Group Tuning
 
-| Parameter | Value | Rationale |
-|-----------|-------|-----------|
-| `shared_buffers` | 4 GB | 50% of 8 GB RAM for PostgreSQL buffer cache |
-| `effective_cache_size` | 12 GB | Includes OS page cache for planner |
-| `work_mem` | 64 MB | Complex invoice/report queries need generous work_mem |
-| `maintenance_work_mem` | 1 GB | VACUUM and index creation speed |
-| `max_connections` | 200 | Odoo workers × pool_size + headroom |
-| `log_min_duration_statement` | 200 ms | Log slow queries for tuning |
+| Parameter | Terraform value (unit) | Rationale |
+|-----------|-----------------------|-----------|
+| `shared_buffers` | `524288` (8 kB blocks = 4 GB) | 50% of 8 GB RAM for PostgreSQL buffer cache |
+| `effective_cache_size` | `1572864` (8 kB blocks = 12 GB) | Includes OS page cache for planner |
+| `work_mem` | `65536` (kB = 64 MB) | Complex invoice/report queries need generous work_mem |
+| `maintenance_work_mem` | `1048576` (kB = 1 GB) | VACUUM and index creation speed |
+| `max_connections` | `200` | Odoo workers × pool_size + headroom |
+| `log_min_duration_statement` | `200` (ms) | Log slow queries for tuning |
+| `random_page_cost` | `1.1` | gp3 is SSD-backed; near-parity with seq reads |
+| `effective_io_concurrency` | `200` | SSD/EBS parallel I/O |
+| `wal_buffers` | `8192` (8 kB blocks = 64 MB) | Fewer, larger checkpoints |
+| `rds.force_ssl` | `1` | Reject non-TLS connections |
+
+`shared_buffers`, `max_connections`, `wal_buffers` and `rds.force_ssl` are
+**static** parameters — Terraform sets `apply_method = "pending-reboot"` on
+each, so they only take effect after an RDS reboot.
 
 ## 5. ElastiCache Redis Configuration
 
@@ -227,7 +297,8 @@ Invoice PDF → Odoo (OCR) → RabbitMQ → invoice-ai (Claude)
 │   │   ├── vpc.tf              # VPC, IGW, EIP
 │   │   ├── subnets.tf          # 6 subnets + NAT + S3 endpoint
 │   │   ├── routes.tf           # 3 route tables (pub/app/data)
-│   │   ├── security_groups.tf  # Tiered SGs (alb/app/data/redis)
+│   │   ├── security_groups.tf  # Tiered SGs (alb/app/data)
+│   │   ├── ssm.tf              # SSM interface endpoints (no SSH anywhere)
 │   │   ├── rds.tf              # Multi-AZ RDS + Secrets + Alarms
 │   │   ├── s3.tf               # 3 S3 buckets + KMS + lifecycle
 │   │   ├── iam.tf              # EC2 instance profile + policies
@@ -323,14 +394,19 @@ terraform-validate:
 
 ### Docker Compose Services
 
+The default is the **compose service name** `redis`, not `localhost` —
+containers resolve it over the private compose network. `localhost:6379` only
+works for host-side tooling, because the `redis` service publishes its port to
+loopback only.
+
 | Service | Variable | Default | Purpose |
 |---------|----------|---------|---------|
-| Odoo | `REDIS_URL` | `redis://localhost:6379/0` | Redis connection for sessions |
+| Odoo | `REDIS_URL` | `redis://redis:6379/0` | Redis connection for sessions |
 | Odoo | `ODOO_SESSION_REDIS_PREFIX` | `odoo-session:` | Session key prefix |
 | Odoo | `ODOO_SESSION_REDIS_TTL_DAYS` | `7` | Session TTL |
-| invoice-ai | `REDIS_URL` | `redis://localhost:6379/0` | Redis connection for LLM cache |
+| invoice-ai | `REDIS_URL` | `redis://redis:6379/0` | Redis connection for LLM cache |
 | invoice-ai | `LLM_CACHE_TTL_HOURS` | `168` | Cache TTL (7 days) |
-| worker | `REDIS_URL` | `redis://localhost:6379/0` | Redis connection for LLM cache |
+| worker | `REDIS_URL` | `redis://redis:6379/0` | Redis connection for LLM cache |
 | worker | `LLM_CACHE_TTL_HOURS` | `168` | Cache TTL (7 days) |
 
 ### Production Environment (.env)
