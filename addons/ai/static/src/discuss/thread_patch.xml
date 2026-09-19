@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-inherit="mail.Thread.startMessage" t-inherit-mode="extension">
+        <xpath expr="//p" position="after">
+            <div class="mt-1" t-if="this.props.thread.ai_prompt_buttons and showPromptButtons">
+                <t t-foreach="this.props.thread.ai_prompt_buttons" t-as="button" t-key="button_index">
+                    <button class="btn btn-secondary mt-1 py-0 px-1 me-2" t-esc="button.id" t-on-click="() => this.onClickPromptButton(button.id)"/>
+                </t>
+            </div>
+        </xpath>
+    </t>
+</templates>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <!-- display available balance on rec widget -->
+    <t t-name="account_online_synchronization.BankRecStatementSummary" t-inherit="account_accountant.BankRecStatementSummary" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o_statement_summary')][1]/div[@name='label_statement_summary']" position="inside">
+            <div t-if="props.journalAvailableBalanceAmount">
+                <span
+                    class="btn pe-0 fw-bold fs-5 text-danger"
+                    t-esc="props.journalAvailableBalanceAmount"
+                    t-on-click="actionOpenPendingBankStatementLines"
+                    data-tooltip="Available balance with pending"
+                />
+            </div>
+        </xpath>
+    </t>
+</templates>

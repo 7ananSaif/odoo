@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="database_kanban_view" model="ir.ui.view">
+        <field name="name">esg.database.kanban</field>
+        <field name="model">esg.database</field>
+        <field name="arch" type="xml">
+            <kanban class="o_hr_employee_kanban" create="0" sample="1" highlight_color="color">
+                <templates>
+                    <t t-name="card" class="flex-row">
+                        <main class="d-flex flex-column justify-content-between">
+                            <div>
+                                <span>
+                                    <field class="fw-bolder" name="name"/>
+                                </span>
+                                <br/>
+                                <field name="kanban_text"/>
+                            </div>
+                            <div>
+                                <button name="action_load_data" string="Update" class="btn btn-primary mt-2"
+                                    type="object" invisible="not latest_version or not last_update or not can_be_downloaded"/>
+                                <button name="action_load_data" string="Download" class="btn btn-secondary mt-2"
+                                    type="object" invisible="last_update or not can_be_downloaded"/>
+                            </div>
+                        </main>
+                        <aside class="o_kanban_aside_full o_kanban_aside_full_right">
+                            <field name="image" widget="image" class="d-block position-relative"/>
+                        </aside>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="database_form_view" model="ir.ui.view">
+        <field name="name">esg.database.form</field>
+        <field name="model">esg.database</field>
+        <field name="arch" type="xml">
+            <form create="0">
+                <header>
+                    <button name="action_load_data" string="Update" class="btn btn-primary mt-2"
+                        type="object" invisible="not latest_version and not last_update or not can_be_downloaded"/>
+                    <button name="action_load_data" string="Download" class="btn btn-secondary mt-2"
+                        type="object" invisible="not last_update or not can_be_downloaded"/>
+                </header>
+                <sheet>
+                    <field name="image" widget="image" class="float-end oe_avatar m-0"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="e.g. ADEME"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="url" class="w-75" placeholder="e.g. https://base-empreinte.ademe.fr/"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="database_search_view" model="ir.ui.view">
+        <field name="name">esg.database.search</field>
+        <field name="model">esg.database</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_view_database" model="ir.actions.act_window">
+        <field name="name">Databases</field>
+        <field name="path">esg-databases</field>
+        <field name="res_model">esg.database</field>
+        <field name="view_mode">kanban,form</field>
+        <field name="search_view_id" ref="database_search_view"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No source database found.
+            </p>
+            <p>
+                Download a certified database we provide or upload your own in Odoo format.
+            </p>
+        </field>
+    </record>
+</odoo>

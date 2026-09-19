@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        name="Databases"
+        id="menu_main_databases"
+        groups="group_databases_manager,group_databases_user"
+        web_icon="databases,static/description/icon.png"
+        sequence="62"
+    >
+        <menuitem
+            name="Databases"
+            id="menu_databases"
+            action="action_view_databases_all"
+            sequence="10"
+        />
+        <menuitem
+            name="Tasks"
+            id="menu_tasks"
+            action="action_view_tasks_all"
+            sequence="20"
+        />
+        <menuitem
+            name="Reporting"
+            id="menu_reporting"
+            action="action_view_tasks_all"
+            sequence="30"
+        />
+        <menuitem
+            name="Configuration"
+            id="menu_configuration"
+            action="action_databases_configuration"
+            sequence="40"
+        />
+    </menuitem>
+</odoo>

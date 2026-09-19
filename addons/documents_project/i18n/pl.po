@@ -1,0 +1,320 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * documents_project
+#
+# Translators:
+# Piotr Strębski <strebski@gmail.com>, 2022
+# Judyta Kaźmierczak <judyta.kazmierczak@openglobe.pl>, 2022
+# Maksym <ms@myodoo.pl>, 2022
+# Paweł Wodyński <pw@myodoo.pl>, 2022
+# Piotr Szlązak <szlazakpiotr@gmail.com>, 2022
+# Łukasz Grzenkowicz <lukasz.grzenkowicz@gmail.com>, 2022
+# Martin Trigaux, 2023
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Marta (wacm)" <wacm@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0beta+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:44+0000\n"
+"PO-Revision-Date: 2025-10-30 14:37+0000\n"
+"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
+"Language-Team: Polish <https://translate.odoo.com/projects/odoo-19/"
+"documents_project/pl/>\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && "
+"(n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
+"n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_ir_attachment
+msgid "Attachment"
+msgstr "Załącznik"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_res_company
+msgid "Companies"
+msgstr "Firmy"
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+#: code:addons/documents_project/models/res_company.py:0
+msgid "Company Project Folders cannot be linked to another company.%s"
+msgstr "Foldery projektu firmy nie mogą być powiązane z inną firmą.%s"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_res_config_settings
+msgid "Config Settings"
+msgstr "Ustawienia konfiguracji"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.project_1_document_1
+msgid "Daily Meeting Notes (today)"
+msgstr "Notatki z codziennego spotkania (dzisiaj)"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.project_1_document_2
+msgid "Daily Meeting Notes (yesterday)"
+msgstr "Notatki z codziennego spotkania (wczoraj)"
+
+#. module: documents_project
+#: model_terms:ir.ui.view,arch_db:documents_project.res_config_settings_view_form_inherit_documents_project
+msgid "Default Project Folder"
+msgstr "Domyślny folder projektu"
+
+#. module: documents_project
+#: model:ir.model.fields,field_description:documents_project.field_documents_document__display_name
+#: model:ir.model.fields,field_description:documents_project.field_documents_tag__display_name
+#: model:ir.model.fields,field_description:documents_project.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:documents_project.field_project_project__display_name
+#: model:ir.model.fields,field_description:documents_project.field_res_company__display_name
+#: model:ir.model.fields,field_description:documents_project.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "Nazwa wyświetlana"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_documents_document
+msgid "Document"
+msgstr "Dokument"
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/project_project.py:0
+#: model:ir.embedded.actions,name:documents_project.project_embedded_action_documents
+#: model:ir.embedded.actions,name:documents_project.project_embedded_action_documents_dashboard
+#: model_terms:ir.ui.view,arch_db:documents_project.project_view_kanban_inherit_documents
+msgid "Documents"
+msgstr "Dokumenty"
+
+#. module: documents_project
+#: model:ir.model.fields,field_description:documents_project.field_project_project__documents_folder_id
+msgid "Documents Folder"
+msgstr "Folder dokumentów"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.project_1_document_3
+msgid "First Floor Plan"
+msgstr "Plan pierwszego piętra"
+
+#. module: documents_project
+#: model_terms:ir.ui.view,arch_db:documents_project.res_config_settings_view_form_inherit_documents_project
+msgid "Folder"
+msgstr "Folder"
+
+#. module: documents_project
+#: model:ir.model.fields,help:documents_project.field_project_project__documents_folder_id
+msgid ""
+"Folder in which all of the documents of this project will be categorized."
+msgstr ""
+"Folder, w którym będą kategoryzowane wszystkie dokumenty tego projektu."
+
+#. module: documents_project
+#: model_terms:ir.ui.view,arch_db:documents_project.res_config_settings_view_form_inherit_documents_project
+msgid "Folder where new projects are created"
+msgstr "Folder, gdzie tworzone są nowe projekty"
+
+#. module: documents_project
+#: model:ir.model.fields,field_description:documents_project.field_documents_document__id
+#: model:ir.model.fields,field_description:documents_project.field_documents_tag__id
+#: model:ir.model.fields,field_description:documents_project.field_ir_attachment__id
+#: model:ir.model.fields,field_description:documents_project.field_project_project__id
+#: model:ir.model.fields,field_description:documents_project.field_res_company__id
+#: model:ir.model.fields,field_description:documents_project.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.project_1_document_4
+msgid "Important Customer Letter"
+msgstr "Ważny list od klienta"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_project_project
+msgid "Project"
+msgstr "Projekt"
+
+#. module: documents_project
+#: model:ir.model.fields,field_description:documents_project.field_res_company__documents_project_folder_id
+#: model:ir.model.fields,field_description:documents_project.field_res_config_settings__documents_project_folder_id
+msgid "Project Folder"
+msgstr "Folder projektu"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.document_project_folder
+#: model:ir.model.fields,field_description:documents_project.field_documents_document__project_ids
+msgid "Projects"
+msgstr "Projekty"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_documents_tag
+msgid "Tag"
+msgstr "Tag"
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/project_project.py:0
+msgid ""
+"The \"%(folder)s\" folder should either be in the \"%(company)s\" company "
+"like this project or be open to all companies."
+msgstr ""
+"Folder \"%(folder)s\" powinien być w firmie \"%(company)s\" tak jak ten "
+"projekt, lub być dostępny dla wszystkich firm."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid ""
+"The \"%s\" folder is required by the Project application and cannot be "
+"archived."
+msgstr ""
+"Folder \"%s\" jest wymagany w aplikacji Projekt i nie może być archiwizowany."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid ""
+"This action can't be performed, as it would remove the folders used by the "
+"following projects:\n"
+"%(projects)s\n"
+"To continue, choose different folders for these projects."
+msgstr ""
+"Ta akcja nie może zostać przeprowadzona, ponieważ usunie foldery "
+"wykorzystywane przez następujące projekty:\n"
+"%(projects)s\n"
+"Aby kontynuować, wybierz różne foldery dla tych projektów."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid ""
+"This folder should remain in the same company as the \"%(project)s\" project "
+"to which it is linked. Please update the company of the \"%(project)s\" "
+"project, or leave the company of this folder empty."
+msgstr ""
+"Ten folder powinien pozostać w tej samej firmie, co projekt \"%(project)s\", "
+"z którym jest powiązany. Zaktualizuj firmę projektu \"%(project)s\" lub "
+"pozostaw pole firmy tego folderu puste."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid ""
+"This folder should remain in the same company as the following projects to "
+"which it is linked:\n"
+"%s\n"
+"\n"
+"Please update the company of those projects, or leave the company of this "
+"folder empty."
+msgstr ""
+"Ten folder powinien pozostać w tej samej firmie, co następujące projekty, z "
+"którymi jest powiązany:\n"
+"%s\n"
+"\n"
+"Zaktualizuj firmę tych projektów lub pozostaw pole firmy tego folderu puste."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid "Uh-oh! The project app needs the \"%s\" folder, so you can’t delete it."
+msgstr ""
+"O nie! Aplikacja projektu potrzebuje folderu \"%s\", więc nie możesz go "
+"usunąć."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid "You cannot archive the project base folder (%s)."
+msgstr "Nie możesz zarchiwizować głównego folderu projektu (%s)."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/project_project.py:0
+msgid ""
+"You cannot change the company of this project, because its folder is linked "
+"to the other following projects that are still in the \"%(other_company)s\" "
+"company:\n"
+"%(other_folders)s\n"
+"\n"
+"Please update the company of all projects so that they remain in the same "
+"company as their folder, or leave the company of the \"%(folder)s\" folder "
+"blank."
+msgstr ""
+"Nie możesz zmienić firmy w tym projekcie, ponieważ jego folder jest "
+"powiązany z innymi następującymi projektami, które są wciąż w firmie \"%"
+"(other_company)s\":\n"
+"%(other_folders)s\n"
+"\n"
+"Zaktualizuj firmę we wszystkich projektach, tak aby zostały w tej samej "
+"firmie co ich folder, lub pozostaw firmę folderu \"%(folder)s\" pustą."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid "You cannot set a company on the %s folder."
+msgstr "Nie możesz ustawić firmy w folderze %s."
+
+#~ msgid ""
+#~ "A set of condition and actions which will be available to all attachments "
+#~ "matching the conditions"
+#~ msgstr ""
+#~ "Zbiór warunków i akcji które będą dostępne we wszystkich załącznikach "
+#~ "które spełniają warunki"
+
+#~ msgid "Ask for Validation"
+#~ msgstr "Poproś o weryfikację"
+
+#~ msgid "Categorize and share your documents with your customers"
+#~ msgstr "Kategoryzowanie i udostępnianie dokumentów klientom"
+
+#~ msgid "Category"
+#~ msgstr "Kategoria"
+
+#~ msgid "Create"
+#~ msgstr "Utwórz"
+
+#~ msgid "Default Tags"
+#~ msgstr "Domyślne znaczniki"
+
+#~ msgid "Deprecate"
+#~ msgstr "przestarzały"
+
+#~ msgid "Deprecated"
+#~ msgstr "Zdezaktualizowane"
+
+#~ msgid "Documents &amp; Analytics"
+#~ msgstr "Dokumenty i analityka"
+
+#~ msgid "Documents Workspace"
+#~ msgstr "Przestrzeń robocza dokumentu"
+
+#~ msgid "Draft"
+#~ msgstr "Projekt"
+
+#~ msgid "Mark As Draft"
+#~ msgstr "Zaznacz jako projekt"
+
+#~ msgid "Shared Documents"
+#~ msgstr "Udostępnione dokumenty"
+
+#~ msgid "Status"
+#~ msgstr "Status"
+
+#~ msgid "Task"
+#~ msgstr "Zadanie"
+
+#~ msgid "To Validate"
+#~ msgstr "Do zatwierdzenia"
+
+#~ msgid "Validate"
+#~ msgstr "Zatwierdź"
+
+#~ msgid "Validated"
+#~ msgstr "Zatwierdzone"
+
+#~ msgid "Workspace"
+#~ msgstr "Przestrzeń robocza"

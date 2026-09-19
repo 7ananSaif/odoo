@@ -1,0 +1,1324 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Templates -->
+    <record id="accountant_knowledge_article_template_audit_report" model="knowledge.article">
+        <field name="is_template">True</field>
+        <field name="is_audit_report_template">True</field>
+        <field name="template_name">Audit Report</field>
+        <field name="template_category_id" ref="accountant_knowledge.knowledge_article_template_category_accounting"/>
+        <field name="template_sequence">0</field>
+        <field name="template_body" type="html">
+            <div data-embedded="articleIndex" data-embedded-props='{"showAllChildren": true}'/>
+            <p><br/></p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_attestation" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_audit_report"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Attestation</field>
+        <field name="template_sequence">0</field>
+        <field name="template_body" type="html">
+            <h1>Attestation</h1>
+            <div class="d-print-none" data-embedded="foldableSection" data-embedded-props='{"showContent": false}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Refusal to Attest</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Refusal to Attest</h2>
+                    <p>As chartered accountants, we have carried out a compilation of the interim financial statements of {{ company name }} for the period from {{ start of period }} to {{ end of period }}, which include the following key figures:</p>
+                    <ul>
+                        <li>Total assets: {{ total balance sheet }}</li>
+                        <li>Revenue: {{ revenue }}</li>
+                        <li>Net accounting result: {{ net accounting result }}</li>
+                    </ul>
+                    <p>Our work was conducted in accordance with the professional standard applicable to compilation engagements, as issued by the professional body of chartered accountants. This engagement is however not an audit or a limited review.</p>
+                    <p>During the course of our engagement, we identified the following matters that significantly impact the overall consistency and reliability of the financial statements:</p>
+                    <ul>
+                        <li>(description and of the issue, uncertainty, or limitation)</li>
+                    </ul>
+                    <p>As a result of these findings, and due to their significant effect, we are unable to confirm the overall consistency and plausibility of the interim financial statements attached to this statement.</p>
+                    <div class="row">
+                        <div class="col-6 o-contenteditable-true" contenteditable="true">
+                            <p><div data-embedded="signatureInput"/><br/></p>
+                        </div>
+                        <div class="col-6 o-contenteditable-true" contenteditable="true">
+                            <p><div data-embedded="signatureInput"/><br/></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-print-none" data-embedded="foldableSection" data-embedded-props='{"showContent": false}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Favorable Opinion with Comments</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Favorable Opinion with Comments</h2>
+                    <p>As chartered accountants, we have carried out a compilation of the interim financial statements of {{ company name }} for the period from {{ start of period }} to {{ end of period }}, which include the following key figures:</p>
+                    <ul>
+                        <li>Total assets: {{ total balance sheet }}</li>
+                        <li>Revenue: {{ revenue }}</li>
+                        <li>Net accounting result: {{ net accounting result }}</li>
+                    </ul>
+                    <p>Our work was conducted in accordance with the professional standard applicable to compilation engagements, as issued by the professional body of chartered accountants. This engagement is however not an audit or a limited review.</p>
+                    <p>We are making the following comment regarding a matter that may affect the overall consistency and reliability of the financial statements:</p>
+                    <ul>
+                        <li>(description and of the issue, uncertainty, or limitation)</li>
+                    </ul>
+                    <p>Except for the impact of the issue described above, we did not identify anything that would call into question the overall consistency and plausibility of the interim financial statements attached to this statement.</p>
+                    <div class="row">
+                        <div class="col-6 o-contenteditable-true" contenteditable="true">
+                            <p><div data-embedded="signatureInput"/><br/></p>
+                        </div>
+                        <div class="col-6 o-contenteditable-true" contenteditable="true">
+                            <p><div data-embedded="signatureInput"/><br/></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="d-print-none" data-embedded="foldableSection" data-embedded-props='{"showContent": false}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Report on Work Performed</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Report on Work Conducted</h2>
+                    <p>In accordance with the terms of our mission, we have prepared a summary of work performed for {{ company name }} for the period from {{ start of period }} to {{ end of period }}</p>
+                    <p>The key figures are as follows:</p>
+                    <ul>
+                        <li>Total assets: {{ total balance sheet }}</li>
+                        <li>Revenue: {{ revenue }}</li>
+                        <li>Net accounting result: {{ net accounting result }}</li>
+                    </ul>
+                    <div class="row">
+                        <div class="col-6 o-contenteditable-true" contenteditable="true">
+                            <p><div data-embedded="signatureInput"/><br/></p>
+                        </div>
+                        <div class="col-6 o-contenteditable-true" contenteditable="true">
+                            <p><div data-embedded="signatureInput"/><br/></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Unqualified Attestation</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Unqualified Attestation</h2>
+                    <p>As chartered accountants, we have carried out a compilation of the interim financial statements of {{ company name }} for the period from {{ start of period }} to {{ end of period }}, which include the following key figures:</p>
+                    <ul>
+                        <li>Total assets: {{ total balance sheet }}</li>
+                        <li>Revenue: {{ revenue }}</li>
+                        <li>Net accounting result: {{ net accounting result }}</li>
+                    </ul>
+                    <p>Our work was conducted in accordance with the professional standard applicable to compilation engagements, as issued by the professional body of chartered accountants. This engagement is however not an audit or a limited review.</p>
+                    <p>Based on our procedures, we have not identified any matters that would call into question the overall consistency and plausibility of the interim financial statements as attached to this statement.</p>
+                    <div class="row">
+                        <div class="col-6 o-contenteditable-true" contenteditable="true">
+                            <p><div data-embedded="signatureInput"/><br/></p>
+                        </div>
+                        <div class="col-6 o-contenteditable-true" contenteditable="true">
+                            <p><div data-embedded="signatureInput"/><br/></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p><br/></p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_balance_sheet" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_audit_report"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Balance Sheet</field>
+        <field name="template_sequence">100</field>
+        <field name="template_body" type="html">
+            <div data-oe-id="e8949156e42774c3" data-embedded="accountReport" data-embedded-props="{
+                'name': 'Balance Sheet',
+                'options': {
+                    'report_id': ref('account_reports.balance_sheet'),
+                    'comparison': {
+                        'filter': 'same_last_year',
+                    },
+                }
+            }"/>
+            <p><br/></p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_profit_and_loss" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_audit_report"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Profit and Loss</field>
+        <field name="template_sequence">200</field>
+        <field name="template_body" type="html">
+            <div data-oe-id="5d0fcb69ae09365c" data-embedded="accountReport" data-embedded-props="{
+                'name': 'Profit and Loss',
+                'options': {
+                    'report_id': ref('account_reports.profit_and_loss'),
+                    'comparison': {
+                        'filter': 'previous_period',
+                        'number_period': 1
+                    },
+                }
+            }"/>
+            <p><br/></p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_annexes" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_audit_report"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Annexes</field>
+        <field name="template_sequence">300</field>
+        <field name="template_body" type="html">
+            <div data-embedded="articleIndex"/>
+            <p><br/></p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_preamble" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_annexes"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Preamble</field>
+        <field name="template_sequence">0</field>
+        <field name="template_body" type="html">
+            <h1>Preamble</h1>
+            <p>The fiscal year ended on {{ end of period }} covers a period of 12 months.</p>
+            <p>The total balance sheet amount before allocation of the result is {{ total balance sheet }}.</p>
+            <p>The net accounting result is a {{ net accounting result }}.</p>
+            <p>The notes and tables provided below form an integral part of the annual financial statements.</p>
+            <p><br/></p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_account_principles_and_methods" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_annexes"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Accounting principles and methods</field>
+        <field name="template_sequence">100</field>
+        <field name="template_body" type="html">
+            <h1>Accounting Principles and Methods</h1>
+            <p>The annual financial statements have been prepared in accordance with applicable accounting standards.</p>
+            <p>The primary method used to value the items recorded in the accounts is the historical cost method.</p>
+            <p>General accounting principles have been applied with due regard to the prudence principle, based on the following assumptions:</p>
+            <ul>
+                <li>Going concern;</li>
+                <li>Consistency of accounting methods from one period to another;</li>
+                <li>Independence of accounting periods.</li>
+            </ul>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_intangible_and_tangible_assets" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_account_principles_and_methods"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Intangible and Tangible Assets</field>
+        <field name="template_sequence">0</field>
+        <field name="template_body" type="html">
+            <h1>Intangible and Tangible Assets</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Methods of Valuation</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Methods of Valuation</h2>
+                    <p>Intangible assets are valued at their acquisition or production cost, including all expenses necessary to prepare these assets for their intended use. This valuation is net of any trade discounts, rebates, or settlement discounts obtained.</p>
+                    <p>Tangible assets are valued at their acquisition cost, which includes:</p>
+                    <ul>
+                        <li>The purchase price (including customs duties and non-recoverable taxes, less any trade discounts, rebates, or settlement discounts);</li>
+                        <li>Directly attributable costs incurred to bring the asset to working condition for its intended use;</li>
+                        <li>When applicable, the initial estimate of dismantling, removal, and site restoration costs related to the asset's location.</li>
+                    </ul>
+                    <p>Tangible assets are also valued at their production cost where applicable.</p>
+                    <p>Interest on borrowings specifically related to the production of tangible assets is not included in the production cost of these assets.</p>
+                    <p>The following decisions have been made regarding the presentation of the annual financial statements:</p>
+                    <ul>
+                        <li><strong>Componentized assets</strong>: The company was unable to identify componentized assets, or the decomposition of such assets does not have a material impact.</li>
+                        <li><strong>Non-componentized assets</strong>: Benefiting from tolerance measures, the company has chosen to maintain the existing useful life periods for the depreciation of non-componentized assets.</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Depreciation Period</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Depreciation Period</h2>
+                    <p><strong>Buildings, Fixtures, and Fittings</strong></p>
+                    <ul>
+                        <li>Commercial buildings: 20 to 50 years</li>
+                        <li>Offices: 25 years</li>
+                        <li>Fixtures and fittings: 10 years</li>
+                        <li>Furniture: 10 years</li>
+                        <li>Renovations: 10 years</li>
+                    </ul>
+                    <p><strong>Equipment and Tools</strong></p>
+                    <ul>
+                        <li>Equipment: 10 years</li>
+                        <li>Tools: 10 years</li>
+                    </ul>
+                    <p><strong>Other Tangible Assets</strong></p>
+                    <ul>
+                        <li>Transport equipment: 5 years</li>
+                        <li>Computer equipment: 5 years</li>
+                    </ul>
+                    <p><strong>Intangible Assets</strong></p>
+                    <ul>
+                        <li>Software: 3 years</li>
+                        <li>Patents: To be specified...</li>
+                        <li>Others: To be specified...</li>
+                    </ul>
+                    <p>Depreciation is calculated using either the straight-line or declining balance method, based on the estimated useful life of the assets.</p>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_research_and_development_costs" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_account_principles_and_methods"/>
+        <field name="is_template">True</field>
+        <field name="template_child_default_create">False</field>
+        <field name="template_name">R&amp;D cost</field>
+        <field name="template_sequence">100</field>
+        <field name="template_body" type="html">
+            <h1>Research and Development Expenses</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Expense Recognition</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Expense Recognition</h2>
+                    <p>Research and development costs are recognized as expenses in the period in which they are incurred.</p>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Capitalization of Development Costs</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Capitalization of Development Costs</h2>
+                    <p>Given the innovative nature of the company's activities, a substantial portion of its expenses pertains to development costs as defined by applicable accounting standards</p>
+                    <p>At each reporting date, and whenever there is an indication of impairment, the capitalized development costs are reviewed to confirm that the project continues to meet the criteria for recognition as an asset. If these criteria are no longer met, an impairment loss or exceptional amortization is recorded accordingly.</p>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_inventory_overview" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_account_principles_and_methods"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Inventory Overview</field>
+        <field name="template_sequence">200</field>
+        <field name="template_body" type="html">
+            <h1>Inventory Valuation</h1>
+            <p>Inventories are valued using one of the following methods:</p>
+            <ul>
+                <li>First In, First Out (FIFO)</li>
+                <li>Weighted Average Cost</li>
+                <li>Standard Cost</li>
+            </ul>
+            <p>The gross value of goods and supplies includes the purchase price and related incidental costs.</p>
+            <p>Manufactured products are valued at production cost, which includes consumables, direct and indirect production expenses, and depreciation of assets used in production.</p>
+            <p>Costs related to under-activity are excluded from the inventory value.</p>
+            <ul>
+                <li>Please specify the method used to calculate inventory write-downs.</li>
+            </ul>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_financial_resources" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_account_principles_and_methods"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Financial Resources</field>
+        <field name="template_sequence">300</field>
+        <field name="template_body" type="html">
+            <h1>Financial Resources</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Financial Assets and Marketable Securities</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Financial Assets and Marketable Securities</h2>
+                    <p>The gross value consists of the purchase cost, excluding incidental expenses. When the inventory value is lower than the gross value, a provision for impairment is recorded for the amount of the difference.</p>
+                    <ul>
+                        <li>The equity method is used for valuation where applicable.</li>
+                        <li>The exemption for valuation of securities in case of abnormal and temporary decline is applied.</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Receivables and Payables</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Receivables and Payables</h2>
+                    <p>Receivables and payables are recorded at their nominal value.</p>
+                    <p>Where applicable, receivables are depreciated through provisions to account for potential collection difficulties. These provisions for impairment are determined by comparing the acquisition value with the probable realizable value.</p>
+                    <p>Receivables and payables denominated in foreign currencies are converted into euros using the exchange rate at the invoice date.</p>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Cash and Cash Equivalents</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Cash and Cash Equivalents</h2>
+                    <p>Cash on hand and bank balances are recorded at their nominal value</p>
+                    <p>For cash held in foreign currencies, amounts are converted into euros at the exchange rate prevailing on the last business day before the fiscal year-end. Any resulting exchange differences are recognized immediately in the income statement as foreign exchange gains or losses.</p>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Repayable Advances</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Repayable Advances</h2>
+                    <p>Advances received from public or private organizations to finance the company's activities, for which repayment is conditional, are presented under equity in the balance sheet as "Other Equity." Corresponding interest expenses are recorded as liabilities under "Loans and Other Financial Debts."</p>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Loans</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Loans</h2>
+                    <p>Loan issuance costs, where applicable, are recognized as expenses in the financial year during which the loans are granted.</p>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Capital Increase Costs</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Capital Increase Costs</h2>
+                    <p>Capital increase costs are recorded directly on the balance sheet as a deduction from the share premium.</p>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_subventions" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_account_principles_and_methods"/>
+        <field name="is_template">True</field>
+        <field name="template_child_default_create">False</field>
+        <field name="template_name">Subventions</field>
+        <field name="template_sequence">400</field>
+        <field name="template_body" type="html">
+            <h1>Subventions</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Pro rata recognition</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Pro rata recognition</h2>
+                    <p>The company has received subsidies that are recognized in operating income in proportion to the expenses incurred. As a result, subsidies receivable may be recorded when the grant agreement is signed and eligible expenses have been incurred, even if the funds have not yet been received.</p>
+                    <p>The portion of subsidies that finance capital expenditures is recognized in operating income over the same period as the depreciation of the related assets. The acquired portion not yet recognized in income is recorded under equity as investment grants.</p>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Non-Pro Rata Recognition</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Non-Pro Rata Recognition</h2>
+                    <p>Operating subsidies are recorded as income as soon as they are granted.</p>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_significant_events" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_account_principles_and_methods"/>
+        <field name="is_template">True</field>
+        <field name="template_child_default_create">False</field>
+        <field name="template_name">Significant Events</field>
+        <field name="template_sequence">500</field>
+        <field name="template_body" type="html">
+            <h1>Significant Events</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Post-Closing Events</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Post-Closing Events</h2>
+                    <em>To be completed...</em>
+                    <ul>
+                        <li>Only include events occurring between the end of the reporting period and the date the financial statements are approved, if they are significant enough to affect the fair presentation of the accounts.</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Other Significant Events</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Other Significant Events</h2>
+                    <em>To be completed...</em>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_changes_in_accounting_policies" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_account_principles_and_methods"/>
+        <field name="is_template">True</field>
+        <field name="template_child_default_create">False</field>
+        <field name="template_name">Changes in Accounting Policies</field>
+        <field name="template_sequence">600</field>
+        <field name="template_body" type="html">
+            <h1>Changes in Accounting Policies</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Change in Accounting Standards</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Change in Accounting Standards</h2>
+                    <em>To be completed...</em>
+                    <p>If applicable, specify the impact of the new accounting regulation as determined at the opening of the period, including which financial statement items are affected.</p>
+                    <ul>
+                        <li>If the change was applied <strong>retrospectively</strong>, present the key items from prior periods that have been restated in accordance with the new method.</li>
+                        <li>If the change was applied <strong>prospectively</strong>, describe its impact on the key items of the current period, unless such information is impracticable to obtain.</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Voluntary Change in Accounting Policy</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Voluntary Change in Accounting Policy</h2>
+                    <em>To be completed...</em>
+                    <ul>
+                        <li>Indicate and justify the voluntary accounting policy change.</li>
+                        <li>Specify the impact of the change as determined at the opening of the period, identifying the affected financial statement items.</li>
+                        <li>If the change has been applied retrospectively, present the main items from prior periods restated under the new accounting method.</li>
+                        <li>If the change has been applied prospectively, explain the reasons for prospective application and indicate the impact on key items for the period, unless impracticable to determine.</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Change in Accounting Estimate</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Change in Accounting Estimate</h2>
+                    <em>To be completed...</em>
+                    <ul>
+                        <li>State and justify the change in estimate.</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Correction of Errors</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Correction of Errors</h2>
+                    <em>To be completed...</em>
+                    <ul>
+                        <li>Describe the nature of the error corrected.</li>
+                        <li>Explain the impact of the correction on the current period's financial statements.</li>
+                        <li>Present the main items of prior period's financial statements that have been restated to correct the error.</li>
+                    </ul>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_contextual_information" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_annexes"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Contextual Information</field>
+        <field name="template_sequence">200</field>
+        <field name="template_body" type="html">
+            <div data-embedded="articleIndex"/>
+            <p><br/></p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_entity_information" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_contextual_information"/>
+        <field name="is_template">True</field>
+        <field name="template_child_default_create">False</field>
+        <field name="template_name">Entity Information</field>
+        <field name="template_sequence">0</field>
+        <field name="template_body" type="html">
+            <h1>Entity Information</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Parent Company Details</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Parent Company Details</h2>
+                    <p>This company is part of a group, under the following parent company.</p>
+                    <ul>
+                        <li>Name: </li>
+                        <li>Registered Office: </li>
+                        <li>Identification Number: </li>
+                    </ul>
+                    <p>The consolidated financial statements can be obtained via...</p>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Subsidiary Details</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Subsidiary Details</h2>
+                    <p>This company is part of a group, and owns the following subsidiaries</p>
+                    <ul>
+                        <li>Name: </li>
+                        <li>Registered Office: </li>
+                        <li>Identification Number:</li>
+                    </ul>
+                    <ul>
+                        <li>Name: </li>
+                        <li>Registered Office: </li>
+                        <li>Identification Number:</li>
+                    </ul>
+                    <p>The consolidated financial statements can be obtained via...</p>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_journal_audit" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_contextual_information"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Journal Audit</field>
+        <field name="template_sequence">100</field>
+        <field name="template_body" type="html">
+            <div data-oe-id="df2c0183c66bcc80" data-embedded="accountReport" data-embedded-props="{
+                'name': 'Journal Audit',
+                'options': {
+                    'report_id': ref('account_reports.journal_report')
+                }
+            }"/>
+            <p><br/></p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_workforce" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_contextual_information"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Workforce</field>
+        <field name="template_sequence">200</field>
+        <field name="template_body" type="html">
+            <h1>Workforce</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Workforce employed during the Period</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Workforce employed during the Period</h2>
+                    <table class="table table-bordered o_table">
+                        <tbody>
+                            <tr>
+                                <td class="bg-100"><p><strong>Category</strong><br/></p></td>
+                                <td class="bg-100"><p><strong>Men</strong><br/></p></td>
+                                <td class="bg-100"><p><strong>Women</strong><br/></p></td>
+                                <td class="bg-100"><p><strong>Total</strong><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Managers<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Non-Managers<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Employees<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_financial_position" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_annexes"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Financial Position</field>
+        <field name="template_sequence">300</field>
+        <field name="template_body" type="html">
+            <div data-embedded="articleIndex"/>
+            <p><br/></p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_asset_information" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_financial_position"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Asset Information</field>
+        <field name="template_sequence">0</field>
+        <field name="template_body" type="html">
+            <h1>Asset Information</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Changes in Fixed Assets</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Changes in Fixed Assets</h2>
+                    <em>To be completed...</em>
+                    <ul>
+                        <li>Detail and explain the key changes in fixed assets — purchases, sales, and adjustments — over the period for clear tracking of asset value evolution.</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Depreciation and Impairment</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <div data-oe-id="49faab437bb3b30f" data-embedded="accountReport" data-embedded-props="{
+                        'name': 'Depreciation Schedule',
+                        'options': {
+                            'report_id': ref('account_asset.assets_report')
+                        }
+                    }"/>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Subsidiaries and Equity Interests</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Subsidiaries and Equity Interests</h2>
+                    <p class="d-print-none alert alert-info pt16 pb16">
+                        From the Equity app, print the Capitalization Table and insert it <strong class="o-upload-link">here</strong>
+                    </p>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Long-Term Investments Held in the Investment Portfolio</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Long-Term Investments Held in the Investment Portfolio</h2>
+                    <em>To be completed...</em>
+                    <ul>
+                        <li>Provide information on the estimated value of long-term investments held in the portfolio and any changes in their value over the financial year.</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Details on Inventories and Work-in-Progress</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Details on Inventories and Work-in-Progress</h2>
+                    <em>To be completed...</em>
+                    <ul>
+                        <li>If this is the first year the company holds inventories, specify the valuation method used and provide a breakdown of the products concerned.</li>
+                        <li>Indicate the total book value of inventories as well as the book value by relevant categories.</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Aged Payable</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <div data-oe-id="61336b2d27d4707a" data-embedded="accountReport" data-embedded-props="{
+                        'name': 'Aged Payable',
+                        'options': {
+                            'report_id': ref('account_reports.aged_payable_report')
+                        }
+                    }"/>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Aged Receivable</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <div data-oe-id="cb71051ef8aca176" data-embedded="accountReport" data-embedded-props="{
+                        'name': 'Aged Receivable',
+                        'options': {
+                            'report_id': ref('account_reports.aged_receivable_report')
+                        }
+                    }"/>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Partner Ledger</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <div data-oe-id="287a5f5601a958f9" data-embedded="accountReport" data-embedded-props="{
+                        'name': 'Partner Ledger',
+                        'options': {
+                            'report_id': ref('account_reports.partner_ledger_report')
+                        }
+                    }"/>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Deferred Expenses</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <div data-oe-id="d1cad34ea6b97fbe" data-embedded="accountReport" data-embedded-props="{
+                        'name': 'Deferred Expenses',
+                        'options': {
+                            'report_id': ref('account_reports.deferred_expense_report')
+                        }
+                    }"/>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Loans</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Loans</h2>
+                    <em>To be completed...</em>
+                    <ul>
+                        <li>Provide details on loan issuance costs and any loan redemption premiums.</li>
+                    </ul>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_liabilities_information" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_financial_position"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Liabilities Information</field>
+        <field name="template_sequence">100</field>
+        <field name="template_body" type="html">
+            <h1>Liabilities Information</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Share Capital</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Share Capital</h2>
+                    <table class="table table-bordered o_table">
+                        <tbody>
+                            <tr>
+                                <td class="bg-100"><p><strong>Share Capital</strong><br/></p></td>
+                                <td class="bg-100"><p><strong>Number of Shares</strong><br/></p></td>
+                                <td class="bg-100"><p><strong>Nominal Value per Share</strong><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Shares at Start of Year<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Shares Issues<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Shares Redeemed/Cancelled<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Shares at End of Year<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Depreciation Schedule</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <div data-oe-id="4576fb51dcaf839d" data-embedded="accountReport" data-embedded-props="{
+                        'name': 'Depreciation Schedule',
+                        'options': {
+                            'report_id': ref('account_asset.assets_report')
+                        }
+                    }"/>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Self-Held Shares</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Self-Held Shares</h2>
+                    <em>To be completed...</em>
+                    <ul>
+                        <li>Indicate the number and value of shares held by the company during the year. Include acquisitions, disposals, cancellations, and the reason for holding these shares (e.g. employee plans, market operations).</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Provisions</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Provisions</h2>
+                    <em>To be completed...</em>
+                    <ul>
+                        <li>Describe the nature of each provision recorded during the period. For each, indicate the opening balance, any additional provisions (dotations), any amounts reversed (reprises), and the closing balance at the end of the period.</li>
+                    </ul>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_financial_commitments_and_guarantees" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_financial_position"/>
+        <field name="is_template">True</field>
+        <field name="template_child_default_create">False</field>
+        <field name="template_name">Financial Commitments and Guarantees</field>
+        <field name="template_sequence">200</field>
+        <field name="template_body" type="html">
+            <h1>Financial Commitments and Guarantees</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Off-Balance Sheet Commitments</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Off-Balance Sheet Commitments</h2>
+                    <em>To be completed...</em>
+                    <ul>
+                        <li>Describe the nature and amounts of commitments given, received, and reciprocal</li>
+                        <li>Specify details for executives, subsidiaries, investments, related companies, and others.</li>
+                        <li>Include any explanations or justifications as needed.</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Finance Lease</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Finance Lease</h2>
+                    <table class="table table-bordered o_table">
+                        <tbody>
+                            <tr>
+                                <td><p><strong>Items</strong><br/></p></td>
+                                <td><p><strong>Entry Cost</strong><br/></p></td>
+                                <td><p><strong>Depreciation - Current Year</strong><br/></p></td>
+                                <td><p><strong>Depreciation - Cumulative</strong><br/></p></td>
+                                <td><p><strong>Net Value</strong><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Land<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Buildings<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Technical installations, equipment, and tools<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Other tangible fixed assets<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p><strong>Total</strong><br/></p></td>
+                                <td><p>0.0<br/></p></td>
+                                <td><p>0.0<br/></p></td>
+                                <td><p>0.0<br/></p></td>
+                                <td><p>0.0<br/></p></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Other off-balance-sheet transactions</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Other off-balance-sheet transactions</h2>
+                    <em>To be completed...</em>
+                    <ul>
+                        <li>Provide details of any significant off-balance-sheet transactions or commitments not recorded in the financial statements</li>
+                    </ul>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_performance_and_operations" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_annexes"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Performance &amp; Operations</field>
+        <field name="template_sequence">400</field>
+        <field name="template_body" type="html">
+            <div data-embedded="articleIndex"/>
+            <p><br/></p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_income_statement" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_performance_and_operations"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Income Statement</field>
+        <field name="template_sequence">0</field>
+        <field name="template_body" type="html">
+            <h1>Income Statement</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Result breakdown by region</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Result breakdown by region</h2>
+                    <p>During this fiscal period, the company generated a net accounting result of  {{ net accounting result }}, broken down as follows between domestic and international operations.</p>
+                    <table class="table table-bordered o_table">
+                        <tbody>
+                            <tr>
+                                <td class="bg-100"><p><strong>Category</strong><br/></p></td>
+                                <td class="bg-100"><p><strong>Domestic</strong><br/></p></td>
+                                <td class="bg-100"><p><strong>International</strong><br/></p></td>
+                                <td class="bg-100"><p><strong>Total</strong><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td class="bg-200"><p>Total<br/></p></td>
+                                <td class="bg-200"><p>0,00<br/></p></td>
+                                <td class="bg-200"><p>0,00<br/></p></td>
+                                <td class="bg-200"><p>0,00<br/></p></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Deferred Expenses</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <div data-oe-id="c7886d43abcb88eb" data-embedded="accountReport" data-embedded-props="{
+                        'name': 'Deferred Expenses',
+                        'options': {
+                            'report_id': ref('account_reports.deferred_expense_report')
+                        }
+                    }"/>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Deferred Revenues</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <div data-oe-id="4e24e84664f43ce2" data-embedded="accountReport" data-embedded-props="{
+                        'name': 'Deferred Revenues',
+                        'options': {
+                            'report_id': ref('account_reports.deferred_revenue_report')
+                        }
+                    }"/>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Information on Specific Nature Operations</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Information on Specific Nature Operations</h2>
+                    <em>To be completed...</em>
+                    <p>Please provide details of your share of results from joint operations of a specific nature</p>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Exceptional Income &amp; Expenses</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Exceptional Income &amp; Expenses</h2>
+                    <table class="table table-bordered o_table">
+                        <tbody>
+                            <tr>
+                                <td><p>Description<br/></p></td>
+                                <td><p>Amount<br/></p></td>
+                                <td><p>Comments<br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Exceptional Income<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Exceptional Expenses<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p><strong>Net Exceptional Result</strong><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_cash_flow_statement" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_performance_and_operations"/>
+        <field name="is_template">True</field>
+        <field name="template_child_default_create">False</field>
+        <field name="template_name">Cash-Flow Statement</field>
+        <field name="template_sequence">100</field>
+        <field name="template_body" type="html">
+            <div data-oe-id="bd52c3c6fa8abdac" data-embedded="accountReport" data-embedded-props="{
+                'name': 'Cash-Flow Statement',
+                'options': {
+                    'report_id': ref('account_reports.cash_flow_report')
+                }
+            }"/>
+            <p><br/></p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_tax_and_compliance" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_annexes"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Tax &amp; Compliance</field>
+        <field name="template_sequence">500</field>
+        <field name="template_body" type="html">
+            <div data-embedded="articleIndex"/>
+            <p><br/></p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_taxation" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_tax_and_compliance"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Taxation</field>
+        <field name="template_sequence">0</field>
+        <field name="template_body" type="html">
+            <h1>Taxation</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Exceptional Income &amp; Expenses</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Exceptional Income &amp; Expenses</h2>
+                    <em>To be completed...</em>
+                    <ul>
+                        <li>Explain how tax changes made between the balance sheet date and the financial statement date affect this period's results.</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Tax Credits</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Tax Credits</h2>
+                    <p>During this period, the company benefited from the following tax credits, which have contributed to optimizing its tax position:</p>
+                    <ul>
+                        <li>Justification:</li>
+                        <li>Amount:</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Others (including tax consolidation)</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Others</h2>
+                    <ul>
+                        <li>Provide details on the carryback and carryforward of tax losses, and the split of income tax between current and exceptional results.</li>
+                        <li>Detail the factors affecting future tax liabilities and the impact of tax valuation adjustments.</li>
+                        <li>For tax-consolidated entities, explain the tax allocation method, tax differences, loss carryforwards, and related accounting specifics.</li>
+                    </ul>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_non_standard_transactions" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_tax_and_compliance"/>
+        <field name="is_template">True</field>
+        <field name="template_child_default_create">False</field>
+        <field name="template_name">Non-Standard Transaction</field>
+        <field name="template_sequence">100</field>
+        <field name="template_body" type="html">
+            <h1>Non-Standard Transactions</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Related-Party Transactions</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Related-Party Transactions</h2>
+                    <table class="table table-bordered o_table">
+                        <tbody>
+                            <tr>
+                                <td><p><strong>Name</strong><br/></p></td>
+                                <td><p><strong>Nature of Relationship</strong><br/></p></td>
+                                <td><p><strong>Transaction Amount During the Period</strong><br/></p></td>
+                                <td><p><strong>Additional Information</strong><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Transactions with Major Shareholders</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Transactions with Major Shareholders</h2>
+                    <table class="table table-bordered o_table">
+                        <tbody>
+                            <tr>
+                                <td><p><strong>Name</strong><br/></p></td>
+                                <td><p><strong>Nature of Relationship</strong><br/></p></td>
+                                <td><p><strong>Transaction Amount During the Period</strong><br/></p></td>
+                                <td><p><strong>Additional Information</strong><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_transactions_with_management" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_tax_and_compliance"/>
+        <field name="is_template">True</field>
+        <field name="template_child_default_create">False</field>
+        <field name="template_name">Transactions with Management</field>
+        <field name="template_sequence">200</field>
+        <field name="template_body" type="html">
+            <h1>Transactions with Management</h1>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Remuneration for Services</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <h2>Remuneration for Services</h2>
+                    <table class="table table-bordered o_table">
+                        <tbody>
+                            <tr>
+                                <td class="bg-100"><p><strong>Description</strong><br/></p></td>
+                                <td class="bg-100"><p>Fiscal Year N<br/></p></td>
+                                <td class="bg-100"><p>Fiscal Year N - 1<br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Remuneration due for the fiscal year<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Valuation of multi-year variable compensation<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Valuation of stock options granted during the year<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                            <tr>
+                                <td><p>Valuation of free shares granted<br/></p></td>
+                                <td><p><br/></p></td>
+                                <td><p><br/></p></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <ul>
+                        <li>For each member, specify the advances and loans granted to them, including the terms agreed upon and repayments made during the period, as well as the amount of commitments made on their behalf.</li>
+                        <li>For each member, indicate the retirement commitments and similar benefits granted to them.</li>
+                    </ul>
+                </div>
+            </div>
+            <div data-embedded="foldableSection" data-embedded-props='{"showContent": true}'>
+                <div class="d-print-none" data-embedded-editable="title">
+                    <p>Non-disclosure</p>
+                </div>
+                <div data-embedded-editable="content">
+                    <p>Management has chosen not to disclose remuneration information, as doing so would effectively reveal the individual compensation of executives.</p>
+                </div>
+            </div>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_additional_information" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_annexes"/>
+        <field name="is_template">True</field>
+        <field name="template_child_default_create">False</field>
+        <field name="template_name">Additional Information</field>
+        <field name="template_sequence">600</field>
+        <field name="template_body" type="html">
+            <h1>Additional Information</h1>
+            <p>Provide any additional information necessary here...</p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_supporting_documents" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_audit_report"/>
+        <field name="is_template">True</field>
+        <field name="template_name">Supporting Documents</field>
+        <field name="template_sequence">400</field>
+        <field name="template_body" type="html">
+            <h1>Supporting Documents</h1>
+            <p class="d-print-none alert alert-info pt16 pb16">
+                <strong class="o-upload-link">Upload files</strong> to include in the PDF report.
+            </p>
+            <p><br/></p>
+        </field>
+    </record>
+
+    <record id="accountant_knowledge_article_template_tax_package" model="knowledge.article">
+        <field name="parent_id" ref="accountant_knowledge_article_template_audit_report"/>
+        <field name="is_template">True</field>
+        <field name="template_child_default_create">False</field>
+        <field name="template_name">Tax Package</field>
+        <field name="template_sequence">500</field>
+        <field name="template_body" type="html">
+            <h1>Tax Package</h1>
+            <p class="d-print-none alert alert-info pt16 pb16">
+                <strong class="o-upload-link">Upload files</strong> to include in the PDF report.
+            </p>
+            <p><br/></p>
+        </field>
+    </record>
+</odoo>

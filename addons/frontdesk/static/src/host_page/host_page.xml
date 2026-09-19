@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates xml:space="preserve">
+    <t t-name="frontdesk.HostPage">
+        <t t-if="state.showManualSelection">
+            <HostManualSelection
+                stationId="props.stationId"
+                token="props.token"
+                theme="props.theme"
+                onSelectHost.bind="selectedHost"
+                onClickBack.bind="goBackFromManualSelection"
+            />
+        </t>
+        <t t-else="">
+            <div class="d-flex flex-column justify-content-center h-100">
+            <div class="container-fluid">
+                <div class="row g-0 d-flex justify-content-center">
+                    <div class="col-lg-6">
+                            <div class="text-center mb-4">
+                                <h2>Select Host</h2>
+                                <p class="text-muted">Choose who you would like to visit</p>
+                            </div>
+                            <div class="d-grid gap-3">
+                                <t t-if="state.hostName">
+                                    <div class="alert alert-success d-flex align-items-center">
+                                        <i class="oi oi-check-circle me-2"></i>
+                                        Selected host: <strong class="ms-1" t-out="state.hostName"/>
+                                    </div>
+                                </t>
+                                <button
+                                    class="btn btn-primary"
+                                    t-on-click="showManualSelection">
+                                    <i class="oi oi-group me-2"></i>
+                                    Browse All Hosts
+                                </button>
+                                <button
+                                    class="btn btn-secondary"
+                                    t-att-disabled="!state.hostName"
+                                    t-on-click="_onConfirm">
+                                    <i class="oi oi-chevron-right me-2"></i>
+                                    Continue
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </t>
+    </t>
+</templates>

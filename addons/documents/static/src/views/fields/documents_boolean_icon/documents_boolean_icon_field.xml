@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="documents.DocumentsBooleanIconField">
+        <button t-attf-class="btn {{this.props.record.data[this.props.name] ? props.btnTrueClass:props.btnFalseClass}}"
+            t-att-data-tooltip="props.label" t-on-click.prevent.stop="update">
+            <i t-attf-class="fa {{props.icon}}"/>
+        </button>
+    </t>
+
+</templates>

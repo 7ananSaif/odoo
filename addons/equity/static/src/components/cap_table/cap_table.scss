@@ -1,0 +1,29 @@
+.o_cap_table {
+    .hover-button {
+        opacity: 0;
+    }
+
+    td:hover .hover-button {
+        opacity: 1;
+    }
+
+    a {
+        cursor: pointer;
+    }
+
+    .o_cap_table_header {
+        --ListRenderer-thead-padding-y: 0.5rem;
+    }
+
+    .o_group_header {
+        font-weight: 500;
+    }
+    
+    // ------- Sample mode -------
+    .o_view_sample_data {
+        tbody {
+            @include o-sample-data-disabled;
+            border-color: rgba(0, 0, 0, 0.02);
+        }
+    }
+}

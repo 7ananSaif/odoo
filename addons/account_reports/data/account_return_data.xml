@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Annual Corporate Tax-->
+        <record id="annual_corporate_tax_return_type" model="account.return.type">
+            <field name="name">Annual Closing: Corporate Tax</field>
+            <field name="default_deadline_periodicity">year</field>
+            <field name="states_workflow">generic_state_review_submit</field>
+        </record>
+
+        <record id="default_audit_return_type" model="account.return.type">
+            <field name="name">Audit</field>
+            <field name="category">audit</field>
+            <field name="default_deadline_periodicity">year</field>
+            <field name="auto_generate" eval="False"/>
+        </record>
+    </data>
+</odoo>

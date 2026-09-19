@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="accountant_knowledge.EmbeddedAccountReport">
+        <div class="d-flex p-3">
+            <div class="col">
+                <h1 t-out="props.name"/>
+                <button class="btn btn-primary" t-on-click="openAccountReport">
+                    Customize
+                </button>
+            </div>
+            <div class="col">
+                <p>The full report will be included in the final document. Feel free to tailor the result using filters and options from the report.</p>
+            </div>
+        </div>
+    </t>
+</templates>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="esg_employee_report_search" model="ir.ui.view">
+        <field name="name">esg.employee.report.search</field>
+        <field name="model">esg.employee.report</field>
+        <field name="arch" type="xml">
+            <search string="Sex Parity">
+                <field name="department_id"/>
+                <field name="contract_type_id"/>
+                <filter string="Full-Time Workers" name="full_time" domain="[('is_full_time', '=', True)]"/>
+                <filter string="Part-Time Workers" name="part_time" domain="[('is_full_time', '=', False)]"/>
+                <separator/>
+                <filter string="Male" name="sex_male" domain="[('sex', '=', 'male')]"/>
+                <filter string="Female" name="sex_female" domain="[('sex', '=', 'female')]"/>
+                <filter string="Other" name="sex_other" domain="[('sex', '=', 'other')]"/>
+                <group>
+                    <filter string="Sex" name="group_by_sex" context="{'group_by': 'sex'}"/>
+                    <filter string="Leadership Level" name="group_by_leadership_level" context="{'group_by': 'leadership_level'}"/>
+                    <filter string="Department" name="group_by_department_id" context="{'group_by': 'department_id'}"/>
+                    <filter string="Job Position" name="group_by_job_id" context="{'group_by': 'job_id'}"/>
+                    <filter string="Contract Type" name="group_by_contract_type_id" context="{'group_by': 'contract_type_id'}"/>
+                    <filter string="Country" name="group_by_country_id" context="{'group_by': 'country_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="esg_employee_report_graph" model="ir.ui.view">
+        <field name="name">esg.employee.report.graph</field>
+        <field name="model">esg.employee.report</field>
+        <field name="arch" type="xml">
+            <graph string="Sex Parity" type="pie" disable_linking="1">
+                <field name="sex"/>
+                <field name="leadership_level" invisible="1"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="esg_employee_report_pivot" model="ir.ui.view">
+        <field name="name">esg.employee.report.pivot</field>
+        <field name="model">esg.employee.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Sex Parity" disable_linking="1">
+                <field name="job_id" type="row"/>
+                <field name="sex" type="col"/>
+                <field name="wage" type="measure"/>
+                <field name="count" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_esg_employee_report_sex_parity" model="ir.actions.act_window">
+        <field name="name">Sex Parity</field>
+        <field name="res_model">esg.employee.report</field>
+        <field name="path">esg-gender-parity</field>
+        <field name="view_mode">graph</field>
+        <field name="context">{'search_default_group_by_sex': 1}</field>
+        <field name="search_view_id" ref="esg_employee_report_search"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No employee sex data available.
+            </p>
+            <p>
+                Once configured, you'll be able to view sex distribution across your company.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_esg_employee_report_pay_gap" model="ir.actions.act_window">
+        <field name="name">Pay Gap</field>
+        <field name="res_model">esg.employee.report</field>
+        <field name="path">esg-pay-gap</field>
+        <field name="view_mode">pivot</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No salary data available.
+            </p>
+            <p>
+                Configure employee contracts and salaries to calculate the sex median pay gap.
+            </p>
+        </field>
+    </record>
+</odoo>

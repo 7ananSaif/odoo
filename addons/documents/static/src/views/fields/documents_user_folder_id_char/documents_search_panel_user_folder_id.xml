@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+
+    <t t-name="documents.SearchPanelUserFolderId" >
+        <div class="d-inline-block my-2 ps-3">
+            <div class="input-group">
+                <input
+                    class="form-control"
+                    placeholder="Search..."
+                    type="text"
+                    t-ref="searchInput"
+                    t-on-change="onFilterChange"
+                />
+                <button class="btn btn-outline-secondary" type="button" t-on-click="onClickClear">
+                    <i class="fa fa-eraser"/>
+                </button>
+            </div>
+        </div>
+        <ul class="list-group d-block" t-att-class="ulClass">
+            <t t-call="documents.SearchPanel.Category">
+                <t t-set="values" t-value="category.rootIds.filter((rId) => !!rId and rId !== 'SHARED' || category.values.get(rId)?.childrenIds.length > 0)"/>
+                <t t-set="section" t-value="category"/>
+            </t>
+        </ul>
+    </t>
+
+</templates>

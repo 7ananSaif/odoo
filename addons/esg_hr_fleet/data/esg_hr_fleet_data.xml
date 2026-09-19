@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="employee_commuting_factor" model="esg.emission.factor">
+        <field name="name">Employee Commuting</field>
+        <field name="source_id" ref="esg.esg_emission_source_direct_2"/>
+        <field name="esg_emissions_value">1</field>
+        <field name="uom_id" ref="uom.product_uom_unit"/>
+        <field name="esg_uncertainty_value">0.2</field>
+    </record>
+</odoo>

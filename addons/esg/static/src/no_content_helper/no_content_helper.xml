@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+
+    <t t-name="esg.noContentHelper" >
+        <div class="o_view_nocontent">
+            <div class="o_nocontent_help">
+                <!-- Carbon reports empty screen -->
+                <div class="o_nocontent_esg d-flex flex-column gap-3 w-100 mt-3 px-3 pe-auto">
+                    <div class="card overflow-hidden">
+                        <div class="card-body d-flex align-items-start gap-3">
+                            <img t-if="accountantInstalled" class="o_carbon_fp_icon_app rounded-3" src="/accountant/static/description/icon.png"/>
+                            <img t-else="" class="o_carbon_fp_icon_app rounded-3" src="/account/static/description/icon.png"/>
+                            <div class="w-md-75 pe-md-5">
+                                <h3>Effortless <t t-esc="reportName"/> Calculation</h3>
+                                <p class="mb-0">Track your company's <t t-esc="reportName"/> with ease! Most emissions are seamlessly calculated from your accounting data, using account move lines to generate precise and compliant reports.</p>
+                            </div>
+                            <div class="o_carbon_fp_icon_demo position-absolute end-0 d-none d-md-flex align-self-end flex-column gap-2">
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <img src="/account_asset/static/description/icon.png" class="rounded-2"/>
+                                    <img src="/account/static/description/icon.png" class="rounded-2"/>
+                                    <img src="/fleet/static/description/icon.png" class="rounded-2"/>
+                                    <img src="/hr_expense/static/description/icon.png" class="rounded-2"/>
+                                    <img src="/hr/static/description/icon.png" class="rounded-2"/>
+                                </div>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <img src="/purchase/static/description/icon.png" class="rounded-2"/>
+                                    <img src="/sale_renting/static/description/icon.png" class="rounded-2"/>
+                                    <img src="/sale/static/description/icon.png" class="rounded-2"/>
+                                    <img src="/stock/static/description/icon.png" class="rounded-2"/>
+                                </div>
+                                <div class="d-flex gap-2 justify-content-center">
+                                    <img src="/stock/static/description/icon.png" class="rounded-2"/>
+                                    <img src="/account_asset/static/description/icon.png" class="rounded-2"/>
+                                    <img src="/purchase/static/description/icon.png" class="rounded-2"/>
+                                    <img src="/sale/static/description/icon.png" class="rounded-2"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-center gap-4 flex-wrap pt-3">
+                        <span class="o_carbon_fp_cloud position-relative d-inline-block rounded-pill px-4 py-1 bg-200 fs-4 fw-bold">CH₄</span>
+                        <span class="o_carbon_fp_cloud position-relative d-inline-block rounded-pill px-4 py-1 bg-200 fs-4 fw-bold">HFCs</span>
+                        <span class="o_carbon_fp_cloud position-relative d-inline-block rounded-pill px-4 py-1 bg-200 fs-4 fw-bold">SF₆</span>
+                        <span class="o_carbon_fp_cloud position-relative d-inline-block rounded-pill px-4 py-1 bg-200 fs-4 fw-bold">PFCs</span>
+                        <span class="o_carbon_fp_cloud position-relative d-inline-block rounded-pill px-4 py-1 bg-200 fs-4 fw-bold">N₂O</span>
+                        <span class="o_carbon_fp_cloud position-relative d-inline-block rounded-pill px-4 py-1 bg-200 fs-4 fw-bold">NF₃</span>
+                        <span class="o_carbon_fp_cloud position-relative d-inline-block rounded-pill px-4 py-1 bg-200 fs-4 fw-bold">CO₂</span>
+                    </div>
+                    <div class="overflow-auto">
+                        <div class="o_carbon_fp_scopes_wrap grid gap-3">
+                            <div class="o_carbon_fp_scope g-col-3 position-relative p-3 bg-primary-subtle text-primary-emphasis">
+                                <div class="text-center">
+                                    <p class="mb-0 text-uppercase opacity-50">Scope 2</p>
+                                    <h6 class="text-reset">Indirect Emissions</h6>
+                                </div>
+                                <hr class="border-top border-primary-subtle opacity-100"/>
+                                <ul class="d-flex flex-column gap-2 mb-0">
+                                    <li>Purchased Electricity, Steam, Heating, and Cooling for own use</li>
+                                </ul>
+                            </div>
+                            <div class="o_carbon_fp_scope g-col-3 position-relative p-3 bg-primary-subtle text-primary-emphasis">
+                                <div class="text-center">
+                                    <p class="mb-0 text-uppercase opacity-50">Scope 3</p>
+                                    <h6 class="text-reset">Other Indirect Emissions</h6>
+                                </div>
+                                <hr class="border-top border-primary-subtle opacity-100"/>
+                                <ul class="d-flex flex-column gap-2 mb-0">
+                                    <li class="o_add_manually">Employee Commuting</li>
+                                    <li>Transportation and Distribution</li>
+                                    <li class="o_add_manually">Waste Generated in Operations</li>
+                                    <li>Fuel and Energy Related Activities</li>
+                                    <li>Purchased Goods and Services</li>
+                                    <li>Capital Goods</li>
+                                    <li>Business Travel</li>
+                                    <li>Leased Assets</li>
+                                </ul>
+                            </div>
+                            <div class="o_carbon_fp_scope g-col-3 position-relative p-3 bg-info-subtle text-info-emphasis">
+                                <div class="text-center">
+                                    <p class="mb-0 text-uppercase opacity-50">Scope 1</p>
+                                    <h6 class="text-reset">Direct Emissions</h6>
+                                </div>
+                                <hr class="border-top border-info-subtle opacity-100"/>
+                                <ul class="d-flex flex-column gap-2 mb-0">
+                                    <li>Company Vehicles</li>
+                                    <li>Company Facilities</li>
+                                </ul>
+                            </div>
+                            <div class="o_carbon_fp_scope g-col-3 position-relative p-3 bg-warning-subtle text-warning-emphasis">
+                                <div class="text-center">
+                                    <p class="mb-0 text-uppercase opacity-50">Scope 3</p>
+                                    <h6 class="text-reset">Other Indirect Emissions</h6>
+                                </div>
+                                <hr class="border-top border-warning-subtle opacity-100"/>
+                                <ul class="d-flex flex-column gap-2 mb-0">
+                                    <li>Transportation and Distribution</li>
+                                    <li>Processing of Sold Product</li>
+                                    <li>Use of Sold Products</li>
+                                    <li class="o_add_manually">End-of-life Treatment of Sold Products</li>
+                                    <li>Leased Assets</li>
+                                    <li>Investment</li>
+                                </ul>
+                            </div>
+
+                            <div class="o_carbon_fp_activitie o_first g-col-6 position-relative py-2 bg-primary-subtle text-primary-emphasis text-center">Upstream activities</div>
+                            <div class="o_carbon_fp_activitie g-col-3 position-relative py-2 bg-info-subtle text-info-emphasis text-center">Company reporting</div>
+                            <div class="o_carbon_fp_activitie g-col-3 position-relative py-2 bg-warning-subtle text-warning-emphasis text-center">Downstream activities</div>
+                        </div>
+                    </div>
+                    <ul class="o_carbon_fp_legends d-flex flex-column flex-md-row column-gap-3 row-gap-2 justify-content-center p-0">
+                        <li t-if="accountantInstalled">Included in Accounting</li>
+                        <li t-else="">Included in Invoicing</li>
+                        <li class="o_add_manually">Can be added manually</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

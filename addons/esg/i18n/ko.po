@@ -1,0 +1,2098 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * esg
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:42+0000\n"
+"PO-Revision-Date: 2025-12-10 10:29+0000\n"
+"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/esg/ko/>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_emission_factor_line.py:0
+msgid "%(gas_name)s (%(quantity)s kg)"
+msgstr "%(gas_name)s(%(quantity)s kg)"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_other_emission.py:0
+msgid "%s (copy)"
+msgstr "%s (사본)"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_form_view
+msgid ""
+"<i class=\"fa fa-exclamation-triangle me-2\"/>\n"
+"                    You are modifying an emission factor already assigned to "
+"emissions.\n"
+"                    Changing it will update these emissions. To keep the old "
+"value, duplicate the factor."
+msgstr ""
+"<i class=\"fa fa-exclamation-triangle me-2\"/>\n"
+"                    기존에 지정된 배출 계수를 수정하는 작업입니다. \n"
+"                   계수를 변경할 경우 해당 배출량이 업데이트됩니다. 기존 값대"
+"로 유지하려면 계수를 복제하세요."
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.carbon_emission_report_kanban_view
+msgid "<span class=\"ms-1\">kgCO₂e</span>"
+msgstr "<span class=\"ms-1\">kgCO₂e</span>"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.other_emission_form_view
+msgid "<span class=\"ms-2\">kgCO₂e</span>"
+msgstr "<span class=\"ms-2\">kgCO₂e</span>"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.view_move_form_inherit_esg
+msgid "<span>kgCO₂e</span>"
+msgstr "<span>kgCO₂e</span>"
+
+#. module: esg
+#: model:ir.model.constraint,message:esg.constraint_esg_activity_type_name_uniq
+msgid "A tag with the same name already exists."
+msgstr "같은 이름의 태그가 이미 존재합니다."
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_database.py:0
+msgid "ADEME data is already up to date."
+msgstr "ADEME 데이터가 이미 업데이트되어 있습니다."
+
+#. module: esg
+#: model:res.groups,comment:esg.esg_group_user
+msgid ""
+"Access to ESG features including viewing data, reporting, and mapping "
+"emissions with emissions factors, but without configuration rights."
+msgstr ""
+"ESG 기능을 활용하여 데이터 조회, 보고, 배출량 계수를 활용한 배출량 매핑 등에 "
+"액세스할 수 있으나, 환경설정 권한은 부여가 되지 않습니다."
+
+#. module: esg
+#: model:ir.model,name:esg.model_account_account
+#: model:ir.model.fields,field_description:esg.field_esg_assignation_line__account_id
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__account_id
+msgid "Account"
+msgstr "계정"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__account_move_line_ids
+msgid "Account Move Line"
+msgstr "계정 이동 항목"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.carbon_emission_report_search_view
+msgid "Accounting"
+msgstr "회계"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_dashboard.xml:0
+msgid "Act"
+msgstr "조항"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__message_needaction
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__message_needaction
+msgid "Action Needed"
+msgstr "조치 필요"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__active
+msgid "Active"
+msgstr "활성화"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__activity_flow
+#: model_terms:ir.ui.view,arch_db:esg.emission_source_form_view
+msgid "Activity Flow"
+msgstr "활동 흐름"
+
+#. module: esg
+#: model:ir.model,name:esg.model_esg_activity_type
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__activity_type_id
+msgid "Activity Type"
+msgstr "활동 유형"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__activity_type_ids
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__activity_type_ids
+msgid "Activity Types"
+msgstr "활동 유형"
+
+#. module: esg
+#: model:res.groups,name:esg.esg_group_manager
+msgid "Administrator"
+msgstr "관리자"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__price_subtotal
+msgid "Amount"
+msgstr "금액"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_assignation_line.py:0
+msgid ""
+"An assignation with the rules (%(account_id)s, %(partner_id)s, %"
+"(product_id)s) already exists in the emission factor '%(factor_name)s'."
+msgstr ""
+"지정된 규칙(%(account_id)s, %(partner_id)s, %(product_id)s) 이 배출 요소 '%"
+"(factor_name)s' 에 이미 있습니다."
+
+#. module: esg
+#. odoo-javascript
+#. odoo-python
+#: code:addons/esg/models/esg_assignation_line.py:0
+#: code:addons/esg/static/src/widgets/emission_factor_x2many_field/emission_factor_list_renderer.js:0
+msgid "Any Account"
+msgstr "모든 계정"
+
+#. module: esg
+#. odoo-javascript
+#. odoo-python
+#: code:addons/esg/models/esg_assignation_line.py:0
+#: code:addons/esg/static/src/widgets/emission_factor_x2many_field/emission_factor_list_renderer.js:0
+msgid "Any Partner"
+msgstr "모든 협력사"
+
+#. module: esg
+#. odoo-javascript
+#. odoo-python
+#: code:addons/esg/models/esg_assignation_line.py:0
+#: code:addons/esg/static/src/widgets/emission_factor_x2many_field/emission_factor_list_renderer.js:0
+msgid "Any Product"
+msgstr "전체 품목"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.factors_auto_assignment_wizard_form_view
+msgid "Application Period"
+msgstr "지원 기간"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_search_view
+msgid "Archived"
+msgstr "보관됨"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_form_view
+msgid "Assign"
+msgstr "할당"
+
+#. module: esg
+#: model:ir.actions.act_window,name:esg.factors_auto_assignment_wizard_action
+#: model:ir.actions.server,name:esg.action_apply_factors_auto_assignment
+msgid "Assign Emission Factors"
+msgstr "배출 계수 지정"
+
+#. module: esg
+#: model:ir.model,name:esg.model_esg_assignation_line
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__assignation_line_ids
+msgid "Assignation Line"
+msgstr "배정 내역"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_form_view
+msgid "Assignations"
+msgstr "배정"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__message_attachment_count
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__message_attachment_count
+msgid "Attachment Count"
+msgstr "첨부 파일 수"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/carbon_report.py:0
+msgid "Audit Emissions"
+msgstr "배출량 감사"
+
+#. module: esg
+#: model:ir.model,name:esg.model_factors_auto_assignment_wizard
+msgid "Auto-assignment of emission factors to move lines"
+msgstr "이동 내역에 배출 계수 자동 지정"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_ch4b
+msgid "Biogenic Methane (CH₄)"
+msgstr "생물성 메탄(CH₄)"
+
+#. module: esg
+#: model:account.report.column,name:esg.carbon_report_column_ch4b
+msgid "Biogenic Methane (CH₄) (t)"
+msgstr "생물성 메탄(CH₄)(t)"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+#: model:esg.activity.type,name:esg.esg_activity_type_6
+#: model:esg.emission.source,name:esg.esg_emission_source_upstream_6
+msgid "Business Travel"
+msgstr "비즈니스 출장"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_pfc_c4f6
+msgid "C4F6"
+msgstr "C4F6"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_c4f8o
+msgid "C4F8O"
+msgstr "C4F8O"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_pfc_c5f8
+msgid "C5F8"
+msgstr "C5F8"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "CH₄"
+msgstr "CH₄"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "CO₂"
+msgstr "CO₂"
+
+#. module: esg
+#: model:account.report.column,name:esg.carbon_report_column_co2
+msgid "CO₂ (t)"
+msgstr "CO₂ (t)"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Calculation"
+msgstr "계산"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_database__can_be_downloaded
+msgid "Can Be Downloaded"
+msgstr "다운로드 가능"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Can be added manually"
+msgstr "수동으로 추가 가능"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.factors_auto_assignment_wizard_form_view
+msgid "Cancel"
+msgstr "취소"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+#: model:esg.emission.source,name:esg.esg_emission_source_upstream_2
+msgid "Capital Goods"
+msgstr "자본재 관련업"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_carbon_footprint_box/esg_carbon_footprint_box.xml:0
+#: code:addons/esg/static/src/views/esg_carbon_emission_graph/esg_carbon_emission_graph_controller.js:0
+#: code:addons/esg/static/src/views/esg_carbon_emission_pivot/esg_carbon_emission_pivot_controller.js:0
+#: model:ir.actions.act_window,name:esg.action_carbon_emission_report_analytics_views
+#: model:ir.ui.menu,name:esg.menu_esg_carbon_analytics
+msgid "Carbon Analytics"
+msgstr "탄소 분석"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_co2
+#: model:ir.model.fields.selection,name:esg.selection__esg_gas__category__co2
+msgid "Carbon Dioxide (CO₂)"
+msgstr "이산화탄소(CO₂)"
+
+#. module: esg
+#: model:ir.ui.menu,name:esg.menu_esg_carbon_emissions
+#: model:ir.ui.menu,name:esg.menu_esg_collect_carbon_emissions
+msgid "Carbon Emissions"
+msgstr "탄소 배출"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_carbon_footprint_box/esg_carbon_footprint_box.xml:0
+#: model:account.report,name:esg.carbon_report
+#: model:account.report.line,name:esg.carbon_report_line
+#: model:ir.actions.client,name:esg.action_view_carbon_report
+#: model:ir.ui.menu,name:esg.menu_esg_carbon_report
+msgid "Carbon Footprint"
+msgstr "탄소 발자국"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_co
+msgid "Carbon Monoxide"
+msgstr "일산화탄소"
+
+#. module: esg
+#: model:ir.model,name:esg.model_esg_carbon_report_handler
+msgid "Carbon Report Custom Handler"
+msgstr "탄소 보고서 사용자 지정 핸들러"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_pfc_cf4
+msgid "Carbon Tetrafluoride (CF₄)"
+msgstr "사불화탄소(CF₄)"
+
+#. module: esg
+#: model:account.report.column,name:esg.carbon_report_column_cf4
+msgid "Carbon Tetrafluoride (CF₄) (t)"
+msgstr "사불화탄소(CF₄)(t)"
+
+#. module: esg
+#: model_terms:ir.actions.act_window,help:esg.action_view_emission_source
+msgid ""
+"Categorize your data into Scope 1, 2, and 3 to structure your carbon "
+"emission reporting."
+msgstr "데이터를 범위 1, 2, 3으로 분류하여 탄소 배출량 보고서를 구성해 보세요."
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_gas__category
+msgid "Category"
+msgstr "카테고리"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/account_account.py:0
+msgid ""
+"Changing the account type to anything other than %"
+"(valid_account_type_names)s will reset all emission factors linked to "
+"journal items using this account.\n"
+"In addition, it will remove all the ESG assignations lines linked to that "
+"account.\n"
+"Are you sure you want to continue?"
+msgstr ""
+"계정 유형을 %(valid_account_type_names)s 외 다른 유형으로 변경할 경우 이 계정"
+"을 사용 중인 전표에 연결된 모든 배출 계수가 초기화됩니다.\n"
+"또한 해당 계정에 연결된 모든 ESG 지정 내역이 제거됩니다.\n"
+"정말 계속할까요?"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__child_ids
+msgid "Child"
+msgstr "하위"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_dashboard.xml:0
+msgid "Close the onboarding tips"
+msgstr "온보딩 팁 닫기"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__code
+#: model:ir.model.fields,field_description:esg.field_esg_gas__code
+msgid "Code"
+msgstr "코드"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_dashboard.xml:0
+#: model:ir.ui.menu,name:esg.menu_esg_collect
+msgid "Collect"
+msgstr "수집"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_carbon_analytics_box/esg_carbon_analytics_box.xml:0
+msgid "Collect Emissions"
+msgstr "배출량 수집"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_database__color
+msgid "Color"
+msgstr "색상"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__company_id
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__company_id
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__company_id
+msgid "Company"
+msgstr "회사"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Company Facilities"
+msgstr "회사 설비"
+
+#. module: esg
+#: model:ir.model.fields.selection,name:esg.selection__esg_emission_source__activity_flow_direct_indirect__company_reporting
+msgid "Company Reporting"
+msgstr "회사 보고"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Company Vehicles"
+msgstr "회사 차량"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Company reporting"
+msgstr "회사 보고"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__scope_complete_name
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__complete_name
+msgid "Complete Name"
+msgstr "전체 이름"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__compute_method
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__compute_method
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__compute_method
+msgid "Compute Method"
+msgstr "계산 방법"
+
+#. module: esg
+#: model:product.template,name:esg.product_computer_product_template
+msgid "Computer"
+msgstr "컴퓨터"
+
+#. module: esg
+#: model:ir.ui.menu,name:esg.menu_esg_configuration
+msgid "Configuration"
+msgstr "설정"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.factors_auto_assignment_wizard_form_view
+msgid "Confirm"
+msgstr "승인"
+
+#. module: esg
+#: model:ir.model.fields,help:esg.field_factors_auto_assignment_wizard__start_date
+msgid ""
+"Correspond to the period to consider for the assignment of the factors to "
+"the move lines."
+msgstr "이동 내역에 요건을 지정 시 고려할 기간에 해당합니다."
+
+#. module: esg
+#: model_terms:ir.actions.act_window,help:esg.action_esg_gasses_list
+msgid "Create and configure greenhouse gases."
+msgstr "온실 가스를 생성 및 설정합니다."
+
+#. module: esg
+#: model_terms:ir.actions.act_window,help:esg.action_view_emission_factor
+msgid "Create emission factors."
+msgstr "배출 계수를 생성합니다."
+
+#. module: esg
+#: model_terms:ir.actions.act_window,help:esg.action_view_emission_source
+msgid "Create emission sources."
+msgstr "배출원을 생성합니다."
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_activity_type__create_uid
+#: model:ir.model.fields,field_description:esg.field_esg_assignation_line__create_uid
+#: model:ir.model.fields,field_description:esg.field_esg_database__create_uid
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__create_uid
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__create_uid
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__create_uid
+#: model:ir.model.fields,field_description:esg.field_esg_gas__create_uid
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__create_uid
+#: model:ir.model.fields,field_description:esg.field_factors_auto_assignment_wizard__create_uid
+msgid "Created by"
+msgstr "작성자"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_activity_type__create_date
+#: model:ir.model.fields,field_description:esg.field_esg_assignation_line__create_date
+#: model:ir.model.fields,field_description:esg.field_esg_database__create_date
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__create_date
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__create_date
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__create_date
+#: model:ir.model.fields,field_description:esg.field_esg_gas__create_date
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__create_date
+#: model:ir.model.fields,field_description:esg.field_factors_auto_assignment_wizard__create_date
+msgid "Created on"
+msgstr "작성일자"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__currency_id
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__currency_id
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__currency_id
+#: model_terms:ir.ui.view,arch_db:esg.other_emission_form_view
+msgid "Currency"
+msgstr "통화"
+
+#. module: esg
+#: model:ir.actions.client,name:esg.ir_actions_esg_dashboard_action
+#: model:ir.ui.menu,name:esg.menu_esg_dashboard
+msgid "Dashboard"
+msgstr "현황판"
+
+#. module: esg
+#: model:ir.model,name:esg.model_esg_database
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__database_id
+msgid "Database"
+msgstr "데이터베이스"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_database.py:0
+msgid "Database file is missing"
+msgstr "데이터베이스 파일 누락"
+
+#. module: esg
+#: model:ir.actions.act_window,name:esg.action_view_database
+msgid "Databases"
+msgstr "데이터베이스"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__date
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__date
+#: model_terms:ir.ui.view,arch_db:esg.carbon_emission_report_search_view
+msgid "Date"
+msgstr "날짜"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__date_end
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__date_end
+msgid "Date End"
+msgstr "마감 날짜"
+
+#. module: esg
+#: model_terms:ir.actions.act_window,help:esg.action_esg_gasses_list
+msgid ""
+"Define gases to convert emissions into CO₂ equivalents using Global Warming "
+"Potential values."
+msgstr ""
+"지구 온난화 지수 값을 이용하여 배출량을 CO₂ 환산량으로 변환할 가스를 지정하세"
+"요."
+
+#. module: esg
+#: model_terms:ir.actions.act_window,help:esg.action_view_emission_factor
+msgid "Define how activity data translates into CO₂e."
+msgstr "활동 데이터를 CO₂e로 변환하는 방식을 정의합니다."
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__description
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_form_view
+msgid "Description"
+msgstr "설명"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_search_view
+msgid "Detailed by gas"
+msgstr "가스별 상세 정보"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Direct Emissions"
+msgstr "직접 배출량"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_account_account__display_name
+#: model:ir.model.fields,field_description:esg.field_account_move__display_name
+#: model:ir.model.fields,field_description:esg.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:esg.field_esg_activity_type__display_name
+#: model:ir.model.fields,field_description:esg.field_esg_assignation_line__display_name
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__display_name
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_report_handler__display_name
+#: model:ir.model.fields,field_description:esg.field_esg_database__display_name
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__display_name
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__display_name
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__display_name
+#: model:ir.model.fields,field_description:esg.field_esg_gas__display_name
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__display_name
+#: model:ir.model.fields,field_description:esg.field_factors_auto_assignment_wizard__display_name
+msgid "Display Name"
+msgstr "표시명"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.factors_auto_assignment_wizard_form_view
+msgid ""
+"Do you want to automatically assign the selected emission factor(s) to the "
+"move lines based on your predefined assignation rules?"
+msgstr ""
+"선택한 배출 계수를 사전 정의된 지정 규칙에 따라 자동으로 이동 라인에 지정할까"
+"요?"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.database_form_view
+#: model_terms:ir.ui.view,arch_db:esg.database_kanban_view
+msgid "Download"
+msgstr "다운로드"
+
+#. module: esg
+#: model_terms:ir.actions.act_window,help:esg.action_view_database
+msgid ""
+"Download a certified database we provide or upload your own in Odoo format."
+msgstr ""
+"고객에게 제공해 드리는 인증된 데이터베이스를 다운로드하거나 자체 데이터베이스"
+"를 Odoo 형식으로 직접 업로드하세요."
+
+#. module: esg
+#: model:ir.model.fields.selection,name:esg.selection__esg_emission_source__activity_flow_indirect_others__downstream
+msgid "Downstream"
+msgstr "하위"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_downstream_5
+msgid "Downstream Leased Assets"
+msgstr "다운스트림 임대 자산"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_downstream_1
+msgid "Downstream Transportation and Distribution"
+msgstr "다운스트림 운송 및 유통"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Downstream activities"
+msgstr "하위 활동"
+
+#. module: esg
+#: model:ir.ui.menu,name:esg.esg_main_menu
+#: model:res.groups.privilege,name:esg.res_groups_privilege_esg
+msgid "ESG"
+msgstr "ESG"
+
+#. module: esg
+#: model:ir.model,name:esg.model_esg_carbon_emission_report
+msgid "ESG Carbon Emissions Report"
+msgstr "ESG 탄소 배출 보고서"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Effortless"
+msgstr "간편함"
+
+#. module: esg
+#: model:account.account,name:esg.account_electricity
+msgid "Electricity"
+msgstr "전기"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_indirect_1_2
+msgid "Electricity for Cars"
+msgstr "차량용 전기"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_indirect_1_1
+msgid "Electricity for Office"
+msgstr "사무실용 전기"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_form_view
+msgid "Emission"
+msgstr "배출"
+
+#. module: esg
+#: model:ir.model,name:esg.model_esg_emission_factor
+#: model:ir.model.fields,field_description:esg.field_account_move_line__esg_emission_factor_id
+#: model:ir.model.fields,field_description:esg.field_esg_assignation_line__esg_emission_factor_id
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__esg_emission_factor_id
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__esg_emission_factor_id
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__esg_emission_factor_id
+msgid "Emission Factor"
+msgstr "배출 계수"
+
+#. module: esg
+#: model:ir.model,name:esg.model_esg_emission_factor_line
+msgid "Emission Factor Line"
+msgstr "배출 계수 내역"
+
+#. module: esg
+#: model:ir.actions.act_window,name:esg.action_view_emission_factor
+#: model:ir.ui.menu,name:esg.menu_esg_emission_factors
+msgid "Emission Factors"
+msgstr "배출 계수"
+
+#. module: esg
+#: model:ir.model,name:esg.model_esg_emission_source
+msgid "Emission Source"
+msgstr "배출 요인"
+
+#. module: esg
+#: model:ir.actions.act_window,name:esg.action_view_emission_source
+#: model:ir.ui.menu,name:esg.menu_esg_type_of_emissions
+msgid "Emission Sources"
+msgstr "배출 요인"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_list_view
+msgid "Emission source"
+msgstr "배출 요인"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_form_view
+msgid "Emissions"
+msgstr "배출량"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_account_bank_statement_line__esg_emissions_value
+#: model:ir.model.fields,field_description:esg.field_account_move__esg_emissions_value
+#: model:ir.model.fields,field_description:esg.field_account_move_line__esg_emissions_value
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__esg_emissions_value
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__esg_emissions_value
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__esg_emissions_value
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__esg_emissions_value
+msgid "Emissions (kgCO₂e)"
+msgstr "배출량(kgCO₂e)"
+
+#. module: esg
+#: model_terms:ir.actions.act_window,help:esg.action_emitted_emission_report_views
+#: model_terms:ir.actions.act_window,help:esg.action_offset_emission_report_views
+msgid ""
+"Emissions data will sync automatically from accounting when you receive "
+"supplier invoices.<br>\n"
+"                You can also manually add other emission not linked to "
+"journal entries."
+msgstr ""
+"공급업체 청구서 수령 시 배출량 데이터가 회계 시스템에서 자동으로 동기화됩니"
+"다.<br>\n"
+"                전표에 연결되지 않은 다른 배출량이 있을 경우 수동으로 추가하"
+"는 것도 가능합니다."
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/account_move.py:0
+msgid "Emissions of %(move_name)s"
+msgstr "%(move_name)s 배출량"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_carbon_analytics_box/esg_carbon_analytics_box.js:0
+#: code:addons/esg/static/src/components/esg_dashboard/esg_carbon_analytics_box/esg_carbon_analytics_box.xml:0
+msgid "Emissions to define"
+msgstr "지정할 배출량"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_emission_factor.py:0
+msgid "Emissions using %(emission_factor)s"
+msgstr "%(emission_factor)s 가 적용된 배출량"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.carbon_emission_report_search_view
+msgid "Emitted"
+msgstr "배출됨"
+
+#. module: esg
+#: model:ir.actions.act_window,name:esg.action_emitted_emission_report_views
+#: model:ir.ui.menu,name:esg.menu_esg_emitted_emissions
+msgid "Emitted Emissions"
+msgstr "배출량"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+#: model:esg.activity.type,name:esg.esg_activity_type_5
+#: model:esg.emission.source,name:esg.esg_emission_source_upstream_7
+msgid "Employee Commuting"
+msgstr "직원 출퇴근"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_factors_auto_assignment_wizard__end_date
+msgid "End Date"
+msgstr "종료일"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_downstream_4
+msgid "End-of-Life Treatment of Sold Products"
+msgstr "판매된 제품의 폐기 처리"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "End-of-life Treatment of Sold Products"
+msgstr "판매 완료된 제품에 대한 폐기 처리"
+
+#. module: esg
+#: model:esg.activity.type,name:esg.esg_activity_type_0
+msgid "Energy Consumption"
+msgstr "에너지 소비량"
+
+#. module: esg
+#: model:ir.ui.menu,name:esg.menu_esg_environment
+msgid "Environment"
+msgstr "환경"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__esg_other_emission_ids
+msgid "Esg Other Emission"
+msgstr "Esg 기타 배출량"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_account_bank_statement_line__esg_show_emissions_button
+#: model:ir.model.fields,field_description:esg.field_account_move__esg_show_emissions_button
+msgid "Esg Show Emissions Button"
+msgstr "ESG 배출량 표시 버튼"
+
+#. module: esg
+#: model:account.account,name:esg.account_expense
+msgid "Expense"
+msgstr "경비"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__message_follower_ids
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__message_follower_ids
+msgid "Followers"
+msgstr "팔로워"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__message_partner_ids
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "팔로워 (협력사)"
+
+#. module: esg
+#: model:esg.activity.type,name:esg.esg_activity_type_8
+msgid "Food Consumption"
+msgstr "식량 소비량"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_ch4f
+msgid "Fossil Methane (CH₄)"
+msgstr "화석 메탄(CH₄)"
+
+#. module: esg
+#: model:account.report.column,name:esg.carbon_report_column_ch4f
+msgid "Fossil Methane (CH₄) (t)"
+msgstr "화석 메탄(CH₄)(t)"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_downstream_6
+msgid "Franchises"
+msgstr "프랜차이즈"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Fuel and Energy Related Activities"
+msgstr "연료 및 에너지 관련 활동"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_upstream_3
+msgid "Fuel and Energy-Related Activites"
+msgstr "연료 및 에너지 관련 활동"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_direct_4
+msgid "Fugitive Emissions"
+msgstr "비산 배출"
+
+#. module: esg
+#: model:res.groups,comment:esg.esg_group_manager
+msgid "Full access to all ESG features including configuration rights."
+msgstr ""
+"모든 ESG 기능에 대해 환경설정 권한을 포함한 전체 액세스를 할 수 있는 권한입니"
+"다."
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.esg_gas_kanban_view
+msgid "GWP:"
+msgstr "GWP:"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/carbon_report/filters.xml:0
+#: model:ir.model,name:esg.model_esg_gas
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__gas_id
+msgid "Gas"
+msgstr "가스"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_form_view
+msgid "Gas Emissions"
+msgstr "가스 배출량"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__gas_line_ids
+msgid "Gas Line"
+msgstr "가스관"
+
+#. module: esg
+#: model:ir.actions.act_window,name:esg.action_esg_gasses_list
+#: model:ir.ui.menu,name:esg.menu_esg_configuration_carbon_emissions_gasses
+msgid "Gases"
+msgstr "가스"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_gas__global_warming_potential
+msgid "Global Warming Potential (GWP)"
+msgstr "지구 온난화 지수(GWP)"
+
+#. module: esg
+#: model:ir.model.constraint,message:esg.constraint_esg_gas_non_null_gwp
+msgid "Global Warming Potential (GWP) cannot be equal to 0."
+msgstr "지구 온난화 지수(GWP) 값은 0이 될 수 없습니다."
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_hfc_125
+msgid "HFC-125"
+msgstr "HFC-125"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_hfc_134
+msgid "HFC-134"
+msgstr "HFC-134"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_hfc_134a
+msgid "HFC-134a"
+msgstr "HFC-134a"
+
+#. module: esg
+#: model:account.report.column,name:esg.carbon_report_column_hfc_134a
+msgid "HFC-134a (t)"
+msgstr "HFC-134a (t)"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_hfc_143
+msgid "HFC-143"
+msgstr "HFC-143"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_hfc_143a
+msgid "HFC-143a"
+msgstr "HFC-143a"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_hfc_152
+msgid "HFC-152"
+msgstr "HFC-152"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_hfc_152a
+msgid "HFC-152a"
+msgstr "HFC-152a"
+
+#. module: esg
+#: model:account.report.column,name:esg.carbon_report_column_hfc_152a
+msgid "HFC-152a (t)"
+msgstr "HFC-152a (t)"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_hfc_161
+msgid "HFC-161"
+msgstr "HFC-161"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_hfc_227ea
+msgid "HFC-227ea"
+msgstr "HFC-227ea"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_hfc_23
+msgid "HFC-23"
+msgstr "HFC-23"
+
+#. module: esg
+#: model:account.report.column,name:esg.carbon_report_column_hfc_23
+msgid "HFC-23 (t)"
+msgstr "HFC-23 (t)"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_hfc_236cb
+msgid "HFC-236cb"
+msgstr "HFC-236cb"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_hfc_32
+msgid "HFC-32"
+msgstr "HFC-32"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_hfc_41
+msgid "HFC-41"
+msgstr "HFC-41"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "HFCs"
+msgstr "HFCs"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_cf3ochf2
+msgid "HFE-125"
+msgstr "HFE-125"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_chf2ch2ocf3
+msgid "HFE-245fa1"
+msgstr "HFE-245fa1"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_cf3cf2ch2och3
+msgid "HFE-365mcf3"
+msgstr "HFE-365mcf3"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_chf2_c4f9och3
+msgid "HFE-7100"
+msgstr "HFE-7100"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__has_message
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__has_message
+msgid "Has Message"
+msgstr "메시지가 있습니다."
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_pfc_c2f6
+msgid "Hexafluoroethane (C₂F₆)"
+msgstr "Hexafluoroethane (C₂F₆)"
+
+#. module: esg
+#: model:account.report.column,name:esg.carbon_report_column_c2f6
+msgid "Hexafluoroethane (C₂F₆) (t)"
+msgstr "Hexafluoroethane (C₂F₆) (t)"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.carbon_emission_report_search_view
+msgid "High Uncertainty (20-50%)"
+msgstr "High Uncertainty (20-50%)"
+
+#. module: esg
+#: model:ir.model.fields.selection,name:esg.selection__esg_gas__category__hfc
+msgid "Hydrofluorocarbons (HFCs)"
+msgstr "Hydrofluorocarbons (HFCs)"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_account_account__id
+#: model:ir.model.fields,field_description:esg.field_account_move__id
+#: model:ir.model.fields,field_description:esg.field_account_move_line__id
+#: model:ir.model.fields,field_description:esg.field_esg_activity_type__id
+#: model:ir.model.fields,field_description:esg.field_esg_assignation_line__id
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__id
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_report_handler__id
+#: model:ir.model.fields,field_description:esg.field_esg_database__id
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__id
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__id
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__id
+#: model:ir.model.fields,field_description:esg.field_esg_gas__id
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__id
+#: model:ir.model.fields,field_description:esg.field_factors_auto_assignment_wizard__id
+msgid "ID"
+msgstr "ID"
+
+#. module: esg
+#: model:esg.activity.type,name:esg.esg_activity_type_7
+msgid "IT Operations"
+msgstr "IT 운영"
+
+#. module: esg
+#: model:ir.model.fields,help:esg.field_factors_auto_assignment_wizard__replace_previous_factors
+msgid ""
+"If checked, any emission lines that already have an emission factor "
+"(manually or automatically assigned) will be reassigned if a matching factor "
+"is found based on your configuration."
+msgstr ""
+"이 항목에 표시하면, 이미 배출량 계수(수동 또는 자동 지정)가 부여된 모든 배출"
+"량 내역이 재지정되며 이와 같은 상황은 환경설정을 기준으로 해당하는 계수가 판"
+"별되는 경우에 발생합니다."
+
+#. module: esg
+#: model:ir.model.fields,help:esg.field_esg_emission_factor__message_needaction
+#: model:ir.model.fields,help:esg.field_esg_emission_factor_line__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "선택할 경우, 새로운 메시지에 주의를 기울여야 합니다."
+
+#. module: esg
+#: model:ir.model.fields,help:esg.field_esg_emission_factor__message_has_error
+#: model:ir.model.fields,help:esg.field_esg_emission_factor__message_has_sms_error
+#: model:ir.model.fields,help:esg.field_esg_emission_factor_line__message_has_error
+#: model:ir.model.fields,help:esg.field_esg_emission_factor_line__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "이 옵션을 선택하면 일부 메시지가 잘못 전달될 수 있습니다."
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_database__image
+msgid "Image"
+msgstr "이미지"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Included in Accounting"
+msgstr "회계에 포함"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Included in Invoicing"
+msgstr "청구서 발행 시 포함"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Indirect Emissions"
+msgstr "간접 배출량"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_database.py:0
+msgid "Invalid URL."
+msgstr "잘못된 URL입니다."
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Investment"
+msgstr "투자"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_downstream_7
+msgid "Investments"
+msgstr "투자"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__message_is_follower
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__message_is_follower
+msgid "Is Follower"
+msgstr "팔로워입니다."
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_gas__is_mandatory_gas
+msgid "Is Mandatory Gas"
+msgstr "필수 가스임"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_database.py:0
+msgid "JSON response could not be decoded."
+msgstr "JSON 응답을 디코딩할 수 없습니다."
+
+#. module: esg
+#: model:ir.model,name:esg.model_account_move
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__move_id
+msgid "Journal Entry"
+msgstr "전표 입력"
+
+#. module: esg
+#: model:ir.model,name:esg.model_account_move_line
+msgid "Journal Item"
+msgstr "전표 항목"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_database__kanban_text
+msgid "Kanban Text"
+msgstr "칸반 텍스트"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_carbon_footprint_box/esg_carbon_footprint_box.xml:0
+msgid "Last 6 Months"
+msgstr "최근 6개월"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_database__last_update
+msgid "Last Update"
+msgstr "최근 갱신"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_activity_type__write_uid
+#: model:ir.model.fields,field_description:esg.field_esg_assignation_line__write_uid
+#: model:ir.model.fields,field_description:esg.field_esg_database__write_uid
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__write_uid
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__write_uid
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__write_uid
+#: model:ir.model.fields,field_description:esg.field_esg_gas__write_uid
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__write_uid
+#: model:ir.model.fields,field_description:esg.field_factors_auto_assignment_wizard__write_uid
+msgid "Last Updated by"
+msgstr "최근 갱신한 사람"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_activity_type__write_date
+#: model:ir.model.fields,field_description:esg.field_esg_assignation_line__write_date
+#: model:ir.model.fields,field_description:esg.field_esg_database__write_date
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__write_date
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__write_date
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__write_date
+#: model:ir.model.fields,field_description:esg.field_esg_gas__write_date
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__write_date
+#: model:ir.model.fields,field_description:esg.field_factors_auto_assignment_wizard__write_date
+msgid "Last Updated on"
+msgstr "최근 갱신 일자"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_carbon_footprint_box/esg_carbon_footprint_box.xml:0
+msgid "Last Year"
+msgstr "지난 해"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_database__latest_version
+msgid "Latest Version"
+msgstr "최신 버전"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Leased Assets"
+msgstr "리스 자산"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__level
+msgid "Level"
+msgstr "등급"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.carbon_emission_report_search_view
+msgid "Low Uncertainty (< 5%)"
+msgstr "불확실성 낮음 (5% 미만)"
+
+#. module: esg
+#: model:esg.activity.type,name:esg.esg_activity_type_2
+msgid "Material Production"
+msgstr "자재 생산"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_dashboard.xml:0
+#: model:ir.ui.menu,name:esg.menu_esg_measure
+msgid "Measure"
+msgstr "계산"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.carbon_emission_report_search_view
+msgid "Medium Uncertainty (5-20%)"
+msgstr "중간 불확실도(5-20%)"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__message_has_error
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__message_has_error
+msgid "Message Delivery error"
+msgstr "메시지 전송 오류"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__message_ids
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__message_ids
+msgid "Messages"
+msgstr "메시지"
+
+#. module: esg
+#: model:ir.model.fields.selection,name:esg.selection__esg_gas__category__ch4
+msgid "Methane (CH₄)"
+msgstr "메탄(CH₄)"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_ch4
+msgid "Methane (generic) (CH₄)"
+msgstr "메탄(일반)(CH₄)"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.carbon_emission_report_search_view
+msgid "Missing Emission Factor"
+msgstr "배출 계수 누락"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_direct_2
+msgid "Mobile Combustion"
+msgstr "이동식 연소"
+
+#. module: esg
+#: model:ir.model.fields.selection,name:esg.selection__esg_emission_factor__compute_method__monetary
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_search_view
+msgid "Monetary"
+msgstr "통화"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "NF₃"
+msgstr "NF₃"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_activity_type__name
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__name
+#: model:ir.model.fields,field_description:esg.field_esg_database__name
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__name
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__name
+#: model:ir.model.fields,field_description:esg.field_esg_gas__name
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__name
+msgid "Name"
+msgstr "이름"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__nb_linked_emissions
+msgid "Nb Linked Emissions"
+msgstr "Nb 연계 배출량"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_neutral
+msgid "Neutral"
+msgstr "중립"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_carbon_analytics_box/esg_carbon_analytics_box.xml:0
+msgid "New"
+msgstr "신규"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_nf3
+#: model:ir.model.fields.selection,name:esg.selection__esg_gas__category__nf3
+msgid "Nitrogen Trifluoride"
+msgstr "삼불화질소"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_n2o
+#: model:ir.model.fields.selection,name:esg.selection__esg_gas__category__n2o
+msgid "Nitrous Oxide (N₂O)"
+msgstr "아산화질소(N₂O)"
+
+#. module: esg
+#: model:account.report.column,name:esg.carbon_report_column_n2o
+msgid "Nitrous Oxide (N₂O) (t)"
+msgstr "아산화질소(N₂O)(t)"
+
+#. module: esg
+#: model_terms:ir.actions.act_window,help:esg.action_emitted_emission_report_views
+#: model_terms:ir.actions.act_window,help:esg.action_offset_emission_report_views
+msgid "No Emission yet!"
+msgstr "아직 배출량이 없습니다!"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/wizard/factors_auto_assignment_wizard.py:0
+msgid "No emissions were updated."
+msgstr "배출량이 업데이트되지 않았습니다."
+
+#. module: esg
+#: model_terms:ir.actions.act_window,help:esg.action_view_database
+msgid "No source database found."
+msgstr "데이터베이스 출처를 찾을 수 없습니다."
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_search_view
+msgid "Not detailed by gas"
+msgstr "가스별 상세 정보가 없습니다."
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_database.py:0
+msgid "Not loaded"
+msgstr "미적재"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__note
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__note
+msgid "Note"
+msgstr "노트"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__message_needaction_counter
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__message_needaction_counter
+msgid "Number of Actions"
+msgstr "작업 수"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__message_has_error_counter
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__message_has_error_counter
+msgid "Number of errors"
+msgstr "오류 수"
+
+#. module: esg
+#: model:ir.model.fields,help:esg.field_esg_emission_factor__message_needaction_counter
+#: model:ir.model.fields,help:esg.field_esg_emission_factor_line__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "조치가 필요한 메시지 수입니다."
+
+#. module: esg
+#: model:ir.model.fields,help:esg.field_esg_emission_factor__message_has_error_counter
+#: model:ir.model.fields,help:esg.field_esg_emission_factor_line__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "전송 오류가 발생한 메시지 수입니다."
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "N₂O"
+msgstr "N₂O"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.carbon_emission_report_search_view
+msgid "Offset"
+msgstr "오프셋"
+
+#. module: esg
+#: model:ir.actions.act_window,name:esg.action_offset_emission_report_views
+#: model:ir.ui.menu,name:esg.menu_esg_offset_emissions
+msgid "Offset Emissions"
+msgstr "상쇄 배출량"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.carbon_emission_report_search_view
+msgid "Other"
+msgstr "기타"
+
+#. module: esg
+#: model:ir.model,name:esg.model_esg_other_emission
+msgid "Other Emission"
+msgstr "기타 배출"
+
+#. module: esg
+#: model:ir.model.fields.selection,name:esg.selection__esg_gas__category__other
+msgid "Other Halogenated substances"
+msgstr "기타 할로겐 물질"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Other Indirect Emissions"
+msgstr "기타 간접 배출"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_pfc_c3f8
+msgid "PFC-218"
+msgstr "PFC-218"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_pfc_c-c4f8
+msgid "PFC-318"
+msgstr "PFC-318"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_pfc_c6f14
+msgid "PFC-51-14"
+msgstr "PFC-51-14"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "PFCs"
+msgstr "PFC"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__parent_id
+msgid "Parent"
+msgstr "상위"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__parent_path
+msgid "Parent Path"
+msgstr "상위 경로"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_assignation_line__partner_id
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__partner_id
+msgid "Partner"
+msgstr "협력사"
+
+#. module: esg
+#: model:ir.model.fields.selection,name:esg.selection__esg_gas__category__pfc
+msgid "Perfluorocarbons (PFCs)"
+msgstr "과불화탄소(PFC)"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_search_view
+msgid "Physically"
+msgstr "실사"
+
+#. module: esg
+#: model:ir.model.fields.selection,name:esg.selection__esg_emission_factor__compute_method__physically
+msgid "Physically (Quantity)"
+msgstr "실사(수량)"
+
+#. module: esg
+#: model:ir.model.fields.selection,name:esg.selection__esg_gas__category__precursors
+msgid "Precursors"
+msgstr "전구체"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_direct_3
+msgid "Process Emissions"
+msgstr "공정 배출"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Processing of Sold Product"
+msgstr "판매된 품목 처리"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_downstream_2
+msgid "Processing of Sold Products"
+msgstr "판매된 제품 처리"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_assignation_line__product_id
+msgid "Product"
+msgstr "품목"
+
+#. module: esg
+#: model:esg.activity.type,name:esg.esg_activity_type_4
+msgid "Product Usage and Disposal"
+msgstr "제품 사용 및 폐기"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_indirect_1
+msgid "Purchased Electricity"
+msgstr "구매 전력"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Purchased Electricity, Steam, Heating, and Cooling for own use"
+msgstr "자체 소비 목적으로 구매한 전기, 증기, 난방 및 냉방"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+#: model:esg.emission.source,name:esg.esg_emission_source_upstream_1
+msgid "Purchased Goods and Services"
+msgstr "구매한 재화 및 용역"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_indirect_2
+msgid "Purchased Steam, Heat or Cooling"
+msgstr "구매한 스팀, 난방 또는 냉방 장치"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__quantity
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__quantity
+#: model_terms:ir.ui.view,arch_db:esg.other_emission_form_view
+msgid "Quantity"
+msgstr "수량"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__rating_ids
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__rating_ids
+msgid "Ratings"
+msgstr "평가"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__region
+msgid "Region / Regional Conditions"
+msgstr "지역 및 지역적 조건"
+
+#. module: esg
+#: model:ir.model.fields,help:esg.field_esg_gas__global_warming_potential
+msgid "Relative impact of gas on global warming compared to CO₂ over 100 years"
+msgstr ""
+"100년에 걸친 지구 온난화에 대한 가스의 상대적 영향 및 CO₂를 비교하세요."
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_factors_auto_assignment_wizard__replace_previous_factors
+msgid "Replace Previous Factors"
+msgstr "이전 요인 대체"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.factors_auto_assignment_wizard_form_view
+msgid "Replace existing assignations"
+msgstr "기존 할당 대체"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "SF₆"
+msgstr "SF₆"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__message_has_sms_error
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "SMS 전송 오류"
+
+#. module: esg
+#: model:account.account,name:esg.account_salary
+msgid "Salary"
+msgstr "급여"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__scope
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__scope
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__scope
+msgid "Scope"
+msgstr "범위"
+
+#. module: esg
+#. odoo-javascript
+#. odoo-python
+#: code:addons/esg/controllers/esg_dashboard.py:0
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Scope 1"
+msgstr "범위 1"
+
+#. module: esg
+#: model:ir.model.fields.selection,name:esg.selection__esg_emission_source__scope__direct
+#: model_terms:ir.ui.view,arch_db:esg.emission_source_search_view
+msgid "Scope 1: Direct"
+msgstr "범위 1: 직접적"
+
+#. module: esg
+#. odoo-javascript
+#. odoo-python
+#: code:addons/esg/controllers/esg_dashboard.py:0
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Scope 2"
+msgstr "범위 2"
+
+#. module: esg
+#: model:ir.model.fields.selection,name:esg.selection__esg_emission_source__scope__indirect
+#: model_terms:ir.ui.view,arch_db:esg.emission_source_search_view
+msgid "Scope 2: Indirect"
+msgstr "범위 2: 간접적"
+
+#. module: esg
+#. odoo-javascript
+#. odoo-python
+#: code:addons/esg/controllers/esg_dashboard.py:0
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Scope 3"
+msgstr "범위 3"
+
+#. module: esg
+#: model:ir.model.fields.selection,name:esg.selection__esg_emission_source__scope__indirect_others
+#: model_terms:ir.ui.view,arch_db:esg.emission_source_search_view
+msgid "Scope 3: Others Indirect"
+msgstr "범위 3: 기타 간접"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_dashboard.xml:0
+msgid ""
+"Seamlessly bring all your ESG data together, whether from Odoo or outside, "
+"in a simple and organized way."
+msgstr ""
+"완벽하게 모든 ESG 데이터를 Odoo 또는 외부로부터 간단하고 체계적으로 통합하세"
+"요."
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__sequence
+#: model:ir.model.fields,field_description:esg.field_esg_emission_source__sequence
+#: model:ir.model.fields,field_description:esg.field_esg_gas__sequence
+msgid "Sequence"
+msgstr "순서"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_database.py:0
+msgid "Server returned an unexpected error: %(error)s"
+msgstr "서버에서 예기치 못한 오류 반환: %(error)s"
+
+#. module: esg
+#: model:ir.ui.menu,name:esg.menu_esg_settings
+msgid "Settings"
+msgstr "설정"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_gas.py:0
+msgid ""
+"Some gases you're trying to delete are used for data imports:\n"
+"%(gases)s"
+msgstr ""
+"삭제하려는 가스 중 일부가 데이터 가져오기에 사용되었습니다:\n"
+"%(gases)s"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__source_id
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__source_id
+msgid "Source"
+msgstr "지원 경로"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__database_id
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_list_view
+msgid "Source Database"
+msgstr "원본 데이터베이스"
+
+#. module: esg
+#: model:ir.ui.menu,name:esg.menu_esg_source_databases
+msgid "Source Databases"
+msgstr "원본 데이터베이스"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_factors_auto_assignment_wizard__start_date
+msgid "Start Date"
+msgstr "시작일"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_direct_1
+msgid "Stationary Combustion"
+msgstr "고정식 연소"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_so2
+msgid "Sulfur Dioxide (SO2+SO3)"
+msgstr "이산화황(SO2+SO3)"
+
+#. module: esg
+#: model:esg.gas,name:esg.esg_gas_sf6
+#: model:ir.model.fields.selection,name:esg.selection__esg_gas__category__sf6
+msgid "Sulfur Hexafluoride (SF₆)"
+msgstr "육플루오르화황(SF₆)"
+
+#. module: esg
+#: model:account.report.column,name:esg.carbon_report_column_sf6
+msgid "Sulfur Hexafluoride (SF₆) (t)"
+msgstr "육불화황(SF₆)(t)"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_database.py:0
+msgid "The IPCC server did not return any file to import the data."
+msgstr ""
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_assignation_line.py:0
+msgid "The account type must be of type %(valid_account_type_names)s."
+msgstr ""
+
+#. module: esg
+#: model:ir.model.constraint,message:esg.constraint_esg_assignation_line_at_least_one_field_filled
+msgid "The assignation rule must have at least one field filled"
+msgstr "배정 규칙에는 반드시 하나 이상 필드가 입력되어 있어야 합니다."
+
+#. module: esg
+#: model:ir.model.constraint,message:esg.constraint_esg_gas_code_unique
+msgid "The code of a gas must be unique."
+msgstr "가스 코드는 반드시 고유해야 합니다."
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_database.py:0
+msgid "The file format doesn't seem to be correct."
+msgstr "파일 형식이 올바르지 않습니다."
+
+#. module: esg
+#: model:account.report.column,name:esg.carbon_report_column_co2e
+msgid "Total (t CO₂e)"
+msgstr "총계 (t CO₂e)"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.carbon_emission_report_list_view
+msgid "Total Emissions (kgCO₂e)"
+msgstr "총 배출량(kgCO₂e)"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_dashboard.xml:0
+msgid ""
+"Track your ESG performance, transform data into actionable insights, and "
+"generate reports to meet compliance requirements all while making informed, "
+"strategic decisions."
+msgstr ""
+"ESG 성과를 추적하고, 데이터를 활용하여 실천이 가능한 인사이트를 이끌어 내며, "
+"규정 준수 요건에 부합하는 보고서를 생성하는 동시에 정보에 기반한 전략적 의사 "
+"결정을 도출할 수 있습니다."
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Track your company's"
+msgstr "회사 정보 추적"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Transportation and Distribution"
+msgstr "운송 및 유통"
+
+#. module: esg
+#: model:esg.activity.type,name:esg.esg_activity_type_1
+msgid "Transportation and Logistics"
+msgstr "운송 및 물류"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/components/esg_dashboard/esg_dashboard.xml:0
+msgid ""
+"Turn insights into action, monitor your impact in real-time, and drive "
+"meaningful change across your organization."
+msgstr ""
+"인사이트를 실행으로 옮기고, 실시간으로 그 영향을 모니터링하며, 조직 전반에 걸"
+"쳐 실직적인 변화를 이끌어냅니다."
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_account_move_line__esg_uncertainty_value
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__esg_uncertainty_value
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__esg_uncertainty_value
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__esg_uncertainty_value
+msgid "Uncertainty (%)"
+msgstr "불확실도(%)"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_account_move_line__esg_uncertainty_absolute_value
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__esg_uncertainty_absolute_value
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__esg_uncertainty_absolute_value
+msgid "Uncertainty (kgCO₂e)"
+msgstr "불확실도(kgCO₂e)"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_kanban_view
+msgid "Uncertainty:"
+msgstr "불확실성:"
+
+#. module: esg
+#: model:ir.model.fields,help:esg.field_esg_gas__code
+msgid "Unique code identifying the gas"
+msgstr "가스 식별 고유 코드"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_list_view
+msgid "Unit"
+msgstr "단위"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__unit_name
+msgid "Unit Name"
+msgstr "단위 이름"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__uom_id
+#: model:ir.model.fields,field_description:esg.field_esg_other_emission__uom_id
+#: model_terms:ir.ui.view,arch_db:esg.other_emission_form_view
+msgid "Unit of Measure"
+msgstr "단위"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__uom_id
+msgid "UoM"
+msgstr "단위"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.database_form_view
+#: model_terms:ir.ui.view,arch_db:esg.database_kanban_view
+msgid "Update"
+msgstr "업데이트"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/wizard/factors_auto_assignment_wizard.py:0
+msgid "Updated Emissions"
+msgstr "배출량 업데이트"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_database.py:0
+msgid "Updated on: %(date)s"
+msgstr "업데이트 날짜: %(date)s"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_emission_factor_line.py:0
+msgid "Updated values for %(gas_name)s (%(activity_type_name)s)"
+msgstr "%(gas_name)s(%(activity_type_name)s) 값 업데이트"
+
+#. module: esg
+#: model:ir.model.fields.selection,name:esg.selection__esg_emission_source__activity_flow_direct_indirect__upstream
+#: model:ir.model.fields.selection,name:esg.selection__esg_emission_source__activity_flow_indirect_others__upstream
+msgid "Upstream"
+msgstr "상위"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_upstream_8
+msgid "Upstream Leased Assets"
+msgstr "업스트림 임대 자산"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_upstream_4
+msgid "Upstream Transportation and Distribution"
+msgstr "업스트림 운송 및 유통"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid "Upstream activities"
+msgstr "상위 활동"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_database__url
+msgid "Url"
+msgstr "Url"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+#: model:esg.emission.source,name:esg.esg_emission_source_downstream_3
+msgid "Use of Sold Products"
+msgstr "판매된 품목 사용"
+
+#. module: esg
+#: model:res.groups,name:esg.esg_group_user
+msgid "User"
+msgstr "사용자"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__valid_from
+msgid "Valid From"
+msgstr "유효기간 시작일"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__valid_to
+msgid "Valid To"
+msgstr "유효기간 종료일"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_direct_2_1
+msgid "Vehicle Type 1"
+msgstr "차량 유형 1"
+
+#. module: esg
+#: model:esg.emission.source,name:esg.esg_emission_source_direct_2_2
+msgid "Vehicle Type 2"
+msgstr "차량 유형 2"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.carbon_emission_report_search_view
+msgid "Very High Uncertainty (> 50%)"
+msgstr "매우 높은 불확실성(>50%)"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/account_account.py:0
+msgid "Warning"
+msgstr "주의 사항"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+#: model:esg.emission.source,name:esg.esg_emission_source_upstream_5
+msgid "Waste Generated in Operations"
+msgstr "작업 중 발생한 폐기물"
+
+#. module: esg
+#: model:esg.activity.type,name:esg.esg_activity_type_3
+msgid "Waste Management"
+msgstr "폐기물 관리"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor__website_message_ids
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__website_message_ids
+msgid "Website Messages"
+msgstr "웹사이트 메시지"
+
+#. module: esg
+#: model:ir.model.fields,help:esg.field_esg_emission_factor__website_message_ids
+#: model:ir.model.fields,help:esg.field_esg_emission_factor_line__website_message_ids
+msgid "Website communication history"
+msgstr "웹사이트 대화 이력"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/account_account.py:0
+msgid ""
+"You can only create accounts of type %(valid_account_type_names)s in the ESG "
+"module, as emission factors can only be linked to expense or asset accounts."
+msgstr ""
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_database.py:0
+msgid "You can't delete the ADEME database."
+msgstr "ADEME 데이터베이스를 삭제할 수 없습니다."
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_database.py:0
+msgid "You can't delete the IPCC database."
+msgstr ""
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/report/esg_carbon_emission_report.py:0
+msgid "You cannot copy emissions linked to journal items."
+msgstr "전표 항목에 연결된 배출량은 복사할 수 없습니다."
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/models/esg_emission_source.py:0
+msgid "You cannot create a cyclic hierarchy of emission sources."
+msgstr "배출원의 순환 계층 구조를 생성할 수 없습니다."
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/report/esg_carbon_emission_report.py:0
+msgid "You cannot delete journal items from here."
+msgstr "여기에서는 전표 항목을 삭제할 수 없습니다."
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.database_form_view
+msgid "e.g. ADEME"
+msgstr "예: ADEME"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.other_emission_form_view
+msgid "e.g. Bus Transportation"
+msgstr "예: 버스 운송"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.esg_gas_form_view
+msgid "e.g. Fossil Methane (CH₄)"
+msgstr "예: 화석 메탄(CH₄)"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_source_form_view
+msgid "e.g. Mobile Combustion"
+msgstr "예: 이동식 연소"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_form_view
+msgid "e.g. Office Computer"
+msgstr "예: 사무용 컴퓨터"
+
+#. module: esg
+#: model_terms:ir.ui.view,arch_db:esg.database_form_view
+msgid "e.g. https://base-empreinte.ademe.fr/"
+msgstr "예: https://base-empreinte.ademe.fr/"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/wizard/factors_auto_assignment_wizard.py:0
+msgid "id"
+msgstr "id"
+
+#. module: esg
+#: model:ir.model.fields,field_description:esg.field_esg_emission_factor_line__quantity
+msgid "kg"
+msgstr "kg"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/widgets/esg_value/esg_value.xml:0
+#: model_terms:ir.ui.view,arch_db:esg.emission_factor_kanban_view
+msgid "kgCO₂e /"
+msgstr "kgCO₂e /"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/controllers/esg_dashboard.py:0
+msgid "n/a"
+msgstr "n/a"
+
+#. module: esg
+#. odoo-python
+#: code:addons/esg/controllers/esg_dashboard.py:0
+#: model:ir.model.fields,field_description:esg.field_esg_carbon_emission_report__esg_emissions_value_t
+msgid "tCO₂e"
+msgstr "tCO₂e"
+
+#. module: esg
+#. odoo-javascript
+#: code:addons/esg/static/src/no_content_helper/no_content_helper.xml:0
+msgid ""
+"with ease! Most emissions are seamlessly calculated from your accounting "
+"data, using account move lines to generate precise and compliant reports."
+msgstr ""
+"간편합니다! 배출량 대부분을 회계 데이터를 통해 막힘없이 계산하며, 계정 이동 "
+"내역을 활용하여 정확하고 규정에 부합하는 보고서를 생성합니다."

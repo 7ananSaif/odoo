@@ -51,4 +51,4 @@ export const resConfigDevTool = {
     component: ResConfigDevTool,
 };
 
-registry.category("view_widgets").add("res_config_dev_tool", resConfigDevTool);
+// registry.category("view_widgets").add("res_config_dev_tool", resConfigDevTool);

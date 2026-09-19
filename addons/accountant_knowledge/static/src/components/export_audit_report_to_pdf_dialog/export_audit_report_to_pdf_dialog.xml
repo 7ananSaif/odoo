@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="accountant_knowledge.ExportAuditReportToPDFDialog">
+        <Dialog title.translate="Download Annual Report" size="'sm'">
+            <label class="d-flex gap-1 cursor-pointer">
+                <span class="form-check form-switch">
+                    <input t-model="state.includeChildArticles" class="form-check-input" type="checkbox" role="switch"/>
+                </span>
+                Include child articles
+            </label>
+            <label class="d-flex gap-1 cursor-pointer">
+                <span class="form-check form-switch">
+                    <input t-model="state.includePdfFiles" class="form-check-input" type="checkbox" role="switch"/>
+                </span>
+                Include PDF Files
+            </label>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="exportAuditReportToPDF">Download PDF</button>
+                <button class="btn btn-secondary" t-on-click="() => this.props.close()">Discard</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>
+

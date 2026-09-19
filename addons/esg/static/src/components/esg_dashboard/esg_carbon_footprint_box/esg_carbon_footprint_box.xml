@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="esg.CarbonFootprintBox">
+        <div class="card p-3">
+            <div class="d-flex justify-content-start mb-2">
+                <a href="#" class="fs-4 fw-bold" t-on-click="openCarbonAnalyticsViews">
+                    Carbon Analytics
+                </a>
+            </div>
+
+            <div class="d-flex justify-content-between mb-2 pt-2">
+                <div>
+                    <button class="btn btn-primary" t-on-click="openCarbonReport">
+                        Carbon Footprint
+                    </button>
+                </div>
+                <div>
+                    <div class="row">
+                        <div class="col text-start">
+                            <span class="fw-bold">
+                                Last 6 Months
+                            </span>
+                        </div>
+                        <div class="col-auto text-end">
+                            <t t-if="props.data.last_months_percentage !== 'n/a'">
+                                <span t-attf-class="text-{{ props.data.last_months_percentage &gt; 0.0 ? 'danger' : props.data.last_months_percentage &gt; 0.0 ? 'success': 'reset' }}">
+                                    <t t-if="props.data.last_months_percentage >= 0.0">+</t>
+                                    <t t-else="">-</t>
+                                    <t t-out="Math.abs(props.data.last_months_percentage)"/>%
+                                </span>
+                            </t>
+                            <t t-else="">
+                                <t t-out="props.data.last_months_percentage"/>
+                            </t>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col text-start">
+                            <span class="fw-bold">
+                                Last Year
+                            </span>
+                        </div>
+                        <div class="col-auto text-end">
+                            <t t-if="props.data.last_year_percentage !== 'n/a'">
+                                <span t-attf-class="text-{{ props.data.last_year_percentage &gt; 0.0 ? 'danger' : props.data.last_year_percentage &gt; 0.0 ? 'success': 'reset' }}">
+                                    <t t-if="props.data.last_year_percentage >= 0.0">+</t>
+                                    <t t-else="">-</t>
+                                    <t t-out="Math.abs(props.data.last_year_percentage)"/>%
+                                </span>
+                            </t>
+                            <t t-else="">
+                                <t t-out="props.data.last_year_percentage"/>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Line Chart -->
+            <EsgGraphDashboard config="props.data.graph_config"/>
+        </div>
+    </t>
+</templates>

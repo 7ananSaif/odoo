@@ -1,0 +1,192 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * ai_documents_account
+#
+# "Larissa Manderfeld (lman)" <lman@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-09-26 12:11+0000\n"
+"Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-19/"
+"ai_documents_account/de/>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "%(b_open)sContracts & NDAs%(b_close)s go to the %(legal)s folder."
+msgstr ""
+"%(b_open)sVerträge und Geheimhaltungsvereinbarungen%(b_close)s werden im "
+"Ordner %(legal)s abgelegt."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"%(b_open)sInsurance contracts%(b_close)s go to the %(insurance)s folder."
+msgstr ""
+"%(b_open)sVersicherungsverträge%(b_close)s werden im Ordner %(insurance)s "
+"abgelegt."
+
+#. module: ai_documents_account
+#: model:ir.model.fields,field_description:ai_documents_account.field_documents_document__ai_document_or_env_company_id
+msgid "AI Company"
+msgstr "KI-Unternehmen"
+
+#. module: ai_documents_account
+#: model:ir.model,name:ai_documents_account.model_ai_documents_sort
+msgid "Ai Documents Sort"
+msgstr "KI-Sortierung von Dokumenten"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "Company > Email"
+msgstr "Unternehmen > E-Mail"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "Company > Name"
+msgstr "Unternehmen > Name"
+
+#. module: ai_documents_account
+#: model:ir.model.fields,field_description:ai_documents_account.field_ai_documents_sort__display_name
+#: model:ir.model.fields,field_description:ai_documents_account.field_documents_document__display_name
+#: model:ir.model.fields,field_description:ai_documents_account.field_ir_actions_server__display_name
+msgid "Display Name"
+msgstr "Anzeigename"
+
+#. module: ai_documents_account
+#: model:ir.model,name:ai_documents_account.model_documents_document
+msgid "Document"
+msgstr "Dokument"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"First, check the file to see if it contains a single document or if several "
+"documents are collated together."
+msgstr ""
+"Überprüfen Sie zunächst, ob die Datei ein einzelnes Dokument enthält oder ob "
+"mehrere Dokumente zusammengefasst sind."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "For this, use this field: %s"
+msgstr "Verwenden Sie dazu dieses Feld: %s"
+
+#. module: ai_documents_account
+#: model:ir.model.fields,field_description:ai_documents_account.field_ai_documents_sort__id
+#: model:ir.model.fields,field_description:ai_documents_account.field_documents_document__id
+#: model:ir.model.fields,field_description:ai_documents_account.field_ir_actions_server__id
+msgid "ID"
+msgstr "ID"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "If it is a customer invoice, trigger the action to create one."
+msgstr ""
+"Wenn es sich um eine Kundenrechnung handelt, lösen Sie eine Aktion aus, um "
+"eine zu erstellen."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "If it is false, continue with the normal process"
+msgstr "Wenn False, fahren Sie mit dem herkömmlichen Vorgang fort"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"If it is true, add the tag %(b_open)s\"To Split\"%(b_close)s and stop there. "
+"This way, we'll know we first need to manually split it into different files."
+msgstr ""
+"Wenn True, fügen Sie das Stichwort %(b_open)s„Zu zerteilen“%(b_close)s und "
+"hören Sie dort auf. So wissen wir, dass wir es zuerst manuell in mehrere "
+"Dateien aufteilen müssen."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"If the customer is %(b_open)sanyone else%(b_close)s, create a Customer "
+"Invoice."
+msgstr ""
+"Wenn es sich bei dem Kunden um %(b_open)sjemand anderes%(b_close)s handelt, "
+"erstellen Sie eine Kundenrechnung."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"If the customer is %s it means it is a vendor bill, trigger the Create "
+"Vendor Bill action."
+msgstr ""
+"Wenn der Kunde %s ist, handelt es sich um eine Lieferantenrechnung. Lösen "
+"Sie die Aktion „Lieferantenrechnung erstellen“ aus."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"If the customer of the invoice is us (%(company_name)s, with email %"
+"(company_email)s), create a Vendor Bill."
+msgstr ""
+"Wenn wir der Kunde der Rechnung sind (%(company_name)s, mit E-Mail: %"
+"(company_email)s), erstellen Sie eine Lieferantenrechnung."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"If the document is %(b_open)snot an invoice%(b_close)s, move it to the "
+"correct folder:"
+msgstr ""
+"Falls es sich bei dem Dokument %(b_open)snicht um eine Rechnung%(b_close)s "
+"handelt, verschieben Sie es in den entsprechenden Ordner:"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"If the document is an %(b_open)sinvoice%(b_close)s, move it to the %"
+"(finance)s folder then trigger the relevant action:"
+msgstr ""
+"Falls es sich bei dem Dokument um eine %(b_open)sRechnung%(b_close)s "
+"handelt, verschieben Sie es in den Ordner %(finance)s und lösen Sie die "
+"entsprechende Aktion aus:"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "Is considered multipage"
+msgstr "Wird als mehrseitig betrachtet"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "Otherwise, %s"
+msgstr "Andernfalls, %s"
+
+#. module: ai_documents_account
+#: model:ir.model,name:ai_documents_account.model_ir_actions_server
+msgid "Server Action"
+msgstr "Serveraktion"
+
+#. module: ai_documents_account
+#: model:documents.tag,name:ai_documents_account.documents_tag_to_split
+msgid "To Split"
+msgstr "Zu zerteilen"

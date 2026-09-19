@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="appointment.AppointmentBookingGanttController" t-inherit="web_gantt.GanttController" t-inherit-mode="primary">
+        <xpath expr="//t[@t-if='showNoContentHelp']" position="replace">
+            <t t-if="showNoContentHelp">
+                <t t-if="props.context.active_model == 'appointment.type'">
+                    <AppointmentBookingActionHelper context="props.context" onNewClicked="this.onNewClicked.bind(this)"/>
+                </t>
+                <t t-else="">
+                    <div class="o_view_nocontent">
+                        <div class="o_nocontent_help">
+                            <p class="o_view_nocontent_smiling_face">
+                                No Appointment or Resource were found.
+                            </p>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </xpath>
+    </t>
+</templates>

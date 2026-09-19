@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_documents_project" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.documents.project</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="10"/>
+        <field name="inherit_id" ref="documents.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='files_centralization_section']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//block[@id='files_centralization_section']" position="inside">
+                <setting company_dependent="1" string="Default Project Folder"
+                        help="Folder where new projects are created">
+                    <label class="o_form_label col-lg-3" for="documents_project_folder_id" string="Folder"/>
+                    <field name="documents_project_folder_id" required="True" widget="documents_folder_many2one"
+                        options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

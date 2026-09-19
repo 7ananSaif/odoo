@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="account_reports.account_audit_balance_list_controller" t-inherit="web.ListView">
+        <xpath expr="//t[@t-set-slot='control-panel-navigation-additional']" position="inside">
+            <button
+                data-tooltip="Chatter"
+                class="btn btn-secondary o_switch_view o_kanban active"
+                t-att-class="{
+                    'd-none': !chatterService.chatterState.res_id,
+                    'd-md-inline': chatterService.chatterState.res_id,
+                }">
+                    <i t-attf-class="fa fa-fw fa-close mt-1"/>
+            </button>
+        </xpath>
+
+        <xpath expr="//SelectionBox" position="before">
+            <div t-if="this.model.root.selection.length &gt; 1" t-on-click="openJournalItems">
+                <button class="btn btn-secondary">
+                    <i class="fa fa-list me-1"></i>
+                    <span>Journal Items</span>
+                </button>
+            </div>
+        </xpath>
+    </t>
+</templates>

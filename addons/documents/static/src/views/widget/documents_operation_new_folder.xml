@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+
+    <t t-name="documents.DocumentsOperationNewFolder" >
+        <button
+            t-if="this.documentService.userIsInternal &amp;&amp; this.props.record.data.user_permission === 'edit'"
+            t-on-click="() => this.onClick()"
+            t-out="buttonLabel"
+            t-att-disabled="!this.props.record.data.display_name"
+            class="btn btn-secondary w-100"
+        />
+    </t>
+
+</templates>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="account_accountant.BankRecButton">
+        <button
+            t-attf-class="d-flex gap-1 btn text-nowrap {{ props.classes }}"
+            t-att-class="{'btn-sm': !ui.isSmall, 'btn-primary': props.primary, 'btn-info': props.toReview, 'btn-secondary': !props.primary}"
+            t-on-click.stop="() => props?.action()"
+        >
+            <span t-esc="props?.label" class="m-auto text-truncate"/>
+            <span class="rounded-pill px-2 o_bg-black-10" t-if="props?.count">
+                <t t-esc="props.count"/>
+            </span>
+        </button>
+    </t>
+</templates>

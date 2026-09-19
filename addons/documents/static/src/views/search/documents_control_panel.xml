@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="documents.ControlPanel" t-inherit="web.ControlPanel" t-inherit-mode="primary">
+        <xpath expr="//t[@t-else='']/Breadcrumbs" position="replace">
+            <DocumentsBreadcrumbs breadcrumbs="pathBreadcrumbs"/>
+        </xpath>
+
+        <xpath expr="//div[hasclass('o_control_panel_actions')]" position="inside">
+            <DocumentsAction t-if="showActions" folderId="currentFolderId" targetRecords="this.env.model.root.selection"/>
+        </xpath>
+
+        <xpath expr="//*[hasclass('o_control_panel_navigation')]" position="inside">
+            <button t-if="documentService.userIsInternal &amp;&amp; !env.searchModel.context.documents_view_secondary"
+                t-on-click="() => documentService.toggleRightPanelVisibility()"
+                data-tooltip="Info &amp; tags"
+                class="btn btn-secondary o_switch_view o_kanban d-none d-md-inline"
+                t-att-class="{'active': rightPanelState.visible}">
+                <i t-attf-class="fa fa-fw {{ rightPanelState.visible ? 'fa-close' : 'fa-info-circle' }} mt-1"/>
+            </button>
+        </xpath>
+
+        <xpath expr="//div[hasclass('o_cp_pager')]" position="attributes">
+            <attribute name="t-if" add="!rightPanelState.visible" separator=" and "/>
+        </xpath>
+
+        <xpath expr="//nav[hasclass('o_cp_switch_buttons')]" position="attributes">
+            <attribute name="t-if" add="!rightPanelState.previewedDocument" separator=" and "/>
+        </xpath>
+    </t>
+</templates>

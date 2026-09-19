@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_report_event_registration_badge_96x82" model="ir.actions.report">
+        <field name="name">Badge (96x82mm)</field>
+        <field name="model">event.registration</field>
+        <field name="report_type">qweb-text</field>
+        <field name="report_name">event_iot.event_registration_badge_printer_report</field>
+        <field name="report_file">event_iot.event_registration_badge_printer_report</field>
+        <field name="binding_model_id" ref="model_event_registration"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

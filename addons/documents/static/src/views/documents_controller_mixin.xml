@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="documents.DocumentsViews.ControlPanel">
+        <t t-set="isShareable" t-value="hasShareDocuments()"/>
+        <t t-set="folder" t-value="this.env.searchModel.getSelectedFolder()"/>
+        <input type="file" multiple="true" t-ref="uploadFileInput" class="o_input_file o_hidden" t-on-change.stop="onFileInputChange"/>
+        <Dropdown t-if="!this.env.searchModel.context.documents_view_secondary">
+            <button type="button" class="btn btn-primary o-dropdown-caret" data-hotkey="c">
+                New
+            </button>
+            <t t-set-slot="content">
+                <DropdownItem tag="'button'" class="'btn btn-link o_documents_kanban_upload'"
+                    onSelected="() => this.uploadFileInputRef.el.click()"
+                    attrs="{'data-hotkey': 'a', disabled: !canUploadInFolder(folder)}">
+                    <i class="fa fa-upload fa-fw me-1"/>
+                    <span>Upload</span>
+                </DropdownItem>
+                <DropdownItem tag="'button'" class="'btn btn-link o_documents_kanban_request'"
+                    t-if="userIsInternal"
+                    onSelected="onClickDocumentsRequest"
+                    attrs="{'data-hotkey': 'r', disabled: !canUploadInFolder(folder) || folder.id === 'COMPANY'}">
+                    <i class="fa fa-paper-plane-o fa-fw me-1"/>
+                    <span>Request</span>
+                </DropdownItem>
+                <DropdownItem tag="'button'" class="'btn btn-link o_documents_kanban_url'"
+                    t-if="userIsInternal"
+                    onSelected="onClickDocumentsAddUrl"
+                    attrs="{'data-hotkey': 'l', disabled: !canUploadInFolder(folder)}">
+                    <i class="fa fa-link fa-fw me-1"/>
+                    <span>Link</span>
+                </DropdownItem>
+                <t t-if="userIsInternal and canUploadInFolder(folder)">
+                    <div role="separator" class="dropdown-divider"/>
+                    <DropdownItem tag="'button'" class="'btn btn-link o_documents_kanban_folder'"
+                        onSelected="onClickAddFolder"
+                        attrs="{'data-hotkey': 'w'}">
+                        <i class="fa fa-folder fa-fw me-1"/>
+                        <span>Folder</span>
+                    </DropdownItem>
+                </t>
+            </t>
+        </Dropdown>
+    </t>
+</templates>

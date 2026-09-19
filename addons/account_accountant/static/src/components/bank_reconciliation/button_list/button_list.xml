@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="account_accountant.BankRecButtonList">
+        <div class="d-flex flex-wrap gap-1">
+            <t t-if="props.preSelectedReconciliationModel and !statementLineData.is_reconciled">
+                <BankRecButton
+                    label="props.preSelectedReconciliationModel.display_name"
+                    primary="true"
+                    action.bind="() => this.triggerReconciliationModel(props.preSelectedReconciliationModel.id)"
+                />
+            </t>
+            <t t-elif="buttons?.toReview">
+                <BankRecButton t-props="buttons.toReview"/>
+            </t>
+            <t t-else="">
+                <t t-foreach="buttonsToDisplay" t-as="button" t-key="button_index">
+                    <BankRecButton t-props="button"/>
+                </t>
+            </t>
+
+            <Dropdown t-if="!statementLineData.is_reconciled">
+                <button class="btn btn-secondary" t-att-class="{'btn-sm': !ui.isSmall}">
+                    <i class="oi oi-ellipsis-v"/>
+                </button>
+
+                <t t-set-slot="content">
+                    <t t-foreach="buttonsInDropdown" t-as="button" t-key="button_index">
+                        <DropdownItem class="'btn btn-link'" onSelected.bind="button.action">
+                            <t t-esc="button.label"/>
+                        </DropdownItem>
+                    </t>
+                    <BankRecFileUploader record="bankRecFileUploaderRecord">
+                        <t t-set-slot="toggler">
+                            <span class="dropdown-item dropdown-item o-navigable btn btn-link">
+                                Upload Bills
+                            </span>
+                        </t>
+                    </BankRecFileUploader>
+                    <div class="dropdown-divider"/>
+                    <t t-foreach="reconcileModelsInDropdown" t-as="model" t-key="model.id">
+                        <DropdownItem class="'btn btn-link'" onSelected.bind="() => this.triggerReconciliationModel(model.id)">
+                            <t t-esc="model.display_name"/>
+                        </DropdownItem>
+                    </t>
+                    <div t-if="reconcileModelsInDropdown.length" class="dropdown-divider"/>
+                    <DropdownItem class="'btn btn-link'" onSelected.bind="actionViewRecoModels">
+                        Manage Models
+                    </DropdownItem>
+                    <DropdownItem class="'btn btn-link'" onSelected.bind="deleteTransaction">
+                        Delete Transaction
+                    </DropdownItem>
+                </t>
+            </Dropdown>
+        </div>
+    </t>
+</templates>

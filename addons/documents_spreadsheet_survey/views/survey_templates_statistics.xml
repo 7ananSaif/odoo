@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <template id="survey_page_statistics_header_spreadsheet" inherit_id="survey.survey_page_statistics_header">
+        <xpath expr="//div[hasclass('o_survey_statistics_header')]" position="inside">
+            <h6 class="d-none d-print-none d-md-inline-block ms-1 mb-0">
+                <form t-attf-action="/survey/{{survey.id}}/analyze-results" method="POST">
+                    <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()"/>
+                    <button class="btn btn-link">Analyze results</button>
+                </form>
+            </h6>
+        </xpath>
+    </template>
+</data>
+</odoo>

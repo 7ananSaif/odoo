@@ -1,0 +1,41 @@
+#equity_transaction_tbody {
+    .text-muted {
+          color: rgba(33, 37, 41, 0.4) !important;
+    }
+}
+
+.o_ubo_form {
+    --table-striped-bg: #f8f9fa;
+    --table-striped-color: #{color-contrast(#f8f9fa)};
+}
+
+.o_holder_end_dialog {
+    .w-25 {
+        width: 25% !important;
+    }
+
+    input[type="date"]:not(:focus):not(:valid) {
+        color: lightgray;
+    }
+}
+
+.o_holder_edit_dialog {
+    .container {
+        .attachment-name {
+            max-width: 30ch;
+            max-height: 1rem;
+            p {
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+        }
+    }
+
+    .oe_inline {
+        max-width: 10ch;
+    }
+
+    input[type="date"]:not(:focus):not(:valid) {
+        color: lightgray;
+    }
+}

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="documents_sharing_view_form" model="ir.ui.view">
+        <field name="name">documents.sharing.view.form</field>
+        <field name="model">documents.sharing</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="alert alert-warning" role="alert" invisible="not has_warning_link_with_more_rights">
+                        <span invisible="is_single">All users with access to these folders/documents or its parent will have edit permissions.</span>
+                        <span invisible="not is_single">All users with access to this folder/document or its parent will have edit permissions.</span>
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="not has_warning_partners_without_access">
+                        You've added external users, but external sharing is disabled.
+                        <a name="action_allow_link_access" type="object" role="button" class="btn-link cursor-pointer">Enable access and save</a>
+                    </div>
+                    <div class="alert alert-warning" role="alert" invisible="is_single or not is_readonly">
+                        You cannot change permissions because you don't have edit access to all the selected documents.
+                    </div>
+                    <!-- Invitation -->
+                    <group>
+                        <group colspan="2">
+                            <i class="fa fa-w fa-user-plus col-form-label ps-1 pe-4 fs-4" title="Invite people"/>
+                            <field name="invite_partner_ids" widget="many2many_tags_email"
+                                placeholder="Add people or email addresses"
+                                context="{'show_email': True, 'form_view_ref': 'base.view_partner_simple_form'}"
+                                nolabel="1" readonly="is_readonly"
+                            />
+                        </group>
+                        <group invisible="not invite_partner_ids">
+                            <field name="invite_role"/>
+                            <field name="invite_notify" widget="boolean_toggle"/>
+                        </group>
+                        <group colspan="2" invisible="not invite_partner_ids">
+                            <field name="invite_notify_message" invisible="not invite_notify" nolabel="1"
+                                placeholder="Extra comments..."/>
+                        </group>
+                        <group colspan="2" invisible="not invite_partner_ids">
+                            <field name="document_ids" nolabel="1">
+                                <kanban create="false" can_open="false" class="o_documents_sharing_documents_compact">
+                                    <field name="mimetype"/> <!-- Used by documents_type_icon -->
+                                    <templates>
+                                         <div t-name="card" class="d-flex align-items-center rounded border p-1">
+                                             <field name="type" widget="documents_type_icon" nolabel="1" class="o_documents_sharing_documents_mimetype"/>
+                                             <field name="name"/>
+                                         </div>
+                                    </templates>
+                                </kanban>
+                            </field>
+                        </group>
+                    </group>
+                    <!-- Update access rights -->
+                    <group invisible="invite_partner_ids">
+                        <group colspan="2">
+                            <h4 invisible="not owner_id and not share_access_ids">People with access</h4>
+                        </group>
+                        <group invisible="not owner_id" colspan="4" class="mb-1 pb-0">
+                            <div class="d-flex m-0 border-0 gap-2 ps-2 pe-2">
+                                <div class="col-7 col-sm-7 pe-1">
+                                    <field name="owner_id" widget="documents_many2one_avatar"/>
+                                </div>
+                                <div class="col-5 pe-0 d-flex justify-content-end">
+                                    <div class="fw-bold text-muted o_documents_sharing_form_owner me-4">Owner</div>
+                                </div>
+                            </div>
+                        </group>
+                        <group colspan="4" invisible="not share_access_ids">
+                            <field name="share_access_ids" nolabel="1">
+                                <kanban create="false" can_open="false" class="o_documents_sharing_kanban">
+                                    <field name="documents_sharing_id"/>
+                                    <field name="has_warning_no_access"/>
+                                    <field name="has_user"/>
+                                    <field name="partner_is_me"/>
+                                    <field name="original_expiration_date"/> <!-- Used in compute is_access_modified -->
+                                    <templates>
+                                        <div t-name="card" t-attf-class="d-flex m-0 border-0 gap-2 py-1 pe-3 ps-2 align-items-start {{ record.has_warning_no_access.raw_value ? 'bg-danger-subtle' : '' }}" invisible="is_deleted">
+                                            <div class="col-7 col-sm-7 d-flex flex-column">
+                                                <field name="partner_id" widget="documents_many2one_avatar"/>
+                                                <field name="expiration_date" widget="documents_datetime"
+                                                    options="{'btn_classes': 'btn-secondary'}"
+                                                    invisible="not expiration_date"
+                                                    readonly="is_readonly"/>
+                                            </div>
+                                            <div class="col-5 col-sm-5 pe-0 d-flex gap-1 flex-wrap">
+                                                <div class="ms-auto"/>
+                                                <div class="o_documents_sharing_access_action d-flex gap-1" invisible="is_readonly">
+                                                    <field name="expiration_date" string="Set Expiration Date" class="oe_inline"
+                                                        widget="documents_datetime_btn"
+                                                        options="{'btn_classes': 'btn-primary py-2'}"
+                                                        invisible="not is_on_single_document or expiration_date"/>
+                                                    <field
+                                                        name="is_deleted" widget="documents_boolean_icon"
+                                                        string="Remove Access"
+                                                        class="oe_inline"
+                                                        options="{'icon': 'fa-fw fa-sign-out', 'btn_false_class': 'btn btn-danger py-2'}"
+                                                        invisible="not partner_is_me"/>
+                                                    <field
+                                                        name="is_deleted" widget="documents_boolean_icon"
+                                                        string="Remove Member"
+                                                        class="oe_inline"
+                                                        options="{'icon': 'fa-fw fa-times', 'btn_false_class': 'btn btn-danger py-2'}"
+                                                        invisible="partner_is_me"/>
+                                                </div>
+                                                <div class="d-flex flex-column ms-1">
+                                                    <field name="role" widget="documents_mixed_selection" class="o_input_12ch"
+                                                        options="{'exclude_none': True}"
+                                                        readonly="is_readonly"/>
+                                                    <div invisible="has_user or role != 'mixed'" class="ms-2">Links partially sent</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </templates>
+                                </kanban>
+                            </field>
+                        </group>
+                        <group colspan="2">
+                            <h4>General Access</h4>
+                        </group>
+                        <group colspan="4">
+                            <div class="container">
+                                <div class="row mb-2">
+                                    <div class="col-12 col-md-9 d-flex flex-column">
+                                        <label for="access_internal" class="mb-0"/>
+                                        <field name="access_internal_help" class="fs-6 text-muted"/>
+                                    </div>
+                                    <div class="col-12 col-md-3 d-flex">
+                                        <field name="access_internal" widget="documents_mixed_selection" nolabel="1" class="oe_inline ms-auto o_documents_sharing_form_owner o_documents_sharing_form"
+                                            readonly="is_readonly"/>
+                                    </div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-12 col-md-9 d-flex flex-column">
+                                        <label for="access_via_link" class="mb-0"/>
+                                        <field name="access_via_link_help" class="fs-6 text-muted"/>
+                                    </div>
+                                    <div class="col-12 col-md-3 d-flex">
+                                        <field name="access_via_link" widget="documents_mixed_selection" nolabel="1" class="oe_inline ms-auto o_documents_sharing_form"
+                                            readonly="is_readonly"/>
+                                    </div>
+                                </div>
+                                <div class="row" invisible="'none' in access_via_link">
+                                    <div class="col-12 col-md-9 d-flex flex-column text-md-end">
+                                        <label for="access_via_link_mode" class="mb-0"/>
+                                    </div>
+                                    <div class="col-12 col-md-3 d-flex">
+                                        <field name="access_via_link_mode" widget="documents_mixed_selection" nolabel="1" class="oe_inline ms-auto o_documents_sharing_form"
+                                            readonly="is_readonly"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <!-- Invitation -->
+                    <t invisible="not invite_partner_ids">
+                        <button string="Share" type="object" name="action_invite_members" class="btn-primary"/>
+                        <field name="access_urls" widget="CopyClipboardButton" string="Copy Links" options="{'btn_class': 'secondary'}"/>
+                        <button string="Discard" special="cancel" class="btn-secondary"/>
+                    </t>
+                    <!-- Update access rights -->
+                    <t invisible="invite_partner_ids">
+                        <t invisible="is_access_modified">
+                            <button string="Done" special="cancel" class="btn-primary"/>
+                            <field name="access_urls" widget="CopyClipboardButton" string="Copy Links" options="{'btn_class': 'secondary'}"/>
+                        </t>
+                        <t invisible="not is_access_modified">
+                            <button string="Save" type="object" name="action_update_rights" class="btn-primary"/>
+                            <button class="btn btn-secondary disabled" aria-disabled="true">Save or Discard changes first</button>
+                            <field name="is_access_modified" widget="documents_discard_changes"/>
+                        </t>
+                    </t>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

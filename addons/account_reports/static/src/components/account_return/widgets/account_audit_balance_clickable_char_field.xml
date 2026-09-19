@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="account_reports.AccountAuditClickableCharField" t-inherit="web.CharField" t-inherit-mode="primary">
+        <span t-esc="formattedValue" position="replace">
+            <a type="button" aria-label="Audit account" t-on-click="this.onClickField" class="btn-link">
+                <span t-esc="formattedValue" />
+            </a>
+        </span>
+    </t>    
+</templates>

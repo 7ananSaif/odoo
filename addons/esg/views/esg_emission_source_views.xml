@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="emission_source_form_view" model="ir.ui.view">
+        <field name="name">emission.source.form</field>
+        <field name="model">esg.emission.source</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="e.g. Mobile Combustion" widget="text" class="o_text_overflow" options="{'line_breaks': False}"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <field name="parent_id"/>
+                        <field name="scope"/>
+                        <field string="Activity Flow" name="activity_flow_direct_indirect" invisible="scope == 'indirect_others'"/>
+                        <field string="Activity Flow" name="activity_flow_indirect_others" invisible="scope != 'indirect_others'"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="emission_source_list_view" model="ir.ui.view">
+        <field name="name">emission.source.list</field>
+        <field name="model">esg.emission.source</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="parent_id"/>
+                <field name="scope"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="emission_source_kanban_view" model="ir.ui.view">
+        <field name="name">emission.source.kanban</field>
+        <field name="model">esg.emission.source</field>
+        <field name="arch" type="xml">
+            <kanban>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex mb-1">
+                            <field name="name" class="fw-bold fs-5 mb-1"/>
+                            <field class="flex-shrink-0 ms-auto" name="scope"/>
+                        </div>
+                        <footer class="pt-0">
+                            <field name="parent_id"/>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="emission_source_search_view" model="ir.ui.view">
+        <field name="name">emission.source.search</field>
+        <field name="model">esg.emission.source</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="parent_id"/>
+                <filter string="Scope 1: Direct" name="scope_1" domain="[('scope', '=', 'direct')]"/>
+                <filter string="Scope 2: Indirect" name="scope_2" domain="[('scope', '=', 'indirect')]"/>
+                <filter string="Scope 3: Others Indirect" name="scope_3" domain="[('scope', '=', 'indirect_others')]"/>
+                <separator/>
+                <group>
+                    <filter name="group_by_parent_id" context="{'group_by': 'parent_id'}"/>
+                    <filter name="group_by_scope" context="{'group_by': 'scope'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="emission_source_hierarchy_view" model="ir.ui.view">
+        <field name="name">emission.source.hierarchy</field>
+        <field name="model">esg.emission.source</field>
+        <field name="arch" type="xml">
+            <hierarchy child_field="child_ids" draggable="1">
+                <field name="name"/>
+                <field name="scope"/>
+                <templates>
+                    <t t-name="hierarchy-box">
+                        <div t-attf-class="d-flex justify-content-center align-items-center">
+                            <field name="name"/>
+                        </div>
+                        <div t-attf-class="d-flex justify-content-center align-items-center">
+                            <field name="scope"/>
+                        </div>
+                    </t>
+                </templates>
+            </hierarchy>
+        </field>
+    </record>
+
+    <record id="action_view_emission_source" model="ir.actions.act_window">
+        <field name="name">Emission Sources</field>
+        <field name="path">esg-emission-sources</field>
+        <field name="res_model">esg.emission.source</field>
+        <field name="view_mode">list,kanban,form,hierarchy</field>
+        <field name="search_view_id" ref="emission_source_search_view"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create emission sources.
+            </p>
+            <p>
+                Categorize your data into Scope 1, 2, and 3 to structure your carbon emission reporting.
+            </p>
+        </field>
+    </record>
+</odoo>

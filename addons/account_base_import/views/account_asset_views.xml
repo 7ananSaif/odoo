@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_asset_import" model="ir.actions.client">
+        <field name="name">Import Assets</field>
+        <field name="tag">account_import_action</field>
+        <field name="target">current</field>
+        <field name="params" eval="{'model': 'account.asset'}"/>
+    </record>
+
+</odoo>

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_equity_transaction_search" model="ir.ui.view">
+        <field name="name">equity.transaction.search</field>
+        <field name="model">equity.transaction</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id" domain="[('is_company', '=', True)]"/>
+                <field name="subscriber_id"/>
+                <field name="seller_id"/>
+                <field name="security_class_id"/>
+
+                <group>
+                    <filter string="Company" name="group_by_partner_id" context="{'group_by': 'partner_id'}"/>
+                </group>
+
+                <filter string="Issuance" name="type_issuance" domain="[('transaction_type', '=', 'issuance')]" context="{'default_transaction_type': 'issuance'}"/>
+                <filter string="Transfer" name="type_transfer" domain="[('transaction_type', '=', 'transfer')]" context="{'default_transaction_type': 'transfer'}"/>
+                <filter string="Options Exercise" name="type_exercise" domain="[('transaction_type', '=', 'exercise')]" context="{'default_transaction_type': 'exercise'}"/>
+                <filter string="Cancellation" name="type_cancellation" domain="[('transaction_type', '=', 'cancellation')]" context="{'default_transaction_type': 'cancellation'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_equity_transaction_list" model="ir.ui.view">
+        <field name="name">equity.transaction.list</field>
+        <field name="model">equity.transaction</field>
+        <field name="arch" type="xml">
+            <list string="Transactions" sample="1">
+                <field name="equity_currency_id" column_invisible="1"/> <!-- Needed for monetary widget -->
+                <field name="date"/>
+                <field name="partner_id" optional="show"/>
+                <field name="subscriber_id"/>
+                <field name="seller_id" optional="hide"/>
+                <field name="transaction_type" string="Type"/>
+                <field name="securities"/>
+                <field name="security_class_id"/>
+                <field name="security_price" widget="monetary" options="{'currency_field': 'equity_currency_id'}" width="150px"/>
+                <field name="transfer_amount" widget="monetary" width="150px"/>
+                <field name="attachment_number" widget="attachment_number" nolabel="1" readonly="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_equity_transaction_kanban" model="ir.ui.view">
+        <field name="name">equity.transaction.kanban</field>
+        <field name="model">equity.transaction</field>
+        <field name="arch" type="xml">
+            <kanban sample="1">
+                <templates>
+                    <t t-name="card">
+                        <div class="row mb4">
+                            <field name="equity_currency_id" invisible="1"/> <!-- Needed for monetary widget -->
+                            <span class="d-flex d-flex-row align-items-baseline fs-6">
+                                <div class="fw-bold col">
+                                    <field name="seller_name" invisible="transaction_type != 'transfer'"/>
+                                    <i title="To" class="fa fa-fw fa-arrow-right mx-1" invisible="transaction_type != 'transfer'"/>
+                                    <field name="subscriber_name"/>
+                                </div>
+                                <div class="ms-auto text-end col">
+                                    <field name="transfer_amount" widget="monetary"/>
+                                </div>
+                            </span>
+                            <div class="d-flex d-flex-row">
+                                <field name="securities" class="me-1" widget="float" digits="[0,0]"/>
+                                <field name="security_class_id"/>
+                                <i title="To" class="fa fa-fw fa-arrow-right mx-1" invisible="transaction_type != 'exercise'"/>
+                                <field name="destination_class_id"/>
+                                <field
+                                    name="transaction_type"
+                                    widget="label_selection"
+                                    class="ms-auto"
+                                    options="{'classes':{'issuance': 'success', 'transfer': 'warning', 'exercise': 'success', 'cancellation': 'danger'}}"/>
+                            </div>
+                        </div>
+                        <footer>
+                            <field name="date" class="text-muted"/>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_equity_transaction_form" model="ir.ui.view">
+        <field name="name">equity.transaction.form</field>
+        <field name="model">equity.transaction</field>
+        <field name="arch" type="xml">
+            <form string="Transaction">
+                <header>
+                    <button name="action_transaction_seller_send"
+                        invisible="transaction_type != 'transfer'"
+                        type="object"
+                        string="Send to Seller"
+                        class="oe_highlight"
+                        data-hotkey="u"/>
+                    <button name="action_transaction_subscriber_send"
+                        type="object"
+                        string="Send to Subscriber"
+                        class="oe_highlight"
+                        data-hotkey="y"/>
+                    <widget name="attach_document" string="Upload Files" action="message_post"/>
+                    <button
+                        name="equity.action_equity_valuation_form"
+                        type="action"
+                        string="New Valuation"
+                        context="{'default_partner_id': partner_id, 'default_date': date, 'default_share_price': security_price}"/>
+                </header>
+                <div class="alert alert-warning w-100 d-flex align-items-center gap-1" invisible="attachment_ids" role="alert">
+                    <span>Missing supporting documents! Attach them in the chatter.</span>
+                </div>
+                <sheet>
+                    <field name="equity_currency_id" invisible="1"/> <!-- Needed for monetary widget -->
+                    <field name="subscriber_id_placeholder" invisible="1"/> <!-- Needed for placeholder_field -->
+                    <field name="securities_type" invisible="1"/> <!-- Needed for conditions -->
+                    <group class="d-flex flex-column">
+                        <field name="transaction_type" widget="selection_badge"/>
+                    </group>
+                    <group>
+                        <group id="left_group">
+                            <field name="partner_id"/>
+                            <field name="date"/>
+                            <field name="seller_id" options="{'placeholder_field': 'subscriber_id_placeholder'}" invisible="transaction_type != 'transfer'" required="securities_type == 'shares'"/>
+                            <field name="subscriber_id" options="{'placeholder_field': 'subscriber_id_placeholder'}" string="Buyer" invisible="transaction_type != 'transfer'" required="securities_type == 'shares'"/>
+                            <field name="subscriber_id" options="{'placeholder_field': 'subscriber_id_placeholder'}" invisible="transaction_type == 'transfer'" required="securities_type == 'shares'"/>
+                            <div class="o_td_label" invisible="transaction_type != 'issuance' or securities_type != 'options'">
+                                <label for="expiration_date"/>
+                            </div>
+                            <div class="d-flex" invisible="transaction_type != 'issuance' or securities_type != 'options'">
+                                <field name="expiration_date" required="1"/>
+                                <field name="expiration_diff" class="text-muted"/>
+                            </div>
+                        </group>
+                        <group id="right_group">
+                            <div class="o_td_label">
+                                <label for="securities"/>
+                            </div>
+                            <div class="o_row">
+                                <field name="securities"/>
+                                <field name="security_class_id" placeholder="Class" context="{
+                                    'transaction_id': id,
+                                    'transaction_type': transaction_type,
+                                    'transaction_date': date,
+                                    'partner_id': partner_id,
+                                    'subscriber_id': subscriber_id,
+                                    'seller_id': seller_id,
+                                }" invisible="transaction_type == 'exercise'"/>
+                                <field name="security_class_id" placeholder="Class" context="{
+                                    'transaction_id': id,
+                                    'transaction_type': transaction_type,
+                                    'transaction_date': date,
+                                    'partner_id': partner_id,
+                                    'subscriber_id': subscriber_id,
+                                    'seller_id': seller_id,
+                                }" domain="[('class_type', '=', 'options')]" invisible="transaction_type != 'exercise'"/>
+                                <label string="to" for="destination_class_id" class="me-2" invisible="transaction_type != 'exercise'"/>
+                                <field name="destination_class_id" placeholder="Destination Class" invisible="transaction_type != 'exercise'" required="1"/>
+                            </div>
+                            <field name="invalid_securities_error" class="alert alert-warning" invisible="not invalid_securities_error" string="" role="alert"/>
+                            <div class="o_td_label">
+                                <label for="security_price" string="Price" invisible="transaction_type == 'issuance' and securities_type == 'options'"/>
+                                <label for="security_price" string="Strike Price" invisible="transaction_type != 'issuance' or securities_type != 'options'"/>
+                            </div>
+                            <div class="d-flex">
+                                <field name="security_price" class="w-50" widget="monetary" options="{'currency_field': 'equity_currency_id'}"/>
+                                <div>/ Security</div>
+                            </div>
+                            <field name="transfer_amount" widget="monetary"/>
+                        </group>
+                    </group>
+                    <group string="Notes">
+                        <field name="notes" nolabel="1" colspan="2" placeholder="Vesting period, exercise deadline, etc."/>
+                    </group>
+                </sheet>
+                <!-- Attachment preview -->
+                <div class="o_attachment_preview"/>
+                <!-- Chatter -->
+                <chatter reload_on_attachment="True"/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_equity_transaction" model="ir.actions.act_window">
+        <field name="name">Transactions</field>
+        <field name="res_model">equity.transaction</field>
+        <field name="path">transactions</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="search_view_id" ref="equity.view_equity_transaction_search"/>
+        <field name="target">current</field>
+    </record>
+</odoo>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="appointment_question_phone" model="appointment.question" forcecreate="0">
+            <field name="is_default">True</field>
+            <field name="is_reusable">True</field>
+            <field name="name">Phone number</field>
+            <field name="question_type">phone</field>
+            <field name="question_required">True</field>
+            <field name="sequence">0</field>
+            <field name="placeholder">e.g. +1 555-555-5555</field>
+        </record>
+    </data>
+</odoo>

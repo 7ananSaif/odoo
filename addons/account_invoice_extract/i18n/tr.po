@@ -1,0 +1,441 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_invoice_extract
+#
+# Translators:
+# Martin Trigaux, 2022
+# abc Def <hdogan1974@gmail.com>, 2022
+# Levent Karakaş <levent@mektup.at>, 2022
+# Ediz Duman <neps1192@gmail.com>, 2022
+# özgür yılmaz <ozgur980@gmail.com>, 2022
+# Umur Akın <umura@projetgrup.com>, 2022
+# Murat Kaplan <muratk@projetgrup.com>, 2022
+# Buket Şeker <buket_skr@hotmail.com>, 2022
+# Ertuğrul Güreş <ertugrulg@projetgrup.com>, 2023
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# DeepL <noreply-mt-deepl@weblate.org>, 2025.
+# Odoo Turkish Import <dyki+tr@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-11-20 13:20+0000\n"
+"Last-Translator: Odoo Turkish Import <dyki+tr@odoo.com>\n"
+"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-19/"
+"account_invoice_extract/tr/>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_needaction
+msgid "Action Needed"
+msgstr "Aksiyon Gerekiyor"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_ir_attachment
+msgid "Attachment"
+msgstr "Ek"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_attachment_count
+msgid "Attachment Count"
+msgstr "Ek Sayısı"
+
+#. module: account_invoice_extract
+#. odoo-python
+#: code:addons/account_invoice_extract/models/account_invoice.py:0
+msgid "Automatic OCR does not apply to this document."
+msgstr "Otomatik OCR bu belge için geçerli değildir."
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_bank_statement_line__extract_can_show_banners
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_can_show_banners
+msgid "Can show the ocr banners"
+msgstr "OCR afişlerini gösterebilir"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_can_show_send_button
+msgid "Can show the ocr send button"
+msgstr "Ocr gönderme düğmesini gösterebilir"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_res_company
+msgid "Companies"
+msgstr "Şirketler"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_res_config_settings
+msgid "Config Settings"
+msgstr "Yapılandırma Ayarları"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_res_partner
+msgid "Contact"
+msgstr "Kontak"
+
+#. module: account_invoice_extract
+#. odoo-python
+#: code:addons/account_invoice_extract/models/account_invoice.py:0
+msgid "Couldn't reload AI data."
+msgstr "Yapay Zeka verileri yüklenemedi."
+
+#. module: account_invoice_extract
+#. odoo-javascript
+#: code:addons/account_invoice_extract/static/src/js/invoice_extract_form.js:0
+msgid "Create"
+msgstr "Oluştur"
+
+#. module: account_invoice_extract
+#: model:ir.model,website_form_label:account_invoice_extract.model_res_partner
+msgid "Create a Customer"
+msgstr "Müşteri Oluştur"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__extract_out_invoice_digitalization_mode
+msgid "Customer Invoices"
+msgstr "Müşteri Faturaları"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__extract_out_invoice_digitalization_mode
+msgid "Digitization mode on customer invoices"
+msgstr "Müşteri faturalarında sayısallaştırma modu"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__extract_in_invoice_digitalization_mode
+msgid "Digitization mode on vendor bills"
+msgstr "Tedarikçi faturalarında sayısallaştırma modu"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_in_invoice_digitalization_mode__auto_send
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_out_invoice_digitalization_mode__auto_send
+msgid "Digitize automatically"
+msgstr "Otomatik olarak sayısallaştırın"
+
+#. module: account_invoice_extract
+#: model_terms:ir.ui.view,arch_db:account_invoice_extract.view_move_form_inherit_ocr
+msgid "Digitize document"
+msgstr "Belgeyi sayısallaştır"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_in_invoice_digitalization_mode__manual_send
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_out_invoice_digitalization_mode__manual_send
+msgid "Digitize on demand only"
+msgstr "Yalnızca isteğe bağlı olarak sayısallaştırın"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__display_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__display_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_partner__display_name
+msgid "Display Name"
+msgstr "İsim Göster"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_in_invoice_digitalization_mode__no_send
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_out_invoice_digitalization_mode__no_send
+msgid "Do not digitize"
+msgstr "Sayısallaştırmayın"
+
+#. module: account_invoice_extract
+#: model_terms:ir.ui.view,arch_db:account_invoice_extract.res_config_settings_view_form
+msgid "Enable to get only one invoice line per tax"
+msgstr "Vergi başına yalnızca bir fatura satırı almayı etkinleştir"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_error_message
+msgid "Error message"
+msgstr "Hata Mesajı"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_attachment_id
+msgid "Extract Attachment"
+msgstr "Ekleri Ayıkla"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_bank_statement_line__extract_detected_layout
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_detected_layout
+msgid "Extract Detected Layout Id"
+msgstr "Tespit Edilen Düzen Kimliğini Çıkart"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_bank_statement_line__extract_partner_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_partner_name
+msgid "Extract Detected Partner Name"
+msgstr "Tespit Edilen Partner Adını Çıkart"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_bank_statement_line__extract_prefill_data
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_prefill_data
+msgid "Extract Prefill Data"
+msgstr "Ön Doldurma Verisini Çıkar"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_state_processed
+msgid "Extract State Processed"
+msgstr "Aylık Toplamı Etkiler"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_state
+msgid "Extract state"
+msgstr "Ayıklama durumu"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_status
+msgid "Extract status"
+msgstr "Çıktı durumu"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extracted_dates
+msgid "Extracted Dates"
+msgstr "Çıkarılan Tarihler"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extracted_numbers
+msgid "Extracted Numbers"
+msgstr "Çıkarılan Sayılar"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extracted_words
+msgid "Extracted Words"
+msgstr "Çıkarılan Kelimeler"
+
+#. module: account_invoice_extract
+#: model_terms:ir.ui.view,arch_db:account_invoice_extract.view_move_form_inherit_ocr
+msgid "Extraction Information"
+msgstr "Ayıklama Bilgileri"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_follower_ids
+msgid "Followers"
+msgstr "Takipçiler"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Takipçiler (İş ortakları)"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__has_message
+msgid "Has Message"
+msgstr "Mesaj Var"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__id
+#: model:ir.model.fields,field_description:account_invoice_extract.field_ir_attachment__id
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__id
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__id
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_partner__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_document_uuid
+msgid "ID of the request to IAP-OCR"
+msgstr "IAP-OCR'ye gönderilen talebin kimliği"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "İşaretliyse, yeni mesajlar dikkatinize sunulacak."
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_has_error
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "İşaretliyse, bazı mesajlar gönderi hatası içermektedir."
+
+#. module: account_invoice_extract
+#: model:ir.actions.server,name:account_invoice_extract.ir_cron_update_ocr_status_ir_actions_server
+msgid "Invoice OCR: Update All Status"
+msgstr "Fatura OCR: Tüm Durumları Güncelle"
+
+#. module: account_invoice_extract
+#: model:ir.actions.server,name:account_invoice_extract.ir_cron_ocr_validate_ir_actions_server
+msgid "Invoice OCR: Validate Invoices"
+msgstr "Fatura OCR: Faturaları Doğrula"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_partner__is_created_by_ocr
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_users__is_created_by_ocr
+msgid "Is Created By Ocr"
+msgstr "Ocr Tarafından Oluşturuldu"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_is_follower
+msgid "Is Follower"
+msgstr "Takipçi mi"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__is_in_extractable_state
+msgid "Is In Extractable State"
+msgstr "Çekilebilir Durumda"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_account_move
+msgid "Journal Entry"
+msgstr "Yevmiye Kaydı"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_main_attachment_id
+msgid "Main Attachment"
+msgstr "Ana Ek"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_has_error
+msgid "Message Delivery error"
+msgstr "Mesaj Teslim hatası"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_ids
+msgid "Messages"
+msgstr "Mesajlar"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Aksiyon Sayısı"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_has_error_counter
+msgid "Number of errors"
+msgstr "Hata adedi"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Eylem gerektiren mesajların sayısı"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Teslimat hatası olan mesaj adedi"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__rating_ids
+msgid "Ratings"
+msgstr "Değerlendirmeler"
+
+#. module: account_invoice_extract
+#: model_terms:ir.ui.view,arch_db:account_invoice_extract.view_move_form_inherit_ocr
+msgid "Reload AI Data"
+msgstr "Yapay Zeka Verisini Yeniden Yükle"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "SMS İleti hatası"
+
+#. module: account_invoice_extract
+#: model:ir.actions.server,name:account_invoice_extract.model_account_send_for_digitalization
+msgid "Send Bills for digitization"
+msgstr "Faturaları sayısallaştırma için gönder"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__extract_single_line_per_tax
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__extract_single_line_per_tax
+msgid "Single Invoice Line Per Tax"
+msgstr "Her vergi için tek fatura satırı"
+
+#. module: account_invoice_extract
+#: model:ir.model.constraint,message:account_invoice_extract.constraint_res_partner_ocr_name_uniq
+msgid "The OCR can't create multiple partners with the same name."
+msgstr "OCR aynı isimde birden fazla ortak oluşturamaz."
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__extract_in_invoice_digitalization_mode
+msgid "Vendor Bills"
+msgstr "Tedarikçi  Faturaları"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__website_message_ids
+msgid "Website Messages"
+msgstr "Websitesi Mesajları"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__website_message_ids
+msgid "Website communication history"
+msgstr "Websitesi iletişim geçmişi"
+
+#. module: account_invoice_extract
+#. odoo-python
+#: code:addons/account_invoice_extract/models/account_invoice.py:0
+msgid "You cannot send a expense that is not in draft state!"
+msgstr "Taslak durumunda olmayan bir masrafı gönderemezsiniz!"
+
+#~ msgid ""
+#~ "All fields will be automated by Artificial Intelligence, it might take 5 "
+#~ "seconds."
+#~ msgstr ""
+#~ "Tüm alanlar Yapay Zeka tarafından otomatikleştirilecek, 5 saniye "
+#~ "sürebilir."
+
+#~ msgid "Created by"
+#~ msgstr "Tarafından oluşturuldu"
+
+#~ msgid "Created on"
+#~ msgstr "Oluşturuldu"
+
+#~ msgid "Extract Word"
+#~ msgstr "Kelimeyi Ayıkla"
+
+#~ msgid "Extracted words from invoice scan"
+#~ msgstr "Fatura taramasından ayıklanan kelimeler"
+
+#~ msgid "Field"
+#~ msgstr "Alan"
+
+#~ msgid "Invoice"
+#~ msgstr "Fatura"
+
+#~ msgid "Last Updated by"
+#~ msgstr "Son Güncelleyen"
+
+#~ msgid "Last Updated on"
+#~ msgstr "Son Güncelleme"
+
+#~ msgid "Ocr Selected"
+#~ msgstr "Seçilenleri OCR’ye Al"
+
+#~ msgid "Send For Digitization"
+#~ msgstr "Dijitalleştirme için Gönder"
+
+#~ msgid ""
+#~ "The data extraction is not finished yet. The extraction usually takes "
+#~ "between 5 and 10 seconds."
+#~ msgstr ""
+#~ "Veri ayıklama işlemi henüz tamamlanmadı. Ekstraksiyon genellikle 5 ila 10 "
+#~ "saniye arasında sürer."
+
+#~ msgid "User Selected"
+#~ msgstr "Kullanıcı Seçildi"
+
+#~ msgid "Word Box Angle"
+#~ msgstr "Kelime Kutusu Açısı"
+
+#~ msgid "Word Box Height"
+#~ msgstr "Kelime Kutusu Yüksekliği"
+
+#~ msgid "Word Box Midx"
+#~ msgstr "Kelime Kutusu Midx"
+
+#~ msgid "Word Box Midy"
+#~ msgstr "Kelime Kutusu Midy"
+
+#~ msgid "Word Box Width"
+#~ msgstr "Kelime Kutusu Genişliği"
+
+#~ msgid "Word Page"
+#~ msgstr "Kelime Sayfası"
+
+#~ msgid "Word Text"
+#~ msgstr "Kelime Metni"
+
+#~ msgid "You don't have enough credit to extract data from your invoice."
+#~ msgstr "Faturanızdan veri ayıklamak için yeterli krediniz yok."

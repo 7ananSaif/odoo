@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.ui.view" id="equity_view_partner_form">
+        <field name="name">equity.view.partner.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="priority" eval="100"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button
+                    class="oe_stat_button" icon="fa-users"
+                    type="action" name="equity.action_equity_cap_table"
+                    groups="equity.group_equity_viewer"
+                    invisible="not is_company">
+                    <div class="o_form_field o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="equity_shareholders_count"/>
+                        </span>
+                        <span class="o_stat_text">Shareholders</span>
+                    </div>
+                </button>
+            </div>
+
+            <notebook position="inside">
+                <page string="UBO" name="equity_ubo" groups="equity.group_equity_viewer">
+                    <group invisible="is_company">
+                        <group>
+                            <field name="ubo_national_identifier" string="ID Number"/>
+                            <field name="ubo_pep" widget="boolean_toggle"/>
+                        </group>
+                        <group>
+                            <field name="ubo_birth_date"/>
+                            <field name="ubo_birth_place"/>
+                        </group>
+                    </group>
+                    <group string="Holdings" invisible="is_company">
+                        <field name="ubo_owned_company_ids" nolabel="1" colspan="4">
+                            <list editable="bottom" open_form_view="True" context="{'default_holder_id': id}">
+                                <field name="partner_id"/>
+                                <field name="control_method"/>
+                                <field name="auth_rep_role" optional="hide"/>
+                                <field name="ownership" widget="percentage"/>
+                                <field name="voting_rights" widget="percentage"/>
+                                <field name="start_date"/>
+                                <field name="end_date" optional="hide"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group invisible="not is_company">
+                        <group>
+                            <field name="equity_legal_form"/>
+                        </group>
+                        <group>
+                            <field name="equity_formation_date"/>
+                        </group>
+                    </group>
+                    <group string="Beneficial Owners" invisible="not is_company">
+                        <field name="ubo_owner_ids" nolabel="1" colspan="4">
+                            <list editable="bottom" open_form_view="True" context="{'default_partner_id': id}">
+                                <field name="holder_id" string="Name"/>
+                                <field name="control_method"/>
+                                <field name="auth_rep_role" optional="hide"/>
+                                <field name="ownership" widget="percentage"/>
+                                <field name="voting_rights" widget="percentage"/>
+                                <field name="start_date"/>
+                                <field name="end_date" optional="hide"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="equity_dashboard_res_partner">
+        <field name="name">equity.dashboard.res.partner</field>
+        <field name="model">res.partner</field>
+        <field name="group_ids" eval="[Command.link(ref('equity.group_equity_viewer'))]"/>
+        <field name="arch" type="xml">
+            <kanban
+                create="0" delete="0" edit="0"
+                class="o_equity_dashboard_kanban"
+                action="action_open_cap_table" type="object">
+                <templates>
+                    <t t-name="card">
+                        <field name="equity_currency_id" invisible="1"/> <!-- Needed for monetary widget -->
+                        <span class="d-flex d-flex-row align-items-baseline fs-4">
+                            <div class="fw-bold col text-nowrap text-truncate">
+                                <field name="name"/>
+                            </div>
+                            <a name="action_open_valuation_list" type="object" class="ms-auto text-end col">
+                                <field name="equity_last_valuation"/>
+                            </a>
+                        </span>
+                        <div class="p-0 container-fluid">
+                            <div class="row">
+                                <div class="col text-muted">
+                                    <field name="equity_shareholders_count"/>
+                                    <span> Shareholder<span invisible="equity_shareholders_count == 1">s</span></span>
+                                </div>
+
+                                <div class="col-auto text-end">
+                                    <span class="text-muted">Valuation</span>
+                                </div>
+                            </div>
+                            <a name="action_open_transaction_list" type="object">
+                                <field name="equity_transaction_count"/>
+                                <span> Transaction<span invisible="equity_transaction_count == 1">s</span></span>
+                            </a>
+                            <div class="row mt-auto">
+                                <field name="equity_kanban_dashboard_graph" graph_type="line" widget="dashboard_graph"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="action_equity_request_ubo_form" model="ir.actions.act_window">
+        <field name="name">Request UBO Form</field>
+        <field name="res_model">mail.compose.message</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_res_partner"/>
+        <field name="context" eval="{
+             'default_template_id': ref('equity.equity_ubo_form_email_template'),
+             'default_composition_mode': 'mass_mail',
+             'default_partner_to': '{{ object.id or \'\' }}',
+             'default_subtype_xmlid': 'mail.mt_comment',
+             'create_ubo_to_do_activity': True,
+        }"/>
+        <field name="group_ids" eval="[Command.link(ref('equity.group_equity_viewer'))]"/>
+    </record>
+
+    <record id="action_equity_ubo_report" model="ir.actions.report">
+        <field name="name">Print UBO</field>
+        <field name="model">res.partner</field>
+        <field name="binding_model_id" ref="model_res_partner"/>
+        <field name="binding_type">report</field>
+        <field name="binding_view_types">form</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">equity.equity_ubo_report</field>
+        <field name="report_file">equity.equity_ubo_report</field>
+        <field name="domain" eval="[('is_company', '=', True)]"/>
+        <field name="print_report_name">(object._get_ubo_report_filename())</field>
+        <field name="group_ids" eval="[Command.link(ref('equity.group_equity_viewer'))]"/>
+    </record>
+
+    <record id="action_equity_dashboard_res_partner" model="ir.actions.server">
+        <field name="name">Equity</field>
+        <field name="model_id" ref="model_res_partner"/>
+        <field name="state">code</field>
+        <field name="path">equity</field>
+        <field name="code">
+            action = env['res.partner'].open_equity_dashboard()
+        </field>
+    </record>
+</odoo>

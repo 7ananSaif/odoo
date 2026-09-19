@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Budgets -->
+    <data noupdate="1">
+        <function model="purchase.order.line" name="write">
+            <value model="purchase.order.line" search="[('product_id', 'in', [ref('product.product_product_8'), ref('product.product_delivery_01')]), ('order_id', '=', ref('purchase.purchase_order_9'))]"/>
+            <value eval="{'analytic_distribution': {ref('analytic.analytic_active_account'): 100}}"/>
+        </function>
+    </data>
+</odoo>

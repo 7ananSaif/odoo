@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_equity_ubo_search" model="ir.ui.view">
+        <field name="name">equity.ubo.search</field>
+        <field name="model">equity.ubo</field>
+        <field name="arch" type="xml">
+            <search>
+                <group>
+                    <filter string="Company" name="group_by_partner_id" context="{'group_by': 'partner_id'}"/>
+                </group>
+
+                <filter string="In Control" name="in_control" domain="[('end_date', '=', False)]"/>
+                <filter string="Expired Documents" name="expired_documents" domain="[('attachment_expiration_date', '&lt;', 'today')]"/>
+                <filter string="Missing Documents" name="missing_documents" domain="[('attachment_ids', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_equity_ubo_list" model="ir.ui.view">
+        <field name="name">equity.ubo.form</field>
+        <field name="model">equity.ubo</field>
+        <field name="arch" type="xml">
+            <list string="Beneficial Owners" sample="1">
+                <field name="holder_id" string="Name"/>
+                <field name="control_method"/>
+                <field name="auth_rep_role" optional="hide"/>
+                <field name="ownership" widget="percentage"/>
+                <field name="voting_rights" widget="percentage"/>
+                <field name="start_date"/>
+                <field name="end_date" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_equity_ubo_form" model="ir.ui.view">
+        <field name="name">equity.ubo.form</field>
+        <field name="model">equity.ubo</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <field name="display_name" invisible="1"/> <!-- Needed for the display_name in the breadcrumbs to recompute interactively -->
+                    <h1>
+                        <field name="partner_id" placeholder="Company"/>
+                    </h1>
+                    <h2>
+                        <field name="holder_id" placeholder="Holder" context="{'partner_display_name_hide_company': True}"/>
+                    </h2>
+                    <group>
+                        <group id="left_group">
+                            <field name="has_percentages" invisible="1"/> <!-- Needed for invisibility conditions -->
+                            <field name="control_method" class="flex-grow-0 w-auto"/>
+                            <field name="auth_rep_role" invisible="not has_auth_rep_role"/>
+                            <field name="ownership" widget="percentage" class="oe_inline" invisible="not has_percentages"/>
+                            <field name="voting_rights" widget="percentage" class="oe_inline" invisible="not has_percentages"/>
+                        </group>
+                        <group id="right_group">
+                            <field name="start_date" class="flex-grow-0 w-auto"/>
+                            <field name="end_date" class="flex-grow-0 w-auto"/>
+                            <field name="attachment_expiration_date" class="flex-grow-0 w-auto"/>
+                        </group>
+                    </group>
+                </sheet>
+                <!-- Attachment preview -->
+                <div class="o_attachment_preview"/>
+                <!-- Chatter -->
+                <chatter reload_on_attachment="True"/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_equity_ubo" model="ir.actions.act_window">
+        <field name="name">Beneficial Owners</field>
+        <field name="res_model">equity.ubo</field>
+        <field name="path">ubos</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="equity.view_equity_ubo_search"/>
+        <field name="context">{'search_default_group_by_partner_id': 1}</field>
+        <field name="target">current</field>
+    </record>
+</odoo>

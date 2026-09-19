@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="esg_project_tags_0" model="project.tags">
+            <field name="name">Scope 3</field>
+            <field name="color">1</field>
+        </record>
+
+        <record id="esg_project_tags_1" model="project.tags">
+            <field name="name">Circular Economy</field>
+            <field name="color">2</field>
+        </record>
+
+        <record id="esg_project_tags_2" model="project.tags">
+            <field name="name">Energy Efficiency</field>
+            <field name="color">3</field>
+        </record>
+
+        <record id="esg_project_tags_3" model="project.tags">
+            <field name="name">Scope 2</field>
+            <field name="color">4</field>
+        </record>
+
+        <record id="esg_project_tags_4" model="project.tags">
+            <field name="name">IT Policy</field>
+            <field name="color">5</field>
+        </record>
+
+        <record id="esg_project_tags_5" model="project.tags">
+            <field name="name">Carbon Footprint</field>
+            <field name="color">6</field>
+        </record>
+
+        <record id="esg_project_tags_6" model="project.tags">
+            <field name="name">GHG Reduction</field>
+            <field name="color">7</field>
+        </record>
+
+        <record id="esg_project_tags_7" model="project.tags">
+            <field name="name">Governance</field>
+            <field name="color">8</field>
+        </record>
+
+        <record id="esg_project_tags_8" model="project.tags">
+            <field name="name">Mobility</field>
+            <field name="color">9</field>
+        </record>
+
+        <record id="esg_project_tags_9" model="project.tags">
+            <field name="name">Operational Excellence</field>
+            <field name="color">1</field>
+        </record>
+
+        <record id="esg_project_tags_10" model="project.tags">
+            <field name="name">Digital Efficiency</field>
+            <field name="color">2</field>
+        </record>
+
+        <record id="esg_project_tags_11" model="project.tags">
+            <field name="name">Business Travel</field>
+            <field name="color">3</field>
+        </record>
+
+        <record id="esg_project_tags_12" model="project.tags">
+            <field name="name">Awareness</field>
+            <field name="color">4</field>
+        </record>
+
+        <record id="esg_project_task_0" model="project.task">
+            <field name="name">Shift to Low-Carbon Commuting</field>
+            <field name="project_id" ref="esg_project.esg_project_project_0"/>
+            <field name="stage_id" eval="ref('esg_project.esg_project_stage_2', raise_if_not_found=False)"/>
+            <field name="tag_ids" eval="[(4, ref('esg_project.esg_project_tags_8')), (4, ref('esg_project.esg_project_tags_6')), (4, ref('esg_project.esg_project_tags_0'))]"/>
+            <field name="description" type="html">
+                <p>
+                    Encourage and support employees to switch from single-passenger car use to walking, cycling, public transport, or carpooling. Monitor participation through monthly employee surveys.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Estimation:</strong> Assume 100 employees each reduce 10 km of car commuting/day for 20 days/month → 20,000 km avoided. </li>
+                    <li>
+                        <strong>Emission factor:</strong> 0.25 kgCO₂e/km → 20,000 km x 0.25 = 5,000 kgCO₂e/month → 60,000 kgCO₂e/year. </li>
+                </ul>
+            </field>
+            <field name="task_properties" eval="{'59354fc8ddc4d325': 60000}"/>
+        </record>
+
+        <record id="esg_project_task_1" model="project.task">
+            <field name="name">Sustainable Procurement of Office Furniture</field>
+            <field name="project_id" ref="esg_project.esg_project_project_0"/>
+            <field name="stage_id" eval="ref('esg_project.esg_project_stage_1', raise_if_not_found=False)"/>
+            <field name="tag_ids" eval="[(4, ref('esg_project.esg_project_tags_1')), (4, ref('esg_project.esg_project_tags_0')), (4, ref('esg_project.esg_project_tags_6'))]"/>
+            <field name="description" type="html">
+                <p>
+                    Update procurement policy to prioritize reused, refurbished, or sustainably certified furniture (e.g., FSC-certified wood, low-emission manufacturing). Conduct a replacement plan based on lifecycle assessments (LCA) to reduce embodied carbon in furniture purchases.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Estimation:</strong> Replacing 10 standard office desks with reused ones instead of new ones saves ~72 kgCO₂e per desk (based on embodied carbon of ~100 kgCO₂e for new vs. ~28 kgCO₂e for reused) → 720 kgCO₂e saved per 10 desks.
+                    </li>
+                </ul>
+            </field>
+            <field name="task_properties" eval="{'59354fc8ddc4d325': 720}"/>
+        </record>
+
+        <record id="esg_project_task_2" model="project.task">
+            <field name="name">Reduce Standby Power Consumption</field>
+            <field name="project_id" ref="esg_project.esg_project_project_0"/>
+            <field name="stage_id" eval="ref('esg_project.esg_project_stage_1', raise_if_not_found=False)"/>
+            <field name="tag_ids" eval="[(4, ref('esg_project.esg_project_tags_2')), (4, ref('esg_project.esg_project_tags_3')), (4, ref('esg_project.esg_project_tags_4')), (4, ref('esg_project.esg_project_tags_9'))]"/>
+            <field name="description" type="html">
+                <p>
+                    Implement a company-wide policy requiring all non-critical IT and office equipment (monitors, PCs, printers) to be shut down outside working hours. Install smart meters to track compliance.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Estimation:</strong> 100 devices x 50W x 2 hours/day x 20 days = 200 kWh/month. </li>
+                    <li>
+                        EU electricity factor ~0.233 kgCO₂e/kWh → 46.6 kgCO₂e/month → 559.2 kgCO₂e/year. </li>
+                </ul>
+            </field>
+            <field name="task_properties" eval="{'59354fc8ddc4d325': 559.2}"/>
+        </record>
+
+        <record id="esg_project_task_3" model="project.task">
+            <field name="name">Data Storage Optimization</field>
+            <field name="project_id" ref="esg_project.esg_project_project_0"/>
+            <field name="stage_id" eval="ref('esg_project.esg_project_stage_0', raise_if_not_found=False)"/>
+            <field name="tag_ids" eval="[(4, ref('esg_project.esg_project_tags_10')), (4, ref('esg_project.esg_project_tags_4')), (4, ref('esg_project.esg_project_tags_3')), (4, ref('esg_project.esg_project_tags_5'))]"/>
+            <field name="description" type="html">
+                <p>
+                    Conduct a company-wide cleanup of unused digital files, archived email, and inactive databases to reduce cloud and on-prem storage energy consumption.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Estimation:</strong> 1 GB stored/year = ~5 kgCO₂e. </li>
+                    <li>
+                        Deleting 500 GB = 2,500 kgCO₂e/year. </li>
+                </ul>
+            </field>
+            <field name="task_properties" eval="{'59354fc8ddc4d325': 2500}"/>
+        </record>
+
+        <record id="esg_project_task_4" model="project.task">
+            <field name="name">Eliminate Short-Haul Flights where Rail is Viable</field>
+            <field name="project_id" ref="esg_project.esg_project_project_0"/>
+            <field name="stage_id" eval="ref('esg_project.esg_project_stage_0', raise_if_not_found=False)"/>
+            <field name="tag_ids" eval="[(4, ref('esg_project.esg_project_tags_11')), (4, ref('esg_project.esg_project_tags_0')), (4, ref('esg_project.esg_project_tags_6'))]"/>
+            <field name="description" type="html">
+                <p>
+                    Introduce a travel policy mandating the use of rail instead of air for trips under 800 km where feasible. Apply through HR and travel booking systems, and review compliance quarterly.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Estimation:</strong> 100 avoided flights/year → (250 kgCO₂e - 20 kgCO₂e) x 100 = 23,000 kgCO₂e saved.
+                    </li>
+                </ul>
+            </field>
+            <field name="task_properties" eval="{'59354fc8ddc4d325': 23000}"/>
+        </record>
+
+        <record id="esg_project_task_5" model="project.task">
+            <field name="name">Internal Awareness Training on Climate Change</field>
+            <field name="project_id" ref="esg_project.esg_project_project_0"/>
+            <field name="stage_id" eval="ref('esg_project.esg_project_stage_0', raise_if_not_found=False)"/>
+            <field name="tag_ids" eval="[(4, ref('esg_project.esg_project_tags_12')), (4, ref('esg_project.esg_project_tags_7')), (4, ref('esg_project.esg_project_tags_0'))]"/>
+            <field name="description" type="html">
+                <p>
+                    Organize structured climate education sessions (e.g., Climate Fresk or equivalent science-based workshop) for staff to build understanding of climate science, causes, and business relevance. Target core departments like procurement, HR, and operations to support informed sustainability decisions.
+                </p>
+                <ul>
+                    <li>
+                        <strong>Estimation (indirect impact):</strong> Assume the training leads to behavior or decision shifts in key roles. For example, if 10 trained procurement staff shift 10% of future purchases to lower-carbon options, this could lead to ~500—1,000 kgCO₂e avoided annually per person. </li>
+                    <li>
+                        The impact is indirect but measurable through follow-up actions or policy changes. </li>
+                </ul>
+            </field>
+            <field name="task_properties" eval="{'59354fc8ddc4d325': 10000}"/>
+        </record>
+    </data>
+</odoo>

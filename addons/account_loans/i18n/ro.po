@@ -1,0 +1,1053 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_loans
+#
+# Cuciureanu Larisa <larisa.cuciureanu@nexterp.ro>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:42+0000\n"
+"PO-Revision-Date: 2025-11-27 14:15+0000\n"
+"Last-Translator: Odoo Translation Bot <c3p@odoo.com>\n"
+"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-19/"
+"account_loans/ro/>\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
+"20)) ? 1 : 2;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+msgid "1st amortization schedule"
+msgstr "Primul grafic de amortizare"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan_compute_wizard__compounding_method__30a/360
+msgid "30A/360"
+msgstr "30A/360"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan_compute_wizard__compounding_method__30e/360
+msgid "30E/360"
+msgstr "30E/360"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan_compute_wizard__compounding_method__30e/360_isda
+msgid "30E/360 ISDA"
+msgstr "30E/360 ISDA"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan_compute_wizard__compounding_method__30u/360
+msgid "30U/360"
+msgstr "30U/360"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+msgid ""
+"<span class=\"oe_inline\" invisible=\"duration == 1\">months</span>\n"
+"                                        <span class=\"oe_inline\" "
+"invisible=\"duration != 1\">month</span>"
+msgstr ""
+"<span class=\"oe_inline\" invisible=\"duration == 1\">luni</span>\n"
+"                                        <span class=\"oe_inline\" "
+"invisible=\"duration != 1\">lună</span>"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.view_account_loan_compute_wizard
+msgid ""
+"<span class=\"oe_inline\" invisible=\"loan_term == 1\">years</span>\n"
+"                                    <span class=\"oe_inline\" "
+"invisible=\"loan_term != 1\">year</span>"
+msgstr ""
+"<span class=\"oe_inline\" invisible=\"loan_term == 1\">ani</span>\n"
+"                                    <span class=\"oe_inline\" "
+"invisible=\"loan_term != 1\">an</span>"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.view_account_loan_compute_wizard
+msgid "<span class=\"oe_inline\">%</span>"
+msgstr "<span class=\"oe_inline\">%</span>"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan_compute_wizard__compounding_method__a/360
+msgid "A/360"
+msgstr "A/360"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan_compute_wizard__compounding_method__a/365f
+msgid "A/365F"
+msgstr "A/365F"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan_compute_wizard__compounding_method__a/a_afb
+msgid "A/A AFB"
+msgstr "A/A AFB"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan_compute_wizard__compounding_method__a/a_isda
+msgid "A/A ISDA"
+msgstr "A/A ISDA"
+
+#. module: account_loans
+#: model:ir.model,name:account_loans.model_account_return
+msgid "Accounting Return"
+msgstr "Returnare contabilă"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__message_needaction
+msgid "Action Needed"
+msgstr "Acțiune necesară"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__active
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__active
+msgid "Active"
+msgstr "Activ"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.view_account_loan_close_wizard
+msgid "All draft entries after the"
+msgstr "Toate înregistrările draft după"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+msgid "Amortization schedule"
+msgstr "Grafic de amortizare"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__amount_borrowed
+msgid "Amount Borrowed"
+msgstr "Suma împrumutată"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__amount_borrowed_difference
+msgid "Amount Borrowed Difference"
+msgstr "Diferență sumă împrumutată"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.view_account_loan_close_wizard
+#: model_terms:ir.ui.view,arch_db:account_loans.view_account_loan_compute_wizard
+msgid "Apply"
+msgstr "Aplică"
+
+#. module: account_loans
+#: model:ir.model,name:account_loans.model_account_asset_group
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__asset_group_id
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__loan_asset_group_id
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_search_view
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_search_view
+msgid "Asset Group"
+msgstr "Grup de active"
+
+#. module: account_loans
+#: model:ir.model,name:account_loans.model_account_asset
+msgid "Asset/Revenue Recognition"
+msgstr "Recunoaștere activ/venit"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan_compute_wizard__payment_end_of_month__at_anniversary
+msgid "At Anniversary"
+msgstr "La aniversare"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__message_attachment_count
+msgid "Attachment Count"
+msgstr "Număr atașamente"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/wizard/account_loan_compute_wizard.py:0
+msgid "Balance"
+msgstr "Sold"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+msgid "Cancel"
+msgstr "Anulează"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan__state__cancelled
+msgid "Cancelled"
+msgstr "Anulat"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+msgid "Close"
+msgstr "Închide"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_close_wizard__date
+msgid "Close Date"
+msgstr "Data închiderii"
+
+#. module: account_loans
+#: model:ir.actions.act_window,name:account_loans.action_view_account_loan_close_wizard
+#: model:ir.model,name:account_loans.model_account_loan_close_wizard
+msgid "Close Loan Wizard"
+msgstr "Asistent închidere împrumut"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan__state__closed
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_search_view
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_search_view
+msgid "Closed"
+msgstr "Închis"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_search_view
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_search_view
+msgid "Closed Loans"
+msgstr "Împrumuturi închise"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/wizard/account_loan_close_wizard.py:0
+msgid "Closed on the %(date)s"
+msgstr "Închis la data %(date)s"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__company_id
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__company_id
+msgid "Company"
+msgstr "Companie"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__compounding_method
+msgid "Compounding Method"
+msgstr "Metodă de compunere"
+
+#. module: account_loans
+#. odoo-javascript
+#: code:addons/account_loans/static/src/components/loans/file_upload.xml:0
+msgid "Compute"
+msgstr "Calculează"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "Compute New Loan"
+msgstr "Calculează împrumut nou"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+msgid "Confirm"
+msgstr "Confirmă"
+
+#. module: account_loans
+#: model:account.return.check.template,description:account_loans.account_return_check_template_loans_recording
+msgid ""
+"Confirm that all loans recorded in the accounts actually exist and match the "
+"loan agreements."
+msgstr ""
+"Confirmă că toate împrumuturile înregistrate în contabilitate există cu "
+"adevărat și corespund contractelor de împrumut."
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__count_linked_assets
+msgid "Count Linked Assets"
+msgstr "Număr active asociate"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_asset__count_linked_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_asset_group__count_linked_loans
+msgid "Count Linked Loans"
+msgstr "Număr împrumuturi asociate"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__create_uid
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_close_wizard__create_uid
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__create_uid
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__create_uid
+msgid "Created by"
+msgstr "Creat de"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__create_date
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_close_wizard__create_date
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__create_date
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__create_date
+msgid "Created on"
+msgstr "Creat la"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__currency_id
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__currency_id
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__currency_id
+msgid "Currency"
+msgstr "Monedă"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_search_view
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_search_view
+msgid "Current"
+msgstr "Curent"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/wizard/account_loan_compute_wizard.py:0
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__date
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_search_view
+msgid "Date"
+msgstr "Dată"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.view_account_loan_close_wizard
+#: model_terms:ir.ui.view,arch_db:account_loans.view_account_loan_compute_wizard
+msgid "Discard"
+msgstr "Renunță"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_asset__display_name
+#: model:ir.model.fields,field_description:account_loans.field_account_asset_group__display_name
+#: model:ir.model.fields,field_description:account_loans.field_account_journal__display_name
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_close_wizard__display_name
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__display_name
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__display_name
+#: model:ir.model.fields,field_description:account_loans.field_account_move__display_name
+#: model:ir.model.fields,field_description:account_loans.field_account_return__display_name
+msgid "Display Name"
+msgstr "Nume afișat"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan__state__draft
+msgid "Draft"
+msgstr "Ciornă"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_search_view
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_search_view
+msgid "Draft & Running Loans"
+msgstr "Împrumuturi draft și active"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "Due"
+msgstr "Scadent"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__duration
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+msgid "Duration"
+msgstr "Durată"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__duration_difference
+msgid "Duration Difference"
+msgstr "Diferență durată"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__end_date
+msgid "End Date"
+msgstr "Data de sfârșit"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan_compute_wizard__payment_end_of_month__end_of_month
+msgid "End of Month"
+msgstr "Sfârșit de lună"
+
+#. module: account_loans
+#: model:account.return.check.template,description:account_loans.account_return_check_template_loans_classification
+msgid ""
+"Ensure that loans are properly classified as current vs. non-current, and "
+"disclosed in accordance with Belgian GAAP. \n"
+"Loans payable within 1 year → Account 42\n"
+"Loans > 1 year → Account 17"
+msgstr ""
+"Asigură-te că împrumuturile sunt clasificate corect ca curente vs. necurente "
+"și sunt raportate conform GAAP belgian. \n"
+"Împrumuturi de plată în decurs de 1 an → Cont 42\n"
+"Împrumuturi > 1 an → Cont 17"
+
+#. module: account_loans
+#: model:ir.model.fields,help:account_loans.field_account_loan_line__generated_move_ids
+msgid "Entries that we generated from this loan line"
+msgstr "Înregistrări generate din această linie de împrumut"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__expense_account_id
+msgid "Expense Account"
+msgstr "Cont de cheltuieli"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__first_payment_date
+msgid "First Payment"
+msgstr "Prima plată"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__message_follower_ids
+msgid "Followers"
+msgstr "Urmăritori"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Urmăritori (Parteneri)"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__generated_move_ids
+msgid "Generated Entries"
+msgstr "Înregistrări generate"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_bank_statement_line__generating_loan_line_id
+#: model:ir.model.fields,field_description:account_loans.field_account_move__generating_loan_line_id
+msgid "Generating Loan Line"
+msgstr "Generare linie de împrumut"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__has_message
+msgid "Has Message"
+msgstr "Are mesaj"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_asset__id
+#: model:ir.model.fields,field_description:account_loans.field_account_asset_group__id
+#: model:ir.model.fields,field_description:account_loans.field_account_journal__id
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__id
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_close_wizard__id
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__id
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__id
+#: model:ir.model.fields,field_description:account_loans.field_account_move__id
+#: model:ir.model.fields,field_description:account_loans.field_account_return__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_loans
+#: model:ir.model.fields,help:account_loans.field_account_loan__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Dacă este bifat, mesajele noi necesită atenția dvs."
+
+#. module: account_loans
+#: model:ir.model.fields,help:account_loans.field_account_loan__message_has_error
+#: model:ir.model.fields,help:account_loans.field_account_loan__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Dacă este bifat, unele mesaje au o eroare de livrare."
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+#: code:addons/account_loans/wizard/account_loan_compute_wizard.py:0
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__interest
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__interest
+msgid "Interest"
+msgstr "Dobândă"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__interest_difference
+msgid "Interest Difference"
+msgstr "Diferență dobândă"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__interest_rate
+#: model_terms:ir.ui.view,arch_db:account_loans.view_account_loan_compute_wizard
+msgid "Interest Rate"
+msgstr "Rată dobândă"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/wizard/account_loan_compute_wizard.py:0
+msgid "Interest Rate must be between 0 and 100"
+msgstr "Rata dobânzii trebuie să fie între 0 și 100"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_list_view
+msgid "Interests"
+msgstr "Dobânzi"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__message_is_follower
+msgid "Is Follower"
+msgstr "Este urmăritor"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_bank_statement_line__is_loan_payment_move
+#: model:ir.model.fields,field_description:account_loans.field_account_move__is_loan_payment_move
+msgid "Is Loan Payment Move"
+msgstr "Este mișcare de plată împrumut"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__is_payment_move_posted
+msgid "Is Payment Move Posted"
+msgstr "Este mișcare de plată înregistrată"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__is_wrong_date
+msgid "Is Wrong Date"
+msgstr "Este dată greșită"
+
+#. module: account_loans
+#: model:ir.model,name:account_loans.model_account_journal
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__journal_id
+msgid "Journal"
+msgstr "Jurnal"
+
+#. module: account_loans
+#: model:ir.model,name:account_loans.model_account_move
+msgid "Journal Entry"
+msgstr "Înregistrare jurnal"
+
+#. module: account_loans
+#: model:account.journal,name:account_loans.account_loans_journal_loan
+msgid "Journal Loan Demo"
+msgstr "Demo jurnal împrumut"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__write_uid
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_close_wizard__write_uid
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__write_uid
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__write_uid
+msgid "Last Updated by"
+msgstr "Ultima actualizare de"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__write_date
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_close_wizard__write_date
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__write_date
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__write_date
+msgid "Last Updated on"
+msgstr "Ultima actualizare la"
+
+#. module: account_loans
+#: model:ir.model.fields,help:account_loans.field_account_bank_statement_line__generating_loan_line_id
+#: model:ir.model.fields,help:account_loans.field_account_move__generating_loan_line_id
+msgid "Line of the loan that generated this entry"
+msgstr "Linia de împrumut care a generat această înregistrare"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__linked_assets_ids
+msgid "Linked Assets"
+msgstr "Active asociate"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_asset.py:0
+msgid "Linked loans"
+msgstr "Împrumuturi asociate"
+
+#. module: account_loans
+#: model:ir.model,name:account_loans.model_account_loan
+#: model:ir.model.fields,field_description:account_loans.field_account_bank_statement_line__loan_id
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_close_wizard__loan_id
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__loan_id
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__loan_id
+#: model:ir.model.fields,field_description:account_loans.field_account_move__loan_id
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_search_view
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_search_view
+msgid "Loan"
+msgstr "Împrumut"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__loan_amount
+msgid "Loan Amount"
+msgstr "Suma împrumutului"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/wizard/account_loan_compute_wizard.py:0
+msgid "Loan Amount must be positive"
+msgstr "Suma împrumutului trebuie să fie pozitivă"
+
+#. module: account_loans
+#: model:ir.actions.act_window,name:account_loans.action_view_account_loan_compute_wizard
+#: model:ir.model,name:account_loans.model_account_loan_compute_wizard
+msgid "Loan Compute Wizard"
+msgstr "Asistent calcul împrumut"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__date
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__loan_date
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_search_view
+msgid "Loan Date"
+msgstr "Data împrumutului"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "Loan Entries"
+msgstr "Înregistrări împrumut"
+
+#. module: account_loans
+#: model:ir.model,name:account_loans.model_account_loan_line
+msgid "Loan Line"
+msgstr "Linie de împrumut"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__line_ids
+msgid "Loan Lines"
+msgstr "Linii de împrumut"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+msgid "Loan Settings"
+msgstr "Setări împrumut"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__loan_term
+#: model_terms:ir.ui.view,arch_db:account_loans.view_account_loan_compute_wizard
+msgid "Loan Term"
+msgstr "Termen împrumut"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/wizard/account_loan_compute_wizard.py:0
+msgid "Loan Term must be positive"
+msgstr "Termenul împrumutului trebuie să fie pozitiv"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_list_view
+msgid "Loan lines"
+msgstr "Linii de împrumut"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__display_name
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+msgid "Loan name"
+msgstr "Nume împrumut"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.asset_group_form_view_inherit_loan
+msgid "Loan(s)"
+msgstr "Împrumut(uri)"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+#: code:addons/account_loans/models/account_return.py:0
+#: model:ir.actions.act_window,name:account_loans.action_view_account_loans
+#: model:ir.ui.menu,name:account_loans.menu_action_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_list_view
+msgid "Loans"
+msgstr "Împrumuturi"
+
+#. module: account_loans
+#: model:ir.actions.act_window,name:account_loans.action_view_account_loans_analysis
+#: model:ir.ui.menu,name:account_loans.menu_action_loans_analysis
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_pivot_view
+msgid "Loans Analysis"
+msgstr "Analiză împrumuturi"
+
+#. module: account_loans
+#: model:account.return.check.template,name:account_loans.account_return_check_template_loans_classification
+msgid "Loans classification"
+msgstr "Clasificare împrumuturi"
+
+#. module: account_loans
+#: model:account.return.check.template,name:account_loans.account_return_check_template_loans_recording
+msgid "Loans recording"
+msgstr "Înregistrare împrumuturi"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__long_term_account_id
+msgid "Long Term Account"
+msgstr "Cont pe termen lung"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__long_term_theoretical_balance
+msgid "Long-Term"
+msgstr "Pe termen lung"
+
+#. module: account_loans
+#: model_terms:ir.actions.act_window,help:account_loans.action_view_account_loans
+msgid "Manage Your Acquired Loans with Automated Adjustments."
+msgstr "Gestionează împrumuturile achiziționate cu ajustări automate."
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__message_has_error
+msgid "Message Delivery error"
+msgstr "Eroare la livrarea mesajului"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__message_ids
+msgid "Messages"
+msgstr "Mesaje"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_journal__loan_properties_definition
+msgid "Model Properties"
+msgstr "Proprietăți model"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__name
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__loan_name
+msgid "Name"
+msgstr "Nume"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__nb_posted_entries
+msgid "Nb Posted Entries"
+msgstr "Număr înregistrări postate"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Număr acțiuni"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__message_has_error_counter
+msgid "Number of errors"
+msgstr "Număr erori"
+
+#. module: account_loans
+#: model:ir.model.fields,help:account_loans.field_account_loan__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Număr de mesaje care necesită acțiune"
+
+#. module: account_loans
+#: model:ir.model.fields,help:account_loans.field_account_loan__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Număr de mesaje cu eroare de livrare"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_return.py:0
+msgid ""
+"Odoo manages your amortizations automatically. No loans were found for this "
+"period. Ensure your loans are properly registered for automatic "
+"amortizations calculation."
+msgstr ""
+"Odoo gestionează automat amortizările. Nu au fost găsite împrumuturi pentru "
+"această perioadă. Asigurați-vă că împrumuturile sunt înregistrate corect "
+"pentru calculul automat al amortizărilor."
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_move.py:0
+msgid "Original Loan"
+msgstr "Împrumut original"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__outstanding_balance
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__outstanding_balance
+msgid "Outstanding Balance"
+msgstr "Sold restant"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/wizard/account_loan_compute_wizard.py:0
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__payment_end_of_month
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__payment
+msgid "Payment"
+msgstr "Plată"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_list_view
+msgid "Payments"
+msgstr "Plăți"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "Please add a name before computing the loan"
+msgstr "Vă rugăm să adăugați un nume înainte de a calcula împrumutul"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+msgid "Posted Entries"
+msgstr "Înregistrări postate"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__preview
+#: model_terms:ir.ui.view,arch_db:account_loans.view_account_loan_compute_wizard
+msgid "Preview"
+msgstr "Previzualizare"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+#: code:addons/account_loans/wizard/account_loan_compute_wizard.py:0
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__principal
+msgid "Principal"
+msgstr "Principal"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "Principal & Interest"
+msgstr "Principal și dobândă"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_list_view
+msgid "Principals"
+msgstr "Principale"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__loan_properties
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_search_view
+msgid "Properties"
+msgstr "Proprietăți"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__rating_ids
+msgid "Ratings"
+msgstr "Evaluări"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "Reclassification LT - ST"
+msgstr "Reclasificare LT - ST"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+msgid "Related Asset(s)"
+msgstr "Active asociate"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.view_move_form_inherit_loan
+msgid "Related Loan"
+msgstr "Împrumut asociat"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.view_account_asset_form_inherit_loan
+msgid "Related Loan(s)"
+msgstr "Împrumut(uri) asociat(e)"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_asset__linked_loans_ids
+#: model:ir.model.fields,field_description:account_loans.field_account_asset_group__linked_loan_ids
+msgid "Related Loans"
+msgstr "Împrumuturi asociate"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+msgid "Reset"
+msgstr "Resetează"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "Reversal reclassification LT - ST"
+msgstr "Reversare reclasificare LT - ST"
+
+#. module: account_loans
+#: model:ir.model.fields.selection,name:account_loans.selection__account_loan__state__running
+msgid "Running"
+msgstr "Activ"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Eroare la livrarea SMS"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_search_view
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_search_view
+msgid "Search Loan"
+msgstr "Caută împrumut"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_form_view
+msgid "Set to Draft"
+msgstr "Setează ca draft"
+
+#. module: account_loans
+#: model_terms:ir.actions.act_window,help:account_loans.action_view_account_loans
+msgid ""
+"Set up your amortization schedule, or import it, and let Odoo handle the "
+"monthly interest and principal adjustments automatically."
+msgstr ""
+"Configurează graficul de amortizare sau importă-l și lasă Odoo să gestioneze "
+"automat ajustările lunare de dobândă și principal."
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__short_term_account_id
+msgid "Short Term Account"
+msgstr "Cont pe termen scurt"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__short_term_theoretical_balance
+msgid "Short-Term"
+msgstr "Pe termen scurt"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__skip_until_date
+msgid "Skip until"
+msgstr "Sari până la"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__start_date
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_compute_wizard__start_date
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_list_view
+msgid "Start Date"
+msgstr "Data de început"
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__state
+#: model:ir.model.fields,field_description:account_loans.field_account_loan_line__loan_state
+msgid "Status"
+msgstr "Stare"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/wizard/account_loan_compute_wizard.py:0
+msgid "The First Payment Date must be before the end of the loan."
+msgstr "Data primei plăți trebuie să fie înainte de sfârșitul împrumutului."
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "The amount borrowed must be positive"
+msgstr "Suma împrumutată trebuie să fie pozitivă"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "The duration must be positive"
+msgstr "Durata trebuie să fie pozitivă"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "The interest must be positive"
+msgstr "Dobânda trebuie să fie pozitivă"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "The loan accounts should be set."
+msgstr "Conturile de împrumut trebuie setate."
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid ""
+"The loan amount %(loan_amount)s should be equal to the sum of the "
+"principals: %(principal_sum)s (difference %(principal_difference)s)"
+msgstr ""
+"Suma împrumutului %(loan_amount)s ar trebui să fie egală cu suma "
+"principalelor: %(principal_sum)s (diferență %(principal_difference)s)"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "The loan date should be earlier than the loan lines date."
+msgstr ""
+"Data împrumutului trebuie să fie anterioară datei liniilor de împrumut."
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "The loan duration should be equal to the number of loan lines."
+msgstr ""
+"Durata împrumutului trebuie să fie egală cu numărul liniilor de împrumut."
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid ""
+"The loan interest should be equal to the sum of the loan lines interest."
+msgstr ""
+"Dobânda împrumutului trebuie să fie egală cu suma dobânzilor liniilor de "
+"împrumut."
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "The loan journal should be set."
+msgstr "Jurnalul de împrumut trebuie setat."
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "The loan name should be set."
+msgstr "Numele împrumutului trebuie setat."
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "This entry has been %s"
+msgstr "Această înregistrare a fost %s"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "This entry has been reversed from %s"
+msgstr "Această înregistrare a fost inversată din %s"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_list_view
+msgid "Total Amounts Borrowed"
+msgstr "Total sume împrumutate"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_list_view
+msgid "Total Outstanding Balance"
+msgstr "Total sold restant"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_list_view
+msgid "Total interests"
+msgstr "Total dobânzi"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_list_view
+msgid "Total payments"
+msgstr "Total plăți"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.account_loan_line_list_view
+msgid "Total principals"
+msgstr "Total principale"
+
+#. module: account_loans
+#. odoo-javascript
+#: code:addons/account_loans/static/src/components/loans/file_upload.xml:0
+msgid "Upload"
+msgstr "Încarcă"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "Uploaded file"
+msgstr "Fișier încărcat"
+
+#. module: account_loans
+#: model:ir.model.fields,help:account_loans.field_account_loan__skip_until_date
+msgid ""
+"Upon confirmation of the loan, Odoo will ignore the loan lines that are up "
+"to this date (included) and not create entries for them. This is useful if "
+"you have already manually created entries prior to the creation of this loan."
+msgstr ""
+"La confirmarea împrumutului, Odoo va ignora liniile de împrumut până la "
+"această dată (inclusiv) și nu va crea înregistrări pentru ele. Acest lucru "
+"este util dacă ați creat deja manual înregistrări înainte de crearea acestui "
+"împrumut."
+
+#. module: account_loans
+#: model:ir.model.fields,field_description:account_loans.field_account_loan__website_message_ids
+msgid "Website Messages"
+msgstr "Mesaje website"
+
+#. module: account_loans
+#: model:ir.model.fields,help:account_loans.field_account_loan__website_message_ids
+msgid "Website communication history"
+msgstr "Istoric comunicare website"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_asset.py:0
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "id"
+msgstr "id"
+
+#. module: account_loans
+#. odoo-python
+#: code:addons/account_loans/models/account_loan.py:0
+msgid "reversed"
+msgstr "inversat"
+
+#. module: account_loans
+#: model_terms:ir.ui.view,arch_db:account_loans.view_account_loan_close_wizard
+msgid "will be deleted and the loan will be marked as closed."
+msgstr "va fi șters și împrumutul va fi marcat ca închis."

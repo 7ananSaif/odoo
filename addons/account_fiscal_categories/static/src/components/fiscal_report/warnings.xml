@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="account_fiscal_categories.warning_multi_rate">
+        There are
+        <a type="button" t-on-click="(ev) => controller.reportAction(ev, 'open_multi_rate_accounts', warningParams)">
+            multiple fiscal rates
+        </a>
+        in this period.
+    </t>
+</templates>

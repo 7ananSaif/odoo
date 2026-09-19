@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.ui.view" id="view_budget_analytic_form">
+        <field name="name">budget.analytic.view.form</field>
+        <field name="model">budget.analytic</field>
+        <field name="inherit_id" ref="account_budget.view_budget_analytic_form"/>
+        <field name="arch" type="xml">
+            <field name="achieved_amount" position="before">
+                <field name="committed_amount"
+                       decoration-danger="(committed_amount > budget_amount) and parent.budget_type in ('expense', 'both')"
+                       sum="Committed"
+                       optional="show"
+                       column_invisible="parent.budget_type == 'revenue' or parent.state in ('draft','canceled')"/>
+            </field>
+            <field name="achieved_percentage" position="before">
+                <field name="committed_percentage"
+                       widget="percentage"
+                       optional="hide"
+                       column_invisible="parent.budget_type == 'revenue' or parent.state in ('draft','canceled')"/>
+            </field>
+        </field>
+    </record>
+</odoo>

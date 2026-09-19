@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+
+    <t t-name="documents.DocumentsOperationConfirmation" >
+        <button
+            t-on-click="() => this.onClick()"
+            t-out="this.buttonLabel"
+            t-att-disabled="!this.props.record.data.display_name || this.props.record.data.user_permission !== 'edit'"
+            class="btn btn-primary w-100"
+        />
+    </t>
+
+</templates>

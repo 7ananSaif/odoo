@@ -1,0 +1,33 @@
+<templates id="template" xml:space="preserve">
+    <t t-name="ai_website_livechat.s_ai_livechat_edit">
+        <div class="d-flex flex-column flex-md-row m-0 gap-2 gap-xl-4">
+            <div class="ai_website_livechat_form form-control d-flex flex-grow-1 align-items-center py-0 ps-lg-3 ps-xl-4 pe-lg-2">
+                <textarea type="text"
+                    class="ai_livechat_prompt_textarea form-control-plaintext flex-grow-1 overflow-hidden border-0 rounded shadow-none"
+                    autocomplete="off"
+                    rows="1"
+                    style="resize:none;"
+                />
+                <div class="align-self-baseline py-2">
+                    <button class="ai_website_livechat_form_button btn btn-sm">
+                        <i
+                            class="fa fa-fw fa-lg fa-paper-plane fs-5 disabled"
+                            style="scale: .75;"
+                            role="presentation"
+                        />
+                    </button>
+                </div>
+            </div>
+            <div
+                t-if="livechatAvailable || fallbackButtonActive"
+                class="flex-grow-0 d-flex gap-2 gap-xl-4 align-items-center text-nowrap justify-content-center justify-content-md-start"
+            >
+                <span class="text-muted">or</span>
+                <button t-if="livechatAvailable" class="btn btn-primary w-lg-100 ask-human">Ask a Human</button>
+                <a t-elif="fallbackButtonActive" class="btn btn-primary w-lg-100 fallback-btn" role="button" t-att-href="fallbackButtonURL">
+                    <t t-out="fallbackButtonText"/>
+                </a>
+            </div>
+        </div>
+    </t>
+</templates>

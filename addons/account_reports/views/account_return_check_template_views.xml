@@ -1,0 +1,77 @@
+<odoo>
+    <data>
+        <record id="account_return_check_template_list_view" model="ir.ui.view">
+            <field name="name">account.return.check.template.list</field>
+            <field name="model">account.return.check.template</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name"/>
+                    <field name="return_type"/>
+                    <field name="cycle"/>
+                    <field name="type" optional="hide"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="account_return_check_template_form_view" model="ir.ui.view">
+            <field name="name">account.return.check.template.form</field>
+            <field name="model">account.return.check.template</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name"/>
+                                <field name="cycle"/>
+                                <field name="return_type" options="{'no_open': 1, 'no_create_edit': 1}"/>
+                                <field name="type" widget="selection_badge"/>
+                            </group>
+                            <group>
+                                <field name="action_id" groups="base.group_no_one"/>
+                                <field name="activity_type"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="notes_page" string="Description">
+                                <group colspan="2">
+                                    <field name="description" nolabel="1"/>
+                                </group>
+                            </page>
+                            <page name="automated_checks_page" string="Automated Checks" invisible="type == 'file'">
+                                <group>
+                                    <field name="model"/>
+                                    <field name="domain" widget="domain" options="{'model': 'model'}" invisible="not model"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="account_return_check_template_search_view" model="ir.ui.view">
+            <field name="name">account.return.check.template.search</field>
+            <field name="model">account.return.check.template</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="return_type"/>
+                    <field name="cycle"/>
+                    <filter name="filter_manual" string="Manual" domain="[('type', '=', 'check'), ('model', '=', False)]"/>
+                    <filter name="filter_automated" string="Automated" domain="[('type', '=', 'check'), ('model', '!=', False)]"/>
+                    <filter name="filter_file_upload" string="Document Upload" domain="[('type', '=', 'file')]"/>
+
+                    <filter name="groupby_cycle" string="Cycle" context="{'group_by': 'cycle'}"/>
+                    <filter name="groupby_type" string="Type" context="{'group_by': 'type'}"/>
+                    <filter name="groupby_return_type" string="Return/Audit" context="{'group_by': 'return_type'}"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_view_account_return_check_templates" model="ir.actions.act_window">
+            <field name="name">Check Templates</field>
+            <field name="res_model">account.return.check.template</field>
+            <field name="view_mode">list,form</field>
+        </record>
+    </data>
+</odoo>

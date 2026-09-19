@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Top menu item -->
+    <menuitem
+        id="menu_equity"
+        groups="equity.group_equity_viewer"
+        web_icon="equity,static/description/icon.png"
+        sequence="61"
+        name="Equity">
+        <menuitem id="menu_equity_dashboard" name="Dashboard" action="equity.action_equity_dashboard_res_partner" sequence="10"/>
+        <menuitem id="menu_equity_ownership" name="Ownership" sequence="20">
+            <menuitem id="menu_equity_ownership_transactions" name="Transactions" action="equity.action_equity_transaction" sequence="10"/>
+            <menuitem id="menu_equity_ownership_valuations" name="Valuations" action="equity.action_equity_valuation" sequence="20"/>
+            <menuitem id="menu_equity_ownership_ubos" name="UBO" action="equity.action_equity_ubo" sequence="30"/>
+        </menuitem>
+        <menuitem id="menu_equity_reporting" name="Reporting" sequence="30">
+            <menuitem id="menu_equity_reporting_cap_table" name="Cap Table" action="equity.action_equity_cap_table" sequence="10"/>
+            <menuitem id="menu_equity_reporting_cap_table_pivot" name="Cap Table Pivot" action="equity.action_equity_cap_table_pivot" sequence="20"/>
+            <menuitem id="menu_equity_reporting_valuation" name="Valuation" action="equity.action_equity_valuation_graph" sequence="30"/>
+        </menuitem>
+        <menuitem id="menu_equity_configuration" name="Configuration" sequence="40">
+            <menuitem id="menu_equity_configuration_security_classes" name="Security Classes" action="equity.action_equity_security_class" sequence="10"/>
+        </menuitem>
+    </menuitem>
+</odoo>

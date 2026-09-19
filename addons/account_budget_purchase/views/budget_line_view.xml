@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.ui.view" id="view_budget_line_tree">
+        <field name="name">budget.line.list</field>
+        <field name="model">budget.line</field>
+        <field name="inherit_id" ref="account_budget.view_budget_line_tree"/>
+        <field name="arch" type="xml">
+            <field name="achieved_amount" position="before">
+                <field name="committed_amount" readonly="1"/>
+            </field>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="documents.AccessRightsUpdateConfirmationDialog">
+        <Dialog size="'md'" title="title" modalRef="modalRef">
+            <div class="o_documents_access_rights_update_dialog pb-2">
+                <div class="text-warning pb-2">
+                    <i class="fa fa-warning pe-1"/>
+                    Moving the document(s) will change their access rights to the following settings:
+                </div>
+                <div class="container">
+                    <t t-set="view_label">Viewer</t>
+                    <t t-set="edit_label">Editor</t>
+                    <t t-set="none_label">None</t>
+                    <t t-set="view_description">Can only view contents. Cannot add, modify, or delete items.</t>
+                    <t t-set="edit_description">Can add, modify, and delete files within this folder.</t>
+                    <t t-set="internal_user_none_description">Only people with access can open with the link</t>
+                    <t t-set="access_via_link_none_description">No one on the internet can access</t>
+
+                    <div class="row">
+                        <div class="col-12 col-md-9 d-flex flex-column">
+                            <label id="o_documents_access_update_confirmation_access_internal" class="mb-0">Internal Users</label>
+                            <div class="fs-6 text-muted">
+                                <t t-if="props.destinationFolder.access_internal === 'view'" t-out="view_description"/>
+                                <t t-elif="props.destinationFolder.access_internal === 'edit'" t-out="edit_description"/>
+                                <t t-else="" t-out="internal_user_none_description"/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3 d-flex">
+                            <div aria-labelledby="o_documents_access_update_confirmation_access_internal">
+                                <t t-if="props.destinationFolder.access_internal === 'view'" t-out="view_label"/>
+                                <t t-elif="props.destinationFolder.access_internal === 'edit'" t-out="edit_label"/>
+                                <t t-else="" t-out="none_label"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-md-9 d-flex flex-column">
+                            <label id="o_documents_access_update_confirmation_access_via_link" class="mb-0">Anyone with the link</label>
+                            <div class="fs-6 text-muted">
+                                <t t-if="props.destinationFolder.access_via_link === 'view'" t-out="view_description"/>
+                                <t t-elif="props.destinationFolder.access_via_link === 'edit'" t-out="edit_description"/>
+                                <t t-else="" t-out="access_via_link_none_description"/>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-3 d-flex flex-column">
+                            <div aria-labelledby="o_documents_access_update_confirmation_access_via_link">
+                                <t t-if="props.destinationFolder.access_via_link === 'view'" t-out="view_label"/>
+                                <t t-elif="props.destinationFolder.access_via_link === 'edit'" t-out="edit_label"/>
+                                <t t-else="" t-out="none_label"/>
+                            </div>
+                            <t t-if="props.destinationFolder.access_via_link !== 'none'">
+                                <div t-if="props.destinationFolder.is_access_via_link_hidden">Must have the link to access</div>
+                                <div t-else="">Discoverable</div>
+                            </t>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="_confirm">Move</button>
+                <button class="btn btn-secondary" t-on-click="_cancel">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+
+</templates>

@@ -1,0 +1,137 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <CstmrCdtTrfInitn>
+    <GrpHdr>
+      <MsgId>12345</MsgId>
+      <CreDtTm>2024-03-04T08:21:16</CreDtTm>
+      <NbOfTxs>2</NbOfTxs>
+      <CtrlSum>1100.00</CtrlSum>
+      <InitgPty>
+        <Nm>US Company</Nm>
+        <Id>
+          <OrgId>
+            <Othr>
+              <Id>0123456789</Id>
+              <Issr>USABA</Issr>
+            </Othr>
+          </OrgId>
+        </Id>
+      </InitgPty>
+    </GrpHdr>
+    <PmtInf>
+      <PmtInfId>1709540476.798265401</PmtInfId>
+      <PmtMtd>TRF</PmtMtd>
+      <BtchBookg>true</BtchBookg>
+      <NbOfTxs>2</NbOfTxs>
+      <CtrlSum>1100.00</CtrlSum>
+      <PmtTpInf>
+        <InstrPrty>NORM</InstrPrty>
+        <SvcLvl>
+          <Cd>NURG</Cd>
+        </SvcLvl>
+        <LclInstrm>
+          <Cd>CCD</Cd>
+        </LclInstrm>
+      </PmtTpInf>
+      <ReqdExctnDt>2024-03-04</ReqdExctnDt>
+      <Dbtr>
+        <Nm>US Company</Nm>
+        <PstlAdr>
+          <Ctry>US</Ctry>
+          <AdrLine>4 Privet Drive</AdrLine>
+          <AdrLine>1997 Little Whinging</AdrLine>
+        </PstlAdr>
+        <Id>
+          <OrgId>
+            <Othr>
+              <Id>0123456789</Id>
+              <SchmeNm>
+                <Cd>CHID</Cd>
+              </SchmeNm></Othr>
+          </OrgId>
+        </Id>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <Othr>
+            <Id>7896541230</Id>
+          </Othr>
+        </Id>
+        <Ccy>USD</Ccy>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId>
+          <BIC>BOFAUS3NXXX</BIC>
+          <ClrSysMmbId>
+            <MmbId>011900254</MmbId>
+          </ClrSysMmbId>
+          <PstlAdr>
+            <Ctry>US</Ctry>
+          </PstlAdr>
+        </FinInstnId>
+      </DbtrAgt>
+      <ChrgBr>SHAR</ChrgBr>
+      <CdtTrfTxInf>
+        <PmtId>
+          <InstrId>5-SCT-BNK1-2024-03-04</InstrId>
+          <EndToEndId>1709565642.64888074015</EndToEndId>
+        </PmtId>
+        <Amt>
+          <InstdAmt Ccy="USD">500.00</InstdAmt>
+        </Amt>
+        <CdtrAgt>
+          <FinInstnId>
+            <BIC>BOFAUS3NXXX</BIC>
+            <ClrSysMmbId>
+              <MmbId>322271627</MmbId>
+            </ClrSysMmbId>
+            <PstlAdr>
+              <Ctry>US</Ctry>
+            </PstlAdr>
+          </FinInstnId>
+        </CdtrAgt>
+        <Cdtr>
+          <Nm>American Customer</Nm>
+        </Cdtr>
+        <CdtrAcct>
+          <Id>
+            <Othr>
+              <Id>9632587410</Id>
+            </Othr>
+          </Id>
+        </CdtrAcct>
+      </CdtTrfTxInf>
+      <CdtTrfTxInf>
+        <PmtId>
+          <InstrId>5-SCT-BNK1-2024-03-04</InstrId>
+          <EndToEndId>1709565642.64888074015</EndToEndId>
+        </PmtId>
+        <Amt>
+          <InstdAmt Ccy="USD">600.00</InstdAmt>
+        </Amt>
+        <CdtrAgt>
+          <FinInstnId>
+            <BIC>BOFAUS3NXXX</BIC>
+            <ClrSysMmbId>
+              <MmbId>322271627</MmbId>
+            </ClrSysMmbId>
+            <PstlAdr>
+              <Ctry>US</Ctry>
+            </PstlAdr>
+          </FinInstnId>
+        </CdtrAgt>
+        <Cdtr>
+          <Nm>American Customer</Nm>
+        </Cdtr>
+        <CdtrAcct>
+          <Id>
+            <Othr>
+              <Id>9632587410</Id>
+            </Othr>
+          </Id>
+        </CdtrAcct>
+      </CdtTrfTxInf>
+    </PmtInf>
+  </CstmrCdtTrfInitn>
+</Document>
+

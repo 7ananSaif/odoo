@@ -1,0 +1,168 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_accountant_batch_payment
+#
+# Translators:
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Anastasiia Koroleva (koan)" <koan@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-12-06 09:47+0000\n"
+"Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/"
+"account_accountant_batch_payment/ru/>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
+"(n%100>=11 && n%100<=14)? 2 : 3);\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: account_accountant_batch_payment
+#: model:ir.model,name:account_accountant_batch_payment.model_account_bank_statement_line
+msgid "Bank Statement Line"
+msgstr "Строка банковской выписки"
+
+#. module: account_accountant_batch_payment
+#. odoo-python
+#: code:addons/account_accountant_batch_payment/models/account_batch_payment.py:0
+#: model:ir.model,name:account_accountant_batch_payment.model_account_batch_payment
+msgid "Batch Payment"
+msgstr "Пакетная оплата"
+
+#. module: account_accountant_batch_payment
+#. odoo-javascript
+#: code:addons/account_accountant_batch_payment/static/src/components/bank_reconciliation/button_list/button_list.js:0
+msgid "Batches"
+msgstr "Партии"
+
+#. module: account_accountant_batch_payment
+#: model:ir.model.fields,field_description:account_accountant_batch_payment.field_account_bank_statement_line__display_name
+#: model:ir.model.fields,field_description:account_accountant_batch_payment.field_account_batch_payment__display_name
+#: model:ir.model.fields,field_description:account_accountant_batch_payment.field_account_move_line__display_name
+msgid "Display Name"
+msgstr "Отображаемое имя"
+
+#. module: account_accountant_batch_payment
+#: model:ir.model.fields,field_description:account_accountant_batch_payment.field_account_bank_statement_line__id
+#: model:ir.model.fields,field_description:account_accountant_batch_payment.field_account_batch_payment__id
+#: model:ir.model.fields,field_description:account_accountant_batch_payment.field_account_move_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_accountant_batch_payment
+#: model:ir.model,name:account_accountant_batch_payment.model_account_move_line
+msgid "Journal Item"
+msgstr "Элемент журнала"
+
+#. module: account_accountant_batch_payment
+#: model:ir.model.fields,field_description:account_accountant_batch_payment.field_account_move_line__payment_lines_ids
+msgid "Payment Lines"
+msgstr "Строки платежа"
+
+#. module: account_accountant_batch_payment
+#. odoo-javascript
+#: code:addons/account_accountant_batch_payment/static/src/components/bank_reconciliation/button_list/button_list.js:0
+msgid "Search: Batch Payment"
+msgstr "Поиск: Групповой платеж"
+
+#~ msgid "View"
+#~ msgstr "Просмотр"
+
+#~ msgid ""
+#~ "<br/>\n"
+#~ "                        <span>Do you want to cancel payments to retry "
+#~ "them later or keep the batch open with unprocess payments, if you expect "
+#~ "them later.</span>"
+#~ msgstr ""
+#~ "<br/>\n"
+#~ "                        <span>Хотите ли вы отменить платежи, чтобы "
+#~ "повторить их позже, или оставить пакет открытым с необработанными "
+#~ "платежами, если вы ожидаете их позже.</span>"
+
+#~ msgid "Bank reconciliation widget for a single statement line"
+#~ msgstr "Виджет сверки банковских счетов для одной строки выписки"
+
+#~ msgid "Cancel"
+#~ msgstr "Отменить"
+
+#~ msgid "Cancel Payments"
+#~ msgstr "Отменить платежи"
+
+#~ msgid "Created by"
+#~ msgstr "Создано:"
+
+#~ msgid "Created on"
+#~ msgstr "Дата создания:"
+
+#~ msgid "Date"
+#~ msgstr "Дата"
+
+#~ msgid "Expect Payments Later"
+#~ msgstr "Ожидайте выплат позже"
+
+#~ msgid "In Reconcile Payment"
+#~ msgstr "В \"Согласовать платеж"
+
+#~ msgid "Last Updated by"
+#~ msgstr "Последнее обновление:"
+
+#~ msgid "Last Updated on"
+#~ msgstr "Дата последнего обновления:"
+
+#~ msgid "Line of the bank reconciliation widget"
+#~ msgstr "Строка виджета сверки банковских счетов"
+
+#~ msgid "Manage the payment rejection from batch payments"
+#~ msgstr "Управление отклонениями платежей при пакетной оплате"
+
+#~ msgid "Nb Batch Payment"
+#~ msgstr "Nb Пакетная оплата"
+
+#~ msgid "Nb Rejected Payment"
+#~ msgstr "Nb Отклоненный платеж"
+
+#~ msgid "Open Amount"
+#~ msgstr "Открытая Сумма"
+
+#~ msgid "Open Amount (in Currency)"
+#~ msgstr "Открытая сумма (в валюте)"
+
+#~ msgid "Paid"
+#~ msgstr "Оплачено"
+
+#~ msgid ""
+#~ "Preset to create journal entries during a invoices and payments matching"
+#~ msgstr ""
+#~ "Предустановки для создания записей журнала во время сопоставления счетов "
+#~ "и платежей"
+
+#~ msgid "Received"
+#~ msgstr "Получено"
+
+#~ msgid "Rejected Payment"
+#~ msgstr "Отклоненный платеж"
+
+#~ msgid "Selected Batch Payment"
+#~ msgstr "Выбранный пакетный платеж"
+
+#~ msgid "Source Batch Payment"
+#~ msgstr "Источник Пакетная оплата"
+
+#~ msgid "Suggestions"
+#~ msgstr "Предложения"
+
+#~ msgid "batches have been removed."
+#~ msgstr "партии были удалены."
+
+#~ msgid "payments from"
+#~ msgstr "платежи от"
+
+#~ msgid "payments from the batch have been removed."
+#~ msgstr "платежи из партии были удалены."

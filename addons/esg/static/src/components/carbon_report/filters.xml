@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="esg.CarbonReportFilters" t-inherit="account_reports.AccountReportFiltersCustomizable">
+        <xpath expr="//div[@id='filter_extra_options']" position="before">
+            <Dropdown>
+                <button class="btn btn-secondary">
+                    <i class="fa fa-cloud me-1"/>Gas
+                </button>
+
+                <t t-set-slot="content">
+                    <t t-foreach="controller.cachedFilterOptions.carbon_report_selected_gas" t-as="gasItem" t-key="gasItem_index">
+                        <DropdownItem
+                            class="{ selected: gasItem.selected }"
+                            onSelected="() => this.filterClicked({ optionKey: 'carbon_report_selected_gas.' + gasItem_index + '.selected', reload: true})"
+                            closingMode="'none'"
+                            t-out="gasItem.name"
+                        />
+                    </t>
+                </t>
+            </Dropdown>
+        </xpath>
+
+        <xpath expr="//div[@id='filter_rounding_unit']" position="replace"/>
+    </t>
+</templates>

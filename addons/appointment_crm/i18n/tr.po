@@ -1,0 +1,111 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * appointment_crm
+#
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:49+0000\n"
+"PO-Revision-Date: 2025-11-08 06:04+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-19/"
+"appointment_crm/tr/>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: appointment_crm
+#: model:ir.model,name:appointment_crm.model_appointment_invite
+msgid "Appointment Invite"
+msgstr "Randevu Daveti"
+
+#. module: appointment_crm
+#: model:ir.model,name:appointment_crm.model_appointment_type
+msgid "Appointment Type"
+msgstr "Randevu Türü"
+
+#. module: appointment_crm
+#: model:ir.model,name:appointment_crm.model_calendar_event
+msgid "Calendar Event"
+msgstr "Takvim Etkinliği"
+
+#. module: appointment_crm
+#. odoo-javascript
+#: code:addons/appointment_crm/static/src/views/appointment_calendar/appointment_crm_calendar_controller.xml:0
+msgid "Click in your calendar to pick meeting time proposals for"
+msgstr "Toplantı zamanı tekliflerini seçmek için takviminizde tıklayın"
+
+#. module: appointment_crm
+#: model:ir.model.fields,field_description:appointment_crm.field_appointment_type__lead_create
+msgid "Create Opportunity"
+msgstr "Fırsat Oluştur"
+
+#. module: appointment_crm
+#: model:ir.model.fields,field_description:appointment_crm.field_appointment_invite__display_name
+#: model:ir.model.fields,field_description:appointment_crm.field_appointment_type__display_name
+#: model:ir.model.fields,field_description:appointment_crm.field_calendar_event__display_name
+msgid "Display Name"
+msgstr "İsim Göster"
+
+#. module: appointment_crm
+#: model:ir.model.fields,help:appointment_crm.field_appointment_type__lead_create
+msgid ""
+"For each scheduled appointment, create a new opportunity and assign it to "
+"the responsible user."
+msgstr ""
+"Planlanan her randevu için yeni bir fırsat oluşturun ve bunu sorumlu "
+"kullanıcıya atayın."
+
+#. module: appointment_crm
+#: model:ir.model.fields,field_description:appointment_crm.field_appointment_invite__id
+#: model:ir.model.fields,field_description:appointment_crm.field_appointment_type__id
+#: model:ir.model.fields,field_description:appointment_crm.field_calendar_event__id
+msgid "ID"
+msgstr "ID"
+
+#. module: appointment_crm
+#: model_terms:ir.ui.view,arch_db:appointment_crm.appointment_type_view_form
+msgid "Leads"
+msgstr "Adaylar"
+
+#. module: appointment_crm
+#: model:ir.model.fields,field_description:appointment_crm.field_appointment_type__lead_count
+msgid "Leads Count"
+msgstr "Aday Sayımı"
+
+#. module: appointment_crm
+#: model:ir.model.fields,field_description:appointment_crm.field_appointment_type__lead_ids
+msgid "Leads/Opportunity"
+msgstr "Müşteri Adayları/Fırsat"
+
+#. module: appointment_crm
+#: model:ir.model.fields,help:appointment_crm.field_appointment_invite__opportunity_id
+msgid ""
+"Link an opportunity/lead to the appointment invite created.\n"
+"Used when creating an invitation from the Meeting action in the crm form "
+"view."
+msgstr ""
+"Oluşturulan randevu davetine bir fırsat/müşteri adayı bağlayın.\n"
+"Crm form görünümünde Toplantı eyleminden bir davet oluştururken kullanılır."
+
+#. module: appointment_crm
+#. odoo-python
+#: code:addons/appointment_crm/models/calendar_event.py:0
+msgid "Meeting linked to Lead/Opportunity %s"
+msgstr "%s Aday/Fırsat ile bağlantılı toplantı"
+
+#. module: appointment_crm
+#: model:ir.model.fields,field_description:appointment_crm.field_calendar_event__opportunity_id
+msgid "Opportunity"
+msgstr "Fırsat"
+
+#. module: appointment_crm
+#: model:ir.model.fields,field_description:appointment_crm.field_appointment_invite__opportunity_id
+msgid "Opportunity/Lead"
+msgstr "Fırsat/Aday"

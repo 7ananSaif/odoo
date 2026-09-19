@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="appointment.AppointmentTypeActionHelper">
+        <div class="o_view_nocontent o_appointment_helper align-items-start align-items-md-stretch">
+            <div class="container">
+                <div class="o_activity_not_found o_nocontent_help container text-center">
+                    <h1 class="fw-normal">Ready to make scheduling easy?</h1>
+                    <div class="lead fw-normal">
+                        <p class="mb-0">Create a Schedule from scratch or use one of our templates:</p>
+                    </div>
+                </div>
+
+                <div class="o_appointment_helper_templates justify-content-center row mt-4">
+                    <t t-set="templateNames" t-value="Object.keys(appointmentTypeTemplatesData)"/>
+                    <t t-foreach="templateNames" t-as="templateName" t-key="templateName">
+                        <t t-set="templateData" t-value="appointmentTypeTemplatesData[templateName]"/>
+                        <t t-set="templateElemClass" t-value="'col-12 col-md-6 col-lg-4 col-xl-3 py-2'"/>
+                        <t t-set="templateDescriptionClass" t-value="'col-9 col-md-8 col-lg-9 card-body d-flex flex-column pe-0 py-0'"/>
+                        <t t-set="templateIconClass" t-value="'col-3 col-md-4 col-lg-3 h-75 ps-2 p-0'"/>
+                        <t t-call="appointment.AppointmentTemplateCard"/>
+                    </t>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

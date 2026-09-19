@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="account_accountant.BankRecReconciledLineName">
+        <div name="reconciled_line_name" class="text-start text-truncate text-muted">
+            <t t-if="props.valueToDisplay?.tax">
+                <t t-foreach="props.valueToDisplay.tax" t-as="tax_id" t-key="tax_id_index">
+                    <div class="o_tag d-inline-flex align-items-center badge rounded-pill o_tag_color_0 flex-shrink-0" t-att-class="!tax_id_last ? 'me-1': ''">
+                        <span class="o_tag_badge_text text-truncate" t-esc="tax_id.data.display_name"/>
+                        <i t-on-click.stop="() => this.deleteTax(props.moveLineId, tax_id)" class="ps-1 opacity-100-hover opacity-75 oi oi-close"/>
+                    </div>
+                </t>
+            </t>
+            <t t-else="" t-out="props.valueToDisplay.move or props.valueToDisplay.account"/>
+        </div>
+    </t>
+</templates>

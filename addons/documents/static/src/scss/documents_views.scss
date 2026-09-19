@@ -1,0 +1,411 @@
+////// ========== Search Panel ==============
+////// ======================================
+.o_search_panel > .o_search_panel_section {
+    .o_drag_over_selector {
+        &.o_search_panel_filter_value, > header {
+            background-color: $component-active-bg;
+            font-weight: $font-weight-bold;
+            color: $black;
+
+            .o_search_panel_label_title {
+                padding-left: map-get($spacers, 2);
+            }
+
+            /* Firefox firing dragleave when dragging over text
+            https://bugzilla.mozilla.org/show_bug.cgi?id=1478562 */
+            .o_search_panel_label {
+                pointer-events: none;
+            }
+        }
+
+    }
+}
+
+.o_documents_kanban_view .o_control_panel_actions,
+.o_documents_list_view .o_control_panel_actions {
+    justify-content: center !important;
+}
+
+.o_documents_list_view {
+    // Remove the black square chrome adds when navigating with arrow keys
+    *:focus {
+        outline: none;
+    }
+    .o_data_row {
+        &[focused] td {
+          background-color: $component-active-bg !important;
+        }
+        .o_documents_list_actions {
+            display: none;
+        }
+        &:hover .o_documents_list_actions {
+            display: flex;
+            justify-content: flex-end;
+
+            i {
+                opacity: 0.3;
+                &:hover {
+                    cursor: pointer;
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}
+
+.o_documents_action_dropdown button {
+    width: max-content;
+}
+
+////// =========== Drag & Drop ==============
+////// ======================================
+
+.o_documents_drop_over_zone {
+
+    &:after {
+        content: "";
+        @include o-position-absolute(4px, 6px, 8px, 6px);
+        border: 2px dashed white;
+    }
+
+    .o_documents_upload_text {
+        @include o-position-absolute($top: 50%, $left: 50%);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+
+        span {
+            font-size: 20px;
+        }
+    }
+}
+
+.o_documents_drop_over_unauthorized_zone {
+    @extend .o_documents_drop_over_zone;
+    &:after {
+        border: 2px dashed map-get($o-theme-text-colors, 'danger');
+    }
+}
+
+.o_documents_drop_over {
+    align-items: flex-start;
+    overflow: auto;
+    transition: background 0.3s;
+    height: 100%;
+    background: $gray-700;
+
+    table {
+        opacity: 0.2;
+        filter: blur(1px);
+    }
+
+    .o_view_nocontent {
+        display: none;
+    }
+}
+
+.o_documents_drop_over_unauthorized {
+    @extend .o_documents_drop_over;
+    background: $red-100;
+}
+
+%o_documents_watermark {
+    transform: translate(-50%, -25%) rotate(-27deg);
+}
+
+.o_documents_watermark_file_viewer {
+    @extend %o_documents_watermark;
+    scale: 1.5;
+}
+.o_documents_watermark_thumbnail {
+    @extend %o_documents_watermark;
+    scale: 0.5;
+}
+
+.o_documents_thumbnail_iframe {
+    width: 600px;
+    height: 570px;
+    -ms-zoom: 0.34;
+    -moz-transform: scale(0.34);
+    -moz-transform-origin: 0 0;
+    -o-transform: scale(0.34);
+    -o-transform-origin: 0 0;
+    -webkit-transform: scale(0.34);
+    -webkit-transform-origin: 0 0;
+}
+
+.o_record_temporary {
+    position: absolute;
+    overflow: hidden;
+    width: 260px;
+    padding: 3px;
+    opacity: 0.5;
+    border: 1px solid black;
+    border-radius: 5px;
+    background-color: white;
+    z-index: 9000;
+    transition: transform 0.15s ease, width 0.15s ease, height 0.15s ease;
+}
+
+.o_documents_dnd {
+    padding: 5px;
+    border-radius: 3px;
+    position: fixed !important;
+    z-index: 9999;
+    opacity: 0;
+    transition: opacity 0.15s step-end;
+
+    &.o_documents_dnd_info {
+        color: $o-enterprise-action-color;
+        font-weight: bold;
+        background-color: $component-active-bg;
+        border: 1px solid $o-enterprise-action-color;
+    }
+
+    & .o_documents_dnd_pill {
+        color: white;
+        height: 24px;
+        width: 24px;
+        line-height: 14px;
+
+        &.o_documents_dnd_modifier {
+            display: none;
+            margin-right: -6px;
+            z-index: 1;
+        }
+    }
+
+    &.alert .o_documents_dnd_pill,
+    &.alert .o_documents_mimetype_icon {
+        display: none;
+    }
+}
+
+.o_kanban_renderer, .o_list_renderer {
+    &.o_documents_dnd_shortcut {
+        .o_documents_dnd_info .o_documents_dnd_modifier {
+            display: flex;
+        }
+    }
+
+    &.o_documents_dragging {
+        &.o_documents_dnd_shortcut {
+            .o_drag_hover > div, .table-success > td {
+                cursor: copy !important;
+            }
+        }
+        .o_drag_hover > div {
+            border-color: $o-success !important;
+            background-color: mix($o-success, $o-white, 10%) !important;
+            cursor: move !important;
+        }
+        .o_drag_invalid > div {
+            border-color: $o-danger !important;
+            background-color: mix($o-danger, $o-white, 10%) !important;
+            cursor: not-allowed !important;
+        }
+        .table-success > td {
+            cursor: move !important;
+        }
+        .table-danger > td {
+            cursor: not-allowed !important;
+        }
+    }
+}
+
+////// ========== Progress Bars =============
+////// ======================================
+
+
+.o_documents_list_view .o_documents_content .o_documents_view.o_list_renderer {
+    height: 100%;
+
+    .o_documents_locked {
+        margin-left: 5px;
+    }
+}
+
+.o_documents_content {
+
+    .o_kanban_record:not(.o_kanban_ghost), .o_inspector_tag_remove, .o_inspector_model, .o_inspector_open_chatter {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .o_documents_tag_color {
+        color: $o-dms-color-tag;
+    }
+
+    .o_documents_view {
+        .o_file_upload_progress_bar {
+            .o_upload_cross {
+                padding: $o-dms-p-tiny;
+            }
+        }
+    }
+
+    .o_field_widget.o_required_modifier{
+        font-weight: bold;
+    }
+}
+
+.o_form_view .o_conf_mail {
+    color: $link-color;
+}
+
+
+////// =========== Sharing Dialog ==============
+////// ===========================================
+
+.o_documents_sharing_kanban {
+    max-height: 155px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    // To align the owner in the form view with the role in the kanban view
+    scrollbar-gutter: stable;
+
+    .o_kanban_renderer {
+        --Kanban-gap: 0 !important;
+        --KanbanRecord-padding-h: 0 !important;
+        --KanbanRecord-padding-v: 0 !important;
+
+        .o_kanban_record {
+            border: 0 !important;
+
+            @media (pointer: fine) {
+                .o_documents_sharing_access_action {
+                    visibility: hidden;
+                }
+
+                &:hover .o_documents_sharing_access_action {
+                    visibility: visible;
+                }
+            }
+
+            &.o_kanban_ghost {
+                max-height: 0 !important;
+                height: 0 !important;
+                min-height: 0 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: hidden !important;
+                display: block !important;
+            }
+        }
+    }
+}
+
+.o_documents_sharing_documents_compact .o_kanban_renderer {
+    --Kanban-gap: 0 !important;
+    --KanbanRecord-padding-v: 0 !important;
+    --KanbanRecord-padding-h: 0 !important;
+
+    .o_kanban_record {
+        border: 0 !important;
+        flex-grow: 0 !important;
+        min-width: 0 !important;
+        width: auto !important;
+
+        .o_documents_sharing_documents_mimetype {
+            align-items: center;
+            display: flex;
+            justify-content: start;
+            width: 25px !important;
+        }
+    }
+}
+
+// To align the role (including owner) in the form view with the role in the kanban view
+.o_documents_sharing_form_owner {
+    width: 12ch;
+}
+
+.o_documents_sharing_form input {
+    width: 13ch;
+}
+
+////// ========== Chatter ===================
+////// ======================================
+
+.o_document_chatter_container {
+    border-left: 1px solid var(--border-color);
+    .o-mail-Chatter-topbar {
+        padding-top: 0.25rem;
+        @include media-breakpoint-up(lg) {
+            &:not(:hover) {
+                overflow-x: hidden !important;
+            }
+        }
+
+    }
+    &.o-mail-ChatterContainer.o-aside {
+        width: calc(#{$o-mail-Chatter-minWidth} + 20px + var(--Chatter-asideExtraWidth));
+    }
+}
+
+////// ======= HTML Field in Dialog =========
+////// ======================================
+
+.o_document_invite_wizard, .o_document_request_wizard {
+    .embedded-editor-height-4 .note-editable {
+        min-height: 6em;
+    }
+}
+
+// AddDocumentsAttachmentPlugin powerbox icon
+.o_add_documents_icon {
+    background-image: url('/documents/static/description/icon.svg');
+    background-size: 70%;
+    background-repeat: no-repeat;
+    background-position: center;
+    filter: grayscale(1);
+}
+
+//// ========= Operation Wizard ===========
+//// ======================================
+
+.o_documents_operation {
+    height: 70vh;
+    .o_form_renderer {
+        height: 90% !important; // important for xl
+        .o_form_sheet_bg {
+            @media (min-width: 768px) {
+                height: 100% !important;
+            }
+            .o_form_sheet {
+                height: 100% !important;
+            }
+        }
+    }
+    div.o_field_documents_user_folder_id_char {
+        display: inherit;
+    }
+    div.o_documents_operation_destination_children_ids {
+        @media (min-width: 768px) {
+            // Fix the height of `list`'s `limit` rows with pager,
+            // to avoid jumps of elements below when switching destination
+            min-height: 415px !important;
+        }
+    }
+    ul.o_documents_operation_search_panel {
+        height: 55vh !important;
+        overflow-y: auto;
+        // hide scrollbar
+        scrollbar-width: none;  // Firefox
+        -ms-overflow-style: none;  // IE and Edge
+        &::-webkit-scrollbar {  // Chromium, Safari, Opera
+            display: none;
+        }
+    }
+    // Make sure rows don't appear as actionable
+    .o_list_renderer .o_data_row:not(.o_data_row_selected) {
+        cursor: default;
+        td {
+          cursor: default !important;
+        }
+        &:focus-within > * {
+          --table-accent-bg: inherit !important;
+          --table-striped-bg: inherit !important;
+        }
+        color: $text-muted !important;
+    }
+}

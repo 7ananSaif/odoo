@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="databases_manage_users_wizard_view_form" model="ir.ui.view">
+            <field name="name">databases.manage_users.wizard.view.form</field>
+            <field name="model">databases.manage_users.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="text-muted">
+                            <field name="summary_message" readonly="1" nolabel="1" colspan="2" decoration-danger="error_message"/>
+                        </div>
+                        <div>
+                            <field name="user_ids" widget="many2many_avatar_user" readonly="state != 'draft'" invisible="mode != 'invite'"
+                                domain="[('id', '!=', uid), ('id', 'not in', everywhere_user_ids)]"/>
+                            <field name="user_ids" widget="many2many_avatar_user" readonly="state != 'draft'" invisible="mode != 'remove'"
+                                domain="[('id', '!=', uid), ('id', 'in', removable_user_ids)]" options="{'no_create': True}"/>
+                        </div>
+                    </sheet>
+                    <footer>
+                        <button string="Invite" type="object" class="btn-primary" name="action_invite_users" invisible="state != 'draft' or mode != 'invite'"/>
+                        <button string="Remove" type="object" class="btn-primary" name="action_remove_users" invisible="state != 'draft' or mode != 'remove'"/>
+                        <button string="Discard" class="btn-secondary" special="cancel" data-hotkey="x" invisible="state != 'draft'"/>
+                        <button string="Close" class="btn-secondary" special="cancel" data-hotkey="x" invisible="state == 'draft'"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

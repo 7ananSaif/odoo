@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_payslip_form_inherit_documents" model="ir.ui.view">
+        <field name="name">hr.payslip.form.inherit.documents</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_payslip_done']" position="before">
+                <field name="document_access_url" invisible="1"/>  <!-- needed for Send by Mail button -->
+                <button string="Send By Email" name="action_resend_payslips" type="object" class="oe_highlight" invisible="state not in ['validated', 'paid'] or not document_access_url"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

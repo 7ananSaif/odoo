@@ -1,0 +1,181 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_disallowed_expenses_fleet
+#
+# Translators:
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 17.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-09-15 21:01+0000\n"
+"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/"
+"account_fiscal_categories_fleet/ru/>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
+"(n%100>=11 && n%100<=14)? 2 : 3);\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model,name:account_fiscal_categories_fleet.model_account_fiscal_category
+msgid "Account Fiscal Category"
+msgstr ""
+
+#. module: account_fiscal_categories_fleet
+#. odoo-python
+#: code:addons/account_fiscal_categories_fleet/report/account_fiscal_categories_fleet_report_handler.py:0
+msgid "Accounts missing a fiscal category"
+msgstr ""
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_fleet_disallowed_expenses_rate__company_id
+msgid "Company"
+msgstr "Компания"
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_fleet_disallowed_expenses_rate__create_uid
+msgid "Created by"
+msgstr "Создано:"
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_fleet_disallowed_expenses_rate__create_date
+msgid "Created on"
+msgstr "Дата создания:"
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_fleet_disallowed_expenses_rate__rate
+msgid "Deductibility (%)"
+msgstr ""
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_fleet_vehicle__rate_ids
+#: model_terms:ir.ui.view,arch_db:account_fiscal_categories_fleet.fleet_vehicle_view_form
+msgid "Deductibility Rates"
+msgstr ""
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model,name:account_fiscal_categories_fleet.model_account_deferred_report_handler
+msgid "Deferred Expense Report Custom Handler"
+msgstr "Пользовательский обработчик отчета об отложенных расходах"
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_account_deferred_report_handler__display_name
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_account_fiscal_categories_fleet_report_handler__display_name
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_account_fiscal_category__display_name
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_fleet_disallowed_expenses_rate__display_name
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_fleet_vehicle__display_name
+msgid "Display Name"
+msgstr "Отображаемое имя"
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model,name:account_fiscal_categories_fleet.model_account_fiscal_categories_fleet_report_handler
+msgid "Fleet Fiscal Report Custom Handler"
+msgstr ""
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_account_deferred_report_handler__id
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_account_fiscal_categories_fleet_report_handler__id
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_account_fiscal_category__id
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_account_move_line__id
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_fleet_disallowed_expenses_rate__id
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_fleet_vehicle__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_fiscal_categories_fleet
+#. odoo-javascript
+#: code:addons/account_fiscal_categories_fleet/static/src/components/fiscal_report/warnings.xml:0
+msgid ""
+"It looks like Journal Items concerning vehicles are missing. Please check if"
+msgstr ""
+"Похоже, что статьи журнала, касающиеся автомобилей, отсутствуют. Пожалуйста, "
+"проверьте, если"
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model,name:account_fiscal_categories_fleet.model_account_move_line
+msgid "Journal Item"
+msgstr "Элемент журнала"
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_fleet_disallowed_expenses_rate__write_uid
+msgid "Last Updated by"
+msgstr "Последнее обновление:"
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_fleet_disallowed_expenses_rate__write_date
+msgid "Last Updated on"
+msgstr "Дата последнего обновления:"
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_account_fiscal_category__car_category
+msgid "Requires a Vehicle"
+msgstr ""
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_fleet_disallowed_expenses_rate__date_from
+msgid "Start Date"
+msgstr "Дата начала"
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model.fields,help:account_fiscal_categories_fleet.field_account_fiscal_category__car_category
+msgid "The vehicle becomes mandatory while booking any account move."
+msgstr ""
+"Автомобиль становится обязательным условием при бронировании любого движения "
+"счета."
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model,name:account_fiscal_categories_fleet.model_fleet_vehicle
+#: model:ir.model.fields,field_description:account_fiscal_categories_fleet.field_fleet_disallowed_expenses_rate__vehicle_id
+msgid "Vehicle"
+msgstr "Транспортное средство"
+
+#. module: account_fiscal_categories_fleet
+#: model:ir.model,name:account_fiscal_categories_fleet.model_fleet_disallowed_expenses_rate
+msgid "Vehicle Disallowed Expenses Rate"
+msgstr "Ставка за неправомерные расходы на транспортные средства"
+
+#. module: account_fiscal_categories_fleet
+#. odoo-javascript
+#: code:addons/account_fiscal_categories_fleet/static/src/components/fiscal_report/filters.js:0
+msgid "Vehicle Split"
+msgstr "Разделение транспортных средств"
+
+#. module: account_fiscal_categories_fleet
+#. odoo-javascript
+#: code:addons/account_fiscal_categories_fleet/static/src/components/fiscal_report/warnings.xml:0
+msgid "need a Fiscal Category."
+msgstr ""
+
+#. module: account_fiscal_categories_fleet
+#. odoo-javascript
+#: code:addons/account_fiscal_categories_fleet/static/src/components/fiscal_report/warnings.xml:0
+msgid "these accounts"
+msgstr "эти счета"
+
+#~ msgid "Accounts missing a disallowed expense category"
+#~ msgstr "Счета, в которых отсутствуют запрещенные категории расходов"
+
+#~ msgid "Disallowed Expenses Category"
+#~ msgstr "Категория запрещенных расходов"
+
+#~ msgid "Disallowed Expenses Fleet Custom Handler"
+#~ msgstr "Запрещенные расходы Fleet Custom Handler"
+
+#~ msgid "Disallowed Expenses Rate"
+#~ msgstr "Ставка за неправомерные расходы"
+
+#~ msgid "Line of the bank reconciliation widget"
+#~ msgstr "Строка виджета сверки банковских счетов"
+
+#~ msgid "Make Vehicle Required"
+#~ msgstr "Марка автомобиля Требуется"
+
+#~ msgid "need a Disallowed Expense Category."
+#~ msgstr "необходимо выбрать категорию запрещенных расходов."

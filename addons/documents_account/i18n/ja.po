@@ -1,0 +1,653 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * documents_account
+#
+# Translators:
+# Martin Trigaux, 2022
+# Noma Yuki, 2022
+# 江口和志 <sandwhale1010@gmail.com>, 2022
+# Ryoko Tsuda <ryoko@quartile.co>, 2022
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Junko Augias (juau)" <juau@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:44+0000\n"
+"PO-Revision-Date: 2025-11-16 05:27+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"documents_account/ja/>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/ir_actions_server.py:0
+msgid "\"New Journal Entry\" can only be applied to Document."
+msgstr "\"新規仕訳\" はドキュメントにのみ適用することができます。"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "<b>Deselect this page</b> as we plan to process all bills first."
+msgstr ""
+"全ての請求書を先に処理する予定なので、<b>このページの選択を解除</b>して下さ"
+"い。"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "<b>Select</b> this page to continue."
+msgstr "このページを<b>選択</b>して継続。"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.account_move_view_form
+msgid "<span class=\"o_stat_text\">Documents</span>"
+msgstr "<span class=\"o_stat_text\">ドキュメント</span>"
+
+#. module: documents_account
+#: model:ir.model.constraint,message:documents_account.constraint_documents_account_folder_setting_journal_unique
+msgid "A setting already exists for this journal"
+msgstr "この仕訳帳用の設定は既に存在します"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.res_config_settings_view_form
+msgid "Accounting"
+msgstr "会計"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__company_account_folder_id
+#: model:ir.model.fields,field_description:documents_account.field_res_company__account_folder_id
+msgid "Accounting Folder"
+msgstr "会計フォルダ"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_account_report
+msgid "Accounting Report"
+msgstr "会計レポート"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Action"
+msgstr "アクション"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "All"
+msgstr "すべて"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/documents_document.py:0
+msgid "Annual Closing"
+msgstr "年度締め"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid ""
+"As this PDF contains multiple documents, let's split and process in bulk."
+msgstr "このPDFには複数の文書が含まれているので、分割して一括処理しましょう。"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_ir_attachment
+msgid "Attachment"
+msgstr "添付ファイル"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_bank_statement
+msgid "Bank Statement"
+msgstr "銀行取引明細書"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.res_config_settings_view_form
+msgid "Centralize accounting files and documents"
+msgstr "会計のファイルとドキュメントを一元管理"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.view_account_move_form_inherit_documents_account
+msgid "Check them"
+msgstr "それらを確認して"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.view_server_action_form_template
+msgid "Choose a journal..."
+msgstr "仕訳帳を選択..."
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.view_server_action_form_template
+msgid "Choose an accounting document type..."
+msgstr "会計ドキュメントタイプを選択..."
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Click on a card to <b>select the document</b>."
+msgstr "カードをクリックして<b>ドキュメントを選択</b>します。"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Click on a thumbnail to <b>preview the document</b>."
+msgstr "サムネイルをクリックして<b>ドキュメントをプレビュー</b>します。"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid ""
+"Click on the <b>page separator</b>: we don't want to split these two pages "
+"as they belong to the same document."
+msgstr ""
+"<b>ページセパレータ</b>をクリック: この2つのページは同じ文書に属しているの"
+"で、分割したくありません。"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Click the cross to <b>exit preview</b>."
+msgstr "Xをクリックして<b>プレビューを閉じる</b>。"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Close (Esc)"
+msgstr "閉じる(Esc)"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_res_company
+msgid "Companies"
+msgstr "会社"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__company_id
+msgid "Company"
+msgstr "会社"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_res_config_settings
+msgid "Config Settings"
+msgstr "構成設定"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/account_report.py:0
+msgid "Copy to Documents"
+msgstr "ドキュメントにコピー"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.view_server_action_form_template
+msgid "Create"
+msgstr "作成"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/ir_actions_server.py:0
+msgid "Create %(model_name)s"
+msgstr "%(model_name)sを作成"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/ir_actions_server.py:0
+msgid "Create %(model_name)s (%(journal_name)s)"
+msgstr "%(model_name)s (%(journal_name)s) を作成"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_credit_note_code
+msgid "Create Credit Note"
+msgstr "クレジットノートを作成"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_credit_note
+msgid "Create Customer Credit Note"
+msgstr "顧客クレジットノートを作成"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_customer_invoice
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_customer_invoice_code
+msgid "Create Customer Invoice"
+msgstr "顧客請求書を作成"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_misc_entry
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_misc_entry_code
+msgid "Create Misc Entry"
+msgstr "雑費仕訳を作成"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_bill
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_bill_code
+msgid "Create Vendor Bill"
+msgstr "仕入先請求書作成"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_refund
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_refund_code
+msgid "Create Vendor Credit Note"
+msgstr "仕入先クレジットノートを作成"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_receipt
+msgid "Create Vendor Receipt"
+msgstr "仕入先領収書作成"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Create a new document for the remaining page, it will be handled later."
+msgstr ""
+"残りのページには新しいドキュメントを作成しておきましょう。処理は後で行いま"
+"す。"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__create_uid
+msgid "Created by"
+msgstr "作成者"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__create_date
+msgid "Created on"
+msgstr "作成日"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_move_out_refund
+msgid "Credit Note"
+msgstr "クレジットノート"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_move_out_invoice
+msgid "Customer Invoice"
+msgstr "顧客請求書"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_account_journal__display_name
+#: model:ir.model.fields,field_description:documents_account.field_account_move__display_name
+#: model:ir.model.fields,field_description:documents_account.field_account_report__display_name
+#: model:ir.model.fields,field_description:documents_account.field_account_reports_export_wizard__display_name
+#: model:ir.model.fields,field_description:documents_account.field_account_reports_export_wizard_format__display_name
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__display_name
+#: model:ir.model.fields,field_description:documents_account.field_documents_document__display_name
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__display_name
+#: model:ir.model.fields,field_description:documents_account.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:documents_account.field_res_company__display_name
+#: model:ir.model.fields,field_description:documents_account.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "表示名"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_documents_document
+msgid "Document"
+msgstr "ドキュメント"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__documents_account_create_model
+#: model:ir.model.fields,field_description:documents_account.field_ir_cron__documents_account_create_model
+msgid "Documents Account Create Model"
+msgstr "ドキュメント用会計作成モデル"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__documents_account_journal_id
+#: model:ir.model.fields,field_description:documents_account.field_ir_cron__documents_account_journal_id
+msgid "Documents Account Journal"
+msgstr "ドキュメント用会計仕訳帳"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__documents_account_move_type
+#: model:ir.model.fields,field_description:documents_account.field_ir_cron__documents_account_move_type
+msgid "Documents Account Move Type"
+msgstr "ドキュメント用会計仕訳タイプ"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__documents_account_suitable_journal_ids
+#: model:ir.model.fields,field_description:documents_account.field_ir_cron__documents_account_suitable_journal_ids
+msgid "Documents Account Suitable Journal"
+msgstr "ドキュメントに適した会計仕訳帳"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/account_report.py:0
+msgid "Export"
+msgstr "エクスポート"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_account_reports_export_wizard_format
+msgid "Export format for accounting's reports"
+msgstr "会計レポートのエクスポート形式"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_account_reports_export_wizard
+msgid "Export wizard for accounting's reports"
+msgstr "会計レポートエクスポートアシスタント"
+
+#. module: documents_account
+#. odoo-javascript
+#. odoo-python
+#: code:addons/documents_account/models/documents_document.py:0
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Finance"
+msgstr "財務"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_account_reports_export_wizard__folder_id
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__folder_id
+#: model_terms:ir.ui.view,arch_db:documents_account.res_config_settings_view_form
+msgid "Folder"
+msgstr "フォルダ"
+
+#. module: documents_account
+#: model:ir.model.fields,help:documents_account.field_account_reports_export_wizard__folder_id
+msgid "Folder where to save the generated file"
+msgstr "作成したファイルを保管するフォルダ"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/account_journal.py:0
+msgid "Generated Bank Statements"
+msgstr "生成済銀行取引明細"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/wizard/account_reports_export_wizard.py:0
+msgid "Generated Documents"
+msgstr "生成されたドキュメント"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_account_bank_statement_line__has_documents
+#: model:ir.model.fields,field_description:documents_account.field_account_move__has_documents
+msgid "Has Documents"
+msgstr "ドキュメントあり"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_document__has_embedded_pdf
+msgid "Has Embedded PDF"
+msgstr "埋込みPDFあり"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_account_journal__id
+#: model:ir.model.fields,field_description:documents_account.field_account_move__id
+#: model:ir.model.fields,field_description:documents_account.field_account_report__id
+#: model:ir.model.fields,field_description:documents_account.field_account_reports_export_wizard__id
+#: model:ir.model.fields,field_description:documents_account.field_account_reports_export_wizard_format__id
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__id
+#: model:ir.model.fields,field_description:documents_account.field_documents_document__id
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__id
+#: model:ir.model.fields,field_description:documents_account.field_ir_attachment__id
+#: model:ir.model.fields,field_description:documents_account.field_res_company__id
+#: model:ir.model.fields,field_description:documents_account.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_bank_statement
+#: model:ir.actions.server,name:documents_account.ir_actions_server_bank_statement_code
+msgid "Import Bank Statement"
+msgstr "銀行取引明細のインポート"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/documents_document.py:0
+msgid "Invoices"
+msgstr "顧客請求書"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_account_journal
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__journal_id
+#: model_terms:ir.ui.view,arch_db:documents_account.view_server_action_form_template
+msgid "Journal"
+msgstr "仕訳帳"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_account_move
+msgid "Journal Entry"
+msgstr "仕訳"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_documents_account_folder_setting
+msgid "Journal and Folder settings"
+msgstr "仕訳帳とフォルダ設定"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.res_config_settings_view_form
+msgid "Journals"
+msgstr "仕訳帳"
+
+#. module: documents_account
+#: model:ir.actions.act_window,name:documents_account.action_folder_settings_installer
+msgid "Journals to synchronize"
+msgstr "同期する仕訳帳"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__write_uid
+msgid "Last Updated by"
+msgstr "最終更新者"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__write_date
+msgid "Last Updated on"
+msgstr "最終更新日"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid ""
+"Let's process documents in this folder.<br/> <i>Tip: Use Tags to filter "
+"documents and structure your process.</i>"
+msgstr ""
+"このフォルダ内のドキュメントを処理しましょう。<br/><i>ヒント:タグを使ってド"
+"キュメントを絞り込み、プロセスを整理できます。</i>"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Let's process these bills: turn them into vendor bills."
+msgstr "これらの請求書を処理しましょう: これらを仕入先請求書にします。"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Let's process this document now."
+msgstr "このドキュメントを今すぐ処理しましょう。"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid ""
+"Let's tag this mail as Finance<br/> <i>Tips: actions can be tailored to your "
+"process, according to the folder.</i>"
+msgstr ""
+"このメールを会計としてタグ付けしましょう。<br/><i>ヒント: フォルダに応じて、"
+"アクションは自分のプロセスに合わせてカスタマイズできます。</i>"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_move_entry
+msgid "Miscellaneous Operations"
+msgstr "その他処理"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_credit_note_move
+msgid "Move Document To Taxes"
+msgstr "ドキュメントを税に移動"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_customer_invoice_move
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_bill_move
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_refund_move
+msgid "Move Document to Taxes"
+msgstr "ドキュメントを税に移動"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_misc_entry_move
+msgid "Move Documents to Annual Closing"
+msgstr "ドキュメントを年次期末処理へ移動"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_bank_statement_move
+msgid "Move to Annual Closing"
+msgstr "年次期末処理へ移動"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__state__documents_account_record_create
+msgid "New Journal Entry"
+msgstr "新規仕訳"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Open the actions menu"
+msgstr "アクションメニューを開く"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_move_in_receipt
+msgid "Purchase Receipt"
+msgstr "仕入伝票"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_account_bank_statement_line__suspense_statement_line_id
+#: model:ir.model.fields,field_description:documents_account.field_account_move__suspense_statement_line_id
+msgid "Request document from a bank statement line"
+msgstr "銀行取引明細からドキュメントを請求"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Send To Finance"
+msgstr "財務に送信"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_ir_actions_server
+msgid "Server Action"
+msgstr "サーバーアクション"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Split PDF"
+msgstr "PDFを分割"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_account_reports_export_wizard__tag_ids
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__tag_ids
+msgid "Tags"
+msgstr "タグ"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/documents_document.py:0
+msgid "Taxes"
+msgstr "税金"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.view_account_move_form_inherit_documents_account
+msgid "This invoice has been initiated by a bank transaction."
+msgstr "この請求書は銀行取引によって開始されました。"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "This should be processed as a misc entry."
+msgstr "これはその他の仕訳として処理する必要があります。"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__state
+#: model:ir.model.fields,field_description:documents_account.field_ir_cron__state
+msgid "Type"
+msgstr "タイプ"
+
+#. module: documents_account
+#: model:ir.model.fields,help:documents_account.field_ir_actions_server__state
+#: model:ir.model.fields,help:documents_account.field_ir_cron__state
+msgid ""
+"Type of server action. The following values are available:\n"
+"- 'Update a Record': update the values of a record\n"
+"- 'Create Activity': create an activity (Discuss)\n"
+"- 'Send Email': post a message, a note or send an email (Discuss)\n"
+"- 'Send SMS': send SMS, log them on documents (SMS)- 'Add/Remove Followers': "
+"add or remove followers to a record (Discuss)\n"
+"- 'Create Record': create a new record with new values\n"
+"- 'Execute Code': a block of Python code that will be executed\n"
+"- 'Send Webhook Notification': send a POST request to an external system, "
+"also known as a Webhook\n"
+"- 'Multi Actions': define an action that triggers several other server "
+"actions\n"
+msgstr ""
+"サーバーアクションのタイプ。以下の値があります:\n"
+"- レコードの更新: レコードの値を更新します。\n"
+"- 活動の作成: 活動を作成します(ディスカス)\n"
+"- メール送信: メッセージやメモを投稿したり、メールを送信したりします。\n"
+"- 'SMSの送信': SMSを送信し、ドキュメント(SMS)にそれらを記録します - 'フォロ"
+"ワーの追加/削除': レコードにフォロワーを追加または削除します(ディスカス)\n"
+"- レコードの作成': 新しい値で新しいレコードを作成します\n"
+"- コードの実行': 実行されるPythonコードのブロックします\n"
+"- 'Webhook通知の送信': Webhookとしても知られるPOSTリクエストを外部システムに"
+"送信します\n"
+"- '複数アクション': 他のサーバーアクションをトリガするアクションを定義しま"
+"す\n"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_move_in_invoice
+msgid "Vendor Bill"
+msgstr "仕入先請求書"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_move_in_refund
+msgid "Vendor Credit Note"
+msgstr "仕入先クレジットノート"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid ""
+"Want to become a <b>paperless company</b>? Let's discover Odoo Documents."
+msgstr ""
+"<b>ペーパーレスな会社</b>を目指しますか？Odooドキュメントを試してみましょう。"
+
+#. module: documents_account
+#: model_terms:web_tour.tour,rainbow_man_message:documents_account.documents_account_tour
+msgid ""
+"Wow... 6 documents processed in a few seconds, You're good.<br>The tour is "
+"complete. Try uploading your own documents now."
+msgstr ""
+"なんと数秒で6つのドキュメントが処理されました。素晴らしい。<br>ツアーは終了で"
+"す。今度はご自身のドキュメントをアップロードしてみましょう。"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/documents_document.py:0
+msgid "You can not create account move on folder."
+msgstr "フォルダに会計仕訳を作成することはできません。"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_res_config_settings__account_folder_id
+msgid "account default folder"
+msgstr "会計デフォルトフォルダ"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.view_account_move_form_inherit_documents_account
+msgid "to mark this invoice as paid."
+msgstr "支払済として、この請求書をマークします。"
+
+#~ msgid "Accounting "
+#~ msgstr "会計 "
+
+#~ msgid "Documents Account Settings"
+#~ msgstr "ドキュメント会計設定"
+
+#~ msgid "Financial Statement"
+#~ msgstr "決算報告"
+
+#~ msgid "Tax Statement"
+#~ msgstr "税務報告書"
+
+#~ msgid "Workspace"
+#~ msgstr "ワークスペース"

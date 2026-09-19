@@ -1,0 +1,37 @@
+.o_ai_topic_form .o_form_sheet{
+    width: 70%;
+}
+
+.ai-chatter-icon {
+    filter: grayscale(1);
+    &:hover {
+        filter: grayscale(0);
+    }
+}
+
+.ai-logo-icon {
+    &::before {
+        display: block;
+        background: url('/ai/static/description/icon.png');
+        background-size: contain;
+        filter: grayscale(1) contrast(0.5) brightness(1.05);
+        width: var(--ai-logo-icon-size, 1em);
+        aspect-ratio: 1;
+        content: "";
+    }
+
+    &.oi-fw::before {
+        --ai-logo-icon-size: calc(#{$oi-fw-ratio} * var(--oi-font-size, #{$oi-default-size}));
+    }
+}
+
+.o_ai_tool_summary {
+    .o_ai_tool_arguments {
+        display: none;
+    }
+    &:focus {
+        .o_ai_tool_arguments {
+            display: inline;
+        }
+    }
+}

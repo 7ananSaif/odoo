@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_online_link_view_form_inherit" model="ir.ui.view">
+        <field name="name">account.online.link.form.inherit</field>
+        <field name="model">account.online.link</field>
+        <field name="inherit_id" ref="account_online_synchronization.account_online_link_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button
+                    name="action_activate_payments"
+                    type="object"
+                    class="oe_button"
+                    string="Activate Payments"
+                    invisible="is_payment_activated or not is_payment_enabled"
+                />
+            </xpath>
+        </field>
+    </record>
+</odoo>

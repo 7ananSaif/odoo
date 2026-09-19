@@ -1,0 +1,24 @@
+.o_esg_dashboard {
+    .o_dashboard_grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        row-gap: 10px;
+        column-gap: 15px;
+
+        @include media-breakpoint-down(md) {
+            grid-template-columns: repeat(1, 1fr);
+        }
+        @include media-breakpoint-between(md, xl) {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    .o_chart_container {
+        height: 150px;
+        position: relative;
+        margin-top: 16px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+}

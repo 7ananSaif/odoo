@@ -1,0 +1,260 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * helpdesk_fsm
+#
+# Translators:
+# Martin Trigaux, 2022
+# Friederike Fasterling-Nesselbosch, 2022
+# Sergio Zanchetta <primes2h@gmail.com>, 2022
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:45+0000\n"
+"PO-Revision-Date: 2025-10-20 11:33+0000\n"
+"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"helpdesk_fsm/it/>\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
+"0) ? 1 : 2);\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: helpdesk_fsm
+#: model:ir.model,name:helpdesk_fsm.model_helpdesk_ticket_convert_wizard
+msgid "Convert Helpdesk Tickets to Tasks"
+msgstr "Convertire i ticket dell'helpdesk in lavori"
+
+#. module: helpdesk_fsm
+#: model_terms:ir.ui.view,arch_db:helpdesk_fsm.create_fsm_task_view_form
+msgid "Create & View Task"
+msgstr "Crea e visualizza lavoro"
+
+#. module: helpdesk_fsm
+#: model_terms:ir.ui.view,arch_db:helpdesk_fsm.create_fsm_task_view_form
+msgid "Create Task"
+msgstr "Crea lavoro"
+
+#. module: helpdesk_fsm
+#. odoo-python
+#: code:addons/helpdesk_fsm/models/helpdesk_ticket.py:0
+#: model:ir.model,name:helpdesk_fsm.model_helpdesk_create_fsm_task
+msgid "Create a Field Service task"
+msgstr "Crea un lavoro di assistenza sul campo"
+
+#. module: helpdesk_fsm
+#: model:ir.model,website_form_label:helpdesk_fsm.model_project_task
+msgid "Create a Task"
+msgstr "Crea un lavoro"
+
+#. module: helpdesk_fsm
+#: model:ir.model,website_form_label:helpdesk_fsm.model_helpdesk_ticket
+msgid "Create a Ticket"
+msgstr "Crea ticket"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_create_fsm_task__create_uid
+msgid "Created by"
+msgstr "Creato da"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_create_fsm_task__create_date
+msgid "Created on"
+msgstr "Data creazione"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_create_fsm_task__partner_id
+msgid "Customer"
+msgstr "Cliente"
+
+#. module: helpdesk_fsm
+#: model_terms:ir.ui.view,arch_db:helpdesk_fsm.create_fsm_task_view_form
+msgid "Discard"
+msgstr "Abbandona"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_create_fsm_task__display_name
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_team__display_name
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_ticket__display_name
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_ticket_convert_wizard__display_name
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_project_task__display_name
+msgid "Display Name"
+msgstr "Nome visualizzato"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_team__fsm_project_id
+msgid "FSM Project"
+msgstr "Progetto FSM"
+
+#. module: helpdesk_fsm
+#: model:ir.model,name:helpdesk_fsm.model_helpdesk_team
+msgid "Helpdesk Team"
+msgstr "Team assistenza clienti"
+
+#. module: helpdesk_fsm
+#: model:ir.model,name:helpdesk_fsm.model_helpdesk_ticket
+msgid "Helpdesk Ticket"
+msgstr "Ticket assistenza clienti"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_create_fsm_task__id
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_team__id
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_ticket__id
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_ticket_convert_wizard__id
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_project_task__id
+msgid "ID"
+msgstr "ID"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_create_fsm_task__write_uid
+msgid "Last Updated by"
+msgstr "Ultimo aggiornamento di"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_create_fsm_task__write_date
+msgid "Last Updated on"
+msgstr "Ultimo aggiornamento il"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_project_task__helpdesk_ticket_id
+msgid "Original Ticket"
+msgstr "Ticket originale"
+
+#. module: helpdesk_fsm
+#: model_terms:ir.ui.view,arch_db:helpdesk_fsm.helpdesk_ticket_view_form
+msgid "Plan Intervention"
+msgstr "Pianifica intervento"
+
+#. module: helpdesk_fsm
+#. odoo-python
+#: code:addons/helpdesk_fsm/models/project_task.py:0
+msgid "Portal Ticket"
+msgstr "Ticket portale"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_create_fsm_task__project_id
+#: model_terms:ir.ui.view,arch_db:helpdesk_fsm.helpdesk_team_view_form
+msgid "Project"
+msgstr "Progetto"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,help:helpdesk_fsm.field_helpdesk_create_fsm_task__project_id
+msgid "Project in which to create the task"
+msgstr "Progetto nel quale creare il lavoro"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_create_fsm_task__helpdesk_ticket_id
+msgid "Related ticket"
+msgstr "Ticket correlato"
+
+#. module: helpdesk_fsm
+#. odoo-python
+#: code:addons/helpdesk_fsm/controllers/portal.py:0
+#: model:ir.model,name:helpdesk_fsm.model_project_task
+msgid "Task"
+msgstr "Lavoro"
+
+#. module: helpdesk_fsm
+#: model:mail.message.subtype,description:helpdesk_fsm.mt_ticket_task_canceled
+#: model:mail.message.subtype,name:helpdesk_fsm.mt_ticket_task_canceled
+msgid "Task Cancelled"
+msgstr "Lavoro annullato"
+
+#. module: helpdesk_fsm
+#: model:mail.message.subtype,description:helpdesk_fsm.mt_team_ticket_task_done
+#: model:mail.message.subtype,description:helpdesk_fsm.mt_ticket_task_done
+#: model:mail.message.subtype,name:helpdesk_fsm.mt_team_ticket_task_done
+#: model:mail.message.subtype,name:helpdesk_fsm.mt_ticket_task_done
+msgid "Task Done"
+msgstr "Lavoro completato"
+
+#. module: helpdesk_fsm
+#. odoo-python
+#: code:addons/helpdesk_fsm/wizard/create_task.py:0
+msgid "Task created"
+msgstr "Lavoro creato"
+
+#. module: helpdesk_fsm
+#. odoo-python
+#: code:addons/helpdesk_fsm/controllers/portal.py:0
+#: code:addons/helpdesk_fsm/models/helpdesk_ticket.py:0
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_ticket__fsm_task_ids
+#: model_terms:ir.ui.view,arch_db:helpdesk_fsm.helpdesk_ticket_view_form
+msgid "Tasks"
+msgstr "Lavori"
+
+#. module: helpdesk_fsm
+#. odoo-python
+#: code:addons/helpdesk_fsm/wizard/create_task.py:0
+msgid "Tasks from Tickets"
+msgstr "Lavori dai ticket"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,help:helpdesk_fsm.field_helpdesk_ticket__fsm_task_ids
+msgid "Tasks generated from this ticket"
+msgstr "Lavori generati dal ticket"
+
+#. module: helpdesk_fsm
+#. odoo-python
+#: code:addons/helpdesk_fsm/controllers/portal.py:0
+#: model_terms:ir.ui.view,arch_db:helpdesk_fsm.project_sharing_inherit_project_task_view_form
+#: model_terms:ir.ui.view,arch_db:helpdesk_fsm.view_task_form2_inherited_helpdesk_fsm
+msgid "Ticket"
+msgstr "Ticket"
+
+#. module: helpdesk_fsm
+#: model_terms:ir.ui.view,arch_db:helpdesk_fsm.project_sharing_inherit_project_task_view_form
+#: model_terms:ir.ui.view,arch_db:helpdesk_fsm.view_task_form2_inherited_helpdesk_fsm
+msgid "Ticket from this task"
+msgstr "Ticket dal lavoro"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,help:helpdesk_fsm.field_helpdesk_create_fsm_task__partner_id
+msgid "Ticket's customer, will be linked to the task"
+msgstr "Cliente del ticket, viene collegato al lavoro"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,field_description:helpdesk_fsm.field_helpdesk_create_fsm_task__name
+msgid "Title"
+msgstr "Titolo"
+
+#. module: helpdesk_fsm
+#: model:ir.model.fields,help:helpdesk_fsm.field_project_task__display_name
+msgid ""
+"Use these keywords in the title to set new tasks:\n"
+"\n"
+"        30h Allocate 30 hours to the task\n"
+"        #tags Set tags on the task\n"
+"        @user Assign the task to a user\n"
+"        ! Set the task a medium priority\n"
+"        !! Set the task a high priority\n"
+"        !!! Set the task a urgent priority\n"
+"\n"
+"        Make sure to use the right format and order e.g. Improve the "
+"configuration screen 5h #feature #v16 @Mitchell !"
+msgstr ""
+"Usa queste parole chiave nel titolo per configurare nuovi lavori:\n"
+"\n"
+"        30h per assegnare 30 ore al lavoro\n"
+"        #tags per configurare tag nel lavoro\n"
+"        @user per assegnare il lavoro a un utente\n"
+"        ! per impostare la priorità su media\n"
+"        !! per impostare la priorità su alta\n"
+"        !!! per impostare la priorità su urgente\n"
+"\n"
+"        Assicurati di utilizzare il formato e l'ordine corretti, ad es. "
+"Migliorare la schermata di configurazione 5h #feature #v16 @Mitchell!"
+
+#~ msgid "Company"
+#~ msgstr "Azienda"
+
+#~ msgid "Field Service"
+#~ msgstr "Assistenza sul campo"
+
+#~ msgid "Fsm Task Count"
+#~ msgstr "Numero lavori da FSM"

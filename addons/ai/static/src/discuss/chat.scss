@@ -1,0 +1,13 @@
+.o-mail-ChatHub-bubbles:not(.o-mobile),
+.o-overlay-container:has(~ .o-mail-ChatHub > .o-mail-ChatWindow) > .o-overlay-item:has(.o_dialog):not(:has(.o_error_dialog)) {
+    z-index: $zindex-sticky;
+}
+
+.o-mail-ChatHub .o-mail-ChatWindow:not(.o-mobile) {
+    z-index: $zindex-sticky + 1;
+}
+
+.btn-ai-chatter {
+    padding: 3px 5px 5px 5px;
+}
+

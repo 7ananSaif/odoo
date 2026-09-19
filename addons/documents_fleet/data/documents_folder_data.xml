@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="document_fleet_folder" model="documents.document" forcecreate="0">
+            <field name="access_internal">view</field>
+            <field name="access_via_link">none</field>
+            <field name="name">Fleet</field>
+            <field name="type">folder</field>
+            <field name="sequence">13</field>
+        </record>
+
+        <record id="document_vehicle_folder" model="documents.document" forcecreate="0">
+            <field name="access_internal">view</field>
+            <field name="access_via_link">none</field>
+            <field name="folder_id" ref="document_fleet_folder"/>
+            <field name="name">Vehicles</field>
+            <field name="type">folder</field>
+            <field name="sequence">110</field>
+        </record>
+
+        <record id="document_driver_folder" model="documents.document" forcecreate="0">
+            <field name="access_internal">view</field>
+            <field name="access_via_link">none</field>
+            <field name="folder_id" ref="document_fleet_folder"/>
+            <field name="name">Drivers</field>
+            <field name="type">folder</field>
+            <field name="sequence">120</field>
+        </record>
+
+        <record id="document_maintenance_repair_folder" model="documents.document" forcecreate="0">
+            <field name="access_internal">view</field>
+            <field name="access_via_link">none</field>
+            <field name="folder_id" ref="document_fleet_folder"/>
+            <field name="name">Maintenance &amp; Repairs</field>
+            <field name="type">folder</field>
+            <field name="sequence">130</field>
+        </record>
+    </data>
+</odoo>

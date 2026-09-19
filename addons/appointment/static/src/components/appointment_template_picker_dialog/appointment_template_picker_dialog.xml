@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="appointment.AppointmentTemplatePickerDialog">
+        <Dialog size="'lg'" title.translate="Choose an appointment preset">
+            <div class="o_appointment_template_picker justify-content-center row">
+                <t t-set="templateNames" t-value="Object.keys(appointmentTypeTemplatesData)"/>
+                <t t-foreach="templateNames" t-as="templateName" t-key="templateName">
+                    <t t-set="templateData" t-value="appointmentTypeTemplatesData[templateName]"/>
+                    <t t-set="templateElemClass" t-value="'col-12 col-md-6 py-2'"/>
+                    <t t-set="templateDescriptionClass" t-value="'col-9 col-md-8 card-body d-flex flex-column pe-0 py-0'"/>
+                    <t t-set="templateIconClass" t-value="'col-3 col-md-4 h-75 ps-2 p-0'"/>
+                    <t t-call="appointment.AppointmentTemplateCard"/>
+                </t>
+            </div>
+            <t t-set-slot="footer">
+                <button t-on-click="props.close" class="btn btn-primary" data-hotkey="x">Close</button>
+            </t>
+        </Dialog>
+    </t>
+
+    <t t-name="appointment.AppointmentTemplateCard">
+        <div t-att-class="templateElemClass">
+            <div t-on-click.stop.prevent="() => this.onTemplateClick(templateData)"
+                class="o_appointment_template_card cursor-pointer card rounded row flex-row h-100 p-3 pt-4 g-0">
+                <div t-att-class="templateDescriptionClass">
+                    <h3 class="card-title text-break" t-out="templateData.title"/>
+                    <p class="card-text" t-out="templateData.description"/>
+                </div>
+                <img t-att-class="templateIconClass" t-attf-src="{{templateData.icon}}" t-attf-alt="{{templateData.title}}"/>
+            </div>
+        </div>
+    </t>
+</templates>

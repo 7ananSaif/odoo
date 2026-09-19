@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="setup_financial_year_opening_form" model="ir.ui.view">
+        <field name="name">account.financial.year.op.setup.wizard.form</field>
+        <field name="model">account.financial.year.op</field>
+        <field name="inherit_id" ref="account.setup_financial_year_opening_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group" position="inside">
+                <span class="o_form_label"><field name="vat_label" class="oe_inline"/> <label for="account_return_periodicity" string="Periodicity"/></span>
+                <field name="account_return_periodicity" string="Tax Periodicity" class="o_stat_value" nolabel="1"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

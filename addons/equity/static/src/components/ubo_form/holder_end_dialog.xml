@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="equity.HolderEndDialog">
+        <Dialog title="title" size="'md'">
+            <div class="o_holder_end_dialog">
+                <p class="text-prewrap">
+                    When did the shareholder lose its 25% stake in control or in votes?
+                </p>
+                <input class="form-control w-25" type="date" required="1" t-model="state.endDate"/>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="confirm">Remove Shareholder</button>
+                <button class="btn btn-secondary" t-on-click="this.props.close">Discard</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

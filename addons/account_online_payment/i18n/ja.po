@@ -1,0 +1,541 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_online_payment
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Junko Augias (juau)" <juau@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-11-17 07:01+0000\n"
+"Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"account_online_payment/ja/>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: account_online_payment
+#. odoo-python
+#: code:addons/account_online_payment/models/account_batch_payment.py:0
+msgid ""
+"\n"
+"                This payment requires a KYC flow. As this process can take a "
+"few days, please use SEPA XML export in the meantime.\n"
+"                You will be notified once the KYC flow is completed and you "
+"can proceed with the online payment.\n"
+"            "
+msgstr ""
+"\n"
+"                この支払にはKYCフローが必要です。このプロセスには数日かかる場"
+"合がありますので、それまではSEPA XMLエクスポートをご利用下さい。\n"
+"                KYC手続きが完了すると通知され、オンライン支払に進むことができ"
+"ます。\n"
+"            "
+
+#. module: account_online_payment
+#: model:mail.template,body_html:account_online_payment.mail_template_account_payment_activation
+msgid ""
+"<table border=\"0\" width=\"100%\" cellpadding=\"0\" bgcolor=\"#ededed\" "
+"style=\"padding: 20px; background-color: #ededed\" "
+"summary=\"o_mail_notification\">\n"
+"                    <tbody>\n"
+"                        <tr>\n"
+"                            <td align=\"center\" style=\"min-width: 590px;"
+"\">\n"
+"                                <table width=\"590\" border=\"0\" "
+"cellpadding=\"0\" bgcolor=\"#875A7B\" style=\"min-width: 590px; background-"
+"color: rgb(135,90,123); padding: 20px;\">\n"
+"                                <tr>\n"
+"                                    <td valign=\"middle\">\n"
+"                                        <span style=\"font-size:20px; "
+"color:white; font-weight: bold;\">\n"
+"                                            Unlock Seamless Payments in "
+"Odoo\n"
+"                                        </span>\n"
+"                                    </td>\n"
+"                                    <td valign=\"middle\" align=\"right\">\n"
+"                                        <img src=\"https://www.odoo.com/"
+"openerp_enterprise/static/img/mail/odoo_logo_white.png\" style=\"padding: "
+"0px; margin: 0px; height: auto; width: 80px;\" alt=\"Odoo S.A.\"/>\n"
+"                                    </td>\n"
+"                                </tr>\n"
+"                                </table>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"\n"
+"                        <tr>\n"
+"                            <td align=\"center\" style=\"min-width: 590px;"
+"\">\n"
+"                                <table width=\"590\" border=\"0\" "
+"cellpadding=\"0\" bgcolor=\"#ffffff\" style=\"min-width: 590px; background-"
+"color: rgb(255, 255, 255); padding: 20px;\">\n"
+"                                <tbody>\n"
+"                                    <td valign=\"top\" style=\"font-"
+"family:Arial,Helvetica,sans-serif; color: #555; font-size: 14px;\">\n"
+"                                        <p>Hi there,</p>\n"
+"                                        <p>We see you haven't activated your "
+"payments feature in Odoo yet. By enabling it, you'll be able to process "
+"payments directly and efficiently through your Odoo account.</p>\n"
+"                                        <p>Of course, if you've already "
+"activated payments since receiving this email, you can simply ignore this "
+"message.</p>\n"
+"                                        <p>Ready to get started? Activate "
+"your payments here! You can also complete this setup later by visiting your "
+"scheduled activities within Odoo.</p>\n"
+"\n"
+"                                        <br/>\n"
+"                                        <br/>\n"
+"\n"
+"                                        <center>\n"
+"                                        <p>\n"
+"                                            <a style=\"background-color: "
+"#1abc9c; padding: 20px; text-decoration: none; color: #fff; border-radius: "
+"5px; font-size: 16px;\" t-att-href=\"ctx.get('url')\">\n"
+"                                                Activate payments\n"
+"                                            </a>\n"
+"                                        </p>\n"
+"\n"
+"                                        <br/><br/><br/>\n"
+"\n"
+"                                        <p>\n"
+"                                            Or copy/paste this link in your "
+"browser:<br/>\n"
+"                                            <a t-att-href=\"ctx.get('url')"
+"\"><t t-out=\"ctx.get('url')\"/></a>\n"
+"                                        </p>\n"
+"                                        </center>\n"
+"                                    </td>\n"
+"                                </tbody>\n"
+"                                </table>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"\n"
+"                        <tr>\n"
+"                            <td align=\"center\">\n"
+"                                Powered by <a href=\"https://"
+"www.odoo.com\">Odoo</a>.\n"
+"                            </td>\n"
+"                        </tr>\n"
+"                    </tbody>\n"
+"                </table>\n"
+"            "
+msgstr ""
+"<table border=\"0\" width=\"100%\" cellpadding=\"0\" bgcolor=\"#ededed\" "
+"style=\"padding: 20px; background-color: #ededed\" "
+"summary=\"o_mail_notification\">\n"
+"                    <tbody>\n"
+"                        <tr>\n"
+"                            <td align=\"center\" style=\"min-width: 590px;"
+"\">\n"
+"                                <table width=\"590\" border=\"0\" "
+"cellpadding=\"0\" bgcolor=\"#875A7B\" style=\"min-width: 590px; background-"
+"color: rgb(135,90,123); padding: 20px;\">\n"
+"                                <tr>\n"
+"                                    <td valign=\"middle\">\n"
+"                                        <span style=\"font-size:20px; "
+"color:white; font-weight: bold;\">\n"
+"                                             Odooでシームレスな決済機能を利用"
+"開始しましょう\n"
+"                                        </span>\n"
+"                                    </td>\n"
+"                                    <td valign=\"middle\" align=\"right\">\n"
+"                                        <img src=\"https://www.odoo.com/"
+"openerp_enterprise/static/img/mail/odoo_logo_white.png\" style=\"padding: "
+"0px; margin: 0px; height: auto; width: 80px;\" alt=\"Odoo S.A.\"/>\n"
+"                                    </td>\n"
+"                                </tr>\n"
+"                                </table>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"\n"
+"                        <tr>\n"
+"                            <td align=\"center\" style=\"min-width: 590px;"
+"\">\n"
+"                                <table width=\"590\" border=\"0\" "
+"cellpadding=\"0\" bgcolor=\"#ffffff\" style=\"min-width: 590px; background-"
+"color: rgb(255, 255, 255); padding: 20px;\">\n"
+"                                <tbody>\n"
+"                                    <td valign=\"top\" style=\"font-"
+"family:Arial,Helvetica,sans-serif; color: #555; font-size: 14px;\">\n"
+"                                        <p>Odooをご利用いただきありがとうござ"
+"います。</p>\n"
+"                                        <p>まだ Odoo で決済機能を有効にされて"
+"いないようです。この機能を有効にすることで、Odoo アカウントから直接かつ効率的"
+"に決済処理を行えるようになります。</p>\n"
+"                                        <p>すでに決済を有効にされている場合"
+"は、このメッセージは無視していただいて構いません。</p>\n"
+"                                        <p>決済機能を使ってみませんか? 以下の"
+"リンクからすぐに有効化できます。また、Odoo内の「予定された活動」から後ほど設"
+"定を完了することも可能です。</p>\n"
+"\n"
+"                                        <br/>\n"
+"                                        <br/>\n"
+"\n"
+"                                        <center>\n"
+"                                        <p>\n"
+"                                            <a style=\"background-color: "
+"#1abc9c; padding: 20px; text-decoration: none; color: #fff; border-radius: "
+"5px; font-size: 16px;\" t-att-href=\"ctx.get('url')\">\n"
+"                                                Activate payments\n"
+"                                            </a>\n"
+"                                        </p>\n"
+"\n"
+"                                        <br/><br/><br/>\n"
+"\n"
+"                                        <p>\n"
+"                                            または、以下のリンクをブラウザに"
+"コピー＆ペーストしてください:<br/>\n"
+"                                            <a t-att-href=\"ctx.get('url')"
+"\"><t t-out=\"ctx.get('url')\"/></a>\n"
+"                                        </p>\n"
+"                                        </center>\n"
+"                                    </td>\n"
+"                                </tbody>\n"
+"                                </table>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"\n"
+"                        <tr>\n"
+"                            <td align=\"center\">\n"
+"                                Powered by <a href=\"https://"
+"www.odoo.com\">Odoo</a>.\n"
+"                            </td>\n"
+"                        </tr>\n"
+"                    </tbody>\n"
+"                </table>\n"
+"            "
+
+#. module: account_online_payment
+#: model:mail.template,body_html:account_online_payment.mail_template_account_payment_activation_success
+msgid ""
+"<table border=\"0\" width=\"100%\" cellpadding=\"0\" bgcolor=\"#ededed\" "
+"style=\"padding: 20px; background-color: #ededed\" "
+"summary=\"o_mail_notification\">\n"
+"                    <tbody>\n"
+"                        <tr>\n"
+"                            <td align=\"center\" style=\"min-width: 590px;"
+"\">\n"
+"                                <table width=\"590\" border=\"0\" "
+"cellpadding=\"0\" bgcolor=\"#875A7B\" style=\"min-width: 590px; background-"
+"color: rgb(135,90,123); padding: 20px;\">\n"
+"                                <tr>\n"
+"                                    <td valign=\"middle\">\n"
+"                                        <span style=\"font-size:20px; "
+"color:white; font-weight: bold;\">\n"
+"                                            You have just unlocked seamless "
+"payments in Odoo\n"
+"                                        </span>\n"
+"                                    </td>\n"
+"                                    <td valign=\"middle\" align=\"right\">\n"
+"                                        <img src=\"https://www.odoo.com/"
+"openerp_enterprise/static/img/mail/odoo_logo_white.png\" style=\"padding: "
+"0px; margin: 0px; height: auto; width: 80px;\" alt=\"Odoo S.A.\"/>\n"
+"                                    </td>\n"
+"                                </tr>\n"
+"                                </table>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"\n"
+"                        <tr>\n"
+"                            <td align=\"center\" style=\"min-width: 590px;"
+"\">\n"
+"                                <table width=\"590\" border=\"0\" "
+"cellpadding=\"0\" bgcolor=\"#ffffff\" style=\"min-width: 590px; background-"
+"color: rgb(255, 255, 255); padding: 20px;\">\n"
+"                                <tbody>\n"
+"                                    <td valign=\"top\" style=\"font-"
+"family:Arial,Helvetica,sans-serif; color: #555; font-size: 14px;\">\n"
+"                                        <p>Hi there,</p>\n"
+"                                        <p>We're pleased to inform you that "
+"the payments feature in Odoo has been successfully activated. You can now "
+"process payments directly through your Odoo database, ensuring faster, more "
+"secure, and more efficient transactions.</p>\n"
+"                                    </td>\n"
+"                                </tbody>\n"
+"                                </table>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"\n"
+"                        <tr>\n"
+"                            <td align=\"center\">\n"
+"                                Powered by <a href=\"https://"
+"www.odoo.com\">Odoo</a>.\n"
+"                            </td>\n"
+"                        </tr>\n"
+"                    </tbody>\n"
+"                </table>\n"
+"            "
+msgstr ""
+"<table border=\"0\" width=\"100%\" cellpadding=\"0\" bgcolor=\"#ededed\" "
+"style=\"padding: 20px; background-color: #ededed\" "
+"summary=\"o_mail_notification\">\n"
+"                    <tbody>\n"
+"                        <tr>\n"
+"                            <td align=\"center\" style=\"min-width: 590px;"
+"\">\n"
+"                                <table width=\"590\" border=\"0\" "
+"cellpadding=\"0\" bgcolor=\"#875A7B\" style=\"min-width: 590px; background-"
+"color: rgb(135,90,123); padding: 20px;\">\n"
+"                                <tr>\n"
+"                                    <td valign=\"middle\">\n"
+"                                        <span style=\"font-size:20px; "
+"color:white; font-weight: bold;\">\n"
+"                                            Odoo でシームレスな支払い機能が有"
+"効になりました\n"
+"                                        </span>\n"
+"                                    </td>\n"
+"                                    <td valign=\"middle\" align=\"right\">\n"
+"                                        <img src=\"https://www.odoo.com/"
+"openerp_enterprise/static/img/mail/odoo_logo_white.png\" style=\"padding: "
+"0px; margin: 0px; height: auto; width: 80px;\" alt=\"Odoo S.A.\"/>\n"
+"                                    </td>\n"
+"                                </tr>\n"
+"                                </table>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"\n"
+"                        <tr>\n"
+"                            <td align=\"center\" style=\"min-width: 590px;"
+"\">\n"
+"                                <table width=\"590\" border=\"0\" "
+"cellpadding=\"0\" bgcolor=\"#ffffff\" style=\"min-width: 590px; background-"
+"color: rgb(255, 255, 255); padding: 20px;\">\n"
+"                                <tbody>\n"
+"                                    <td valign=\"top\" style=\"font-"
+"family:Arial,Helvetica,sans-serif; color: #555; font-size: 14px;\">\n"
+"                                        <p>Odooをご利用いただきありがとうござ"
+"います。</p>\n"
+"                                        <p>Odoo の支払い機能が正常に有効化さ"
+"れたことをお知らせいたします。これにより、Odoo データベース上で直接支払い処理"
+"が行えるようになり、より迅速で安全かつ効率的なお取引が可能になります。</p>\n"
+"                                    </td>\n"
+"                                </tbody>\n"
+"                                </table>\n"
+"                            </td>\n"
+"                        </tr>\n"
+"\n"
+"                        <tr>\n"
+"                            <td align=\"center\">\n"
+"                                Powered by <a href=\"https://"
+"www.odoo.com\">Odoo</a>.\n"
+"                            </td>\n"
+"                        </tr>\n"
+"                    </tbody>\n"
+"                </table>\n"
+"            "
+
+#. module: account_online_payment
+#: model:ir.model.fields.selection,name:account_online_payment.selection__account_batch_payment__payment_online_status__accepted
+msgid "Accepted"
+msgstr "受理済み"
+
+#. module: account_online_payment
+#: model:ir.model.fields,field_description:account_online_payment.field_account_batch_payment__account_online_link_payments_enabled
+msgid "Account Online Link Payments Enabled"
+msgstr "オンラインアカウントリンク 支払いが有効です"
+
+#. module: account_online_payment
+#: model:ir.actions.server,name:account_online_payment.ir_cron_bank_sync_update_payment_status_ir_actions_server
+msgid "Account: Update payment status"
+msgstr "会計: 支払ステータスを更新"
+
+#. module: account_online_payment
+#: model:mail.template,name:account_online_payment.mail_template_account_payment_activation
+#: model:mail.template,subject:account_online_payment.mail_template_account_payment_activation
+msgid "Activate Online Payments in Odoo"
+msgstr "Odooでオンライン支払いを有効化する"
+
+#. module: account_online_payment
+#: model_terms:ir.ui.view,arch_db:account_online_payment.account_online_link_view_form_inherit
+msgid "Activate Payments"
+msgstr "決済を有効化"
+
+#. module: account_online_payment
+#: model:ir.model,name:account_online_payment.model_account_online_link
+msgid "Bank Connection"
+msgstr "銀行連携"
+
+#. module: account_online_payment
+#: model:ir.model.fields,field_description:account_online_payment.field_account_batch_payment__payment_identifier
+msgid "Batch ID"
+msgstr "バッチID"
+
+#. module: account_online_payment
+#: model:ir.model,name:account_online_payment.model_account_batch_payment
+msgid "Batch Payment"
+msgstr "一括支払"
+
+#. module: account_online_payment
+#: model:ir.model.fields.selection,name:account_online_payment.selection__account_batch_payment__payment_online_status__canceled
+msgid "Canceled"
+msgstr "キャンセル済"
+
+#. module: account_online_payment
+#: model:ir.actions.server,name:account_online_payment.action_account_online_payment_check_status
+msgid "Check Status"
+msgstr "ステータスを確認"
+
+#. module: account_online_payment
+#. odoo-python
+#: code:addons/account_online_payment/models/account_online_link.py:0
+msgid "Complete your KYC"
+msgstr "KYC(本人確認)を完了してください"
+
+#. module: account_online_payment
+#: model:ir.model.fields,field_description:account_online_payment.field_account_batch_payment__display_name
+#: model:ir.model.fields,field_description:account_online_payment.field_account_online_link__display_name
+#: model:ir.model.fields,field_description:account_online_payment.field_account_payment__display_name
+msgid "Display Name"
+msgstr "表示名"
+
+#. module: account_online_payment
+#: model:ir.model.fields,field_description:account_online_payment.field_account_batch_payment__id
+#: model:ir.model.fields,field_description:account_online_payment.field_account_online_link__id
+#: model:ir.model.fields,field_description:account_online_payment.field_account_payment__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_online_payment
+#: model_terms:ir.ui.view,arch_db:account_online_payment.view_batch_payment_form_inherit
+msgid "Initiate Payment"
+msgstr "支払を開始"
+
+#. module: account_online_payment
+#: model:ir.model.fields,field_description:account_online_payment.field_account_online_link__is_payment_activated
+msgid "Is Payment Activated"
+msgstr "支払が有効化済"
+
+#. module: account_online_payment
+#: model:ir.model.fields,field_description:account_online_payment.field_account_online_link__is_payment_enabled
+msgid "Is Payment Enabled"
+msgstr "支払が有効"
+
+#. module: account_online_payment
+#. odoo-python
+#: code:addons/account_online_payment/models/account_online_link.py:0
+msgid "KYC Link"
+msgstr "KYCリンク"
+
+#. module: account_online_payment
+#: model:ir.model.fields,field_description:account_online_payment.field_account_batch_payment__payment_online_status
+msgid "PIS Status"
+msgstr "PISステータス"
+
+#. module: account_online_payment
+#. odoo-python
+#: code:addons/account_online_payment/models/account_batch_payment.py:0
+msgid "Payment already been signed"
+msgstr "支払が既に署名されました"
+
+#. module: account_online_payment
+#: model:ir.model,name:account_online_payment.model_account_payment
+msgid "Payments"
+msgstr "支払"
+
+#. module: account_online_payment
+#. odoo-python
+#: code:addons/account_online_payment/models/account_online_link.py:0
+msgid "Payments are already activated."
+msgstr "支払いがすでに有効化されています。"
+
+#. module: account_online_payment
+#: model:mail.template,name:account_online_payment.mail_template_account_payment_activation_success
+#: model:mail.template,subject:account_online_payment.mail_template_account_payment_activation_success
+msgid "Payments successfully activated"
+msgstr "支払いが正常に有効化されました"
+
+#. module: account_online_payment
+#: model:ir.model.fields.selection,name:account_online_payment.selection__account_batch_payment__payment_online_status__pending
+msgid "Pending"
+msgstr "保留"
+
+#. module: account_online_payment
+#. odoo-python
+#: code:addons/account_online_payment/models/account_batch_payment.py:0
+msgid ""
+"Please be aware that signed payments may have already been processed and "
+"sent to the bank."
+msgstr ""
+"署名された支払はすでに処理され、銀行に送金されている可能性があることをご了承"
+"下さい。"
+
+#. module: account_online_payment
+#: model:ir.model.fields.selection,name:account_online_payment.selection__account_batch_payment__payment_online_status__rejected
+msgid "Rejected"
+msgstr "拒否済"
+
+#. module: account_online_payment
+#: model_terms:ir.ui.view,arch_db:account_online_payment.view_batch_payment_form_inherit
+msgid "Sign Payment"
+msgstr "支払に署名する"
+
+#. module: account_online_payment
+#. odoo-python
+#: code:addons/account_online_payment/models/account_batch_payment.py:0
+msgid ""
+"This payment might have already been signed. Refreshing the payment status..."
+msgstr ""
+"この支払いはすでに署名されている可能性があります。支払状況を更新しています..."
+
+#. module: account_online_payment
+#. odoo-python
+#: code:addons/account_online_payment/models/account_online_link.py:0
+msgid "Time to complete your KYC"
+msgstr "本人確認(KYC)を完了してください"
+
+#. module: account_online_payment
+#. odoo-python
+#: code:addons/account_online_payment/models/account_online_link.py:0
+msgid ""
+"To activate payments, you must first enable them when connecting a bank "
+"account."
+msgstr ""
+"支払いを有効にするには、銀行口座を接続する際に支払い機能を有効化する必要があ"
+"ります。"
+
+#. module: account_online_payment
+#. odoo-python
+#: code:addons/account_online_payment/models/account_online_link.py:0
+msgid ""
+"To process payments directly from Odoo, please complete your KYC now: %s. "
+"You can also do it later in the bank journal settings."
+msgstr ""
+"Odooから直接支払いを処理するには、今すぐ本人確認(KYC)を完了してください：%s。"
+"あとで銀行仕訳帳の設定から行うこともできます。"
+
+#. module: account_online_payment
+#: model:ir.model.fields.selection,name:account_online_payment.selection__account_batch_payment__payment_online_status__uninitiated
+msgid "Uninitiated"
+msgstr "未開始"
+
+#. module: account_online_payment
+#: model:ir.model.fields.selection,name:account_online_payment.selection__account_batch_payment__payment_online_status__unsigned
+msgid "Unsigned"
+msgstr "未署名"
+
+#. module: account_online_payment
+#: model_terms:ir.ui.view,arch_db:account_online_payment.view_batch_payment_form_inherit
+msgid "XML"
+msgstr "XML"
+
+#. module: account_online_payment
+#. odoo-python
+#: code:addons/account_online_payment/models/account_payment.py:0
+msgid "You cannot modify a payment that has already been sent to the bank."
+msgstr "銀行に送金済の支払は変更できません。"
+
+#. module: account_online_payment
+#. odoo-python
+#: code:addons/account_online_payment/models/account_online_link.py:0
+msgid ""
+"You haven't completed your KYC yet, so you can't process payment directly "
+"from Odoo."
+msgstr ""
+"KYC(本人確認)がまだ完了していないため、Odooから直接支払いを処理することはでき"
+"ません。"

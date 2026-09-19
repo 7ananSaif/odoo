@@ -1,0 +1,800 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * databases
+#
+# Odoo Translation Bot <c3p@odoo.com>, 2025.
+# Bren Driesen <brdri@odoo.com>, 2025.
+# Erwin van der Ploeg <erwin@odooexperts.nl>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:41+0000\n"
+"PO-Revision-Date: 2025-11-19 09:12+0000\n"
+"Last-Translator: Erwin van der Ploeg <erwin@odooexperts.nl>\n"
+"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-19/databases/"
+"nl/>\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "%(nb_new_dbs)s new databases, %(nb_updated_dbs)s updated."
+msgstr "%(nb_new_dbs)s nieuwe databases, %(nb_updated_dbs)s bijgewerkt."
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.project_project_view_form_simplified_template
+msgid ""
+"<span class=\"o_wrap_label\"><span class=\"o_form_label\">Fetch</span></span>"
+msgstr ""
+"<span class=\"o_wrap_label\"><span class=\"o_form_label\">Ophalen</span></"
+"span>"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.project_project_view_form_simplified_template
+msgid "<span>Documents</span>"
+msgstr "<span>Documenten</span>"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.project_project_view_form_simplified_template
+msgid "<span>Draft Journal Entries</span>"
+msgstr "<span>Conceptboekingen</span>"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.project_project_view_form_simplified_template
+msgid "<span>Tax Returns</span>"
+msgstr "<span>Btw-aangiftes</span>"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "API credentials to Odoo.com"
+msgstr "API-inloggegevens voor Odoo.com"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "Add a user"
+msgstr "Gebruiker toevoegen"
+
+#. module: databases
+#: model:res.groups,name:databases.group_databases_manager
+msgid "Administrator"
+msgstr "Beheerder"
+
+#. module: databases
+#: model:res.groups,comment:databases.group_databases_manager
+msgid "Administrator can manage the client databases"
+msgstr "Beheerder kan databanken van klanten beheren"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_nb_users
+msgid "Amount of Users"
+msgstr "Aantal gebruikers"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_nb_documents
+msgid "Amount of documents in Inbox"
+msgstr "Aantal documenten in Inbox"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "An error occurred: %s"
+msgstr "Er is een onbekende fout opgetreden: %s"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_manage_users_wizard_view_form
+msgid "Close"
+msgstr "Sluiten"
+
+#. module: databases
+#: model:ir.model,name:databases.model_res_config_settings
+msgid "Config Settings"
+msgstr "Configuratie-instellingen"
+
+#. module: databases
+#: model:ir.ui.menu,name:databases.menu_configuration
+msgid "Configuration"
+msgstr "Configuratie"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Connect"
+msgstr "Verbinden"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_synchronization_wizard_view_form
+msgid "Continue"
+msgstr "Doorgaan"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__created_database_ids
+msgid "Created Database"
+msgstr "Aangemaakte databank"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__create_uid
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__create_uid
+#: model:ir.model.fields,field_description:databases.field_databases_user__create_uid
+msgid "Created by"
+msgstr "Aangemaakt door"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__create_date
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__create_date
+#: model:ir.model.fields,field_description:databases.field_databases_user__create_date
+msgid "Created on"
+msgstr "Aangemaakt op"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__database_ids
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__database_ids
+#: model:ir.model.fields,field_description:databases.field_databases_user__project_id
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "Database"
+msgstr "Databank"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_api_key
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_api_key
+msgid "Database API Key"
+msgstr "API-sleutel voor databank"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_api_login
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_api_login
+msgid "Database API Login"
+msgstr "API-login voor databank"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_api_key_to_use
+msgid "Database Api Key To Use"
+msgstr "Te gebruiken API-sleutel voor databank"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_can_access
+msgid "Database Can Access"
+msgstr "Heeft toegang tot databank"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_kpi_base_definition_id
+msgid "Database Kpi Base Definition"
+msgstr "KPI Basis definitie databank"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_name
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_name
+msgid "Database Name"
+msgstr "Naam databank"
+
+#. module: databases
+#: model:ir.model,name:databases.model_databases_synchronization_wizard
+msgid "Database Synchronization Wizard"
+msgstr "Databank synchronisatiewizard"
+
+#. module: databases
+#: model:project.project,name:databases.database_default_template
+msgid "Database Template"
+msgstr "Databanksjabloon"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_url
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_url
+msgid "Database URL"
+msgstr "Databank-URL"
+
+#. module: databases
+#: model:ir.model,name:databases.model_databases_user
+msgid "Database User"
+msgstr "Databankgebruiker"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_user_ids
+msgid "Database Users"
+msgstr "Databankebruikers"
+
+#. module: databases
+#: model:ir.model,name:databases.model_databases_manage_users_wizard
+msgid "Database Users Invitation Wizard"
+msgstr "Wizard om databankgebruikers uit te nodigen"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_version
+msgid "Database Version"
+msgstr "Databankversie"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid ""
+"Database synchronization is running in the background. You will be notified "
+"upon completion."
+msgstr ""
+"Databanksynchronisatie wordt op de achtergrond uitgevoerd. Je ontvangt een "
+"melding zodra deze is voltooid."
+
+#. module: databases
+#: model:ir.actions.act_window,name:databases.action_view_databases_all
+#: model:ir.ui.menu,name:databases.menu_databases
+#: model:ir.ui.menu,name:databases.menu_main_databases
+#: model:res.groups.privilege,name:databases.res_groups_privilege_databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "Databases"
+msgstr "Databanken"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.ir_cron_synchronize_databases_with_odoocom_ir_actions_server
+msgid "Databases: pull databases from Odoo.com and synchronize"
+msgstr "Databanken: databanken ophalen van Odoo.com en synchroniseren"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.ir_cron_synchronize_databases_ir_actions_server
+msgid "Databases: synchronize"
+msgstr "Databanken: synchroniseren"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_manage_users_wizard_view_form
+msgid "Discard"
+msgstr "Annuleren"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__display_name
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__display_name
+#: model:ir.model.fields,field_description:databases.field_databases_user__display_name
+#: model:ir.model.fields,field_description:databases.field_project_project__display_name
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__display_name
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "Weergavenaam"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__databases_manage_users_wizard__state__done
+#: model:project.task.type,name:databases.stage_done
+msgid "Done"
+msgstr "Gereed"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__databases_manage_users_wizard__state__draft
+msgid "Draft"
+msgstr "Concept"
+
+#. module: databases
+#. odoo-javascript
+#: code:addons/databases/static/src/views/databases_project_list/databases_project_list_renderer.js:0
+msgid "Draft entries in journal %(journal_name)s"
+msgstr "Conceptboekingen in dagboek %(journal_name)s"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__error_message
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__error_message
+msgid "Error Message"
+msgstr "Foutmelding"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid ""
+"Error while connecting to %(url)s: We are missing the database name, the api "
+"login or the api key\n"
+msgstr ""
+"Fout bij het verbinden met %(url)s: De databanknaam, de api-login of de api-"
+"sleutel ontbreekt\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "Error while creating users on %(dbname)s: %(message)s\n"
+msgstr "Fout bij het aanmaken van gebruikers in %(dbname)s: %(message)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Error while getting KPIs from %(dbname)s: %(message)s\n"
+msgstr "Fout bij het ophalen van KPI's van %(dbname)s: %(message)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Error while getting users from %(dbname)s: %(message)s\n"
+msgstr "Fout bij het ophalen van gebruikers van %(dbname)s: %(message)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Error while listing databases from %(dbname)s: %(message)s\n"
+msgstr "Fout bij het oplijsten van databanken van %(dbname)s: %(message)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "Error while removing users from %(dbname)s: %(message)s\n"
+msgstr "Fout bij het verwijderen van gebruikers uit %(dbname)s: %(message)s\n"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__everywhere_user_ids
+msgid "Everywhere User"
+msgstr "Overal gebruiker"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_fetch_documents
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_fetch_documents
+msgid "Fetch Documents"
+msgstr "Documenten ophalen"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_fetch_draft_entries
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_fetch_draft_entries
+msgid "Fetch Draft Journal Entries"
+msgstr "Conceptboekingen ophalen"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_fetch_tax_returns
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_fetch_tax_returns
+msgid "Fetch Tax Returns"
+msgstr "Btw-aangiften ophalen"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__fetched_values
+msgid "Fetched Values"
+msgstr "Opgehaalde waarden"
+
+#. module: databases
+#: model_terms:ir.actions.act_window,help:databases.action_view_databases_all
+msgid ""
+"Get all your Odoo databases summarized, and perform mass action like "
+"inviting users."
+msgstr ""
+"Krijg een overzicht van al je Odoo-databanken en voer massa-acties uit zoals "
+"het uitnodigen van gebruikers."
+
+#. module: databases
+#: model:ir.model.constraint,message:databases.constraint_project_project_database_url_unique
+msgid "Hey, this URL is already hooked up to a database!"
+msgstr "Hé, deze URL is al gekoppeld aan een databank!"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_hosting
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_hosting
+msgid "Hosting"
+msgstr "Hosting"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__id
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__id
+#: model:ir.model.fields,field_description:databases.field_databases_user__id
+#: model:ir.model.fields,field_description:databases.field_project_project__id
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__id
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: databases
+#: model:project.task.type,name:databases.stage_progress
+msgid "In Progress"
+msgstr "In uitvoering"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Inbox"
+msgstr "Inbox"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__databases_manage_users_wizard__mode__invite
+msgid "Invitation"
+msgstr "Uitnodiging"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "Invitation is done"
+msgstr "Uitnodiging verstuurd"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_manage_users_wizard_view_form
+msgid "Invite"
+msgstr "Uitnodigen"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.action_invite_users
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Invite Users"
+msgstr "Gebruikers uitnodigen"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "KPIs"
+msgstr "KPI’s"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_last_synchro
+msgid "Last Synchronization"
+msgstr "Laatste synchronisatie"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__write_uid
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__write_uid
+#: model:ir.model.fields,field_description:databases.field_databases_user__write_uid
+msgid "Last Updated by"
+msgstr "Laatst bijgewerkt door"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__write_date
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__write_date
+#: model:ir.model.fields,field_description:databases.field_databases_user__write_date
+msgid "Last Updated on"
+msgstr "Laatst bijgewerkt op"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_user__latest_authentication
+msgid "Latest Authentication"
+msgstr "Laatste authenticatie"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_user__local_user_id
+msgid "Local User"
+msgstr "Lokale gebruiker"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_user__login
+msgid "Login"
+msgstr "Inloggen"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_kpi_properties
+msgid "Metrics"
+msgstr ""
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__mode
+msgid "Mode"
+msgstr "Modus"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_user__name
+msgid "Name"
+msgstr "Naam"
+
+#. module: databases
+#: model:project.task.type,name:databases.stage_new
+msgid "New"
+msgstr "Nieuw"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__new_properties
+msgid "New KPIs to add:"
+msgstr "Nieuwe KPI's om toe te voegen:"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "New databases will be based on the selected project template."
+msgstr ""
+"Nieuwe databanken worden gebaseerd op het geselecteerde projectsjabloon."
+
+#. module: databases
+#: model_terms:ir.actions.act_window,help:databases.action_view_tasks_all
+msgid "No tasks found. Let's create one!"
+msgstr "Geen taken gevonden. Maak er een aan!"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__notify_user
+msgid "Notify User"
+msgstr "Gebruiker informeren"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__project_project__database_hosting__saas
+#: model:ir.model.fields.selection,name:databases.selection__project_template_create_wizard__database_hosting__saas
+msgid "Odoo Online"
+msgstr "Odoo Online"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__databases_apikey
+msgid "Odoo.com API Key"
+msgstr "Odoo.com API-sleutel"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__databases_apiuser
+msgid "Odoo.com API User"
+msgstr "Odoo.com API-gebruiker"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid ""
+"Odoo.com API keys are managed in the <em>Developer API Keys</em> section of "
+"your"
+msgstr ""
+"Odoo.com API-sleutels worden beheerd in het gedeelte <em>API-sleutels voor "
+"ontwikkelaars</em> van je"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "Odoo.com Connection &amp; Security page"
+msgstr "Odoo.com Verbinding &amp; Beveiligingspagina"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__project_project__database_hosting__paas
+#: model:ir.model.fields.selection,name:databases.selection__project_template_create_wizard__database_hosting__paas
+msgid "Odoo.sh"
+msgstr "Odoo.sh"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__project_project__database_hosting__premise
+#: model:ir.model.fields.selection,name:databases.selection__project_template_create_wizard__database_hosting__premise
+msgid "On Premise"
+msgstr "On Premise"
+
+#. module: databases
+#: model_terms:ir.actions.act_window,help:databases.action_view_tasks_all
+msgid ""
+"Organize your tasks by dispatching them across the pipeline.<br>\n"
+"                Collaborate efficiently by chatting in real-time or via "
+"email."
+msgstr ""
+"Organiseer je taken door ze over de pijplijn te verdelen.<br>\n"
+"                Werk efficiënt samen door in realtime te chatten, of via e-"
+"mail."
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__project_project__database_hosting__other
+#: model:ir.model.fields.selection,name:databases.selection__project_template_create_wizard__database_hosting__other
+msgid "Outside of Odoo"
+msgstr "Buiten Odoo"
+
+#. module: databases
+#. odoo-javascript
+#: code:addons/databases/static/src/views/databases_project_list/databases_project_list_renderer.js:0
+msgid "Planned activities of type %(return_name)s"
+msgstr "Geplande activiteiten van het type %(return_name)s"
+
+#. module: databases
+#: model:ir.model,name:databases.model_project_project
+msgid "Project"
+msgstr "Project"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "Project Template"
+msgstr "Projectsjabloon"
+
+#. module: databases
+#: model:ir.model,name:databases.model_project_template_create_wizard
+msgid "Project Template create Wizard"
+msgstr "Wizard projectsjabloon maken"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__databases_project_template_id
+msgid "Project template"
+msgstr "Projectsjabloon"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__property_definition
+msgid "Property Definition"
+msgstr "Eigenschapsdefinitie"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "Regular Project"
+msgstr "Gewoon project"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__removable_user_ids
+msgid "Removable User"
+msgstr "Verwijderbare gebruiker"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__databases_manage_users_wizard__mode__remove
+msgid "Removal"
+msgstr "Verwijdering"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_manage_users_wizard_view_form
+msgid "Remove"
+msgstr "Verwijderen"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "Remove User"
+msgstr "Gebruiker verwijderen"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.action_remove_users
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Remove Users"
+msgstr "Gebruikers verwijderen"
+
+#. module: databases
+#: model:ir.ui.menu,name:databases.menu_reporting
+msgid "Reporting"
+msgstr "Rapportage"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Responsible"
+msgstr "Verantwoordelijke"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid ""
+"Select the users you want to invite to the %(nb_databases)s selected "
+"databases."
+msgstr ""
+"Selecteer de gebruikers die je wil uitnodigen voor de %(nb_databases)s "
+"geselecteerde databanken."
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "Select the users you want to invite to the database %(database_name)s."
+msgstr ""
+"Selecteer de gebruikers die je wil uitnodigen voor de databank %"
+"(database_name)s."
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid ""
+"Select the users you want to remove from the %(nb_databases)s selected "
+"databases."
+msgstr ""
+"Selecteer de gebruikers die je wil verwijderen uit de %(nb_databases)s "
+"geselecteerde databases."
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid ""
+"Select the users you want to remove from the database %(database_name)s."
+msgstr ""
+"Selecteer de gebruikers die je wil verwijderen uit de databank %"
+"(database_name)s."
+
+#. module: databases
+#: model:ir.actions.act_window,name:databases.action_databases_configuration
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Settings"
+msgstr "Instellingen"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__state
+msgid "State"
+msgstr "Status"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__summary_message
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__summary_message
+msgid "Summary Message"
+msgstr "Samenvattend bericht"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_nb_synchro_errors
+msgid "Synchronization Errors Count"
+msgstr "Aantal synchronisatiefouten"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Synchronization done successfully!"
+msgstr "Synchronisatie succesvol uitgevoerd!"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/models/project_project.py:0
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Synchronization of %d databases"
+msgstr "Synchronisatie van %d databanken"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.action_synchronize_database
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Synchronize"
+msgstr "Synchroniseren"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.action_synchronize_all_databases
+msgid "Synchronize all the Databases"
+msgstr "Alle databanken synchroniseren"
+
+#. module: databases
+#: model_terms:ir.actions.act_window,help:databases.action_view_databases_all
+msgid ""
+"Synchronize to automatically fetch Odoo Online databases, or set an API Key "
+"to connect to On Premise or Odoo.sh ones."
+msgstr ""
+"Synchroniseer om online Odoo-databanken automatisch op te halen, of stel een "
+"API-sleutel in om verbinding te maken met databanken 'On premise' of "
+"'Odoo.sh'."
+
+#. module: databases
+#: model:ir.actions.act_window,name:databases.action_view_tasks_all
+#: model:ir.ui.menu,name:databases.menu_tasks
+#: model:project.project,label_tasks:databases.database_default_template
+msgid "Tasks"
+msgstr "Taken"
+
+#. module: databases
+#. odoo-javascript
+#: code:addons/databases/static/src/views/databases_project_list/databases_project_list_renderer.js:0
+msgid "Tax return %(return_name)s"
+msgstr "Btw-aangifte %(return_name)s"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid ""
+"The database %(url)s is registered as a saas database in odoo.com. As it "
+"seems to be configured we have left it as is.\n"
+msgstr ""
+"De databank %(url)s is geregistreerd als een saas-databank in odoo.com. "
+"Aangezien deze al lijkt te zijn geconfigureerd, hebben we deze ongewijzigd "
+"gelaten.\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "These users were successfully invited to %(nb_databases)s databases."
+msgstr ""
+"Deze gebruikers werden succesvol uitgenodigd voor %(nb_databases)s "
+"databanken."
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "These users were successfully removed from %(nb_databases)s databases."
+msgstr ""
+"Deze gebruikers zijn succesvol verwijderd uit %(nb_databases)s databanken."
+
+#. module: databases
+#: model:ir.model.constraint,message:databases.constraint_project_project_database_url_required
+msgid "Uh-oh! It seems we are missing a url for a database!"
+msgstr "Oei! Het lijkt erop dat een URL voor een databank ontbreekt!"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__user_ids
+#: model:res.groups,name:databases.group_databases_user
+msgid "User"
+msgstr "Gebruiker"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "User Management"
+msgstr "Gebruikersbeheer"
+
+#. module: databases
+#: model:res.groups,comment:databases.group_databases_user
+msgid "User can access the client databases"
+msgstr "Gebruiker heeft toegang tot databanken van de klant"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "User removal is done"
+msgstr "Gebruiker is verwijderd"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Users"
+msgstr "Gebruikers"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Version"
+msgstr "Versie"
+
+#. module: databases
+#: model:ir.model.fields,help:databases.field_databases_synchronization_wizard__notify_user
+msgid ""
+"Whether the user should be notified once the cron has finished synchronizing "
+"the databases"
+msgstr ""
+"Of de gebruiker een melding moet krijgen zodra de cron klaar is met het "
+"synchroniseren van de databanken"

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <t t-name="esg.carbonEmissionPivotView" t-inherit="web.PivotView" t-inherit-mode="primary">
+        <ActionHelper position="replace">
+            <t t-if="!model.hasData() or model.useSampleModel and props.info.noContentHelp">
+                <t t-call="esg.noContentHelper">
+                    <t t-set="reportName" t-value="title"/>
+                    <t t-set="accountantInstalled" t-value="accountantInstalled"/>
+                </t>
+            </t>
+        </ActionHelper>
+    </t>
+</odoo>

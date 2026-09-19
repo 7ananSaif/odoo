@@ -1,0 +1,791 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * databases
+#
+# Odoo Translation Bot <c3p@odoo.com>, 2025.
+# "Malaz Siddig Elsayed Abuidris (msea)" <msea@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:41+0000\n"
+"PO-Revision-Date: 2025-12-26 10:55+0000\n"
+"Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/databases/"
+"ar/>\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "%(nb_new_dbs)s new databases, %(nb_updated_dbs)s updated."
+msgstr "%(nb_new_dbs)s قواعد بيانات جديدة، تم تحديث %(nb_updated_dbs)s."
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.project_project_view_form_simplified_template
+msgid ""
+"<span class=\"o_wrap_label\"><span class=\"o_form_label\">Fetch</span></span>"
+msgstr ""
+"<span class=\"o_wrap_label\"><span class=\"o_form_label\">جلب</span></span>"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.project_project_view_form_simplified_template
+msgid "<span>Documents</span>"
+msgstr "<span>المستندات</span>"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.project_project_view_form_simplified_template
+msgid "<span>Draft Journal Entries</span>"
+msgstr "<span>مسودة قيود اليومية</span>"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.project_project_view_form_simplified_template
+msgid "<span>Tax Returns</span>"
+msgstr "<span>الإقرارات الضريبية</span>"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "API credentials to Odoo.com"
+msgstr "بيانات اعتماد الواجهة البرمجية لـ Odoo.com"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "Add a user"
+msgstr "أضف مستخدماً"
+
+#. module: databases
+#: model:res.groups,name:databases.group_databases_manager
+msgid "Administrator"
+msgstr "المدير"
+
+#. module: databases
+#: model:res.groups,comment:databases.group_databases_manager
+msgid "Administrator can manage the client databases"
+msgstr "بإمكان المسؤول إدارة قواعد بيانات العملاء"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_nb_users
+msgid "Amount of Users"
+msgstr "عدد المستخدمين"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_nb_documents
+msgid "Amount of documents in Inbox"
+msgstr "عدد المستندات في صندوق الوارد"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "An error occurred: %s"
+msgstr "حدث خطأ ما: %s"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_manage_users_wizard_view_form
+msgid "Close"
+msgstr "إغلاق"
+
+#. module: databases
+#: model:ir.model,name:databases.model_res_config_settings
+msgid "Config Settings"
+msgstr "تهيئة الإعدادات"
+
+#. module: databases
+#: model:ir.ui.menu,name:databases.menu_configuration
+msgid "Configuration"
+msgstr "التهيئة"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Connect"
+msgstr "اتصل"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_synchronization_wizard_view_form
+msgid "Continue"
+msgstr "استمرار"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__created_database_ids
+msgid "Created Database"
+msgstr "قاعدة البيانات التي تم إنشاؤها"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__create_uid
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__create_uid
+#: model:ir.model.fields,field_description:databases.field_databases_user__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__create_date
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__create_date
+#: model:ir.model.fields,field_description:databases.field_databases_user__create_date
+msgid "Created on"
+msgstr "أنشئ في"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__database_ids
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__database_ids
+#: model:ir.model.fields,field_description:databases.field_databases_user__project_id
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "Database"
+msgstr "قاعدة البيانات"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_api_key
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_api_key
+msgid "Database API Key"
+msgstr "مفتاح الواجهة البرمجية لقاعدة البيانات"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_api_login
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_api_login
+msgid "Database API Login"
+msgstr "تسجيل الدخول إلى الواجهة البرمجية لقاعدة البيانات"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_api_key_to_use
+msgid "Database Api Key To Use"
+msgstr "مفتاح الواجهة البرمجية لقاعدة البيانات المراد استخدامها"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_can_access
+msgid "Database Can Access"
+msgstr "بإمكان قاعدة البيانات الوصول"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_kpi_base_definition_id
+msgid "Database Kpi Base Definition"
+msgstr "تعريف مؤشرات الأداء الرئيسية لقاعدة البيانات"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_name
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_name
+msgid "Database Name"
+msgstr "اسم قاعدة البيانات"
+
+#. module: databases
+#: model:ir.model,name:databases.model_databases_synchronization_wizard
+msgid "Database Synchronization Wizard"
+msgstr "معالج مزامنة قاعدة البيانات"
+
+#. module: databases
+#: model:project.project,name:databases.database_default_template
+msgid "Database Template"
+msgstr "قالب قاعدة البيانات"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_url
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_url
+msgid "Database URL"
+msgstr "عنوان URL الخاص بقاعدة البيانات"
+
+#. module: databases
+#: model:ir.model,name:databases.model_databases_user
+msgid "Database User"
+msgstr "مستخدم قاعدة البيانات"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_user_ids
+msgid "Database Users"
+msgstr "مستخدمو قاعدة البيانات"
+
+#. module: databases
+#: model:ir.model,name:databases.model_databases_manage_users_wizard
+msgid "Database Users Invitation Wizard"
+msgstr "معالج دعوة مستخدمي قاعدة البيانات"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_version
+msgid "Database Version"
+msgstr "إصدار قاعدة البيانات"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid ""
+"Database synchronization is running in the background. You will be notified "
+"upon completion."
+msgstr "تتم مزامنة قاعدة البيانات في الخلفية. سيتم إخطارك عند الانتهاء."
+
+#. module: databases
+#: model:ir.actions.act_window,name:databases.action_view_databases_all
+#: model:ir.ui.menu,name:databases.menu_databases
+#: model:ir.ui.menu,name:databases.menu_main_databases
+#: model:res.groups.privilege,name:databases.res_groups_privilege_databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "Databases"
+msgstr "قواعد البيانات"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.ir_cron_synchronize_databases_with_odoocom_ir_actions_server
+msgid "Databases: pull databases from Odoo.com and synchronize"
+msgstr "قواعد البيانات: قم بسحب قواعد البيانات من Odoo.com ومزامنتها"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.ir_cron_synchronize_databases_ir_actions_server
+msgid "Databases: synchronize"
+msgstr "قواعد البيانات: مزامنة"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_manage_users_wizard_view_form
+msgid "Discard"
+msgstr "إهمال"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__display_name
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__display_name
+#: model:ir.model.fields,field_description:databases.field_databases_user__display_name
+#: model:ir.model.fields,field_description:databases.field_project_project__display_name
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__display_name
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__databases_manage_users_wizard__state__done
+#: model:project.task.type,name:databases.stage_done
+msgid "Done"
+msgstr "منتهي"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__databases_manage_users_wizard__state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: databases
+#. odoo-javascript
+#: code:addons/databases/static/src/views/databases_project_list/databases_project_list_renderer.js:0
+msgid "Draft entries in journal %(journal_name)s"
+msgstr "مسودات قيود دفتر اليومية %(journal_name)s"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__error_message
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__error_message
+msgid "Error Message"
+msgstr "رسالة الخطأ"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid ""
+"Error while connecting to %(url)s: We are missing the database name, the api "
+"login or the api key\n"
+msgstr ""
+"خطأ أثناء الاتصال بـ %(url)s: ينقصنا اسم قاعدة البيانات أو تسجيل الدخول إلى "
+"الواجهة البرمجية أو مفتاح الواجهة البرمجية\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "Error while creating users on %(dbname)s: %(message)s\n"
+msgstr "خطأ أثناء إنشاء مستخدمين على %(dbname)s: %(message)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Error while getting KPIs from %(dbname)s: %(message)s\n"
+msgstr ""
+"خطأ أثناء الحصول على مؤشرات الأداء الرئيسية من %(dbname)s: %(message)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Error while getting users from %(dbname)s: %(message)s\n"
+msgstr "خطأ أثناء الحصول على المستخدمين من %(dbname)s: %(message)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Error while listing databases from %(dbname)s: %(message)s\n"
+msgstr "خطأ أثناء سرد قواعد البيانات من %(dbname)s: %(message)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "Error while removing users from %(dbname)s: %(message)s\n"
+msgstr "حدث خطأ أثناء إزالة المستخدمين من %(dbname)s: %(message)s\n"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__everywhere_user_ids
+msgid "Everywhere User"
+msgstr "مستخدم في كل مكان"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_fetch_documents
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_fetch_documents
+msgid "Fetch Documents"
+msgstr "جلب المستندات"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_fetch_draft_entries
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_fetch_draft_entries
+msgid "Fetch Draft Journal Entries"
+msgstr "جلب مسودات قيود دفتر اليومية"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_fetch_tax_returns
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_fetch_tax_returns
+msgid "Fetch Tax Returns"
+msgstr "جلب الإقرارات الضريبية"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__fetched_values
+msgid "Fetched Values"
+msgstr "القيم المسترجعة"
+
+#. module: databases
+#: model_terms:ir.actions.act_window,help:databases.action_view_databases_all
+msgid ""
+"Get all your Odoo databases summarized, and perform mass action like "
+"inviting users."
+msgstr ""
+"احصل على ملخص لجميع قواعد بيانات أودو الخاصة بك، وقم بتنفيذ إجراءات جماعية "
+"مثل دعوة المستخدمين."
+
+#. module: databases
+#: model:ir.model.constraint,message:databases.constraint_project_project_database_url_unique
+msgid "Hey, this URL is already hooked up to a database!"
+msgstr "مهلا، هذا الرابط متصل بالفعل بقاعدة بيانات!"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_hosting
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_hosting
+msgid "Hosting"
+msgstr "الاستضافة"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__id
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__id
+#: model:ir.model.fields,field_description:databases.field_databases_user__id
+#: model:ir.model.fields,field_description:databases.field_project_project__id
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__id
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: databases
+#: model:project.task.type,name:databases.stage_progress
+msgid "In Progress"
+msgstr "قيد التنفيذ"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Inbox"
+msgstr "صندوق الوارد"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__databases_manage_users_wizard__mode__invite
+msgid "Invitation"
+msgstr "الدعوة"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "Invitation is done"
+msgstr "تمت الدعوة"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_manage_users_wizard_view_form
+msgid "Invite"
+msgstr "دعوة"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.action_invite_users
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Invite Users"
+msgstr "دعوة المستخدمين"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "KPIs"
+msgstr "المؤشرات الرئيسية للأداء"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_last_synchro
+msgid "Last Synchronization"
+msgstr "آخر مزامنة"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__write_uid
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__write_uid
+#: model:ir.model.fields,field_description:databases.field_databases_user__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__write_date
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__write_date
+#: model:ir.model.fields,field_description:databases.field_databases_user__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_user__latest_authentication
+msgid "Latest Authentication"
+msgstr "آخر مصادقة"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_user__local_user_id
+msgid "Local User"
+msgstr "مستخدم محلي"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_user__login
+msgid "Login"
+msgstr "تسجيل الدخول"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_kpi_properties
+msgid "Metrics"
+msgstr "المقاييس"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__mode
+msgid "Mode"
+msgstr "الوضع"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_user__name
+msgid "Name"
+msgstr "الاسم"
+
+#. module: databases
+#: model:project.task.type,name:databases.stage_new
+msgid "New"
+msgstr "جديد"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__new_properties
+msgid "New KPIs to add:"
+msgstr "مؤشرات الأداء الرئيسية الجديدة المراد إضافتها:"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "New databases will be based on the selected project template."
+msgstr "ستستند قواعد البيانات الجديدة إلى قالب المشروع الذي قمت بتحديده."
+
+#. module: databases
+#: model_terms:ir.actions.act_window,help:databases.action_view_tasks_all
+msgid "No tasks found. Let's create one!"
+msgstr "لم يتم العثور على أي مهام. فلنقم بإنشائها!"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__notify_user
+msgid "Notify User"
+msgstr "إخطار المستخدم"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__project_project__database_hosting__saas
+#: model:ir.model.fields.selection,name:databases.selection__project_template_create_wizard__database_hosting__saas
+msgid "Odoo Online"
+msgstr "أودو أونلاين"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__databases_apikey
+msgid "Odoo.com API Key"
+msgstr "مفتاح الواجهة البرمجية لـ Odoo.com"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__databases_apiuser
+msgid "Odoo.com API User"
+msgstr "مستخدم الواجهة البرمجية لـ Odoo.com"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid ""
+"Odoo.com API keys are managed in the <em>Developer API Keys</em> section of "
+"your"
+msgstr ""
+"تتم إدارة مفاتيح الواجهة البرمجية لـ Odoo.com في قسم <em>مفاتيح API "
+"للمطورين</em> في"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "Odoo.com Connection &amp; Security page"
+msgstr "صفحة الاتصال والأمان في Odoo.com"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__project_project__database_hosting__paas
+#: model:ir.model.fields.selection,name:databases.selection__project_template_create_wizard__database_hosting__paas
+msgid "Odoo.sh"
+msgstr "Odoo.sh"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__project_project__database_hosting__premise
+#: model:ir.model.fields.selection,name:databases.selection__project_template_create_wizard__database_hosting__premise
+msgid "On Premise"
+msgstr "محلي"
+
+#. module: databases
+#: model_terms:ir.actions.act_window,help:databases.action_view_tasks_all
+msgid ""
+"Organize your tasks by dispatching them across the pipeline.<br>\n"
+"                Collaborate efficiently by chatting in real-time or via "
+"email."
+msgstr ""
+"قم بتنظيم مهامك عن طريق توزيعها في مخطط سير العمل.<br>\n"
+"                تعاون بكفاءة عن طريق الدردشة في الوقت الفعلي أو عبر البريد "
+"الإلكتروني."
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__project_project__database_hosting__other
+#: model:ir.model.fields.selection,name:databases.selection__project_template_create_wizard__database_hosting__other
+msgid "Outside of Odoo"
+msgstr "خارج أودو"
+
+#. module: databases
+#. odoo-javascript
+#: code:addons/databases/static/src/views/databases_project_list/databases_project_list_renderer.js:0
+msgid "Planned activities of type %(return_name)s"
+msgstr "الأنشطة المخطط لها من النوع %(return_name)s"
+
+#. module: databases
+#: model:ir.model,name:databases.model_project_project
+msgid "Project"
+msgstr "المشروع"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "Project Template"
+msgstr "قالب المشروع"
+
+#. module: databases
+#: model:ir.model,name:databases.model_project_template_create_wizard
+msgid "Project Template create Wizard"
+msgstr "معالج إنشاء قوالب المشاريع"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__databases_project_template_id
+msgid "Project template"
+msgstr "قالب المشروع"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__property_definition
+msgid "Property Definition"
+msgstr "تعريف الملكية"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "Regular Project"
+msgstr "مشروع عام"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__removable_user_ids
+msgid "Removable User"
+msgstr "مستخدم قابل للإزالة"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__databases_manage_users_wizard__mode__remove
+msgid "Removal"
+msgstr "الإزالة"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_manage_users_wizard_view_form
+msgid "Remove"
+msgstr "إزالة"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "Remove User"
+msgstr "إزالة المستخدم"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.action_remove_users
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Remove Users"
+msgstr "إزالة المستخدمين"
+
+#. module: databases
+#: model:ir.ui.menu,name:databases.menu_reporting
+msgid "Reporting"
+msgstr "إعداد التقارير"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Responsible"
+msgstr "المسؤول"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid ""
+"Select the users you want to invite to the %(nb_databases)s selected "
+"databases."
+msgstr ""
+"حدد المستخدمين الذين تريد دعوتهم إلى قواعد البيانات المحددة في %"
+"(nb_databases)s."
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "Select the users you want to invite to the database %(database_name)s."
+msgstr ""
+"حدد المستخدمين الذين ترغب في دعوتهم إلى قاعدة البيانات %(database_name)s."
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid ""
+"Select the users you want to remove from the %(nb_databases)s selected "
+"databases."
+msgstr ""
+"حدد المستخدمين الذين ترغب في إزالتهم من قواعد البيانات المحددة في %"
+"(nb_databases)s."
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid ""
+"Select the users you want to remove from the database %(database_name)s."
+msgstr ""
+"حدد المستخدمين الذين ترغب في إزالتهم من قاعدة البيانات %(database_name)s."
+
+#. module: databases
+#: model:ir.actions.act_window,name:databases.action_databases_configuration
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Settings"
+msgstr "الإعدادات"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__state
+msgid "State"
+msgstr "الولاية"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__summary_message
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__summary_message
+msgid "Summary Message"
+msgstr "رسالة موجزة"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_nb_synchro_errors
+msgid "Synchronization Errors Count"
+msgstr "عدد أخطاء المزامنة"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Synchronization done successfully!"
+msgstr "تمت المزامنة بنجاح!"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/models/project_project.py:0
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Synchronization of %d databases"
+msgstr "مزامنة %d قواعد بيانات"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.action_synchronize_database
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Synchronize"
+msgstr "المزامنة"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.action_synchronize_all_databases
+msgid "Synchronize all the Databases"
+msgstr "مزامنة جميع قواعد البيانات"
+
+#. module: databases
+#: model_terms:ir.actions.act_window,help:databases.action_view_databases_all
+msgid ""
+"Synchronize to automatically fetch Odoo Online databases, or set an API Key "
+"to connect to On Premise or Odoo.sh ones."
+msgstr ""
+"قم بالمزامنة لجلب قواعد بيانات أودو أونلاين تلقائيًا، أو قم بتعيين مفتاح API "
+"للاتصال بقواعد البيانات المحلية أو قواعد بيانات Odoo.sh."
+
+#. module: databases
+#: model:ir.actions.act_window,name:databases.action_view_tasks_all
+#: model:ir.ui.menu,name:databases.menu_tasks
+#: model:project.project,label_tasks:databases.database_default_template
+msgid "Tasks"
+msgstr "المهام"
+
+#. module: databases
+#. odoo-javascript
+#: code:addons/databases/static/src/views/databases_project_list/databases_project_list_renderer.js:0
+msgid "Tax return %(return_name)s"
+msgstr "الإقرار الضريبي %(return_name)s"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid ""
+"The database %(url)s is registered as a saas database in odoo.com. As it "
+"seems to be configured we have left it as is.\n"
+msgstr ""
+"قاعدة البيانات %(url)s مسجلة كقاعدة بيانات SaaS في odoo.com. وبما أنها تبدو "
+"مهيأة، فقد تركناها كما هي.\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "These users were successfully invited to %(nb_databases)s databases."
+msgstr "تمت دعوة هؤلاء المستخدمين بنجاح إلى %(nb_databases)s قواعد بيانات."
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "These users were successfully removed from %(nb_databases)s databases."
+msgstr "تمت إزالة هؤلاء المستخدمين بنجاح من %(nb_databases)s قواعد بيانات."
+
+#. module: databases
+#: model:ir.model.constraint,message:databases.constraint_project_project_database_url_required
+msgid "Uh-oh! It seems we are missing a url for a database!"
+msgstr "أوه لا! يبدو أننا فقدنا عنوان URL لقاعدة البيانات!"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__user_ids
+#: model:res.groups,name:databases.group_databases_user
+msgid "User"
+msgstr "المستخدم"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "User Management"
+msgstr "إدارة المستخدمين"
+
+#. module: databases
+#: model:res.groups,comment:databases.group_databases_user
+msgid "User can access the client databases"
+msgstr "بوسع المستخدم الوصول إلى قواعد بيانات العملاء"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "User removal is done"
+msgstr "تمت إزالة المستخدم"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Users"
+msgstr "المستخدمين"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Version"
+msgstr "الإصدار"
+
+#. module: databases
+#: model:ir.model.fields,help:databases.field_databases_synchronization_wizard__notify_user
+msgid ""
+"Whether the user should be notified once the cron has finished synchronizing "
+"the databases"
+msgstr ""
+"ما إذا كان يجب إخطار المستخدم بمجرد انتهاء cron من مزامنة قواعد البيانات أم "
+"لا"

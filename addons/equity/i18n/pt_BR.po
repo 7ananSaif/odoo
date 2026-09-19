@@ -1,0 +1,2183 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * equity
+#
+# "Maitê Dietze (madi)" <madi@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:41+0000\n"
+"PO-Revision-Date: 2025-12-31 10:18+0000\n"
+"Last-Translator: \"Maitê Dietze (madi)\" <madi@odoo.com>\n"
+"Language-Team: Portuguese (Brazil) <https://translate.odoo.com/projects/"
+"odoo-19/equity/pt_BR/>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__securities
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__securities
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "# Securities"
+msgstr "Nº de títulos"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__shares
+msgid "# Shares"
+msgstr "Nº de compartilhamentos"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_valuation.py:0
+msgid "%(partner_name)s %(amount)s"
+msgstr "%(partner_name)s %(amount)s"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_ubo.py:0
+msgid "%(partner_name)s (%(holder_name)s)"
+msgstr "%(partner_name)s (%(holder_name)s)"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+msgid "%(partner_name)s's Transactions"
+msgstr "Transações de %(partner_name)s"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+msgid "%(partner_name)s's Valuations"
+msgstr "Valoração de %(partner_name)s"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "%(transaction_type)s %(securities).2f %(class_name)s"
+msgstr "%(transaction_type)s %(securities).2f %(class_name)s"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+msgid "(Completed through portal Form)"
+msgstr "(Preenchido através do formulário do portal)"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "(ID"
+msgstr "(ID"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "(Non-positive options don't expire)"
+msgstr "(As opções não positivas não expiram)"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "(Optional)"
+msgstr "(Opcional)"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "(expired)"
+msgstr "(vencido)"
+
+#. module: equity
+#: model:ir.actions.report,print_report_name:equity.action_equity_ubo_report
+msgid "(object._get_ubo_report_filename())"
+msgstr "(object._get_ubo_report_filename())"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "/ Security"
+msgstr "/Segurança"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid ""
+"<br/>\n"
+"                                            Politically Exposed Person:"
+msgstr ""
+"<br/>\n"
+"                                            Pessoa Politicamente Exposta:"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "<br/> Nationality:"
+msgstr "<br/> Nationalidade:"
+
+#. module: equity
+#: model:mail.template,body_html:equity.equity_shareholder_email_template
+msgid ""
+"<div>\n"
+"                    <p> Hello <t t-out=\"ctx.get('holder_name')\"/>,<br/>\n"
+"                        You will find your latest transaction and valuations "
+"in the following link: <br/>\n"
+"                        <a t-attf-href=\"/my/equity?"
+"access_token={{ctx.get('equity_access_token')}}\" class=\"btn btn-"
+"primary\">Show Equity</a> <br/> <br/>\n"
+"                        Best,\n"
+"                        <t t-if=\"user_id.signature\">\n"
+"                            <br/>--<br/>\n"
+"                            <t t-out=\"user_id.signature or ''\">Mitchell "
+"Admin</t>\n"
+"                        </t>\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+"<div>\n"
+"                    <p> Olá <t t-out=\"ctx.get('holder_name')\"/>,<br/>\n"
+"                        Você encontrará suas transações e avaliações mais "
+"recentes no link a seguir: <br/>\n"
+"                        <a t-attf-href=\"/my/equity?"
+"access_token={{ctx.get('equity_access_token')}}\" class=\"btn btn-"
+"primary\">Ver ações</a> <br/> <br/>\n"
+"                        Cordialmente,\n"
+"                        <t t-if=\"user_id.signature\">\n"
+"                            <br/>--<br/>\n"
+"                            <t t-out=\"user_id.signature or ''\">Mitchell "
+"Admin</t>\n"
+"                        </t>\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+
+#. module: equity
+#: model:mail.template,body_html:equity.equity_ubo_form_email_template
+msgid ""
+"<div>\n"
+"                    <p> Hello <t t-out=\"object.name\"/>,<br/>\n"
+"                        Following our legal obligations to identify clients, "
+"we need to report natural persons who directly or indirectly\n"
+"                        hold or control at least 25% in the capital or "
+"voting rights of <b><t t-out=\"user_id.company_id.name\"/></b>. <br/> <br/>\n"
+"                        Please fill in the UBO request:<br/>\n"
+"                        <a t-attf-href=\"/my/ubo?"
+"{{object._get_equity_url_params()}}\" class=\"btn btn-primary\">Fill UBO</a> "
+"<br/> <br/>\n"
+"                        Thank you,\n"
+"                        <t t-if=\"user_id.signature\">\n"
+"                            <br/>--<br/>\n"
+"                            <t t-out=\"user_id.signature or ''\">Mitchell "
+"Admin</t>\n"
+"                        </t>\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+"<div>\n"
+"                    <p> Olá <t t-out=\"object.name\"/>,<br/>\n"
+"                        Seguindo nossas obrigações legais de identificar "
+"clientes, precisamos relatar pessoas físicas que, direta ou indiretamente,\n"
+"                      detêm ou controlam pelo menos 25% do capital ou dos "
+"direitos de voto da <b><t t-out=\"user_id.company_id.name\"/></b>. <br/> <br/"
+">\n"
+"                        Preencha o pedido de UBO:<br/>\n"
+"                        <a t-attf-href=\"/my/ubo?"
+"{{object._get_equity_url_params()}}\" class=\"btn btn-primary\">Preencher "
+"UBO</a> <br/> <br/>\n"
+"                        Obrigado!\n"
+"                        <t t-if=\"user_id.signature\">\n"
+"                            <br/>--<br/>\n"
+"                            <t t-out=\"user_id.signature or ''\">Mitchell "
+"Admin</t>\n"
+"                        </t>\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_help
+msgid ""
+"<i class=\"fa fa-envelope ms-2 mt-1\" aria-label=\"Email Address\" "
+"title=\"Email Address\"/>"
+msgstr ""
+"<i class=\"fa fa-envelope ms-2 mt-1\" aria-label=\"Email Address\" "
+"title=\"Email Address\"/>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_help
+msgid ""
+"<i class=\"fa fa-phone ms-2 mt-1\" aria-label=\"Phone Number\" title=\"Phone "
+"Number\"/>"
+msgstr ""
+"<i class=\"fa fa-phone ms-2 mt-1\" aria-label=\"Phone Number\" title=\"Phone "
+"Number\"/>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_kanban
+msgid ""
+"<i title=\"To\" class=\"fa fa-fw fa-arrow-right mx-1\" "
+"invisible=\"transaction_type != 'exercise'\"/>"
+msgstr ""
+"<i title=\"To\" class=\"fa fa-fw fa-arrow-right mx-1\" "
+"invisible=\"transaction_type != 'exercise'\"/>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_kanban
+msgid ""
+"<i title=\"To\" class=\"fa fa-fw fa-arrow-right mx-1\" "
+"invisible=\"transaction_type != 'transfer'\"/>"
+msgstr ""
+"<i title=\"To\" class=\"fa fa-fw fa-arrow-right mx-1\" "
+"invisible=\"transaction_type != 'transfer'\"/>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_view_partner_form
+msgid "<span class=\"o_stat_text\">Shareholders</span>"
+msgstr "<span class=\"o_stat_text\">Acionistas</span>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_dashboard_res_partner
+msgid "<span class=\"text-muted\">Valuation</span>"
+msgstr "<span class=\"text-muted\">Valoração</span>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_dashboard_res_partner
+msgid ""
+"<span> Shareholder<span invisible=\"equity_shareholders_count == 1\">s</"
+"span></span>"
+msgstr ""
+"<span> Acionistas<span invisible=\"equity_shareholders_count == 1\">s</"
+"span></span>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_dashboard_res_partner
+msgid ""
+"<span> Transaction<span invisible=\"equity_transaction_count == 1\">s</"
+"span></span>"
+msgstr ""
+"<span> Transação<span invisible=\"equity_transaction_count == 1\">s</span></"
+"span>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "<span>Missing supporting documents! Attach them in the chatter.</span>"
+msgstr "<span>Há documentos de apoio faltando! Anexe-os no chatter.</span>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_security_class_form
+msgid "<span>per share</span>"
+msgstr "<span>por ação</span>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "<strong>Address:</strong>"
+msgstr "<strong>Endereço</strong>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "<strong>Company Name:</strong>"
+msgstr "<strong>Nome da empresa:</strong>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "<strong>OR</strong>"
+msgstr "<strong>OU</strong>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "<strong>Tax ID Number:</strong>"
+msgstr "<strong>Número de identificação fiscal:</strong>"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/valuation_chart/valuation_chart.xml:0
+msgid ""
+"= Your shares / Total number of shares (i.e., options not taken into account)"
+msgstr ""
+"= Suas ações / Número total de ações (ou seja, opções não levadas em conta)"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"A credit or financial institution located in a country listed by the Royal "
+"Decree of 19 July 2013 drawing up a third\n"
+"                            country equivalence list for a simplified due "
+"diligence (article 37(2), subparagraph 1(2 and 5), of the AML law);"
+msgstr ""
+"Uma instituição financeira ou de crédito localizada em um país listado pelo "
+"Decreto Real de 19 de julho de 2013 que elabora uma lista de equivalência "
+"de\n"
+"                            país para uma due diligence simplificada (artigo "
+"37(2), parágrafo 1(2 e 5), da lei AML);"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"A listed company: a company whose shares are traded on a regulated market a "
+"Member States of the European\n"
+"                            Economic Area; or"
+msgstr ""
+"Uma empresa cotada: uma empresa cujas ações são negociadas em um mercado "
+"regulamentado de um Estado-Membro do\n"
+"Espaço Econômico Europeu; ou"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid ""
+"According to laws related to anti money laundering, the notary must identify "
+"the beneficial owners of their customer."
+msgstr ""
+"De acordo com as leis relacionadas com o combate ao branqueamento de "
+"capitais, o notário deve identificar os beneficiários efetivos dos seus "
+"clientes."
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_needaction
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_needaction
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_needaction
+msgid "Action Needed"
+msgstr "Requer ação"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.js:0
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Add Beneficial Owner"
+msgstr "Adicionar proprietário beneficiário"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/valuation_chart_action/valuation_chart_action.js:0
+msgid "Add some valuations over the past year to see some data here."
+msgstr "Adicione valorações do último ano para ver alguns dados aqui."
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_attachment_count
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_attachment_count
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_attachment_count
+msgid "Attachment Count"
+msgstr "Total de anexos"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__attachment_number
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__attachment_number
+msgid "Attachment Number"
+msgstr "Número do anexo"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__attachment_ids
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__attachment_ids
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__attachment_ids
+msgid "Attachments"
+msgstr "Anexos"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_valuation__event__audit
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_valuation_search
+msgid "Audit"
+msgstr "Auditoria"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__auditor
+msgid "Auditor"
+msgstr "Auditor"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: model:ir.model.fields,help:equity.field_equity_ubo__auth_rep_role
+msgid "Authorized Representative Role"
+msgstr "Função de representante autorizado"
+
+#. module: equity
+#: model:ir.actions.act_window,name:equity.action_equity_ubo
+#: model_terms:ir.ui.view,arch_db:equity.equity_view_partner_form
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_list
+msgid "Beneficial Owners"
+msgstr "Proprietários beneficiários"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Beneficial owners are natural person(s) who ultimately own(s) or control(s) "
+"the customer or the natural person(s)\n"
+"                    for whose account or on whose behalf a transaction is "
+"being conducted or a business relationship is established. It\n"
+"                    includes those natural persons that do not have a "
+"controlling holding in the company or a formal mandate of any kind\n"
+"                    but who are de facto exercising similar control over the "
+"company."
+msgstr ""
+"Os beneficiários efetivos são pessoas físicas que, em última instância, "
+"possuem ou controlam o cliente ou as pessoas físicas\n"
+"                    em cuja conta ou em nome das quais uma transação está "
+"sendo realizada ou uma relação comercial está sendo estabelecida. Isso\n"
+"                    inclui as pessoas físicas que não possuem participação "
+"controladora na empresa ou qualquer tipo de mandato formal,\n"
+"                    mas que, de fato, exercem controle semelhante sobre a "
+"empresa."
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: model:ir.model.fields,field_description:equity.field_res_partner__ubo_birth_date
+#: model:ir.model.fields,field_description:equity.field_res_users__ubo_birth_date
+msgid "Birth Date"
+msgstr "Data de nascimento"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__ubo_birth_place
+#: model:ir.model.fields,field_description:equity.field_res_users__ubo_birth_place
+msgid "Birth Place"
+msgstr "Local de nascimento"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__board_member
+msgid "Board Member"
+msgstr "Membro do Conselho"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Buyer"
+msgstr "Comprador"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__ceo
+msgid "CEO"
+msgstr "CEO"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Can only exercise options, please select an options class"
+msgstr "Só é possível exercer opções. Selecione uma classe de opções."
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_transaction__transaction_type__cancellation
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_search
+msgid "Cancellation"
+msgstr "Cancelamento"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_security_class.py:0
+msgid "Cannot change security class type because it has linked transactions"
+msgstr ""
+"Não é possível alterar o tipo de classe de segurança porque há transações "
+"vinculadas a ele"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+#: model:ir.actions.client,name:equity.action_equity_cap_table
+#: model:ir.model,name:equity.model_equity_cap_table
+#: model:ir.ui.menu,name:equity.menu_equity_reporting_cap_table
+msgid "Cap Table"
+msgstr "Tabela de capitalização"
+
+#. module: equity
+#: model:ir.actions.act_window,name:equity.action_equity_cap_table_pivot
+#: model:ir.ui.menu,name:equity.menu_equity_reporting_cap_table_pivot
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_cap_table_pivot
+msgid "Cap Table Pivot"
+msgstr "Pivô da tabela de capitalização"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__chairman
+msgid "Chairman of the Board"
+msgstr "Presidente do Conselho"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__security_class_id
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Class"
+msgstr "Classe"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "Clear"
+msgstr "Limpar"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__partner_id
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__partner_id
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__partner_id
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_search
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_form
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_search
+msgid "Company"
+msgstr "Empresa"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__co_1
+msgid "Company - Cat 1. Capital Ownership or voting rights"
+msgstr "Empresa - Categoria 1. Propriedade do capital ou direitos de voto"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__co_2
+msgid "Company - Cat 2. Control by other means"
+msgstr "Empresa - Cat 2. Controle por outros meios"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__co_3
+msgid "Company - Cat 3. Executive officer"
+msgstr "Empresa - Cat 3. Diretor executivo"
+
+#. module: equity
+#: model:ir.ui.menu,name:equity.menu_equity_configuration
+msgid "Configuration"
+msgstr "Configuração"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.xml:0
+#: model:ir.model,name:equity.model_res_partner
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_help
+msgid "Contact"
+msgstr "Contato"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.js:0
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__end_date
+msgid "Control End Date"
+msgstr "Data de término do controle"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.js:0
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__control_method
+msgid "Control Method"
+msgstr "Método de controle"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.js:0
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__start_date
+msgid "Control Start Date"
+msgstr "Data de início do controle"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.js:0
+msgid "Control Start Date is mandatory"
+msgstr "A data de início do controle é obrigatória"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Control is the legal or de facto right to exercise a decisive influence over "
+"the appointment of the majority of its\n"
+"                    directors or managers or over the direction of its "
+"operations."
+msgstr ""
+"Controle é o direito legal ou de facto de exercer influência decisiva sobre "
+"a nomeação da maioria de seus diretores ou gerentes ou sobre a direção de "
+"suas operações."
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "Controlling Method"
+msgstr "Método de controle"
+
+#. module: equity
+#: model:ir.actions.act_window,name:equity.action_equity_valuation_form
+msgid "Create Valuation"
+msgstr "Criar Valoração"
+
+#. module: equity
+#: model:ir.model,website_form_label:equity.model_res_partner
+msgid "Create a Customer"
+msgstr "Criar um cliente"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__create_uid
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__create_uid
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__create_uid
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__create_uid
+msgid "Created by"
+msgstr "Criado por"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__create_date
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__create_date
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__create_date
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__create_date
+msgid "Created on"
+msgstr "Criado em"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__equity_currency_id
+msgid "Currency"
+msgstr "Moeda"
+
+#. module: equity
+#: model:ir.ui.menu,name:equity.menu_equity_dashboard
+msgid "Dashboard"
+msgstr "Painel"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__date
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__date
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "Date"
+msgstr "Data"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "Decision maker"
+msgstr "Tomador de decisões"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Definitions: \"beneficial owners\", \"control\", \"shareholder holding 25% "
+"or more\", \"decision makers\""
+msgstr ""
+"Definições: “beneficiários efetivos”, “controle”, “acionista com uma "
+"participação igual ou superior a 25%”, “decisores”"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__destination_class_id
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Destination Class"
+msgstr "Classe de destino"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Destination class can only be set in exercise transactions."
+msgstr "A classe de destino só pode ser definida em transações de exercício."
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__dilution
+msgid "Dilution"
+msgstr "Diluição"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: code:addons/equity/static/src/components/ubo_form/holder_end_dialog.xml:0
+msgid "Discard"
+msgstr "Cancelar"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__display_name
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__display_name
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__display_name
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__display_name
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__display_name
+#: model:ir.model.fields,field_description:equity.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Nome exibido"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__dividend_payout
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__dividend_payout
+msgid "Dividend Payout"
+msgstr "Pagamento de dividendos"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__attachment_expiration_date
+msgid "Document Exp. Date"
+msgstr "Data de validade do documento"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "Document Expiration Date"
+msgstr "Data de validade do documento"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.js:0
+msgid "Edit Beneficial Owner"
+msgstr "Editar Titular Beneficiário"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+#: model:ir.actions.server,name:equity.action_equity_dashboard_res_partner
+#: model:ir.ui.menu,name:equity.menu_equity
+#: model:res.groups.privilege,name:equity.res_groups_privilege_equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_breadcrumbs_equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_home_equity
+msgid "Equity"
+msgstr "Patrimônio"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_access_token
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_access_token
+msgid "Equity Access Token"
+msgstr "Token de acesso a ações"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__equity_currency_id
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_currency_id
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_currency_id
+msgid "Equity Currency"
+msgstr "Moeda patrimonial"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_kanban_dashboard_graph
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_kanban_dashboard_graph
+msgid "Equity Kanban Dashboard Graph"
+msgstr "Gráfico do painel Kanban de patrimônio líquido"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_last_valuation
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_last_valuation
+msgid "Equity Last Valuation"
+msgstr "Última Avaliação do Patrimônio Líquido"
+
+#. module: equity
+#: model:mail.template,name:equity.equity_shareholder_email_template
+msgid "Equity Shareholder Email"
+msgstr "E-mail do acionista"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_shareholders_count
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_shareholders_count
+msgid "Equity Shareholders Count"
+msgstr "Contagem de acionistas"
+
+#. module: equity
+#: model:ir.model,name:equity.model_equity_transaction
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_transaction_ids
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_transaction_ids
+msgid "Equity Transaction"
+msgstr "Transação de ações"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_transaction_count
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_transaction_count
+msgid "Equity Transaction Count"
+msgstr "Contagem de transações de ações"
+
+#. module: equity
+#: model:mail.template,name:equity.equity_ubo_form_email_template
+msgid "Equity UBO Form Email"
+msgstr "Formulário UBO de capital próprio E-mail"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_valuation_ids
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_valuation_ids
+msgid "Equity Valuation"
+msgstr "Avaliação patrimonial"
+
+#. module: equity
+#: model:mail.template,subject:equity.equity_shareholder_email_template
+msgid "Equity notice"
+msgstr "Aviso sobre capital próprio"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__event
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "Event"
+msgstr "Evento"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "Exemption from the identification of beneficial"
+msgstr "Isenção da identificação do beneficiário efetivo"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Exercise transactions must have a destination 'Share' class"
+msgstr "As transações de exercício devem ter uma classe de destino “Ação”"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__expiration_date
+msgid "Expiration"
+msgstr "Expiração"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "Expiration Date"
+msgstr "Data de expiração"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__expiration_diff
+msgid "Expiration Diff"
+msgstr "Diferença de vencimento"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_search
+msgid "Expired Documents"
+msgstr "Documentos vencidos"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Family members: the spouse, any person considered as equivalent to the "
+"persons considered as equivalent to the\n"
+"                        spouse; the parents;"
+msgstr ""
+"Membros da família: o cônjuge, qualquer pessoa considerada equivalente às "
+"pessoas consideradas equivalentes ao cônjuge; os pais;"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "First and Last Name:"
+msgstr "Nome e sobrenome:"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_follower_ids
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_follower_ids
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_follower_ids
+msgid "Followers"
+msgstr "Seguidores"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_partner_ids
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_partner_ids
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Seguidores (parceiros)"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Following out legal obligations to identify clients, please report natural "
+"persons who directly or indirectly\n"
+"                <b>hold or control at least 25% in the capital or voting "
+"rights</b> of"
+msgstr ""
+"Em conformidade com as nossas obrigações legais de identificação de "
+"clientes, informe-nos sobre pessoas físicas que, direta ou indiretamente\n"
+"               <b> detêm ou controlam pelo menos 25% in do capital ou dos "
+"direitos de voto</b> de"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_formation_date
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_formation_date
+msgid "Formation Date"
+msgstr "Data de constituição"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+msgid "Fully Diluted"
+msgstr "Totalmente diluído"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_end_dialog.js:0
+msgid "Function end: %s"
+msgstr "Fim da função: %s"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Governing authorities of the European Union, bodies and agencies as defined "
+"by the Royal Decree of 19 July 2013\n"
+"                            drawing up a list of European governing "
+"authorities, bodies and specialized agencies for a simplified due diligence."
+msgstr ""
+"Autoridades governamentais da União Europeia, organismos e agências, "
+"conforme definido pelo Decreto Real de 19 de julho de 2013\n"
+"elaborando uma lista de autoridades governamentais, organismos e agências "
+"especializadas europeias para uma devida diligência simplificada."
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__has_auth_rep_role
+msgid "Has Auth Rep Role"
+msgstr "Tem função de representante de autenticação"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__has_message
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__has_message
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__has_message
+msgid "Has Message"
+msgstr "Tem uma mensagem"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__has_percentages
+msgid "Has Percentages"
+msgstr "Tem porcentagens"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Heads of State, heads of government, ministers and deputy or assistant "
+"ministers; members of parliaments;\n"
+"                        members of the governing bodies of political "
+"parties; members of supreme courts, of constitutional courts or of other\n"
+"                        high judicial bodies whose decisions are not subject "
+"to further appeal, except in exceptional circumstances; members\n"
+"                        of courts of auditors or of the boards of central "
+"banks; ambassadors, charges d'affaires and high armed forces;\n"
+"                        members of the administrative, management or "
+"supervisory bodies of State owned enterprises; directors, deputy\n"
+"                        directors and members of the board or equivalent "
+"function of an international"
+msgstr ""
+"Chefes de Estado, chefes de governo, ministros e vice-ministros ou ministros "
+"adjuntos; membros de parlamentos;\n"
+"                        membros dos órgãos dirigentes de partidos políticos; "
+"membros de tribunais supremos, de tribunais constitucionais ou de outros\n"
+"                        órgãos judiciais superiores cujas decisões não sejam "
+"passíveis de recurso, salvo em circunstâncias excecionais; membros\n"
+"                        de tribunais de contas ou de conselhos de bancos "
+"centrais; embaixadores, encarregados de negócios e altos responsáveis das "
+"forças armadas;\n"
+"                        membros dos órgãos administrativos, de gestão ou de "
+"supervisão de empresas estatais; diretores, diretores adjuntos\n"
+"e membros do conselho de administração ou função equivalente de uma "
+"organização internacional"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__holder_id
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__holder_id
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_form
+msgid "Holder"
+msgstr "Titular"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_view_partner_form
+msgid "Holdings"
+msgstr "Participações"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid ""
+"I hereby declare on honor that the information provided is truthful and "
+"accurate."
+msgstr ""
+"Declaro, sob minha responsabilidade, que as informações fornecidas são "
+"verdadeiras e precisas."
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__id
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__id
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__id
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__id
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__id
+#: model:ir.model.fields,field_description:equity.field_res_partner__id
+msgid "ID"
+msgstr "ID"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: model_terms:ir.ui.view,arch_db:equity.equity_view_partner_form
+msgid "ID Number"
+msgstr "Número de identificação"
+
+#. module: equity
+#: model:ir.model.fields,help:equity.field_equity_transaction__message_needaction
+#: model:ir.model.fields,help:equity.field_equity_ubo__message_needaction
+#: model:ir.model.fields,help:equity.field_equity_valuation__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Se marcado, há novas mensagens precisando de sua atenção."
+
+#. module: equity
+#: model:ir.model.fields,help:equity.field_equity_transaction__message_has_error
+#: model:ir.model.fields,help:equity.field_equity_transaction__message_has_sms_error
+#: model:ir.model.fields,help:equity.field_equity_ubo__message_has_error
+#: model:ir.model.fields,help:equity.field_equity_ubo__message_has_sms_error
+#: model:ir.model.fields,help:equity.field_equity_valuation__message_has_error
+#: model:ir.model.fields,help:equity.field_equity_valuation__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Se marcado, algumas mensagens têm um erro de entrega."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"If the future beneficiary(ies) have not yet been designated, the group of "
+"persons in the main interests of whom the\n"
+"                                    legal entity was formed or operates."
+msgstr ""
+"Se o(s) futuro(s) beneficiário(s) ainda não tiver(em) sido designado(s), o "
+"grupo de pessoas em cujo interesse principal a\n"
+"entidade jurídica foi constituída ou opera."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "If the shareholder holding more than 25% is"
+msgstr "Se o acionista detiver mais de 25% is"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_submit
+msgid ""
+"If you are returning to an already submitted form, please note that your "
+"information has been securely stored."
+msgstr ""
+"Se você estiver retornando a um formulário já enviado, observe que suas "
+"informações foram armazenadas com segurança."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_submit
+msgid ""
+"If your form has been successfully submitted, our team will review it and "
+"keep you informed of any updates."
+msgstr ""
+"Se o seu formulário foi enviado com sucesso, nossa equipe irá analisá-lo e "
+"mantê-lo informado sobre as atualizações."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_search
+msgid "In Control"
+msgstr "No controle"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__invalid_securities_error
+msgid "Invalid Securities Error"
+msgstr "Erro de títulos inválidos"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_ubo.py:0
+msgid "Invalid data: %s"
+msgstr "Dados inválidos: %s"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/controllers/portal.py:0
+msgid "Invalid token"
+msgstr "Token inválido"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+msgid "Invite %s"
+msgstr "Convidar %s"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_is_follower
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_is_follower
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_is_follower
+msgid "Is Follower"
+msgstr "É um seguidor"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_transaction__transaction_type__issuance
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_search
+msgid "Issuance"
+msgstr "Emissão"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "Job Position:"
+msgstr "Cargo:"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__write_uid
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__write_uid
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__write_uid
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__write_uid
+msgid "Last Updated by"
+msgstr "Última atualização por"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__write_date
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__write_date
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__write_date
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__write_date
+msgid "Last Updated on"
+msgstr "Última atualização em"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_legal_form
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_legal_form
+msgid "Legal Form"
+msgstr "Formulário legal"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "Legal persons governed by public national laws;"
+msgstr "Pessoas jurídicas regidas pelo direito público nacional;"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__liquidator
+msgid "Liquidator"
+msgstr "Liquidatário"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+msgid "Manage transactions, equity, cap table, and shareholders."
+msgstr ""
+"Gerencie transações, patrimônio líquido, tabela de capitalização e "
+"acionistas."
+
+#. module: equity
+#: model:res.groups,name:equity.group_equity_manager
+msgid "Manager"
+msgstr "Gerente"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__managing_director
+msgid "Managing Director"
+msgstr "Diretor Executivo"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_has_error
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_has_error
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_has_error
+msgid "Message Delivery error"
+msgstr "Erro na entrega da mensagem"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_ids
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_ids
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_ids
+msgid "Messages"
+msgstr "Mensagens"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_search
+msgid "Missing Documents"
+msgstr "Documentos ausentes"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_equity
+msgid "My Companies"
+msgstr "Minhas empresas"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__ngo_1
+msgid "NGO - Cat 1. Directors"
+msgstr "ONG - Cat. 1. Diretores"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__ngo_2
+msgid "NGO - Cat 2. Individuals with representation authority"
+msgstr "ONG - Cat. 2. Indivíduos com autoridade de representação"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__ngo_3
+msgid "NGO - Cat 3. Individuals responsible for day-to-day management"
+msgstr "ONG - Cat. 3. Pessoas responsáveis pela gestão diária"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__ngo_4
+msgid "NGO - Cat 4. Founders of a foundation"
+msgstr "ONG - Cat 4. Fundadores de uma fundação"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__ngo_5
+msgid ""
+"NGO - Cat 5. Individuals or categories of individuals in whose main interest "
+"the association or foundation has been established or operates"
+msgstr ""
+"ONG - Cat. 5. Indivíduos ou categorias de indivíduos em cujo interesse "
+"principal a associação ou fundação foi criada ou opera"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__ngo_6
+msgid ""
+"NGO - Cat 6. Any other individual who ultimately exercises control by other "
+"means"
+msgstr ""
+"ONG - Cat 6. Qualquer outra pessoa que, em última instância, exerça controle "
+"por outros meios"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.js:0
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__name
+#: model_terms:ir.ui.view,arch_db:equity.equity_view_partner_form
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_list
+msgid "Name"
+msgstr "Nome"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.js:0
+msgid "Name is mandatory"
+msgstr "O nome é obrigatório"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "Nationality"
+msgstr "Nacionalidade"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Natural Persons who have a formal mandate within the Board of the company. "
+"These are for example the person(s) who are named (or equivalent of) Chief "
+"Executive Officer (CEO), Chief Financial Officer (CFO) or Treasurer. If a "
+"legal entity exercises a mandate in the Board of the company, it is required "
+"to list all Board level mandate holders including their function. <br/> "
+"Natural persons that do not have a controlling holding in the company or a "
+"formal mandate of any kind but who are de facto exercising similar control "
+"over the company."
+msgstr ""
+"Pessoas físicas que têm um mandato formal no Conselho de Administração da "
+"empresa. São, por exemplo, as pessoas nomeadas (ou equivalentes) para os "
+"cargos de Diretor Executivo (CEO), Diretor Financeiro (CFO) ou Tesoureiro. "
+"Se uma pessoa jurídica exercer um mandato no Conselho de Administração da "
+"empresa, é necessário listar todos os titulares de mandatos no Conselho, "
+"incluindo suas funções. <br/> Pessoas físicas que não têm uma participação "
+"controladora na empresa ou um mandato formal de qualquer tipo, mas que "
+"exercem de facto um controle semelhante sobre a empresa."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_help
+msgid "Need help?"
+msgstr "Precisa de ajuda?"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.xml:0
+msgid "New Transaction"
+msgstr "Nova transação"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "New Valuation"
+msgstr "Nova valoração"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "No"
+msgstr "Não"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "No %s was set!"
+msgstr "Não foi definido nenhum %s!"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "No UBOs recorded for this company."
+msgstr "Não há UBOs registrados para esta empresa."
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+msgid "No shareholders yet!"
+msgstr "Ainda não há acionistas!"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/valuation_chart_action/valuation_chart_action.js:0
+msgid "No valuations yet!"
+msgstr "Ainda não há valorações!"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__notes
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Notes"
+msgstr "Anotações"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_needaction_counter
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_needaction_counter
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Número de ações"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_has_error_counter
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_has_error_counter
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_has_error_counter
+msgid "Number of errors"
+msgstr "Número de erros"
+
+#. module: equity
+#: model:ir.model.fields,help:equity.field_equity_transaction__message_needaction_counter
+#: model:ir.model.fields,help:equity.field_equity_ubo__message_needaction_counter
+#: model:ir.model.fields,help:equity.field_equity_valuation__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Número de mensagens que requerem ação"
+
+#. module: equity
+#: model:ir.model.fields,help:equity.field_equity_transaction__message_has_error_counter
+#: model:ir.model.fields,help:equity.field_equity_ubo__message_has_error_counter
+#: model:ir.model.fields,help:equity.field_equity_valuation__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Número de mensagens com erro de entrega"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid ""
+"Only %(seller_options)s %(security_class_name)s options available for "
+"transfer"
+msgstr ""
+"Apenas opções de transferência disponíveis n %(seller_options)s %"
+"(security_class_name)s"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid ""
+"Only %(seller_shares)s %(security_class_name)s shares available for transfer"
+msgstr ""
+"Apenas ações %(seller_shares)s %(security_class_name)s disponíveis para "
+"transferência"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid ""
+"Only %(subscriber_options)s %(security_class_name)s options available for "
+"cancellation"
+msgstr ""
+"Apenas opções %(subscriber_options)s %(security_class_name)s disponíveis "
+"para cancelamento"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid ""
+"Only %(subscriber_options)s %(security_class_name)s options available for "
+"exercise"
+msgstr ""
+"Apenas opções %(subscriber_options)s %(security_class_name)s disponíveis "
+"para exercício"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid ""
+"Only %(subscriber_shares)s %(security_class_name)s shares available for "
+"cancellation"
+msgstr ""
+"Apenas ações %(subscriber_shares)s %(security_class_name)s disponíveis para "
+"cancelamento"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_transaction__transaction_type__exercise
+msgid "Option Exercise"
+msgstr "Exercício da opção"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Option Pool"
+msgstr "Pool de opções"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_security_class__class_type__options
+msgid "Options"
+msgstr "Opções"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_search
+msgid "Options Exercise"
+msgstr "Exercício de opções"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.js:0
+#: code:addons/equity/static/src/components/valuation_chart/valuation_chart.xml:0
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__ownership
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__ownership
+#: model:ir.ui.menu,name:equity.menu_equity_ownership
+msgid "Ownership"
+msgstr "Propriedade"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__ubo_pep
+#: model:ir.model.fields,field_description:equity.field_res_users__ubo_pep
+msgid "PEP"
+msgstr "PEP"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "PEP - Politically Exposed Person"
+msgstr "PEP - Pessoa Politicamente Exposta"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__partner_id
+msgid "Partner"
+msgstr "Usuário"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: model:ir.model.fields,help:equity.field_res_partner__ubo_pep
+#: model:ir.model.fields,help:equity.field_res_users__ubo_pep
+msgid "Politically Exposed Person"
+msgstr "Pessoa Politicamente Exposta"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Position"
+msgstr "Posição"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Price"
+msgstr "Preço"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_valuation_list
+msgid "Price FD"
+msgstr "Preço FD"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_valuation_list
+msgid "Price ND"
+msgstr "Preço ND"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__security_price
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__security_price
+msgid "Price per Security"
+msgstr "Preço por título"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__share_price
+msgid "Price per Share"
+msgstr "Preço por ação"
+
+#. module: equity
+#: model:ir.actions.report,name:equity.action_equity_ubo_report
+msgid "Print UBO"
+msgstr "Imprimir UBO"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__rating_ids
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__rating_ids
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__rating_ids
+msgid "Ratings"
+msgstr "Avaliações"
+
+#. module: equity
+#: model:ir.model.fields,help:equity.field_equity_transaction__subscriber_id
+msgid "Recipient of the securities of the transaction."
+msgstr "Destinatário dos títulos da transação."
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_end_dialog.xml:0
+msgid "Remove Shareholder"
+msgstr "Remover acionista"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Remove holder exit date."
+msgstr "Remova a data de saída do titular."
+
+#. module: equity
+#: model:ir.ui.menu,name:equity.menu_equity_reporting
+msgid "Reporting"
+msgstr "Relatórios"
+
+#. module: equity
+#: model:ir.actions.act_window,name:equity.action_equity_request_ubo_form
+msgid "Request UBO Form"
+msgstr "Solicitar formulário UBO"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__auth_rep_role
+msgid "Role"
+msgstr "Função"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_has_sms_error
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_has_sms_error
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Erro no envio de SMS"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__secretary
+msgid "Secretary"
+msgstr "Secretário"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__securities
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_equity
+msgid "Securities"
+msgstr "Títulos"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Securities must be positive"
+msgstr "Os títulos devem ser positivos"
+
+#. module: equity
+#: model:ir.model,name:equity.model_equity_security_class
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__security_class_id
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_security_class_form
+msgid "Security Class"
+msgstr "Classe de segurança"
+
+#. module: equity
+#: model:ir.actions.act_window,name:equity.action_equity_security_class
+#: model:ir.ui.menu,name:equity.menu_equity_configuration_security_classes
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_security_class_list
+msgid "Security Classes"
+msgstr "Aulas de segurança"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "Security Price"
+msgstr "Preço de segurança"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_home_equity
+msgid "See your shares and transactions"
+msgstr "Veja suas ações e transações"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__seller_id
+msgid "Seller"
+msgstr "Vendedor"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__seller_name
+msgid "Seller Name"
+msgstr "Nome do vendedor"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Seller and Buyer must be different."
+msgstr "O vendedor e o comprador devem ser pessoas diferentes."
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Seller id can only be set in transfer transactions."
+msgstr ""
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.xml:0
+msgid "Send"
+msgstr "Enviar"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Send to Seller"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Send to Subscriber"
+msgstr ""
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__sequence
+msgid "Sequence"
+msgstr "Sequência"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "Shareholders who hold more than 25%"
+msgstr "Acionistas que detêm mais de 25%"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_security_class__class_type__shares
+msgid "Shares"
+msgstr "Compartilhamento"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Shares transactions must have a subscriber"
+msgstr "As transações de ações devem ter um assinante"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "Signature date:"
+msgstr ""
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Signature of Representative"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "Signature:"
+msgstr "Assinatura"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Strike Price"
+msgstr "Preço de exercício"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Submit"
+msgstr "Enviar"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__subscriber_id
+msgid "Subscriber"
+msgstr "Inscrito"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__subscriber_id_placeholder
+msgid "Subscriber Id Placeholder"
+msgstr "Espaço reservado para o ID do assinante"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__subscriber_name
+msgid "Subscriber Name"
+msgstr "Nome do assinante"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "Supporting Document"
+msgstr "Documento comprobatório"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_submit
+msgid ""
+"Thank you for providing your Ultimate Beneficial Owner (UBO) information."
+msgstr ""
+"Agradecemos por fornecer suas informações de Proprietário Beneficiário Final "
+"(UBO)."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid ""
+"The \"# Securities\" total is not counting the \"Options Exercise\" "
+"transactions (because they are counted at the time of \"Options Issuance\"). "
+"The \"Transaction Price\" total is not counting the prices of options "
+"issuance transactions because that is a strike price."
+msgstr ""
+"O total de “Nº de Títulos” não inclui as transações de “Exercício de Opções” "
+"(porque estas são contabilizadas no momento da “Emissão de Opções”). O total "
+"do “Preço da Transação” não inclui os preços das transações de emissão de "
+"opções, porque se trata de um preço de exercício."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"The declaration must be completed by the persons authorized to represent the "
+"company or entity according to its Articles of Association."
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"The natural person(s) who ultimately own(s) or control(s) this corporate "
+"entity through direct or indirect ownership or control over 25% of the "
+"shares or voting rights of that corporate entity. <br/> Example: Company B "
+"and Company C hold each have a 20-percent interest in Company A. The private "
+"individual Z holds 90 % of the shares of Company B and of the Company C. Z "
+"is considered as shareholder holding more than 25% of A, for Z holds - "
+"indirectly - 36 % of the shares in A."
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid ""
+"The undersigned (executive officer or administrator) acting as a "
+"representative of the company:"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "There are currently no transactions for your account."
+msgstr "Atualmente, não há transações na sua conta."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "There are two classes of beneficial owners:"
+msgstr "Existem duas classes de proprietários beneficiários:"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_equity
+msgid "There is currently no equity for your account."
+msgstr "Atualmente, não há patrimônio líquido para sua conta."
+
+#. module: equity
+#: model:ir.model.constraint,message:equity.constraint_equity_ubo_unique_ubo
+msgid "This contact is already a holder of this company"
+msgstr "Este contato já é titular desta empresa"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"This said, where a shareholder holding more than 25% is a legal arrangement "
+"other than a registered company, beneficial owners are:"
+msgstr ""
+"Dito isto, quando um acionista detém mais de 25% de uma entidade jurídica "
+"que não seja uma sociedade registrada, os proprietários beneficiários são:"
+
+#. module: equity
+#. odoo-javascript
+#. odoo-python
+#: code:addons/equity/controllers/portal.py:0
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__transfer_amount
+msgid "Total"
+msgstr "Total"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/controllers/portal.py:0
+msgid "Total Value"
+msgstr "Valor total"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_valuation__event__transaction
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_valuation_form
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_valuation_search
+msgid "Transaction"
+msgstr "Transação"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "Transaction Price"
+msgstr ""
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__transaction_type
+msgid "Transaction Type"
+msgstr "Tipo de transação"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+#: model:ir.actions.act_window,name:equity.action_equity_transaction
+#: model:ir.ui.menu,name:equity.menu_equity_ownership_transactions
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_list
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_valuation_list
+msgid "Transactions"
+msgstr "Transações"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_transaction__transaction_type__transfer
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_search
+msgid "Transfer"
+msgstr "Transferir"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__treasurer
+msgid "Treasurer"
+msgstr ""
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__securities_type
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__class_type
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__securities_type
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_list
+msgid "Type"
+msgstr "Tipo"
+
+#. module: equity
+#: model:ir.ui.menu,name:equity.menu_equity_ownership_ubos
+#: model_terms:ir.ui.view,arch_db:equity.equity_view_partner_form
+msgid "UBO"
+msgstr ""
+
+#. module: equity
+#: model:mail.activity.type,name:equity.equity_ubo_form_mail_activity
+msgid "UBO Form Request"
+msgstr ""
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__ubo_national_identifier
+#: model:ir.model.fields,field_description:equity.field_res_users__ubo_national_identifier
+msgid "UBO ID Number"
+msgstr ""
+
+#. module: equity
+#: model:mail.template,subject:equity.equity_ubo_form_email_template
+msgid "UBO form"
+msgstr ""
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+msgid ""
+"UBO portal form will become unavailable once this activity will be marked as "
+"done"
+msgstr ""
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__ubo_owned_company_ids
+#: model:ir.model.fields,field_description:equity.field_res_users__ubo_owned_company_ids
+msgid "Ubo Owned Company"
+msgstr ""
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__ubo_owner_ids
+#: model:ir.model.fields,field_description:equity.field_res_users__ubo_owner_ids
+msgid "Ubo Owner"
+msgstr ""
+
+#. module: equity
+#: model:ir.model,name:equity.model_equity_ubo
+msgid "Ultimate Beneficial Owner"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "Ultimate Beneficial Owners (UBO) Request"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "Ultimate Beneficial Owners (UBO) statement"
+msgstr ""
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+msgid "Unassigned"
+msgstr "Não atribuído"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "Upload"
+msgstr "Enviar"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Upload Files"
+msgstr ""
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+msgid "Upload UBO Form"
+msgstr ""
+
+#. module: equity
+#. odoo-javascript
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+#: code:addons/equity/static/src/components/valuation_chart/valuation_chart.xml:0
+#: model:ir.actions.client,name:equity.action_equity_valuation_graph
+#: model:ir.model,name:equity.model_equity_valuation
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__valuation
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__valuation
+#: model:ir.ui.menu,name:equity.menu_equity_reporting_valuation
+msgid "Valuation"
+msgstr "Valoração"
+
+#. module: equity
+#: model:ir.actions.act_window,name:equity.action_equity_valuation
+#: model:ir.ui.menu,name:equity.menu_equity_ownership_valuations
+msgid "Valuations"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Vesting period, exercise deadline, etc."
+msgstr ""
+
+#. module: equity
+#: model:res.groups,name:equity.group_equity_viewer
+msgid "Viewer"
+msgstr "Visualizador"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__votes
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_security_class_form
+msgid "Votes"
+msgstr "Votos"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__share_votes
+msgid "Votes per Share"
+msgstr ""
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.js:0
+#: code:addons/equity/static/src/components/valuation_chart/valuation_chart.xml:0
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__voting_rights
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__voting_rights
+msgid "Voting Rights"
+msgstr ""
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__website_message_ids
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__website_message_ids
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__website_message_ids
+msgid "Website Messages"
+msgstr "Mensagens do site"
+
+#. module: equity
+#: model:ir.model.fields,help:equity.field_equity_transaction__website_message_ids
+#: model:ir.model.fields,help:equity.field_equity_ubo__website_message_ids
+#: model:ir.model.fields,help:equity.field_equity_valuation__website_message_ids
+msgid "Website communication history"
+msgstr "Histórico de comunicação do site"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_end_dialog.xml:0
+msgid "When did the shareholder lose its 25% stake in control or in votes?"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Where the future beneficiaries have already been determined, the natural "
+"person(s) who is the beneficiary of 25% or\n"
+"                                    more of the property of a legal "
+"arrangement or entity or"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "Who should complete and sign the declaration?"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "Yes"
+msgstr "Sim"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid ""
+"You can remove any shareholder holding less than 25% of the shares or voting "
+"rights."
+msgstr ""
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.js:0
+msgid "You must provide either the date of birth, or the ID number"
+msgstr ""
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Your Name"
+msgstr "Seu nome"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Your Position"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_submit
+msgid "Your UBO Declaration Has Been Submitted!"
+msgstr ""
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/controllers/portal.py:0
+msgid "Your Value ND"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"any natural person who has sole beneficial ownership of a legal entity or "
+"legal arrangement which is known to have\n"
+"                        been set up for the benefit de facto of a PEP."
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"any natural person who is known to have joint beneficial ownership of legal "
+"entities or legal arrangements, or any\n"
+"                        other close business relations, with a PEP;"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid ""
+"are the following individuals who have control by other means on the "
+"direction of the company (administrators)"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid ""
+"are the following individuals who, in last resort, own or control directly "
+"or indirectly more than 25% of the shares or of the voting rights of this "
+"company"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "are the following publicly traded companies."
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "born"
+msgstr ""
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "day"
+msgstr "dia"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "days"
+msgstr "dias"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "declares that the beneficial owners of the company:"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_security_class_form
+msgid "e.g. Seed, Series A, ..."
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "in"
+msgstr "em"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "month"
+msgstr "mês"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "months"
+msgstr "meses"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "on"
+msgstr "em"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "or"
+msgstr "ou"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.js:0
+msgid "please keep percentages between 0 and 100"
+msgstr ""
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "remaining"
+msgstr "restantes"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "seller"
+msgstr ""
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "subscriber"
+msgstr ""
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "to"
+msgstr "até"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "year"
+msgstr "ano"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "years"
+msgstr "anos"
+
+#~ msgid "*Control Start Date is mandatory"
+#~ msgstr "*A data de início do controle é obrigatória."
+
+#~ msgid "*Name is mandatory"
+#~ msgstr "*O nome é obrigatório"
+
+#~ msgid "*You must provide either the date of birth, or the ID number"
+#~ msgstr ""
+#~ "*Você deve fornecer a data de nascimento ou o número do documento de "
+#~ "identidade"
+
+#~ msgid "*please keep percentages between 0 and 100"
+#~ msgstr "*mantenha as porcentagens entre 0 e 100"
+
+#~ msgid ""
+#~ "<div>\n"
+#~ "                    <p> Hello <t t-out=\"object.name\">Colleen Diaz</t>,"
+#~ "<br/>\n"
+#~ "                        Following our legal obligations to identify "
+#~ "clients, we need to report natural persons who directly or indirectly\n"
+#~ "                        hold or control at least 25% in the capital or "
+#~ "voting rights of <b><t t-out=\"user_id.company_id.name\">My Company</t></"
+#~ "b>. <br/> <br/>\n"
+#~ "                        Please fill in the UBO request:<br/>\n"
+#~ "                        <a t-attf-href=\"/my/ubo?"
+#~ "{{object._get_request_ubo_form_params()}}\" class=\"btn btn-"
+#~ "primary\">Fill UBO</a> <br/> <br/>\n"
+#~ "                        Thank you,\n"
+#~ "                        <t t-if=\"user_id.signature\">\n"
+#~ "                            <br/>--<br/>\n"
+#~ "                            <t t-out=\"user_id.signature or ''\">Mitchell "
+#~ "Admin</t>\n"
+#~ "                        </t>\n"
+#~ "                    </p>\n"
+#~ "                </div>\n"
+#~ "            "
+#~ msgstr ""
+#~ "<div>\n"
+#~ "                    <p> Olá,<t t-out=\"object.name\">Colleen Diaz</t>,<br/"
+#~ ">\n"
+#~ "                        De acordo com nossas obrigações legais de "
+#~ "identificar clientes, precisamos informar as pessoas físicas que, direta "
+#~ "ou indiretamente,\n"
+#~ "detêm ou controlam pelo menos 25% do capital ou dos direitos de voto da "
+#~ "<b><t t-out=\"user_id.company_id.name\">Minha Empresa</t></b>.<br/><br/>\n"
+#~ "Preencha o formulário de solicitação de UBO:<br/>\n"
+#~ "                        <a t-attf-href=\"/my/ubo?"
+#~ "{{object._get_request_ubo_form_params()}}\" class=\"btn btn-"
+#~ "primary\">Preencher UBO</a> <br/> <br/>\n"
+#~ "                        Agradecemos!\n"
+#~ "                        <t t-if=\"user_id.signature\">\n"
+#~ "                            <br/>--<br/>\n"
+#~ "                            <t t-out=\"user_id.signature or ''\">Mitchell "
+#~ "Admin</t>\n"
+#~ "                        </t>\n"
+#~ "                    </p>\n"
+#~ "                </div>\n"
+#~ "            "

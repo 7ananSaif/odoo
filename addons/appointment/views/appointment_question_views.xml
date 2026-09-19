@@ -1,0 +1,116 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="appointment_question_view_search" model="ir.ui.view">
+        <field name="name">appointment.question.view.search</field>
+        <field name="model">appointment.question</field>
+        <field name="arch" type="xml">
+            <search string="Questions">
+                <field name="name"/>
+                <field name="question_type"/>
+                <field name="appointment_type_ids"/>
+                <separator/>
+                <filter name="filter_is_reusable" string="Reusable" domain="[('is_reusable', '=', True)]"/>
+                <filter name="filter_is_not_reusable" string="Not Reusable" domain="[('is_reusable', '=', False)]"/>
+                <separator/>
+                <filter name="filter_is_default" string="Default Questions" domain="[('is_default', '=', True)]"/>
+                <filter name="filter_archive" string="Archived" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter string="Appointment" name="group_by_appointment" context="{'group_by': 'appointment_type_ids'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="appointment_question_view_form" model="ir.ui.view">
+        <field name="name">appointment.question.view.form</field>
+        <field name="model">appointment.question</field>
+        <field name="arch" type="xml">
+            <form string="Question">
+                <sheet>
+                    <field name="active" invisible="1"/>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="alert alert-warning" role="alert" invisible="appointment_count == 0">
+                        This question is used by
+                        <button class="oe_link p-0 align-baseline" type="object" name="action_view_appointment_types">
+                            <field class="me-1" name="appointment_count"/>appointments
+                        </button>.
+                    </div>
+                    <field name="question_type" widget="selection_badge_icon_mapping" required="1" nolabel="1"
+                        options="{
+                            'size': 'sm',
+                            'icon_mapping': {
+                                'char': 'fa-times',
+                                'text': 'fa-list-ol',
+                                'phone': 'fa-phone',
+                                'select': 'fa-caret-down',
+                                'radio': 'fa-circle-o',
+                                'checkbox': 'fa-check-square'
+                            }
+                        }"/>
+                    <div class="oe_title my-3">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder='e.g. "Anything else we should know?"' widget="text" options="{'line_breaks': False}" default_focus="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="placeholder" placeholder="Displayed when the field is empty" invisible="question_type in ('select', 'radio', 'checkbox')"/>
+                            <field name="question_required"/>
+                        </group>
+                        <group>
+                            <field name="is_reusable" readonly="is_default"/>
+                            <field name="is_default"/>
+                        </group>
+                    </group>
+                    <field name="extra_comment" class="oe-bordered-editor mb-4" placeholder="Extra comments..." nolabel="1"/>
+                    <notebook invisible="question_type in ('char', 'text', 'phone')">
+                        <page string="Answers" name="answers">
+                            <field name="answer_ids">
+                                <list editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="appointment_question_view_list" model="ir.ui.view">
+        <field name="name">appointment.question.view.list</field>
+        <field name="model">appointment.question</field>
+        <field name="arch" type="xml">
+            <list string="Questions">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="question_type"/>
+                <field name="answer_ids" widget="many2many_tags"/>
+                <field name="question_required"/>
+                <field name="is_default"/>
+                <field name="is_reusable" optional="hide"/>
+                <field name="placeholder" optional="hide"/>
+                <button name="action_view_question_answer_inputs" type="object" class="fa fa-bar-chart p-0" title="Answer Breakdown"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="appointment_question_action" model="ir.actions.act_window">
+        <field name="name">Questions</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">appointment.question</field>
+        <field name="view_mode">list,form,search</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Ask the right questions, get the right answers
+            </p>
+            <p>
+                Create questions your attendees can answer when booking their appointments.
+            </p>
+        </field>
+    </record>
+
+</odoo>

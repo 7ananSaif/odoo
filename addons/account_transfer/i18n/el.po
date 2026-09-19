@@ -1,0 +1,422 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_transfer
+#
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-11-16 18:11+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Greek <https://translate.odoo.com/projects/odoo-19/"
+"account_transfer/el/>\n"
+"Language: el\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "<span> to </span>"
+msgstr "<span> σε </span>"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model_line.py:0
+msgid "A destination account must be set on each line."
+msgstr ""
+
+#. module: account_transfer
+#: model:ir.model.fields,help:account_transfer.field_account_transfer_model__conditions
+msgid ""
+"A domain to filter the accounts from which the resulting entry will transfer "
+"amounts."
+msgstr ""
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Account"
+msgstr "Λογαριασμός"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_chart_template
+msgid "Account Chart Template"
+msgstr "Πρότυπο γραφήματος λογαριασμού"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_transfer_model
+msgid "Account Transfer Model"
+msgstr "Μοντέλο μεταφοράς λογαριασμού"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_transfer_model_line
+msgid "Account Transfer Model Line"
+msgstr "Γραμμή μοντέλου μεταφοράς λογαριασμού"
+
+#. module: account_transfer
+#: model:ir.actions.server,name:account_transfer.ir_cron_auto_transfer_ir_actions_server
+msgid "Account transfers: Compute transfer entries"
+msgstr ""
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Accounts"
+msgstr "Λογαριασμοί"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__active
+msgid "Active"
+msgstr "Σε Ισχύ"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_search
+msgid "Archived"
+msgstr "Αρχειοθετημένα"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__company_id
+msgid "Company"
+msgstr "Εταιρία"
+
+#. module: account_transfer
+#: model:ir.model.fields,help:account_transfer.field_account_transfer_model__company_id
+msgid "Company related to this journal"
+msgstr "Η εταιρία που σχετίζεται με το ημερολόγιο"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Compute Transfer"
+msgstr "Υπολογισμός Μεταφοράς"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__conditions
+msgid "Conditions"
+msgstr "Συνθήκες"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__create_uid
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__create_uid
+msgid "Created by"
+msgstr "Δημιουργήθηκε από"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__create_date
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__create_date
+msgid "Created on"
+msgstr "Δημιουργήθηκε στις"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Description"
+msgstr "Περιγραφή"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Destination"
+msgstr "Προορισμός"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__account_id
+msgid "Destination Account"
+msgstr "Λογαριασμός Προορισμού"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__line_ids
+msgid "Destination Accounts"
+msgstr "Λογαριασμοί προορισμού"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__journal_id
+msgid "Destination Journal"
+msgstr "Ημερολόγιο προορισμού"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Disable"
+msgstr ""
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__state__disabled
+msgid "Disabled"
+msgstr ""
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_chart_template__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_journal__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_move__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__display_name
+msgid "Display Name"
+msgstr "Εμφάνιση Ονόματος"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Enable"
+msgstr ""
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__frequency
+msgid "Frequency"
+msgstr "Συχνότητα"
+
+#. module: account_transfer
+#: model:ir.actions.act_window,name:account_transfer.generated_transfers_action
+msgid "Generated Entries"
+msgstr "Δημιουργημένες Εγγραφές"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__move_ids
+msgid "Generated Moves"
+msgstr "Δημιουργημένες κινήσεις"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__has_draft_moves
+msgid "Has Draft Moves"
+msgstr ""
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_chart_template__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_journal__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_move__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_move_line__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__id
+msgid "ID"
+msgstr "Κωδικός"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/demo/account_demo.py:0
+msgid "IFRS Transfers"
+msgstr ""
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/demo/account_demo.py:0
+msgid "IFRS rent expense transfer"
+msgstr ""
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__state__in_progress
+msgid "In Progress"
+msgstr "Σε εξέλιξη"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_journal
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Journal"
+msgstr "Ημερολόγιο"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_move
+msgid "Journal Entry"
+msgstr "Εγγραφή Ημερολογίου"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_move_line
+msgid "Journal Item"
+msgstr "Στοιχείο Ημερολογίου"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Keep Original"
+msgstr "Διατήρηση Αρχικού"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__write_uid
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__write_uid
+msgid "Last Updated by"
+msgstr "Τελευταία Ενημέρωση από"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__write_date
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__write_date
+msgid "Last Updated on"
+msgstr "Τελευταία Ενημέρωση στις"
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__frequency__month
+msgid "Monthly"
+msgstr "Μηνιαία"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__move_ids_count
+msgid "Move Ids Count"
+msgstr ""
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Move Model"
+msgstr ""
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_tree
+msgid "Move Models"
+msgstr ""
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__name
+msgid "Name"
+msgstr "Περιγραφή"
+
+#. module: account_transfer
+#: model:ir.model.constraint,message:account_transfer.constraint_account_transfer_model_line_unique_account_by_transfer_model
+msgid "Only one account occurrence by transfer model"
+msgstr ""
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__account_ids
+msgid "Origin Accounts"
+msgstr "Λογαριασμοί προέλευσης"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_bank_statement_line__transfer_model_id
+#: model:ir.model.fields,field_description:account_transfer.field_account_move__transfer_model_id
+msgid "Originating Model"
+msgstr "Μοντέλο προέλευσης"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__percent
+msgid "Percent"
+msgstr "Ποσοστό"
+
+#. module: account_transfer
+#: model:ir.model.fields,help:account_transfer.field_account_transfer_model_line__percent
+msgid ""
+"Percentage of the sum of lines from the origin accounts will be transferred "
+"to the destination account"
+msgstr ""
+"Το ποσοστό του αθροίσματος των γραμμών από τους λογαριασμούς προέλευσης θα "
+"μεταφερθεί στον λογαριασμό προορισμού"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Period"
+msgstr "Περίοδος"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid ""
+"Puts the transfer model in a state in which it will automatically recompute "
+"its draft entries' values every day."
+msgstr ""
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid ""
+"Puts the transfer model in a state in which it will not automatically "
+"recompute its draft entries' values every day."
+msgstr ""
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__frequency__quarter
+msgid "Quarterly"
+msgstr "Τριμηνιαίος"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Rate (%)"
+msgstr "Ποσοστό (%)"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__sequence
+msgid "Sequence"
+msgstr "Ακολουθία"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__date_start
+msgid "Start Date"
+msgstr "Ημερομηνία Έναρξης"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__state
+msgid "State"
+msgstr "Νομός/Πολιτεία"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__date_stop
+msgid "Stop Date"
+msgstr "Ημερομηνία διακοπής"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid "The total percentage (%s) should be less or equal to 100!"
+msgstr "Το συνολικό ποσοστό (%s) πρέπει να είναι μικρότερο ή ίσο με 100!"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__total_percent
+msgid "Total Percent"
+msgstr "Συνολικό ποσοστό"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid "Transfer (%(percent)s%% from %(account)s)"
+msgstr ""
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid "Transfer (-%(percent)s%% to %(account)s)"
+msgstr ""
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__transfer_model_id
+msgid "Transfer Model"
+msgstr ""
+
+#. module: account_transfer
+#: model:ir.actions.act_window,name:account_transfer.transfer_model_action
+#: model:ir.ui.menu,name:account_transfer.menu_auto_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Transfers"
+msgstr "Μετακινήσεις"
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__frequency__year
+msgid "Yearly"
+msgstr "Ετήσιο"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/demo/account_demo.py:0
+msgid "Yearly liabilites auto transfers"
+msgstr ""
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid ""
+"You cannot delete a transfer model that has draft moves attached ('%s'). "
+"Please delete them before deleting this transfer."
+msgstr ""
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid ""
+"You cannot delete a transfer model that has posted moves attached ('%s')."
+msgstr ""
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/account_move_line.py:0
+msgid "You cannot set Tax on computed Transfer's entries."
+msgstr ""
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "e.g. Monthly Expense Transfer"
+msgstr "π.χ. Μηνιαία Μεταφορά Εξόδων"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "forever"
+msgstr ""

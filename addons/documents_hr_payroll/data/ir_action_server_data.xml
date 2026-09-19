@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ir_actions_server_send_payslip_by_email" model="ir.actions.server">
+        <field name="name">Send By Email</field>
+        <field name="model_id" ref="hr_payroll.model_hr_payslip"/>
+        <field name="binding_model_id" ref="hr_payroll.model_hr_payslip"/>
+        <field name="state">code</field>
+        <field name="group_ids" eval="[(4, ref('hr_payroll.group_hr_payroll_user'))]"/>
+        <field name="code">action = records.action_resend_payslips(notify=True)</field>
+    </record>
+
+    <record id="ir_actions_server_send_payslip_by_employee_by_email" model="ir.actions.server">
+        <field name="name">Resend All Payslips</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="group_ids" eval="[(4, ref('hr_payroll.group_hr_payroll_user'))]"/>
+        <field name="code">action = records.action_resend_payslips()</field>
+    </record>
+</odoo>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="account_return_check_template_vehicle_expenses_mileage_or_private_use" model="account.return.check.template">
+            <field name="name">Vehicle expenses: mileage or private use</field>
+            <field name="description">Calculate mileage allowances for the owner or identify the private use portion of company vehicles to be reintegrated.</field>
+            <field name="type">check</field>
+            <field name="model" eval="False"/>
+            <field name="cycle">operating_expenses</field>
+            <field name="return_type" ref="account_reports.default_audit_return_type"/>
+            <field name="code">_account_return_check_template_vehicle_expenses_mileage_or_private_use</field>
+            <field name="action_id" ref="fleet.fleet_vehicle_action"/>
+        </record>
+    </data>
+</odoo>

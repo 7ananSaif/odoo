@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="accountant_knowledge.OptionsDropdown" t-inherit="knowledge.OptionsDropdown" t-inherit-mode="extension">
+        <xpath expr="//DropdownItem[contains(@attrs, 'export')]" position="after">
+            <DropdownItem t-if="props.record.data.inherited_audit_report_id?.records.length" onSelected.bind="exportAuditReportToPDF">
+                <i class="fa fa-fw fa-lg fa-file-pdf-o me-2"/>Download Annual Report
+            </DropdownItem>
+        </xpath>
+    </t>
+</templates>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="esg_hr_fleet.ConflictingEmissionIdsField">
+        <t t-if="conflictingEmissions.length">
+            <p class="fw-bold pb-2">
+                There are already employee commuting emissions covering the following dates:
+            </p>
+            <t t-foreach="conflictingEmissions" t-as="emission" t-key="emission.id">
+                <div t-if="emission_index &lt; 5" class="d-flex justify-content-center">
+                    <div class="d-grid">
+                        <span>
+                            <t t-out="emission.data.date"/>
+                            <i class="fa fa-long-arrow-right mx-2" aria-label="Arrow icon" title="Arrow"/>
+                            <t t-out="emission.data.date_end"/>
+                        </span>
+                    </div>
+                </div>
+            </t>
+            <button t-on-click="showConflictingEmissions" class="btn btn-link">See conflicting emissions</button> 
+        </t>
+    </t>
+</templates>
