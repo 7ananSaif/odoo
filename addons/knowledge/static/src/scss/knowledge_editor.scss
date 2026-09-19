@@ -1,0 +1,22 @@
+.o_knowledge_editor {
+    .o_field_html .note-editable {
+        /* We are removing the bar when inside the knowledge app in order to keep the blank pad look of the app. */
+        border: none !important;
+    }
+}
+
+@media screen {
+    @include media-breakpoint-down(xl) {
+        .o_knowledge_editor:not(:has(.o_knowledge_helper)) .note-editable,
+        .o_knowledge_editor:not(:has(.o_knowledge_helper)) .o_readonly {
+            padding-bottom: 1rem;
+        }
+    }
+
+    @include media-breakpoint-up(lg) {
+        .o_knowledge_editor:not(:has(.o_knowledge_helper)) .note-editable,
+        .o_knowledge_editor:not(:has(.o_knowledge_helper)) .o_readonly {
+            padding-bottom: 50vh;
+        }
+    }
+}

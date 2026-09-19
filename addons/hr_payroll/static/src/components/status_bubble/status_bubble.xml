@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="hr_payroll.StatusBubble">
+        <span class="state-bubbles d-flex justify-content-center">
+            <t t-foreach="selection" t-as="option" t-key="option_index">
+                <span class="state d-inline-flex flex-column align-items-center justify-content-center" style="min-width: 60px;">
+                    <span class="small" t-att-style="activeIndex &gt;= 0 &amp;&amp; (props.warningCount || props.errorCount) ? 'height: 20px;' : ''">
+                        <span t-if="option_index === activeIndex &amp;&amp; (props.warningCount || props.errorCount)">
+                            <t t-esc="(props.issueCount).toString()"/> Issues
+                        </span>
+                    </span>
+                    <div class="w-100 d-inline-flex position-relative justify-content-center">
+                        <div class="bg-secondary rounded-circle z-1" style="width: 20px; height: 20px;" t-att-class="{
+                            'bg-success': option_index &lt;= activeIndex,
+                            'bg-warning': option_index === activeIndex &amp;&amp; issueCount,
+                            'bg-danger': option_index === activeIndex &amp;&amp; hasError,
+                            }"/>
+                        <span class="state-bubble-line-left position-absolute w-50 border start-0 top-50"
+                              t-if="option_index &gt; 0"
+                              t-att-class="{
+                            'border-success': option_index &lt;= activeIndex,
+                            'border-warning': option_index === activeIndex &amp;&amp; issueCount,
+                            'border-danger': option_index === activeIndex &amp;&amp; hasError,
+                            }"/>
+                        <span class="state-bubble-line-right position-absolute w-50 border end-0 top-50"
+                              t-if="option_index &lt; selection.length-1"
+                              t-att-class="{
+                            'border-success': option_index &lt; activeIndex,
+                            }"/>
+                    </div>
+                    <span class="small"><t t-esc="option[1]"/></span>
+                </span>
+            </t>
+        </span>
+    </t>
+</templates>

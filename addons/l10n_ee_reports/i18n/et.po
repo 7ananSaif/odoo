@@ -1,0 +1,435 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * l10n_ee_reports
+#
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.1alpha1+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 19:06+0000\n"
+"PO-Revision-Date: 2025-11-18 17:11+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Estonian <https://translate.odoo.com/projects/odoo-19-l10n/"
+"l10n_ee_reports/et/>\n"
+"Language: et\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ec_sales_list_submission_wizard_form
+msgid ""
+"<span>Download your EC Sales List to submit along your VAT report</span><br/>"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.kmd_inf_return_type_submission_wizard_form
+msgid "<span>Download your KMD INF report</span><br/>"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ee_tax_return_type_submission_wizard_form
+msgid "<span>Download your KMD XML report</span><br/>"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model:ir.model.fields,help:l10n_ee_reports.field_res_config_settings__l10n_ee_rounding_difference_loss_account_id
+msgid "Account used for losses from rounding the lines of Estonian tax reports"
+msgstr ""
+"Konto, mida kasutatakse Eesti maksuaruannete ridade ümardamisest tekkinud "
+"kahjude katteks"
+
+#. module: l10n_ee_reports
+#: model:ir.model.fields,help:l10n_ee_reports.field_res_config_settings__l10n_ee_rounding_difference_profit_account_id
+msgid ""
+"Account used for profits from rounding the lines of Estonian tax reports"
+msgstr ""
+"Konto, mida kasutatakse Eesti maksuaruannete ridade ümardamise kasumiks"
+
+#. module: l10n_ee_reports
+#: model:ir.model,name:l10n_ee_reports.model_account_return
+msgid "Accounting Return"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_a_report_buyer_name
+msgid "Buyer Name"
+msgstr "Ostja nimi"
+
+#. module: l10n_ee_reports
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_a_report_buyer_reg_code
+msgid "Buyer Register Code"
+msgstr "Ostja registri või isikukood"
+
+#. module: l10n_ee_reports
+#. odoo-python
+#: code:addons/l10n_ee_reports/models/account_sales_report.py:0
+msgid "Choose a month to export the IC Supply Report"
+msgstr "Valige kuu ühendusesisese käibe aruande eksportimiseks"
+
+#. module: l10n_ee_reports
+#. odoo-python
+#: code:addons/l10n_ee_reports/models/account_report.py:0
+msgid "Choose a month to export the VAT Report"
+msgstr "Valige kuu käibemaksuaruande eksportimiseks"
+
+#. module: l10n_ee_reports
+#. odoo-python
+#: code:addons/l10n_ee_reports/models/account_sales_report.py:0
+msgid "Company Settings"
+msgstr "Ettevõtte seaded"
+
+#. module: l10n_ee_reports
+#. odoo-python
+#: code:addons/l10n_ee_reports/models/account_report.py:0
+msgid "Company: %s"
+msgstr "Ettevõte: %s"
+
+#. module: l10n_ee_reports
+#: model:ir.model,name:l10n_ee_reports.model_res_config_settings
+msgid "Config Settings"
+msgstr "Seadistused"
+
+#. module: l10n_ee_reports
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_ec_sales_list_submission_wizard__create_uid
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_kmd_inf_return_submission_wizard__create_uid
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_tax_return_submission_wizard__create_uid
+msgid "Created by"
+msgstr "Loonud"
+
+#. module: l10n_ee_reports
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_ec_sales_list_submission_wizard__create_date
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_kmd_inf_return_submission_wizard__create_date
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_tax_return_submission_wizard__create_date
+msgid "Created on"
+msgstr "Loodud"
+
+#. module: l10n_ee_reports
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_account_return__display_name
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_ec_sales_report_handler__display_name
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_kmd_inf_report_handler__display_name
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_ec_sales_list_submission_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_kmd_inf_return_submission_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_tax_return_submission_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_tax_report_handler__display_name
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "Näidatav nimi"
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ec_sales_list_submission_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ee_tax_return_type_submission_wizard_form
+msgid "Download XML"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model:account.return.type,name:l10n_ee_reports.ee_ec_sales_list_return_type
+msgid "EC Sales List"
+msgstr "EC müügilist"
+
+#. module: l10n_ee_reports
+#: model:ir.model,name:l10n_ee_reports.model_l10n_ee_reports_ec_sales_list_submission_wizard
+msgid "EC Sales List Submission Wizard"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model:ir.model,name:l10n_ee_reports.model_l10n_ee_reports_tax_return_submission_wizard
+msgid "EE Tax Return Submission Wizard"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model:ir.model,name:l10n_ee_reports.model_l10n_ee_ec_sales_report_handler
+msgid "Estonian EC Sales Report Custom Handler"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model:ir.model,name:l10n_ee_reports.model_l10n_ee_kmd_inf_report_handler
+msgid "Estonian KMD INF Report Custom Handler"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model:ir.model,name:l10n_ee_reports.model_l10n_ee_tax_report_handler
+msgid "Estonian Tax Report Custom Handler"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.kmd_inf_return_type_submission_wizard_form
+msgid "Fill the KMD INF Form"
+msgstr ""
+
+#. module: l10n_ee_reports
+#. odoo-python
+#: code:addons/l10n_ee_reports/models/account_report.py:0
+msgid "Go to Company"
+msgstr "Mine ettevõttesse"
+
+#. module: l10n_ee_reports
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_account_return__id
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_ec_sales_report_handler__id
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_kmd_inf_report_handler__id
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_ec_sales_list_submission_wizard__id
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_kmd_inf_return_submission_wizard__id
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_tax_return_submission_wizard__id
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_tax_report_handler__id
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_ee_reports
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_b_report_vat_in_period
+msgid ""
+"Input VAT Amount Presented in Field 5 of Form KMD for the Taxation Period"
+msgstr ""
+"Maksustamisperioodil vormi KMD lahtris 5 kajastatud sisendkäibemaksu summa"
+
+#. module: l10n_ee_reports
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_ec_sales_list_submission_wizard__instructions
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_kmd_inf_return_submission_wizard__instructions
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_tax_return_submission_wizard__instructions
+msgid "Instructions"
+msgstr "Juhised"
+
+#. module: l10n_ee_reports
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_a_report_invoice_date
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_b_report_invoice_date
+msgid "Invoice Date"
+msgstr "Arve kuupäev"
+
+#. module: l10n_ee_reports
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_a_report_invoice_number
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_b_report_invoice_number
+msgid "Invoice Number"
+msgstr "Arve number"
+
+#. module: l10n_ee_reports
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_b_report_invoice_sum_vat
+msgid "Invoice Total with VAT"
+msgstr "Arve kogusumma koos käibemaksuga"
+
+#. module: l10n_ee_reports
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_a_report_invoice_sum
+msgid "Invoice Total without VAT"
+msgstr "Arve kogusumma ilma käibemaksuta"
+
+#. module: l10n_ee_reports
+#: model:account.return.type,name:l10n_ee_reports.ee_kmd_inf_tax_return_type
+msgid "KMD INF Report (EE)"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model:ir.model,name:l10n_ee_reports.model_l10n_ee_reports_kmd_inf_return_submission_wizard
+msgid "KMD INF Return Submission Wizard"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model:account.return.type,name:l10n_ee_reports.ee_tax_return_type
+msgid "KMD Report"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_ec_sales_list_submission_wizard__write_uid
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_kmd_inf_return_submission_wizard__write_uid
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_tax_return_submission_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Viimati uuendatud"
+
+#. module: l10n_ee_reports
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_ec_sales_list_submission_wizard__write_date
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_kmd_inf_return_submission_wizard__write_date
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_tax_return_submission_wizard__write_date
+msgid "Last Updated on"
+msgstr "Viimati uuendatud"
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ec_sales_list_submission_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ee_tax_return_type_submission_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.kmd_inf_return_type_submission_wizard_form
+msgid "Log in to"
+msgstr "Logi sisse, et"
+
+#. module: l10n_ee_reports
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_res_config_settings__l10n_ee_rounding_difference_loss_account_id
+msgid "Loss Account for VAT Rounding"
+msgstr "Käibemaksu ümardamise kahjukonto"
+
+#. module: l10n_ee_reports
+#. odoo-python
+#: code:addons/l10n_ee_reports/models/account_report.py:0
+msgid "Missing partners"
+msgstr "Puuduvad partnerid"
+
+#. module: l10n_ee_reports
+#. odoo-python
+#: code:addons/l10n_ee_reports/models/account_sales_report.py:0
+msgid "No VAT number defined for the following partners: %s"
+msgstr ""
+"Järgmiste partnerite jaoks ei ole käibemaksukohustuslase numbrit "
+"määratletud: %s"
+
+#. module: l10n_ee_reports
+#. odoo-python
+#: code:addons/l10n_ee_reports/models/account_report.py:0
+#: code:addons/l10n_ee_reports/models/account_sales_report.py:0
+msgid ""
+"No company registry number associated with your company. Please define one."
+msgstr "Teie ettevõttega seotud registrinumber puudub. Palun määratlege üks."
+
+#. module: l10n_ee_reports
+#: model:account.report.line,name:l10n_ee_reports.kmd_inf_report_a
+msgid "Part A - Invoices Issued"
+msgstr "A osa - Väljastatud arved"
+
+#. module: l10n_ee_reports
+#: model:account.report.line,name:l10n_ee_reports.kmd_inf_report_b
+msgid "Part B - Invoices Received"
+msgstr "B osa - Saadud arved"
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.res_config_settings_view_form
+msgid "Post difference from rounding tax closing entries in:"
+msgstr "Postita erinevus ümardamismaksu sulgemiskannetest:"
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.kmd_inf_return_type_submission_wizard_form
+msgid "Print PDF"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_res_config_settings__l10n_ee_rounding_difference_profit_account_id
+msgid "Profit Account for VAT Rounding"
+msgstr "Käibemaksu ümardamise kasumikonto"
+
+#. module: l10n_ee_reports
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_ec_sales_list_submission_wizard__return_id
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_kmd_inf_return_submission_wizard__return_id
+#: model:ir.model.fields,field_description:l10n_ee_reports.field_l10n_ee_reports_tax_return_submission_wizard__return_id
+msgid "Return"
+msgstr "Tagastus"
+
+#. module: l10n_ee_reports
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_b_report_seller_name
+msgid "Seller Name"
+msgstr "Müüja nimi"
+
+#. module: l10n_ee_reports
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_b_report_seller_reg_code
+msgid "Seller Register Code"
+msgstr "Seller's registry or personal identification number"
+
+#. module: l10n_ee_reports
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_a_report_comments
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_b_report_comments
+msgid "Special Code"
+msgstr "Erisuse kood"
+
+#. module: l10n_ee_reports
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_a_report_tax_rate
+msgid "Tax Rate"
+msgstr "Maksumäär"
+
+#. module: l10n_ee_reports
+#: model:account.report.column,name:l10n_ee_reports.kmd_inf_a_report_sum_for_rate_in_period
+msgid "Taxable Supply for the Taxation Period"
+msgstr ""
+"Maksustamisperioodil vormi KMD lahtrites 1, 1^1, 2 ja 2^1 kajastatud "
+"maksustatav käive"
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ec_sales_list_submission_wizard_form
+msgid "Taxes &gt; Value Added Tax &gt; Report on intra-Community Supply (VD)"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ee_tax_return_type_submission_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.kmd_inf_return_type_submission_wizard_form
+msgid "Taxes &gt; Value Added Tax &gt; Submit and view KMD"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ec_sales_list_submission_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ee_tax_return_type_submission_wizard_form
+msgid "Upload the XML file on the right panel and click \"Continue\""
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model:account.report,name:l10n_ee_reports.kmd_inf_report
+msgid "VAT Report Annex (KMD INF)"
+msgstr "Käibedeklaratsiooni lisa (KMD INF)"
+
+#. module: l10n_ee_reports
+#: model:account.report,name:l10n_ee_reports.kmd_inf_report_part_a
+msgid "VAT Report Annex KMD INF Part A"
+msgstr "Vormi KMD INF A-osa"
+
+#. module: l10n_ee_reports
+#: model:account.report,name:l10n_ee_reports.kmd_inf_report_part_b
+msgid "VAT Report Annex KMD INF Part B"
+msgstr "Vormi KMD INF B-osa"
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ec_sales_list_submission_wizard_form
+msgid "Validate the EC Sales List"
+msgstr ""
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ee_tax_return_type_submission_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.kmd_inf_return_type_submission_wizard_form
+msgid "Validate the VAT declaration"
+msgstr ""
+
+#. module: l10n_ee_reports
+#. odoo-python
+#: code:addons/l10n_ee_reports/models/account_report.py:0
+#: code:addons/l10n_ee_reports/models/account_sales_report.py:0
+msgid "XML"
+msgstr "XML"
+
+#. module: l10n_ee_reports
+#. odoo-javascript
+#: code:addons/l10n_ee_reports/static/src/components/kmd_inf_report/warnings.xml:0
+msgid "You have"
+msgstr "Teil on"
+
+#. module: l10n_ee_reports
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ec_sales_list_submission_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.ee_tax_return_type_submission_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_ee_reports.kmd_inf_return_type_submission_wizard_form
+msgid "e‑MTA"
+msgstr ""
+
+#. module: l10n_ee_reports
+#. odoo-javascript
+#: code:addons/l10n_ee_reports/static/src/components/kmd_inf_report/warnings.xml:0
+msgid "here"
+msgstr "Loetelu vaatamiseks klõpsake siin"
+
+#. module: l10n_ee_reports
+#. odoo-javascript
+#: code:addons/l10n_ee_reports/static/src/components/kmd_inf_report/warnings.xml:0
+msgid "to see the list."
+msgstr "."
+
+#. module: l10n_ee_reports
+#. odoo-javascript
+#: code:addons/l10n_ee_reports/static/src/components/kmd_inf_report/warnings.xml:0
+msgid "transaction partner"
+msgstr "tehingupartner"
+
+#. module: l10n_ee_reports
+#. odoo-javascript
+#: code:addons/l10n_ee_reports/static/src/components/kmd_inf_report/warnings.xml:0
+msgid "transaction partners"
+msgstr "tehingupartnerit"
+
+#. module: l10n_ee_reports
+#. odoo-javascript
+#: code:addons/l10n_ee_reports/static/src/components/kmd_inf_report/warnings.xml:0
+msgid ""
+"with eligible invoices in the selected period who are not included in the "
+"report due to a missing tax number or missing country. Click"
+msgstr ""
+"kellel on valitud perioodil abikõlblikud arved, kuid kes ei ole aruandesse "
+"kaasatud puuduva maksunumbri või riigi puudumise tõttu."

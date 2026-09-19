@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="l10n_be_vat_declaration_rule" model="ir.rule">
+        <field name="name">Belgian VAT Declaration multi company rule</field>
+        <field name="model_id" ref="model_l10n_be_vat_declaration"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">[('return_id.company_ids', 'in', company_ids)]</field>
+    </record>
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="sign.item.role" id="sign_item_role_job_responsible">
+            <field name="name">HR Responsible</field>
+            <field name="change_authorized" eval="True"/>
+        </record>
+        <record model="sign.item.role" id="sign_item_role_default">
+            <field name="name">Customer</field>
+            <field name="change_authorized" eval="True"/>
+        </record>
+        <record model="sign.item.role" id="sign_item_role_employee_signatory">
+            <field name="name">Employee</field>
+            <field name="change_authorized" eval="True"/>
+        </record>
+    </data>
+</odoo>

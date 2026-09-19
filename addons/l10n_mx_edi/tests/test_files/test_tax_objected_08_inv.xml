@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<cfdi:Comprobante xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd" Version="4.0" Sello="___ignore___" Fecha="___ignore___" Folio="___ignore___" Serie="___ignore___" FormaPago="99" NoCertificado="___ignore___" Certificado="___ignore___" SubTotal="1080.00" Moneda="MXN" Total="972.00" TipoDeComprobante="I" Exportacion="01" MetodoPago="PPD" LugarExpedicion="20914">
+	<cfdi:Emisor Rfc="EKU9003173C9" Nombre="ESCUELA KEMPER URGATE" RegimenFiscal="601"/>
+	<cfdi:Receptor Rfc="ICV060329BY0" Nombre="INMOBILIARIA CVA" DomicilioFiscalReceptor="33826" RegimenFiscalReceptor="601" UsoCFDI="G03"/>
+	<cfdi:Conceptos>
+		<cfdi:Concepto ClaveProdServ="01010101" NoIdentificacion="product_mx" Cantidad="1.000000" ClaveUnidad="KGM" Unidad="KG" Descripcion="[product_mx] product_mx" ValorUnitario="1080.000000" Importe="1080.000000" ObjetoImp="08">
+			<cfdi:Impuestos>
+				<cfdi:Retenciones>
+					<cfdi:Retencion Base="1080.000000" Importe="108.000000" Impuesto="001" TipoFactor="Tasa" TasaOCuota="0.100000"/>
+				</cfdi:Retenciones>
+			</cfdi:Impuestos>
+		</cfdi:Concepto>
+	</cfdi:Conceptos>
+	<cfdi:Impuestos TotalImpuestosRetenidos="108.00">
+		<cfdi:Retenciones>
+			<cfdi:Retencion Importe="108.00" Impuesto="001"/>
+		</cfdi:Retenciones>
+	</cfdi:Impuestos>
+	<cfdi:Complemento>
+		<tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" xsi:schemaLocation="http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd" Version="1.1" UUID="___ignore___" FechaTimbrado="___ignore___" RfcProvCertif="___ignore___" SelloCFD="___ignore___" NoCertificadoSAT="___ignore___" SelloSAT="___ignore___"/>
+	</cfdi:Complemento>
+</cfdi:Comprobante>

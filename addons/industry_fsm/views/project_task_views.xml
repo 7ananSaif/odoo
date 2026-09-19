@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!--
+    	Task Views in Project and FSM app
+	-->
+
+    <record id="view_task_form2_inherit" model="ir.ui.view">
+        <field name="name">view.task.form2.inherit</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.view_task_form2"/>
+        <field name="priority">999</field>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="js_class">fsm_project_task_form</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_timer_start'][hasclass('btn-primary')]" position='after'>
+                <field name="allow_geolocation" invisible="1"/>
+                <field name="allow_timesheets" invisible="1"/>
+                <field name="is_fsm" invisible="1"/>
+                <field name="fsm_done" invisible="1"/>
+                <field name="display_timesheet_timer" invisible="1"/>
+                <field name="display_enabled_conditions_count" invisible="1"/>
+                <field name="display_satisfied_conditions_count" invisible="1"/>
+                <field name="display_mark_as_done_primary" invisible="1"/>
+                <field name="display_mark_as_done_secondary" invisible="1"/>
+                <field name="display_sign_report_primary" invisible="1"/>
+                <field name="display_sign_report_secondary" invisible="1"/>
+                <field name="display_send_report_primary" invisible="1"/>
+                <field name="display_send_report_secondary" invisible="1"/>
+                <button name="action_preview_worksheet" type="object" string="Sign Report" class="btn-primary"
+                    invisible="not display_sign_report_primary or has_template_ancestor or has_project_template" data-hotkey="y"/>
+                <button name="action_send_report" type="object" string="Send Report" class="btn-primary"
+                    invisible="not display_send_report_primary or has_template_ancestor or has_project_template" data-hotkey="g"/>
+                <button class="btn-primary" name="action_fsm_validate" type="object" string="Mark as done"
+                        invisible="not display_mark_as_done_primary or has_template_ancestor or has_project_template" data-hotkey="v"/>
+                <button name="action_preview_worksheet" type="object" string="Sign Report" class="btn-secondary"
+                    invisible="not display_sign_report_secondary or has_template_ancestor or has_project_template" data-hotkey="y"/>
+                <button name="action_send_report" type="object" string="Send Report" class="btn-secondary"
+                    invisible="not display_send_report_secondary or has_template_ancestor or has_project_template" data-hotkey="g"/>
+                <button class="btn-secondary" name="action_fsm_validate" type="object" string="Mark as done"
+                        invisible="not display_mark_as_done_secondary or has_template_ancestor or has_project_template" data-hotkey="v"/>
+            </xpath>
+            <xpath expr="//label[@for='date_deadline'][1]" position="attributes">
+                <attribute name="invisible">is_fsm or planned_date_begin</attribute>
+            </xpath>
+            <xpath expr="//label[@for='date_deadline'][2]" position="attributes">
+                <attribute name="invisible">is_fsm or not planned_date_begin</attribute>
+            </xpath>
+            <xpath expr="//label[@for='repeat_interval']" position="attributes">
+                <attribute name="invisible">is_fsm or not recurring_task</attribute>
+            </xpath>
+            <xpath expr="//field[@name='planned_date_begin']" position="attributes">
+                <attribute name="required">is_fsm and date_deadline</attribute>
+            </xpath>
+            <xpath expr="//page[@name='extra_info']" position="attributes">
+                <attribute name="groups">base.group_no_one</attribute>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <field name="show_customer_preview" invisible="1"/>
+                <button
+                    string="Preview"
+                    class="oe_stat_button"
+                    name="action_preview_worksheet"
+                    icon="fa-globe"
+                    type="object"
+                    groups="project.group_project_user"
+                    invisible="not show_customer_preview or has_template_ancestor or has_project_template">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text text-wrap">Customer Preview</span>
+                    </div>
+                </button>
+            </xpath>
+            <field name="is_fsm" string="is FSM?" invisible="1"/>
+            <field name="partner_id" position="attributes">
+                <attribute name="context">{'show_address': is_fsm, 'show_address_if_fsm': 1, 'res_partner_search_mode': 'customer'}</attribute>
+                <attribute name="required">is_fsm and not has_template_ancestor and not has_project_template</attribute>
+            </field>
+            <xpath expr="//field[@name='depend_on_ids']/list/field[@name='partner_id']" position="after">
+                <field name="is_fsm" column_invisible="True"/>
+            </xpath>
+            <xpath expr="//field[@name='depend_on_ids']/list/field[@name='partner_id']" position="attributes">
+                <attribute name="required">is_fsm and not has_template_ancestor and not has_project_template</attribute>
+            </xpath>
+            <xpath expr="//field[@name='child_ids']/list/field[@name='partner_id']" position="after">
+                <field name="is_fsm" column_invisible="True"/>
+            </xpath>
+            <xpath expr="//field[@name='child_ids']/list/field[@name='partner_id']" position="attributes">
+                <attribute name="column_invisible">parent.is_fsm and not parent.partner_id</attribute>
+                <attribute name="required">is_fsm and parent.partner_id</attribute>
+            </xpath>
+            <field name="partner_id" position="after">
+                <label for="action_fsm_navigate" id="action_fsm_navigate" class="d-flex d-sm-none" invisible="not is_fsm or not partner_id or has_template_ancestor or has_project_template"/>
+                <div invisible="not is_fsm or not partner_id or has_template_ancestor or has_project_template">
+                    <button
+                        name="action_fsm_navigate" type="object" class="btn btn-link ps-0 pt-0 pb-2"
+                        icon="oi-arrow-right" string="View Itinerary" colspan="2"/>
+                </div>
+                <field name="is_task_phone_update" invisible="1"/>
+                <label for="partner_phone" invisible="not is_fsm or has_template_ancestor or has_project_template"/>
+                <div name="partner_phone" class="o_row o_row_readonly" invisible="not is_fsm or has_template_ancestor or has_project_template">
+                    <field name="partner_phone" widget="phone"/>
+                    <span class="fa fa-exclamation-triangle text-warning oe_edit_only"
+                        title="By saving this change, the customer contact number will also be updated." invisible="not partner_id or not is_task_phone_update"/>
+                </div>
+            </field>
+            <field name="project_id" position="attributes">
+                <attribute name="context">{
+                    'default_is_fsm': context.get('fsm_mode'),
+                }
+                </attribute>
+                <attribute name="domain">[
+                    ('active', '=', True),
+                    '|',
+                    ('company_id', '=', False),
+                    ('company_id', '=?', company_id),
+                    ('is_fsm', '=?', context.get('fsm_mode')),
+                    ('is_internal_project', '=', False),
+                ]</attribute>
+            </field>
+            <xpath expr="//group//field[@name='project_id']" position="attributes">
+                <attribute name="context">{
+                    'default_is_fsm': context.get('fsm_mode'),
+                }
+                </attribute>
+                <attribute name="domain">[
+                    ('active', '=', True),
+                    '|',
+                    ('company_id', '=', False),
+                    ('company_id', '=?', company_id),
+                    ('is_fsm', '=?', context.get('fsm_mode')),
+                    ('is_internal_project', '=', False),
+                ]</attribute>
+            </xpath>
+            <xpath expr="//div[@id='date_deadline_and_recurring_task']" position="attributes">
+                <attribute name="invisible">is_fsm</attribute>
+            </xpath>
+            <xpath expr="//div[@name='repeat_intervals']" position="attributes">
+                <attribute name="invisible">is_fsm or not recurring_task</attribute>
+            </xpath>
+            <xpath expr="//group/label[@for='allocated_hours']" position="attributes">
+                <attribute name="invisible">not allow_timesheets or is_fsm</attribute>
+            </xpath>
+            <xpath expr="//div[@id='allocated_hours_container']" position="attributes">
+                <attribute name="invisible">not allow_timesheets or is_fsm</attribute>
+            </xpath>
+            <xpath expr="//field[@name='user_ids']" position="after">
+                <label for="date_deadline" string="Planned Date" invisible="not is_fsm"/>
+                <div id="date_deadline_and_recurring_task" class="d-inline-flex w-100" invisible="not is_fsm">
+                    <field
+                        name="date_deadline"
+                        widget="daterange"
+                        options="{'start_date_field': 'planned_date_begin', 'always_range': '1'}"
+                        nolabel="1"
+                        required="is_fsm and (date_deadline or planned_date_begin)"/>
+                    <field
+                        name="recurring_task"
+                        nolabel="1"
+                        class="ms-0"
+                        style="width: fit-content;"
+                        widget="boolean_icon"
+                        options="{'icon': 'fa-repeat'}"
+                        invisible="not active or parent_id or not allow_recurring_tasks"
+                        groups="project.group_project_recurring_tasks"
+                    />
+                </div>
+                <label for="repeat_interval" groups="project.group_project_recurring_tasks" invisible="not (recurring_task and is_fsm)" />
+                <div invisible="not (recurring_task and is_fsm)" class="d-flex" groups="project.group_project_recurring_tasks" name="repeat_intervals">
+                    <field name="repeat_interval" required="recurring_task"
+                            class="me-2" style="max-width: 2rem !important;" />
+                    <field name="repeat_unit" required="recurring_task"
+                            class="me-2" style="max-width: 4rem !important;" />
+                    <field name="repeat_type" required="recurring_task"
+                            class="me-2" style="max-width: 15rem !important;" />
+                    <field name="repeat_until" invisible="repeat_type != 'until'" required="repeat_type == 'until'"
+                            class="me-2" />
+                </div>
+                <label for="allocated_hours" invisible="not (allow_timesheets and is_fsm)" groups="hr_timesheet.group_hr_timesheet_user"/>
+                <div id="allocated_hours_container" class="text-nowrap" invisible="not (allow_timesheets and is_fsm)" groups="hr_timesheet.group_hr_timesheet_user">
+                    <field name="allocated_hours" class="oe_inline o_field_float_time o_task_planned_hours" widget="timesheet_uom_no_toggle"/>
+                    <span invisible="subtask_count == 0">
+                        (incl. <field name="subtask_allocated_hours" nolabel="1" widget="timesheet_uom_no_toggle" class="oe_inline"/> on
+                        <span class="fw-bold text-dark"> Sub-tasks</span>)
+                    </span>
+                    (<field name="progress" invisible="not project_id" class="oe_inline" nolabel="1" decoration-danger="progress > 1.005" digits="[1, 0]" widget="percentage"/>)
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Fsm Mobile View-->
+    <record id="project_task_view_mobile_form" model="ir.ui.view">
+        <field name="name">fsm.task.form.view.mobile</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="industry_fsm.view_task_form2_inherit"/>
+        <field name="mode">primary</field>
+        <field name="priority">999</field>
+        <field name="arch" type="xml">
+            <field name="project_id" position="attributes">
+                <attribute name="invisible" add="context.get('industry_fsm_one_project', False)" separator=" or "/>
+            </field>
+            <xpath expr="//group/field[@name='user_ids']" position="attributes">
+                <attribute name="invisible" add="context.get('industry_fsm_hide_user_ids', False)" separator=" or "/>
+            </xpath>
+            <xpath expr="//group/field[@name='tag_ids']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <label for="partner_phone" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </label>
+            <xpath expr="//div[@name='partner_phone']" position="attributes">
+                <attribute name="colspan" add="2"/>
+            </xpath>
+            <xpath expr="//field[@name='partner_phone']" position="attributes">
+                <attribute name="placeholder">Contact Number</attribute>
+            </xpath>
+            <xpath expr="//t[@name='warning_section']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!--
+    	Project Views (in project app)
+	-->
+
+    <record id="quick_create_task_form_fsm" model="ir.ui.view">
+        <field name="name">project.task.form.quick_create</field>
+        <field name="model">project.task</field>
+        <field name="priority">1000</field>
+        <field name="inherit_id" ref="project.quick_create_task_form"/>
+        <field name="arch" type="xml">
+            <field name="user_ids" position="attributes">
+                <attribute name="widget">many2many_avatar_user</attribute>
+            </field>
+            <field name="user_ids" position="before">
+                <field name="is_fsm" invisible="1"/>
+                <field name="partner_id" invisible="not is_fsm or is_template or has_project_template" required="is_fsm" widget="res_partner_many2one" context="{'res_partner_search_mode': 'customer'}"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Quick create for the kanban view in Project when the user selects a project in the main view of project app -->
+    <!-- TODO: Remove me in master -->
+    <record id="quick_create_task_in_project" model="ir.ui.view">
+        <field name="name">project.task.quick_create_in_project.view.form.inherit</field>
+        <field name="model">project.task</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="quick_create_task_form_fsm"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside"/>
+        </field>
+    </record>
+
+    <!-- TODO: Remove me in master -->
+    <record id="project_task_in_project_view_kanban" model="ir.ui.view">
+        <field name="name">project.task.in.project.kanban</field>
+        <field name="model">project.task</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="project_enterprise.view_task_kanban_inherited"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="attributes">
+                <attribute name="quick_create_view">industry_fsm.quick_create_task_in_project</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_view_form_inherit" model="ir.ui.view">
+        <field name="name">project.view.form.inherit</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="hr_timesheet.project_invoice_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='group_time_managment']" position="after">
+                <group name="group_field_service" string="Field Service" col="1" class="row mt16 o_settings_container col-lg-6">
+                    <div>
+                        <setting class="col-lg-12" help="Manage tasks in the Field Service module" groups="base.group_no_one">
+                            <field name="is_fsm"/>
+                        </setting>
+                        <setting class="col-lg-12" help="Track technician location when running the timer" invisible="not (is_fsm and allow_timesheets)">
+                            <field name="allow_geolocation"/>
+                        </setting>
+                     </div>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project.project_task_kanban_action_view" model="ir.actions.act_window.view">
+        <field name="view_id" ref="industry_fsm.project_task_in_project_view_kanban"/>
+    </record>
+</odoo>

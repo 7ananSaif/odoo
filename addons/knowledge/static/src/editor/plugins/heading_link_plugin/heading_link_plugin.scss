@@ -1,0 +1,18 @@
+.o_knowledge_body {
+    h1, h2, h3, h4, h5, h6 {
+        transition: background-color 0.5s ease;
+
+        &.o-highlight-heading {
+            border-radius: 0.25rem;
+            background-color: rgba(#1ba1e4, 0.2);
+        }
+    }
+}
+
+a.o-heading-link {
+    text-decoration: none;
+    transition: all, .1s;
+    color: $gray-400 !important;
+    font-family: FontAwesome, sans-serif !important;
+    @include font-size($font-size-base);
+}

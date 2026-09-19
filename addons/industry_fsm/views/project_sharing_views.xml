@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="project_sharing_project_task_inherit_view_kanban" model="ir.ui.view">
+        <field name="name">project.sharing.project.task.view.kanban.inherit</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.project_sharing_project_task_view_kanban"/>
+        <field name="priority">700</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="after">
+                <field name="is_fsm"/>
+                <field name="planned_date_begin"/>
+                <field name="fsm_done" />
+            </xpath>
+            <xpath expr="//field[@t-if='record.partner_id.value']" position="after">
+                <span t-if="record.is_fsm.raw_value and record.partner_city.value">
+                    • <field name="partner_city"/>
+                </span>
+            </xpath>
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="invisible">context.get('fsm_mode', False)</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_sharing_quick_create_task_form_inherit" model="ir.ui.view">
+        <field name="name">project.sharing.form.quick_create.inherit</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.project_sharing_quick_create_task_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="is_fsm" invisible="1"/>
+                <field name="company_id" invisible="1" />
+                <field name="partner_id" invisible="True" required="True" options="{'no_open': True, 'no_create': True, 'no_edit': True}" context="{'res_partner_search_mode': 'customer'}"/>
+                <field name="project_id" invisible="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_sharing_inherit_project_task_view_form" model="ir.ui.view">
+        <field name="name">project.sharing.project.task.view.form.inherit</field>
+        <field name="model">project.task</field>
+        <field name="priority">501</field>
+        <field name="inherit_id" ref="project.project_sharing_project_task_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id']" position="after">
+                <field name="is_fsm" invisible="1"/>
+            </xpath>
+            <field name="partner_id" position="attributes">
+                <attribute name="context">{'show_address_if_fsm': 1, 'res_partner_search_mode': 'customer'}</attribute>
+                <attribute name="required">is_fsm</attribute>
+            </field>
+            <xpath expr="//field[@name='child_ids']/list/field[@name='partner_id']" position="after">
+                <field name="is_fsm" column_invisible="True"/>
+            </xpath>
+            <xpath expr="//field[@name='child_ids']/list/field[@name='partner_id']" position="attributes">
+                <attribute name="required">is_fsm</attribute>
+            </xpath>
+            <xpath expr="//label[@for='date_deadline'][1]" position="attributes">
+                <attribute name="invisible">is_fsm or planned_date_begin</attribute>
+            </xpath>
+            <xpath expr="//label[@for='date_deadline'][2]" position="attributes">
+                <attribute name="invisible">is_fsm or not planned_date_begin</attribute>
+            </xpath>
+            <xpath expr="//label[@for='repeat_interval']" position="attributes">
+                <attribute name="invisible">is_fsm or not recurring_task</attribute>
+            </xpath>
+            <xpath expr="//field[@name='date_deadline']" position="attributes">
+                <attribute name="invisible">is_fsm</attribute>
+            </xpath>
+            <xpath expr="//field[@name='recurring_task']" position="attributes">
+                <attribute name="invisible">is_fsm or (not active or parent_id)</attribute>
+            </xpath>
+            <xpath expr="//label[@for='allocated_hours']" position="attributes">
+                <attribute name="invisible">not allow_timesheets or is_fsm</attribute>
+            </xpath>
+            <xpath expr="//div[@name='repeat_intervals']" position="attributes">
+                <attribute name="invisible">is_fsm or not recurring_task</attribute>
+            </xpath>
+            <xpath expr="//div[@id='allocated_hours_container']" position="attributes">
+                <attribute name="invisible">not allow_timesheets or is_fsm</attribute>
+            </xpath>
+            <xpath expr="//field[@name='portal_user_names']" position="after">
+                <field
+                    name="date_deadline"
+                    string="Planned Date"
+                    widget="daterange"
+                    options="{'start_date_field': 'planned_date_begin', 'always_range': '1'}"
+                    invisible="not is_fsm"
+                    required="is_fsm and (date_deadline or planned_date_begin)"/>
+                <field
+                    name="recurring_task"
+                    invisible="not is_fsm or (not active or parent_id)"
+                    groups="project.group_project_recurring_tasks"
+                />
+                <label for="repeat_interval" groups="project.group_project_recurring_tasks" invisible="not (recurring_task and is_fsm)" />
+                <div invisible="not (recurring_task and is_fsm)" class="d-flex" groups="project.group_project_recurring_tasks" name="repeat_intervals">
+                    <field name="repeat_interval" required="recurring_task"
+                            class="me-2" style="max-width: 2rem !important;" />
+                    <field name="repeat_unit" required="recurring_task"
+                            class="me-2" style="max-width: 4rem !important;" />
+                    <field name="repeat_type" required="recurring_task"
+                            class="me-2" style="max-width: 15rem !important;" />
+                    <field name="repeat_until" invisible="repeat_type != 'until'" required="repeat_type == 'until'"
+                            class="me-2" />
+                </div>
+                <label for="allocated_hours" invisible="not (allow_timesheets and is_fsm)"/>
+                <div id="allocated_hours_container" class="text-nowrap" invisible="not (allow_timesheets and is_fsm)">
+                    <field name="allocated_hours" class="oe_inline o_field_float_time o_task_planned_hours" widget="timesheet_uom_no_toggle"/>
+                    <span invisible="subtask_count == 0">
+                        (incl. <field name="subtask_allocated_hours" nolabel="1" widget="timesheet_uom_no_toggle" class="oe_inline"/> on
+                        <span class="fw-bold text-dark"> Sub-tasks</span>)
+                    </span>
+                    (<field name="progress" invisible="not project_id" class="oe_inline" nolabel="1" decoration-danger="progress > 1.005" digits="[1, 0]" widget="percentage"/>)
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_sharing_project_task_view_search_inherit" model="ir.ui.view">
+        <field name="name">project.sharing.task.search.form.inherit</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="project.project_sharing_project_task_view_search"/>
+        <field name="arch" type="xml">
+            <filter name="date_deadline" position="attributes">
+                <attribute name="invisible">context.get('fsm_mode', False)</attribute>
+            </filter>
+            <filter name="deadline" position="attributes">
+                <attribute name="invisible">context.get('fsm_mode', False)</attribute>
+            </filter>
+        </field>
+    </record>
+
+</odoo>

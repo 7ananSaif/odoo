@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="base.partner_demo_company_nl" model="res.partner" forcecreate="1">
+        <field name="name">My Dutch Company</field>
+        <field name="country_id" ref="base.nl"/>
+    </record>
+
+    <record id="base.demo_company_nl" model="res.company" forcecreate="1">
+        <field name="name">My Dutch Company</field>
+        <field name="partner_id" ref="base.partner_demo_company_nl"/>
+        <field name="currency_id" ref="base.EUR"/>
+        <field name="street">Korenmolengat 42</field>
+        <field name="zip">2761 EC</field>
+        <field name="city">Zevenhuizen</field>
+        <field name="state_id" ref="base.state_nl_zh"/>
+        <field name="country_id" ref="base.nl"/>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_nl'))]"/>
+    </record>
+
+    <record id="base.user_demo" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_nl'))]"/>
+    </record>
+
+    <record id="nl_hr_department_rd" model="hr.department">
+        <field name="name">R&amp;D NL</field>
+        <field name="company_id" ref="base.demo_company_nl"/>
+    </record>
+
+    <record id="res_partner_wouter" model="res.partner">
+        <field name="name">Wouter Maas</field>
+        <field name="street">Van Maasstraat 33</field>
+        <field name="city">Almere</field>
+        <field name="zip">6813MQ</field>
+        <field name="state_id" ref="base.state_nl_fl"/>
+        <field name="country_id" ref="base.nl"/>
+        <field name="phone">09 99161280</field>
+        <field name="company_id" ref="base.demo_company_nl"/>
+    </record>
+    <record id="res_partner_wouter" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_nl_hr_payroll.res_partner_wouter')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_lotte" model="res.partner">
+        <field name="name">Lotte Van Leeuw</field>
+        <field name="street">Arslanlaan 82d</field>
+        <field name="city">Burgum</field>
+        <field name="zip">2622DX</field>
+        <field name="state_id" ref="base.state_nl_fr"/>
+        <field name="country_id" ref="base.nl"/>
+        <field name="phone">09 99676447</field>
+        <field name="company_id" ref="base.demo_company_nl"/>
+    </record>
+    <record id="res_partner_lotte" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="user_lotte" model="res.users">
+        <field name="partner_id" ref="l10n_nl_hr_payroll.res_partner_lotte"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_nl'))]"/>
+        <field name="company_id" ref="base.demo_company_nl"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="l10n_nl_hr_payroll/static/img/hr_employe_lotte.jpg"/>
+    </record>
+
+    <record id="nl_res_bank_ing" model="res.bank">
+        <field name="name">ING</field>
+        <field name="bic">INGBNL2AXXX</field>
+        <field name="street">ING Straat</field>
+        <field name="city">Almere</field>
+        <field name="zip">6899QO</field>
+        <field name="state" ref="base.state_nl_fl"/>
+        <field name="country" ref="base.nl"/>
+        <field name="phone">09 99287728</field>
+    </record>
+    <record id="nl_res_bank_ing" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_nl_hr_payroll.nl_res_bank_ing')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="nl_res_bank_rabobank" model="res.bank">
+        <field name="name">Rabobank</field>
+        <field name="bic">RABONL2UXXX</field>
+        <field name="street">Rabobank laan</field>
+        <field name="city">Burgum</field>
+        <field name="zip">2699QO</field>
+        <field name="state" ref="base.state_nl_fr"/>
+        <field name="country" ref="base.nl"/>
+        <field name="phone">09 99023978</field>
+    </record>
+    <record id="nl_res_bank_rabobank" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_nl_hr_payroll.nl_res_bank_rabobank')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_wouter" model="res.partner.bank">
+        <field name="acc_number">NL02INGB0023456789</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_nl_hr_payroll.nl_res_bank_ing"/>
+        <field name="partner_id" ref="l10n_nl_hr_payroll.res_partner_wouter"/>
+        <field name="company_id" ref="base.demo_company_nl"/>
+        <field name="currency_id" ref="base.EUR"/>
+    </record>
+
+    <record id="res_partner_bank_account_lotte" model="res.partner.bank">
+        <field name="acc_number">NL02RABO0123456789</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_nl_hr_payroll.nl_res_bank_rabobank"/>
+        <field name="partner_id" ref="l10n_nl_hr_payroll.res_partner_lotte"/>
+        <field name="company_id" ref="base.demo_company_nl"/>
+        <field name="currency_id" ref="base.EUR"/>
+    </record>
+
+    <record id="hr_employee_wouter" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_wouter')).name"/>
+        <field name="image_1920" type="base64" file="l10n_nl_hr_payroll/static/img/hr_employee_wouter.jpg"/>
+        <field name="work_phone">09 99437379</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_wouter')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="work_contact_id" ref="l10n_nl_hr_payroll.res_partner_wouter"/>
+        <field name="company_id" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_wouter')).company_id"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Europe/Amsterdam</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_wouter')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_wouter')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_wouter')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_wouter')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_wouter')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_wouter')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_wouter')).phone"/>
+        <field name="distance_home_work">52</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_wouter')).country_id"/>
+        <field name="identification_id">9999.67.890</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1967, 1, 12).date()"/>
+        <field name="place_of_birth">Arnhem</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_wouter')).country_id"/>
+        <field name="emergency_contact">Gerrit Maas</field>
+        <field name="emergency_phone">09 99676812</field>
+        <field name="certificate">bachelor</field>
+        <field name="study_field">Mechanical Engineering</field>
+        <field name="study_school">TU Delft</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_nl_hr_payroll.res_partner_bank_account_wouter'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_nl_hr_payroll.nl_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_nl_hr_payroll.structure_type_employee_nl"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">3800</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_nl').id)], limit=1)"/>
+    </record>
+
+    <record id="hr_employee_lotte" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).name"/>
+        <field name="job_title">Software Developer</field>
+        <field name="image_1920" type="base64" file="l10n_nl_hr_payroll/static/img/hr_employe_lotte.jpg"/>
+        <field name="work_phone">09 99896249</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="parent_id" ref="l10n_nl_hr_payroll.hr_employee_wouter"/>
+        <field name="user_id" ref="l10n_nl_hr_payroll.user_lotte"/>
+        <field name="company_id" ref="base.demo_company_nl"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Europe/Amsterdam</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).phone"/>
+        <field name="distance_home_work">22</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).country_id"/>
+        <field name="identification_id">9999.23.987</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1993, 10, 30).date()"/>
+        <field name="place_of_birth">Maastricht</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_nl_hr_payroll.res_partner_lotte')).country_id"/>
+        <field name="emergency_contact">Stijn Van Leeuw</field>
+        <field name="emergency_phone">09 99326891</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Computer Science</field>
+        <field name="study_school">Utrecht University</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_nl_hr_payroll.res_partner_bank_account_lotte'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_nl_hr_payroll.nl_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_nl_hr_payroll.structure_type_employee_nl"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">3000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-2, month=1, day=1))"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-2, month=1, day=1))"/>
+        <field name="contract_date_end" eval="(DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_nl').id)], limit=1)"/>
+    </record>
+
+    <function name="create_version" model="hr.employee">
+        <value eval="[ref('l10n_nl_hr_payroll.hr_employee_lotte')]"/>
+        <value eval="{
+            'date_version': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2) + relativedelta(days=1),
+            'contract_date_start': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2) + relativedelta(days=1),
+            'contract_date_end': False,
+            'wage': 3600.00
+        }"/>
+    </function>
+</odoo>

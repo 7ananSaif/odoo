@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="hr_appraisal_goal_template_view_form" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.template.view.form.inherit.hr_appraisal_skills</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="inherit_id" ref="hr_appraisal.hr_appraisal_goal_template_view_form"/>
+        <field name="arch" type="xml">
+            <group name="tags_group" position="before">
+                <group>
+                    <field name="current_goal_skill_ids" mode="list" widget="many2one_tags_skills"
+                        context="{'default_appraisal_goal_id': id}" string="Expected Skills">
+                        <list>
+                            <field name="skill_id"/> <!--This is needed for the UI to update smoothly -->
+                            <field name="skill_level_id"/> <!--This is needed for the UI to update smoothly -->
+                            <field name="display_name"/>
+                            <field name="color"/>
+                        </list>
+                    </field>
+                </group>
+            </group>
+        </field>
+    </record>
+
+    <record id="hr_appraisal_goal_template_view_hierarchy" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.template.view.hierarchy.inherit.hr_appraisal_skills</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="inherit_id" ref="hr_appraisal.hr_appraisal_goal_template_view_hierarchy"/>
+        <field name="arch" type="xml">
+            <span id="span_tag" position="before">
+                <span invisible="not current_goal_skill_ids">Skills:</span>
+                <field name="current_goal_skill_ids" widget="many2many_tags"
+                    invisible="not current_goal_skill_ids" options="{'color_field': 'color'}"/>
+            </span>
+        </field>
+    </record>
+
+    <record id="hr_appraisal_goal_template_view_tree" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.template.view.list.inherit.hr_appraisal_skills</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="inherit_id" ref="hr_appraisal.hr_appraisal_goal_template_view_list"/>
+        <field name="arch" type="xml">
+            <field name="child_ids" position="before">
+                <field name="current_goal_skill_ids" widget="many2many_tags" options="{'color_field': 'color'}"
+                    string="Recommended for"/>
+            </field>
+        </field>
+    </record>
+</odoo>

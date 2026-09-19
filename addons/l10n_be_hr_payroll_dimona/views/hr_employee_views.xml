@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.view.form.inherit.l10n.be.hr.payroll</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <header position="inside">
+                <button name="action_check_dimona" string="Check Dimona" type="object" groups="base.group_no_one"
+                    invisible="country_code != 'BE'"
+                />
+            </header>
+            <group name="payroll_group" position="inside">
+                <group string="Dimona" invisible="country_code != 'BE'" groups="base.group_no_one">
+                    <field name="l10n_be_dimona_in_declaration_number"/>
+                    <field name="l10n_be_dimona_last_declaration_number"/>
+                    <field name="l10n_be_dimona_declaration_state"/>
+                </group>
+            </group>
+            <div name="hourly_wage" position="after">
+                <field name="l10n_be_is_student" invisible="1"/>
+                <field name="l10n_be_dimona_planned_hours" invisible="wage_type != 'hourly' or country_code != 'BE' or not l10n_be_is_student"/>
+            </div>
+        </field>
+    </record>
+</odoo>

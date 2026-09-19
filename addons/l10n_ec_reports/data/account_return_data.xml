@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ec_103_tax_return_type" model="account.return.type">
+            <field name="name">Tax Return 103 (EC)</field>
+            <field name="report_id" ref="l10n_ec.tax_report_103"/>
+            <field name="country_id" ref="base.ec" />
+        </record>
+
+        <record id="ec_104_tax_return_type" model="account.return.type">
+            <field name="name">Tax Return 104 (EC)</field>
+            <field name="report_id" ref="l10n_ec.tax_report_104"/>
+            <field name="country_id" ref="base.ec" />
+        </record>
+    </data>
+</odoo>

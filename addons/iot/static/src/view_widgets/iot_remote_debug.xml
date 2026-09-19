@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="iot.RemoteDebugDialog">
+        <Dialog title.translate="Remote Debug">
+            <div t-if="!props.enabled" class="d-flex flex-column gap-3">
+                <div>
+                    You can enable remote debug on your IoT Box by providing a Ngrok authtoken.<br/>
+                    <span><b>Be careful:</b> it enables remote access to your local network to the owner of the token.</span>
+                </div>
+                <div class="d-flex gap-3 w-50">
+                    <label class="form-label">Token</label>
+                    <div class="o_field_widget o_field_char w-100">
+                        <input t-model="state.token" class="o_input" type="text"/>
+                    </div>
+                </div>
+            </div>
+            <div t-else="">
+                Remote debug is enabled, the owner of the token you provided has access to both your IoT Box
+                and local network. If it's unintended, click on "Disable" below.
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="validate" t-att-disabled="!state.token and !props.enabled">
+                    <t t-esc="props.enabled ? 'Disable' : 'Enable'"/>
+                </button>
+                <button class="btn btn-secondary" t-on-click="props.close">Discard</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

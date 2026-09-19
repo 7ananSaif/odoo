@@ -1,0 +1,290 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * helpdesk_stock
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:45+0000\n"
+"PO-Revision-Date: 2025-12-06 10:14+0000\n"
+"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"helpdesk_stock/ko/>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+msgid ""
+"\n"
+"                <p class=\"o_view_nocontent_smiling_face "
+"o_view_nocontent_stock\">No delivery orders yet. Let's create one!</p>\n"
+"                <p>Send customers a replacement for a lost, damaged, or "
+"returned item</p>\n"
+"            "
+msgstr ""
+"\n"
+"                <p class=\"o_view_nocontent_smiling_face "
+"o_view_nocontent_stock\">배송주문서가 없습니다. 주문서를 생성하세요!</p>\n"
+"                <p>고객에게 분실, 손상 또는 반품 품목에 대한 대체 품목 보내기"
+"</p>\n"
+"            "
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/stock_picking.py:0
+msgid " Delivery %(status)s"
+msgstr " 배송 %(status)s"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/stock_picking.py:0
+msgid " Return %(status)s"
+msgstr " 반품 %(status)s"
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.view_picking_form_helpdesk
+msgid "<span class=\"o_stat_text\">Ticket</span>"
+msgstr "<span class=\"o_stat_text\">티켓</span>"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+msgid "Create Replacement Order"
+msgstr "교체 주문서 생성"
+
+#. module: helpdesk_stock
+#: model:ir.model,website_form_label:helpdesk_stock.model_helpdesk_ticket
+msgid "Create a Ticket"
+msgstr "티켓 만들기"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__partner_id
+msgid "Customer"
+msgstr "고객"
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.helpdesk_ticket_view_form_inherit_helpdesk_stock
+msgid "Deliveries"
+msgstr "배송"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+msgid "Delivery Orders"
+msgstr "배송 주문서"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/stock_picking.py:0
+msgid "Delivery created"
+msgstr "배송 항목 생성"
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.view_stock_return_picking_form_inherit_helpdesk_stock
+msgid "Delivery to Return"
+msgstr "반품 배송"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_sla_report_analysis__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket_report_analysis__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_picking__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking_line__display_name
+msgid "Display Name"
+msgstr "표시명"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,help:helpdesk_stock.field_helpdesk_ticket__tracking
+msgid "Ensure the traceability of a storable product in your warehouse."
+msgstr "창고에 저장 가능한 품목의 추적성을 확인하십시오."
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__has_partner_picking
+msgid "Has Partner Picking"
+msgstr "협력사 픽업 있음"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_helpdesk_ticket
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_picking__ticket_id
+msgid "Helpdesk Ticket"
+msgstr "고객센터 티켓"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_sla_report_analysis__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket_report_analysis__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_picking__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__lot_id
+msgid "Lot/Serial Number"
+msgstr "LOT/일련번호"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,help:helpdesk_stock.field_stock_picking__ticket_visibility
+msgid ""
+"People to whom this helpdesk team and its tickets will be visible.\n"
+"\n"
+"- Invited internal users: internal users can access the team and the tickets "
+"they are following. This access can be modified on each ticket individually "
+"by adding or removing the user as follower.\n"
+"A user with the helpdesk > administrator access right level can still access "
+"this team and its tickets, even if they are not explicitely part of the "
+"followers.\n"
+"\n"
+"- All internal users: all internal users can access the team and all of its "
+"tickets without distinction.\n"
+"\n"
+"- Invited portal users and all internal users: all internal users can access "
+"the team and all of its tickets without distinction.\n"
+"Portal users can only access the tickets they are following. This access can "
+"be modified on each ticket individually by adding or removing the portal "
+"user as follower."
+msgstr ""
+"이 헬프데스크 팀 및 관련 상담을 확인할 수 있는 사람.\n"
+"\n"
+"- 초대한 내부 사용자: 내부 사용자는 팔로우 중인 팀 및 상담에 접근할 수 있습니"
+"다. 사용자를 팔로워로 추가하거나 삭제하여 각 상담별로 접근 권한을 개별적으로 "
+"수정할 수 있습니다.\n"
+"사용자 중 헬프데스크 > 관리자 수준의 접근 권한을 가진 경우에는 팀 및 해당 상"
+"담에 계속 접근할 수 있으며, 이는 팔로워가 아닌 경우에도 마찬가지입니다.\n"
+"\n"
+"- 내부 사용자 전체: 모든 내부 사용자가 구분 없이 팀 및 전체 상담에 접근할 수 "
+"있습니다.\n"
+"\n"
+"- 초대한 포털 사용자 및 내부 사용자 전체: 모든 내부 사용자가 구분 없이 팀 및 "
+"전체 상담에 접근할 수 있습니다.\n"
+"포털 사용자는 팔로우 중인 상담에만 접근할 수 있습니다. 포털 사용자를 팔로워"
+"로 추가하거나 삭제하여 각 상담별로 접근 권한을 개별적으로 수정할 수 있습니다."
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__picking_id
+msgid "Picking"
+msgstr "선별"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_sla_report_analysis__product_id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__product_id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket_report_analysis__product_id
+msgid "Product"
+msgstr "품목"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,help:helpdesk_stock.field_helpdesk_ticket__product_id
+msgid ""
+"Product this ticket is about. If selected, only the sales orders, deliveries "
+"and invoices including this product will be visible."
+msgstr ""
+"이 티켓에 대한 품목입니다. 선택하면 이 품목과 함께 판매주문서, 배송 및 청구서"
+"만 표시됩니다."
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.helpdesk_ticket_view_form_inherit_stock_user
+msgid "Replace"
+msgstr "이미지 바꾸기"
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.helpdesk_ticket_view_form_inherit_stock_user
+msgid "Return"
+msgstr "반납"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__picking_ids
+msgid "Return Orders"
+msgstr "반품 주문서"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__pickings_count
+msgid "Return Orders Count"
+msgstr "반품 주문서 수"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_stock_return_picking
+msgid "Return Picking"
+msgstr "반품 선별"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_stock_return_picking_line
+msgid "Return Picking Line"
+msgstr "반품 선별 내역"
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.helpdesk_ticket_view_form_inherit_helpdesk_stock
+msgid "Returns"
+msgstr "반품"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_helpdesk_sla_report_analysis
+msgid "SLA Status Analysis"
+msgstr "SLA 상태 분석"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__sale_order_id
+msgid "Sales Order"
+msgstr "판매 주문"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__suitable_picking_ids
+msgid "Suitable Picking"
+msgstr "적합한 픽업"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__suitable_sale_order_ids
+msgid "Suitable Sale Order"
+msgstr "적합한 판매주문서"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/stock_picking.py:0
+msgid "This transfer was created from the ticket"
+msgstr ""
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__ticket_id
+msgid "Ticket"
+msgstr "티켓"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_helpdesk_ticket_report_analysis
+msgid "Ticket Analysis"
+msgstr "티켓 분석"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+#: code:addons/helpdesk_stock/wizard/stock_picking_return.py:0
+msgid "Ticket: %(ticket_name)s"
+msgstr "티켓: %(ticket_name)s"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__tracking
+msgid "Tracking"
+msgstr "추적"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_stock_picking
+msgid "Transfer"
+msgstr "전송"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+msgid "id"
+msgstr "id"

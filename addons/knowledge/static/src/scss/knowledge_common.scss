@@ -1,0 +1,59 @@
+.o_knowledge_form_view {
+    background-color: var(--knowledge-view-bg, $o-white);
+    .o_knowledge_sidebar {
+        .o_knowledge_create_article,
+        .o_knowledge_search,
+        .o_knowledge_toggle_sidebar,
+        .o_knowledge_join_article_members,
+        .o_section_create {
+            &:hover {
+                background-color: rgba($knowledge-bg--hover, 0.3);
+            }
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li > ul > li {
+            &:not(.o_dragged) {
+                padding-left: 12px; // nested list tab size
+            }
+            &:last-child {
+                padding-bottom: 0;
+                &:after {
+                    height: 1em;
+                }
+            }
+        }
+    }
+    // = Resizer
+    // --------------------------------------------------------------------------
+    .o_knowledge_article_form_resizer {
+        cursor: col-resize;
+        touch-action: none;
+        span:hover, span.o_resizer_bg {
+            background-color: rgb(169, 169, 169);
+        }
+    }
+    // = Cover
+    // --------------------------------------------------------------------------
+    .o_knowledge_cover {
+        width: 100%;
+        img {
+            width: 100%;
+            height: 30vh;
+            min-height: 150px;
+            object-fit: cover;
+        }
+        &.o_cursor_grab {
+            cursor: grab;
+        }
+        &.o_cursor_grabbing {
+            cursor: grabbing;
+        }
+        .o_reposition_hint {
+            background-color: black;
+            color: white;
+        }
+    }
+}

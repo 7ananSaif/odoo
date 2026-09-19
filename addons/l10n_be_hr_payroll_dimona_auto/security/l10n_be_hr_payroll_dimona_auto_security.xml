@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="ir_rule_l10n_be_dimona_declaration_multi_company" model="ir.rule">
+        <field name="name">HR Payroll BE Dimona Declaration: Multi Company</field>
+        <field name="model_id" ref="model_l10n_be_dimona_declaration"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="ir_rule_l10n_be_dimona_period_multi_company" model="ir.rule">
+        <field name="name">HR Payroll BE Dimona Period: Multi Company</field>
+        <field name="model_id" ref="model_l10n_be_dimona_period"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="ir_rule_l10n_be_dimona_relation_multi_company" model="ir.rule">
+        <field name="name">HR Payroll BE Dimona Relation: Multi Company</field>
+        <field name="model_id" ref="model_l10n_be_dimona_relation"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+</odoo>

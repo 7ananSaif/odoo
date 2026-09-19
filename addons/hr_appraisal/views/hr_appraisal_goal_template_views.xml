@@ -1,0 +1,186 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="hr_appraisal_goal_template_view_form" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.template.view.form</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="priority">30</field>
+        <field name="arch" type="xml">
+            <form class="o_appraisal_goal_form" js_class="appraisal_goal_delete_form">
+                <field name="active" invisible="1"/> <!-- To be able to archive -->
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="e.g. Improve English"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group invisible="context.get('hide_parent_id')">
+                            <field name="parent_id"
+                                placeholder="You can define this goal to be part of another one"
+                                context="{
+                                    'search_view_ref': 'hr_appraisal.hr_appraisal_goal_template_view_search',
+                                    'form_view_ref': 'hr_appraisal.hr_appraisal_goal_template_view_form',
+                                    'list_view_ref': 'hr_appraisal.hr_appraisal_goal_template_view_list'}"
+                            />
+                        </group>
+                        <group>
+                            <label for="usual_duration_month" class="fw-bold me-2"/>
+                            <div class="d-flex flex-row" name="usual_duration_month">
+                                <field name="usual_duration_month" style="width: 4ch;" class="me-1" required="True"/>
+                                <span>months</span>
+                            </div>
+                        </group>
+                    </group>
+                    <group>
+                        <group name="tags_group">
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Description" name="description">
+                            <field name="description" placeholder="Provide visible information on the
+                            goal, how the employee can achieve it. Which benefit he will get from it. Maybe some process
+                            or steps to help her/him."/>
+                        </page>
+                        <page string="Sub-Goals" name="sub_goals">
+                            <field name="child_ids" context="{
+                                'hide_parent_id': True,
+                                'list_view_ref': 'hr_appraisal.hr_appraisal_goal_template_view_list',
+                                'form_view_ref': 'hr_appraisal.hr_appraisal_goal_template_view_form',
+                            }"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_appraisal_goal_template_view_list" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.template.view.list</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="priority">35</field>
+        <field name="arch" type="xml">
+            <list sample="1" js_class="appraisal_goal_delete_list">
+                <field name="name"/>
+                <field name="child_ids" widget="many2many_tags" string="Sub Goals"/>
+                <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" optional="hide" string="Tags"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_appraisal_goal_template_view_hierarchy" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.template.view.hierarchy</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="priority">40</field>
+        <field name="arch" type="xml">
+            <hierarchy child_field="child_ids" draggable="1" class="o_goal_hierarchy_view">
+                <field name="name"/>
+                <field name="deadline"/>
+                <field name="tag_ids"/>
+                <templates>
+                    <t t-name="hierarchy-box">
+                        <div class="d-flex flex-column mx-2">
+                            <div class="d-flex flex-row pt-2">
+                                <field name="name" class="h4 pb-0"/>
+                            </div>
+                            <div class="d-grid column-gap-2" style="grid-template-columns: max-content minmax(0,1fr);">
+                                <span>Expected Time:</span>
+                                <span>
+                                    <field name="usual_duration_month" style="width: 4ch;" class="me-1"/>
+                                    <span>months</span>
+                                </span>
+                                <span id="span_tag" invisible="not tag_ids">Tags:</span>
+                                <field name="tag_ids" invisible="not tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </hierarchy>
+        </field>
+    </record>
+
+    <record id="hr_appraisal_goal_template_view_search" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.template.view.search</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="priority">45</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="tag_ids"/>
+                <field name="parent_id"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_appraisal_goal_template" model="ir.actions.act_window">
+        <field name="name">Goals Template</field>
+        <field name="res_model">hr.appraisal.goal</field>
+        <field name="search_view_id" ref="hr_appraisal_goal_template_view_search"/>
+        <field name="view_mode">list,hierarchy,form</field>
+        <field name="view_ids" eval="[(5, 0, 0),
+            (0, 0, {'view_mode': 'list', 'view_id': ref('hr_appraisal.hr_appraisal_goal_template_view_list')}),
+            (0, 0, {'view_mode': 'hierarchy', 'view_id': ref('hr_appraisal.hr_appraisal_goal_template_view_hierarchy')}),
+            (0, 0, {'view_mode': 'form', 'view_id': ref('hr_appraisal.hr_appraisal_goal_template_view_form')})]"/>
+        <field name="domain">[('employee_ids', '=', False)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create new goals Template
+            </p>
+            <p>
+                Assign Goals to motivate your Employees and keep track of their objectives between Appraisals.
+            </p>
+        </field>
+    </record>
+
+    <record id="hr_appraisal_goal_template_library_view_list" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.template.view.list</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="priority">40</field>
+        <field name="inherit_id" ref="hr_appraisal.hr_appraisal_goal_template_view_list"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="create">0</attribute>
+                <attribute name="edit">0</attribute>
+                <attribute name="delete">0</attribute>
+                <attribute name="js_class">goal_library_list</attribute>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_hr_appraisal_goal_template_library" model="ir.actions.act_window">
+        <field name="name">Goals Template Library</field>
+        <field name="res_model">hr.appraisal.goal</field>
+        <field name="view_mode">list</field>
+        <field name="target">new</field>
+        <field name="domain">[('employee_ids', '=', False)]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create new goals Template
+            </p>
+            <p>
+                Assign Goals to motivate your Employees and keep track of their objectives between Appraisals.
+            </p>
+        </field>
+    </record>
+
+    <record id="act_hr_appraisal_goal_template_library_list" model="ir.actions.act_window.view">
+        <field name="view_mode">list</field>
+        <field name="sequence" eval="4"/>
+        <field name="view_id" ref="hr_appraisal_goal_template_library_view_list"/>
+        <field name="act_window_id" ref="action_hr_appraisal_goal_template_library"/>
+    </record>
+
+    <menuitem
+        id="menu_config_goal"
+        name="Goals"
+        parent="hr_appraisal.menu_hr_appraisal_configuration"
+        sequence="20"/>
+
+    <menuitem
+        id="menu_config_goal_template"
+        name="Library"
+        action="action_hr_appraisal_goal_template"
+        parent="hr_appraisal.menu_config_goal"
+        sequence="22"/>
+</odoo>

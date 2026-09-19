@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="l10n_fr_fec_import.FecImportButton">
+        <button t-if="fecFileState.file.name" t-on-click="startImportProcess" data-hotkey="q" class="btn btn-primary">Import</button>
+    </t>
+</templates>

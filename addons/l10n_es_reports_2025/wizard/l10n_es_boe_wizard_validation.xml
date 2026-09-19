@@ -1,0 +1,144 @@
+<odoo>
+    <data>
+        <!--Enables the usage of the BOE wizards in the return validation view-->
+        <record id="mod111_validation_wizard" model="ir.ui.view">
+            <field name="name">mod111.validation.wizard</field>
+            <field name="model">l10n_es_reports.aeat.boe.mod111.export.wizard</field>
+            <field name="inherit_id" ref="l10n_es_reports.mod111_boe_wizard"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='download_boe_action']" position="attributes">
+                    <attribute name="invisible">context.get('proceed_with_locking', False)</attribute>
+                </xpath>
+                <xpath expr="//footer" position="inside">
+                    <button name="action_proceed_with_locking"
+                            string="Validate"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not context.get('proceed_with_locking', False)"
+                            context="{'proceed_with_locking': True}"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="mod115_validation_wizard" model="ir.ui.view">
+            <field name="name">mod115.validation.wizard</field>
+            <field name="model">l10n_es_reports.aeat.boe.mod115.export.wizard</field>
+            <field name="inherit_id" ref="l10n_es_reports.mod115_boe_wizard"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='download_boe_action']" position="attributes">
+                    <attribute name="invisible">context.get('proceed_with_locking', False)</attribute>
+                </xpath>
+
+                <xpath expr="//footer" position="inside">
+                    <button name="action_proceed_with_locking"
+                            string="Validate"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not context.get('proceed_with_locking', False)"
+                            context="{'proceed_with_locking': True}"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="mod130_validation_wizard" model="ir.ui.view">
+            <field name="name">mod130.validation.wizard</field>
+            <field name="model">l10n_es_reports.aeat.boe.mod130.export.wizard</field>
+            <field name="inherit_id" ref="l10n_es_reports.mod130_boe_wizard"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='download_boe_action']" position="attributes">
+                    <attribute name="invisible">context.get('proceed_with_locking', False)</attribute>
+                </xpath>
+
+                <xpath expr="//footer" position="inside">
+                    <button name="action_proceed_with_locking"
+                            string="Validate"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not context.get('proceed_with_locking', False)"
+                            context="{'proceed_with_locking': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="mod303_validation_wizard" model="ir.ui.view">
+            <field name="name">mod303.validation.wizard</field>
+            <field name="model">l10n_es_reports.aeat.boe.mod303.export.wizard</field>
+            <field name="inherit_id" ref="l10n_es_reports.mod303_boe_wizard"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='download_boe_action']" position="attributes">
+                    <attribute name="invisible">context.get('proceed_with_locking', False)</attribute>
+                </xpath>
+
+                <xpath expr="//footer" position="inside">
+                    <button name="action_proceed_with_locking"
+                            string="Validate"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not context.get('proceed_with_locking', False)"
+                            context="{'proceed_with_locking': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="mod347_validation_wizard" model="ir.ui.view">
+            <field name="name">mod347.validation.wizard</field>
+            <field name="model">l10n_es_reports.aeat.boe.mod347.export.wizard</field>
+            <field name="inherit_id" ref="l10n_es_reports.mod347_boe_wizard"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='download_boe_action']" position="attributes">
+                    <attribute name="invisible">context.get('proceed_with_locking', False)</attribute>
+                </xpath>
+
+                <xpath expr="//footer" position="inside">
+                    <button name="action_proceed_with_locking"
+                            string="Validate"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not context.get('proceed_with_locking', False)"
+                            context="{'proceed_with_locking': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="mod349_validation_wizard" model="ir.ui.view">
+            <field name="name">mod349.validation.wizard</field>
+            <field name="model">l10n_es_reports.aeat.boe.mod349.export.wizard</field>
+            <field name="inherit_id" ref="l10n_es_reports.mod349_boe_wizard"/>
+            <field name="arch" type="xml">
+                <!--Enables the usage of the BOE wizard in the return validation view-->
+                <xpath expr="//button[@name='download_boe_action']" position="attributes">
+                    <attribute name="invisible">context.get('proceed_with_locking', False)</attribute>
+                </xpath>
+
+                <xpath expr="//footer" position="inside">
+                    <button name="action_proceed_with_locking"
+                            string="Validate"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not context.get('proceed_with_locking', False)"
+                            context="{'proceed_with_locking': True}"/>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="mod390_validation_wizard" model="ir.ui.view">
+            <field name="name">mod390.validation.wizard</field>
+            <field name="model">l10n_es_reports.aeat.boe.mod390.export.wizard</field>
+            <field name="inherit_id" ref="l10n_es_reports.mod390_boe_wizard"/>
+            <field name="arch" type="xml">
+                <!--Enables the usage of the BOE wizard in the return validation view-->
+                <xpath expr="//button[@name='download_boe_action']" position="attributes">
+                    <attribute name="invisible">context.get('proceed_with_locking', False)</attribute>
+                </xpath>
+
+                <xpath expr="//footer" position="inside">
+                    <button name="action_proceed_with_locking"
+                            string="Validate"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not context.get('proceed_with_locking', False)"
+                            context="{'proceed_with_locking': True}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

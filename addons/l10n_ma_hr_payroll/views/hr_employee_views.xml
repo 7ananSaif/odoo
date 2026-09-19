@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_form_l10n_ma_payroll" model="ir.ui.view">
+        <field name="name">hr.employee.form.l10n_ma_payroll</field>
+        <field name="model">hr.employee</field>
+        <field name="priority">30</field>
+        <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <group name="citizenship" position="inside">
+                <field name="l10n_ma_cin_number" invisible="company_country_code != 'MA'"/>
+                <field name="l10n_ma_cnss_number" invisible="company_country_code != 'MA'"/>
+                <field name="l10n_ma_cimr_number" invisible="company_country_code != 'MA'"/>
+                <field name="l10n_ma_mut_number" invisible="company_country_code != 'MA'"/>
+            </group>
+            <group name="payroll_group" position="inside">
+                <group string="Options" invisible="country_code != 'MA'">
+                    <label for="l10n_ma_hra"/>
+                    <div class="o_row">
+                        <field name="l10n_ma_hra" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ma_da"/>
+                    <div class="o_row">
+                        <field name="l10n_ma_da" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ma_meal_allowance"/>
+                    <div class="o_row">
+                        <field name="l10n_ma_meal_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ma_medical_allowance"/>
+                    <div class="o_row">
+                        <field name="l10n_ma_medical_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ma_kilometric_exemption"/>
+                    <div class="o_row">
+                        <field name="l10n_ma_kilometric_exemption" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ma_transport_exemption"/>
+                    <div class="o_row">
+                        <field name="l10n_ma_transport_exemption" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

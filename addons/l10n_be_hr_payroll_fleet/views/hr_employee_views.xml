@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.view.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <label for="transport_mode_car" position="replace">
+                <field name="transport_mode_car" invisible="1"/>
+                <label for="transport_mode_car"
+                    string="Inventory Car"
+                    invisible="country_code != 'BE'"
+                    groups="fleet.fleet_group_manager"/>
+            </label>
+            <div name="transport_mode_car" position="replace">
+                <div name="transport_mode_car" invisible="country_code != 'BE'"
+                    class="o_checkbox_optional_field"
+                    groups="fleet.fleet_group_manager">
+                    <field name="transport_mode_car"/>
+                    <field name="car_id" invisible="not transport_mode_car" required="transport_mode_car" placeholder="Select a car ..."/>
+                </div>
+            </div>
+            <xpath expr="//label[@for='fuel_card']" position="before">
+                <field name="new_car" invisible="1"/>
+                <label for="new_car" string="New Car"
+                    groups="fleet.fleet_group_manager"
+                    invisible="country_code != 'BE'"/>
+                <div name="new_car_model_id_div"
+                    class="o_checkbox_optional_field"
+                    groups="fleet.fleet_group_manager"
+                    invisible="country_code != 'BE'">
+                    <field name="new_car"/>
+                    <field name="new_car_model_id" invisible="not new_car"/>
+                </div>
+                <field name="ordered_car_id" invisible="not ordered_car_id"/>
+            </xpath>
+            <xpath expr="//label[@for='fuel_card']" position="attributes">
+                <attribute name="invisible">(not transport_mode_car) and not new_car</attribute>
+            </xpath>
+            <xpath expr="//div[@name='fuel_card_div']" position="attributes">
+                <attribute name="invisible">(not transport_mode_car) and not new_car</attribute>
+            </xpath>
+            <xpath expr="//div[@name='fuel_card_div']" position="inside">
+                <span invisible="not fuel_type" groups="fleet.fleet_group_manager">(Fuel Type: <field name="fuel_type" class="oe_inline" readonly="1"/>)</span>
+            </xpath>
+            <field name="car_atn" position="attributes">
+                <attribute name="invisible">not transport_mode_car and not new_car</attribute>
+            </field>
+            <field name="car_atn" position="after">
+                <label for="transport_mode_bike" string="Inventory Bike"
+                    invisible="country_code != 'BE'"
+                    groups="fleet.fleet_group_manager"/>
+                <div name="bike_id_div"
+                    invisible="country_code != 'BE'"
+                    class="o_checkbox_optional_field"
+                    groups="fleet.fleet_group_manager">
+                    <field name="transport_mode_bike" nolabel="1"/>
+                    <field name="bike_id" nolabel="1" invisible="not transport_mode_bike" required="transport_mode_bike"/>
+                </div>
+                <label for="new_bike" string="New Bike"
+                    groups="fleet.fleet_group_manager"
+                    invisible="country_code != 'BE'"/>
+                <div name="new_bike_model_id_div"
+                    class="o_checkbox_optional_field"
+                    groups="fleet.fleet_group_manager"
+                    invisible="country_code != 'BE'">
+                    <field name="new_bike"/>
+                    <field name="new_bike_model_id" invisible="not new_bike" required="new_bike"/>
+                </div>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_employee_view_list" model="ir.ui.view">
+        <field name="name">hr.employee.list.view</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='country_id']" position="after">
+                <field name="car_id" widget="many2one" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

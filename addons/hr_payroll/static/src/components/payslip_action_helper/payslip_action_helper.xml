@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="hr_payroll.PayslipActionHelper">
+        <div class="o_view_nocontent">
+            <div class="o_nocontent_help">
+                <t t-if="props.payrunId">
+                    <p class="o_view_nocontent_smiling_face">
+                        No payslips for this pay run.
+                    </p>
+                    <p>
+                        The Payslip is the computation of the pay based on a period of time for an employee.
+                        It computes the Net salary according to the Salary Rules you've defined in the configuration.<br/><br/>
+                        <a t-on-click="props.onClickGenerate" class="btn btn-secondary">Generate Payslips</a>
+                    </p>
+                </t>
+                <t t-else="">
+                    <p class="o_view_nocontent_smiling_face">
+                        No Payslips.
+                    </p>
+                    <p>
+                        The Payslip is the computation of the pay based on a period of time for an employee.
+                        It computes the Net salary according to the Salary Rules you've defined in the configuration.<br/><br/>
+                        <a t-on-click="props.onClickCreate" class="btn btn-secondary">Create a Payslip</a>
+                    </p>
+                </t>
+            </div>
+        </div>
+    </t>
+</templates>

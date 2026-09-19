@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_recruitment_post_job_wizard_view_form" model="ir.ui.view">
+        <field name="name">hr.recruitment.post.job.wizard.form</field>
+        <field name="model">hr.recruitment.post.job.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Post Job">
+                <sheet>
+                    <group name="base_parameters">
+                        <field name="job_id" readonly="1"/>
+                        <field name="industry_id"  placeholder="e.g. Health, IT Services, Agriculture ..."/>
+                        <field name="platform_ids" widget="many2many_tags_avatar" required="1"/>
+                        <field name="job_apply_mail" invisible="apply_method != 'email'"/>
+                        <label for="campaign_start_date" string="From"/>
+                        <div class="d-flex">
+                            <field name="campaign_start_date" help=""/>
+                            <strong class="mx-1">to</strong>
+                            <field name="campaign_end_date" placeholder="No Limit"/>
+                        </div>
+                        <field name="date_from"
+                            widget="daterange"
+                            string="Mission Dates"
+                            options="{'end_date_field': 'date_to'}"
+                        />
+                    </group>
+                    <notebook>
+                        <page string="Description">
+                            <group name="content" style="max-height:30em; overflow: auto;">
+                                <div>
+                                    <field name="post_html" required="1"/>
+                                </div>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <footer>
+                    <button name="action_post_job"
+                            string="Post"
+                            type="object"
+                            class="btn-primary"
+                            data-hotkey="q"/>
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel"
+                            data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_recruitment_post_job_wizard_view_job_selectable_form" model="ir.ui.view">
+        <field name="name">hr.recruitment.post.job.wizard.job.selectable.form</field>
+        <field name="model">hr.recruitment.post.job.wizard</field>
+        <field name="inherit_id" ref="hr_recruitment_integration_base.hr_recruitment_post_job_wizard_view_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="job_id" position="attributes">
+                <attribute name="readonly">0</attribute>
+                <attribute name="required">1</attribute>
+            </field>
+        </field>
+    </record>
+</odoo>

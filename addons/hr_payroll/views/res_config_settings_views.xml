@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="open_payroll_modules" model="ir.actions.act_window">
+            <field name="name">Payroll</field>
+            <field name="res_model">ir.module.module</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="context">{}</field>
+            <field name="domain">[('name', '=like', 'l10n_%_hr_payroll')]</field>
+            <field name="search_view_id" ref="base.view_module_filter"/>
+        </record>
+
+        <record id="res_config_settings_view_form" model="ir.ui.view">
+            <field name="name">res.config.settings.view.form.inherit.hr.payroll</field>
+            <field name="model">res.config.settings</field>
+            <field name="priority" eval="45"/>
+            <field name="inherit_id" ref="hr.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//form" position="inside">
+                    <app data-string="Payroll" string="Payroll" name="hr_payroll" groups="hr_payroll.group_hr_payroll_manager">
+                        <field name="module_l10n_fr_hr_payroll" invisible="1"/>
+                        <field name="module_l10n_be_hr_payroll" invisible="1"/>
+                        <field name="module_l10n_in_hr_payroll" invisible="1"/>
+                        <block title="Payroll" id="hr_payroll_settings">
+                            <setting string="Payroll Rules" help="Payroll rules that apply to your country"
+                                invisible="module_l10n_fr_hr_payroll or module_l10n_be_hr_payroll or module_l10n_in_hr_payroll">
+                                <div class="mt8" id="localization_text">
+                                    <button name="%(open_payroll_modules)d" icon="oi-arrow-right" type="action" string="Choose a Payroll Localization Package" class="btn-link"/>
+                                </div>
+                            </setting>
+                            <setting string="Contract Expiration Notice Period" id="contract_notice_period">
+                                <span>Warn me </span><field name="contract_expiration_notice_period" class="w-25"/><span>days before end of contract.</span>
+                            </setting>
+                            <setting string="Work Permit Expiration Notice Period" id="work_permit_notice_period">
+                                 <span>Warn me </span><field name="work_permit_expiration_notice_period" class="w-25"/><span>days before expiration of the Work Permit.</span>
+                            </setting>
+                            <setting string="YTD Reset Date" id="ytd_reset_date"
+                                title="Day where the 'Year To Date' will be reset every year.">
+                                <div class="content-group">
+                                    <field name="ytd_reset_day" class="o_light_label" style="width: 3ch;"/>
+                                    <field name="ytd_reset_month" class="o_light_label"/>
+                                </div>
+                            </setting>
+                        </block>
+                        <block title="Accounting" id="hr_payroll_accountant">
+                            <setting name="module_hr_payroll_account_iso20022" string="Payroll SEPA" help="Create SEPA payment"
+                                invisible="'SEPA' not in company_country_group_codes">
+                                <field name="module_hr_payroll_account_iso20022"/>
+                            </setting>
+                        </block>
+                    </app>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="action_hr_payroll_configuration" model="ir.actions.act_window">
+            <field name="name">Settings</field>
+            <field name="res_model">res.config.settings</field>
+            <field name="view_mode">form</field>
+            <field name="context">{'module' : 'hr_payroll', 'bin_size': False}</field>
+        </record>
+
+</odoo>

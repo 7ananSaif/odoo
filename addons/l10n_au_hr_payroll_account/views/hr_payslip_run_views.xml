@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_payslip_run_kanban_inherit_l10n_au_hr_payroll" model="ir.ui.view">
+        <field name="name">hr.payslip.run.kanban.inherit.l10n_au_hr_payroll</field>
+        <field name="model">hr.payslip.run</field>
+        <field name="inherit_id" ref="hr_payroll.hr_payslip_run_view_kanban"/>
+        <field name="arch" type="xml">
+            <t t-name='menu' position="inside">
+                <button class="oe_stat_button" type="object" name="action_open_payment_batch"
+                        options="{'is_smart_button': true}"
+                        icon="fa-dollar" invisible="not l10n_au_payment_batch_id">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Payment Batch</span>
+                        <span class="o_stat_value text-center">
+                            <field name="l10n_au_payment_batch_state" />
+                        </span>
+                    </div>
+                </button>
+                <button name="action_open_stp" class="oe_stat_button" icon="fa-book"
+                        type="object" help="Generated Payslips"
+                        options="{'is_smart_button': true}"
+                        invisible="l10n_au_stp_status not in ['ready', 'sent'] or country_code != 'AU'">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">STP Submission</span>
+                        <span class="o_stat_value"><field name="l10n_au_stp_count"/></span>
+                    </div>
+                </button>
+            </t>
+            <button name="action_paid" position="before">
+                <button name="action_open_stp"
+                    string="Submit to ATO" type="object" class="btn-primary"
+                    invisible="l10n_au_stp_status != 'ready' or country_code != 'AU'"/>
+                <button name="action_register_payment"
+                        type="object" string="Pay"
+                        invisible="state != '02_close' or l10n_au_stp_status != 'sent' or country_code != 'AU'"
+                        class="oe_highlight"
+                        context="{'dont_redirect_to_payments': True, 'hr_payroll_payment_register': True, 'hr_payroll_payment_register_batch': id}"/>
+            </button>
+            <button name="action_paid" position="attributes">
+                <attribute name="invisible" separator=" or " add="(l10n_au_stp_status != 'sent' and country_code == 'AU')"/>
+            </button>
+            <button name="action_payment_report" position="attributes">
+                <attribute name="invisible" separator=" or " add="(l10n_au_stp_status != 'sent' and state != '03_paid' and country_code == 'AU')"/>
+            </button>
+        </field>
+    </record>
+</odoo>

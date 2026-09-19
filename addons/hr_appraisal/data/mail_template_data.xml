@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="mail_template_appraisal_confirm" model="mail.template">
+            <field name="name">HR: General Appraisal Confirmation</field>
+            <field name="model_id" ref="hr_appraisal.model_hr_appraisal"/>
+            <field name="subject">{{ object.employee_id.name }}: Appraisal Confirmed</field>
+            <field name="description">Sent automatically to both employee and manager when appraisal is confirmed</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        An appraisal of <t t-out="ctx.get('employee_to_name')">employee</t> has been confirmed.
+                        <br/><br/>
+                        Please schedule an appraisal date together.
+                        <br/><br/>
+                        <t t-if="ctx.get('recipient_users')">
+                            <p style="margin: 16px 0px 16px 0px; text-align: center;">
+                                <a t-att-href="ctx.get('url')"
+                                    t-attf-style="background-color: {{object.company_id.email_secondary_color or '#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: {{object.company_id.email_primary_color or '#FFFFFF'}}; border-radius: 5px;">
+                                    View Appraisal
+                                </a>
+                            </p>
+                        </t>
+                    </p>
+                </div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+            <field name="use_default_to" eval="False"/>
+        </record>
+
+        <record id="mail_template_appraisal_reminder" model="mail.template">
+            <field name="name">HR: Appraisal reminder</field>
+            <field name="model_id" ref="hr_appraisal.model_hr_appraisal"/>
+            <field name="subject">Appraisal Reminder</field>
+            <field name="description">An appraisal reminder sent manually to the employee by the manager</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        Hi <t t-out="ctx.get('employee_to_name')">[employee]</t>,
+                        <br/>
+                        Just a quick reminder that your next appraisal with <t t-out="ctx.get('manager_names')"> [Appraisers]</t>
+                        is scheduled for <t t-out="ctx.get('date_close')">[deadline]</t>.
+                        <br/>
+                        <t t-if="ctx.get('user_body')">
+                            <div class="my-3 py-2 px-3 bg-secondary">
+                                <t t-out="ctx.get('user_body')">[Optional comment]</t>
+                            </div>
+                        </t>
+                        <t t-if="ctx.get('recipient_users')">
+                            You can access your appraisal form here:
+                            <p class="text-center my-3 py-2 px-3">
+                                <a t-att-href="ctx.get('url')"
+                                    t-attf-style=" margin: auto; background-color: {{object.company_id.email_secondary_color or '#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: {{object.company_id.email_primary_color or '#FFFFFF'}}; border-radius: 5px;">
+                                    View Appraisal
+                                </a>
+                            </p>
+                        </t>
+                        If you have any questions or need to reschedule, feel free to reach out.
+                        <br/>
+                        <br/>
+                        <t t-out="ctx.get('author_signature')"/>
+                        <br/>
+                    </p>
+                </div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+            <field name="use_default_to" eval="False"/>
+        </record>
+
+        <record id="mail_template_appraisal_request_from_employee" model="mail.template">
+            <field name="name">HR: Appraisal Request By Employee</field>
+            <field name="model_id" ref="hr_appraisal.model_res_users"/>
+            <field name="subject">{{ hasattr(object, 'name') and object.name or '' }} requests an Appraisal</field>
+            <field name="description">Sent manually to the manager by the employee who wants to do an appraisal</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        Dear <t t-out="ctx.get('employee_to_name')">employee</t>,
+                        <br/>
+                        <t t-out="ctx.get('author_name', '')">Addison Olson</t> (<t t-out="ctx.get('author_mail', '')">addison.olson28@example.com</t>) wishes an appraisal.
+                        <t t-if="ctx.get('user_body')">
+                            <div style="margin: 16px 0px 16px 0px; padding: 8px 16px 8px 16px; background-color: #F1F1F1;">
+                                <t t-out="ctx.get('user_body')">Annual appraisal.</t>
+                            </div>
+                        </t>
+                        <t t-if="ctx.get('recipient_users')">
+                            <p style="margin: 16px 0px 16px 0px; padding: 8px 16px 8px 16px; text-align: center;">
+                                <a t-att-href="ctx.get('url')"
+                                    t-attf-style=" margin: auto; background-color: {{object.employee_id.company_id.email_secondary_color or '#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: {{object.employee_id.company_id.email_primary_color or '#FFFFFF'}}; border-radius: 5px;">
+                                    View Appraisal
+                                </a>
+                            </p>
+                        </t>
+                    </p>
+                </div>
+            </field>
+            <field name="auto_delete" eval="True"/>
+            <field name="use_default_to" eval="False"/>
+        </record>
+    </data>
+</odoo>

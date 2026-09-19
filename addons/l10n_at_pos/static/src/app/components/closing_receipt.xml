@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="l10n_at_pos.ClosingReceipts">
+        <div class="pos-receipt p-2 h-auto">
+            <!-- receipt header -->
+            <img t-attf-src="/web/image?model=res.company&amp;id={{config.company_id.id}}&amp;field=logo" alt="Logo" class="pos-receipt-logo"/>
+            <br/>
+            <div class="d-flex flex-column align-items-center">
+                <div class="pos-receipt-contact">
+                    <!-- contact address -->
+                    <div t-if="config.company_id.partner_id?.[1]" t-esc="config.company_id.partner_id[1]" />
+                    <t t-if="config.company_id.phone">
+                        <div>Tel:<t t-esc="config.company_id.phone" /></div>
+                    </t>
+                    <t t-if="config.company_id.vat">
+                        <div><t t-esc="config.company_id.country_id?.vat_label || 'Tax ID'"/>: <t t-esc="config.company_id.vat" /></div>
+                    </t>
+                    <div t-if="config.company_id.email" t-esc="config.company_id.email" />
+                    <div t-if="config.company_id.website" t-esc="config.company_id.website" />
+                    <div class="pos-receipt-title fs-1 my-3">
+                        Closing Receipt of <t t-esc="heading"/>
+                    </div>
+                    <div t-if="data.signature_creation_unit_id" style="white-space:pre-line">
+                        SCU id: <t t-esc="data.signature_creation_unit_id"/>
+                    </div>
+                    <div t-if="data.receipt_number" style="white-space:pre-line">
+                        Receipt Number: <t t-esc="data.receipt_number"/>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <t t-foreach="raw_data" t-as="key" t-key="key">
+                <div class="line-details fs-2 d-flex justify-content-between">
+                    <div class="product-name d-inline-block flex-grow-1 fw-bolder pe-1 text-truncate">
+                        <span class="qty px-1 fw-bolder me-1"/>
+                        <span class="text-wrap" t-esc="mappedName[key]"/>
+                    </div>
+                    <div t-esc="raw_data[key]" class="product-price price fw-bolder"/>
+                </div>
+            </t>
+            <br />
+            <div class="text-center">
+                <img t-att-src="qrImage" class="w-75"/>
+            </div>
+            <div class="text-center fs-3">
+                <p>Powered by Odoo</p>
+            </div>
+        </div>
+    </t>
+</templates>

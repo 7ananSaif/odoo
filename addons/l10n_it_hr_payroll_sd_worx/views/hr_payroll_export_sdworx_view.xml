@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_payroll_export_sdworx_view_form" model="ir.ui.view">
+        <field name="name">hr.payroll.export.sdworx.form</field>
+        <field name="model">l10n.it.hr.payroll.export.sdworx</field>
+        <field name="inherit_id" ref="hr_payroll.hr_work_entry_export_mixin_form_view"/>
+        <field name="mode">primary</field>
+    </record>
+
+    <record id="hr_payroll_export_sdworx_view_list" model="ir.ui.view">
+        <field name="name">hr.payroll.export.sdworx.list</field>
+        <field name="model">l10n.it.hr.payroll.export.sdworx</field>
+        <field name="inherit_id" ref="hr_payroll.hr_work_entry_export_mixin_list_view"/>
+        <field name="mode">primary</field>
+    </record>
+
+    <record id="l10n_be_export_sdworx_employee_view_list" model="ir.ui.view">
+        <field name="name">l10n.it.hr.payroll.export.sdworx.employee.list</field>
+        <field name="model">l10n.it.hr.payroll.export.sdworx.employee</field>
+        <field name="inherit_id" ref="hr_payroll.hr_work_entry_export_employee_mixin_list_view"/>
+        <field name="mode">primary</field>
+    </record>
+
+    <record id="l10n_it_export_sdworx_action" model="ir.actions.act_window">
+        <field name="name">Export Work Entries to SDWorx</field>
+        <field name="res_model">l10n.it.hr.payroll.export.sdworx</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('company_id', 'in', allowed_company_ids)]</field>
+        <field name="target">current</field>
+    </record>
+
+    <menuitem
+        id="menu_reporting_l10n_it"
+        name="Italy"
+        sequence="35"
+        parent="hr_payroll.menu_hr_payroll_report"/>
+
+    <menuitem
+        id="menu_l10n_it_export_sdworx_leaves_wizard"
+        name="Export Work Entries to SDWorx"
+        action="l10n_it_export_sdworx_action"
+        parent="menu_reporting_l10n_it"
+        sequence="25"
+    />
+</odoo>

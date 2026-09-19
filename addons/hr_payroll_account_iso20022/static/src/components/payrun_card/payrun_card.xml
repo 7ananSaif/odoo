@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="hr_payroll_account_iso20022.PayRunCard" t-inherit="hr_payroll.PayRunCard" t-inherit-mode="extension">
+        <t t-set-slot="paid_prio" position="before">
+            <t t-set-slot="paid" isVisible="payrun.state === '02_close' &amp;&amp; !payrun.payment_report">
+                <ViewButton className="'btn btn-secondary'"
+                            clickParams="{type: 'object', name: 'action_paid'}"
+                            record="props.record"
+                            string.translate="Mark as Paid"/>
+            </t>
+        </t>
+        <t t-set-slot="paid_prio" position="attributes">
+            <attribute name="isVisible" add="payrun.payment_report" separator="&amp;&amp;"/>
+        </t>
+        <t t-set-slot="gen_report" position="before">
+            <t t-set-slot="gen_report_prio" isVisible="payrun.state === '02_close' &amp;&amp; !payrun.payment_report" isPriority="true">
+                <ViewButton className="'btn btn-primary'"
+                            clickParams="{type: 'object', name: 'action_payment_report'}"
+                            record="props.record"
+                            string.translate="Payment Report"/>
+            </t>
+        </t>
+        <t t-set-slot="gen_report" position="attributes">
+            <attribute name="isVisible" add="payrun.payment_report" separator="&amp;&amp;"/>
+        </t>
+    </t>
+</templates>

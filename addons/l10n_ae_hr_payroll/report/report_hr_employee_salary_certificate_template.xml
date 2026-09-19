@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <template id="report_salary_certificate_ae_lang">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <t t-call="l10n_ae_hr_payroll.hr_employee_salary_certificate"/>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="hr_employee_salary_certificate" >
+        <div class="container">
+            <div class="text-end">
+                <t t-out="datetime.date.today().strftime('%b %d, %Y')">Aug 30, 2022</t>
+            </div>
+            <h5 class="text-decoration-underline mt-5 fw-bold">Subject: Salary Certificate</h5>
+            <div class="mt-4">Dear Sir/Madam,</div>
+            <div class="mt-4">This is to that following individual is employed at <t t-out="o.company_id.name">Test Company</t> on a <t t-out="o.version_id.contract_type_id.name">Full-time</t> basis.</div>
+            <table class="mt-4 container-fluid table table-bordered">
+                <tbody>
+                    <tr>
+                        <th class="text-start fw-bold px-2">Employee Name</th>
+                        <td>
+                            <t t-out="o.legal_name"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start fw-bold px-2">Passport Number</th>
+                        <td>
+                            <t t-out="o.passport_id"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start fw-bold px-2">Nationality</th>
+                        <td>
+                            <t t-out="o.country_id.name"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start fw-bold px-2">Designation</th>
+                        <td>
+                            <t t-out="o.job_id.name"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start fw-bold px-2">Start Date</th>
+                        <td>
+                            <t t-if="o._get_first_version_date">
+                                <t t-out="o._get_first_version_date().strftime('%b %d, %Y')"/>
+                            </t>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start fw-bold px-2">Monthly Basic Salary</th>
+                        <td>
+                            <t t-if="o.current_version_id">
+                                <span t-out="o.current_version_id.wage" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                            </t>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="text-start fw-bold px-2">Total Salary</th>
+                        <td>
+                            <t t-if="o.current_version_id">
+                                <span t-out="o.current_version_id.l10n_ae_total_salary" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                            </t>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="mt-4">
+                This letter was issued at the request of the employee and does not constitute any legal obligation or guarantee or the part of <t t-out="o.company_id.name">Test Company</t>.
+            </div>
+            <div class="mt-4">
+                Should you require any further information please contact our Human Resource Department on <t t-out="o.company_id.phone">Test 9876543210</t>.
+            </div>
+            <div class="mt-5">
+                Sincerely,
+            </div>
+            <div class="mt-3">
+                <t t-if="o.current_version_id and o.current_version_id.hr_responsible_id">
+                    <t t-out="o.current_version_id.hr_responsible_id.name"/>
+                </t>
+            </div>
+            <div>
+                <t t-if="o.current_version_id and o.current_version_id.hr_responsible_id and o.current_version_id.hr_responsible_id.employee_id and o.current_version_id.hr_responsible_id.employee_id.job_id">
+                    <t t-out="o.current_version_id.hr_responsible_id.employee_id.job_id.name"/>
+                </t>
+            </div>
+        </div>
+    </template>
+</odoo>

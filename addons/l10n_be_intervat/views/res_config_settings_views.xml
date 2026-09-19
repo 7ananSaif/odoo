@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">l10n.be.intervat.res.config.settings.view.form</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@name='default_taxes_setting_container']" position="inside">
+                <setting company_dependent="1" string="Intervat" groups="account.group_account_user" invisible="country_code != 'BE'"
+                         help="Submit and fetch your VAT returns via Intervat using the API.">
+                    <div class="content-group">
+                        <div class="row mt16">
+                            <label string="Server Mode" for="l10n_be_intervat_mode" class="col-lg-3 o_light_label text-nowrap"/>
+                            <field name="l10n_be_intervat_mode"/>
+                        </div>
+                        <div class="row" invisible="l10n_be_intervat_mode not in ('prod', 'test')">
+                            <div>
+                                <label string="VAT Number" for="l10n_be_intervat_ecb" class="col-lg-3 o_light_label"/>
+                                <field name="l10n_be_intervat_ecb" class="px-2"/>
+                            </div>
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

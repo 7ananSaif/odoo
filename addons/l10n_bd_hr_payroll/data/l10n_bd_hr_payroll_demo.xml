@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="base.partner_demo_company_bd" model="res.partner" forcecreate="1">
+        <field name="name">My Bangladeshi Company</field>
+        <field name="country_id" ref="base.bd"/>
+    </record>
+
+    <record id="base.demo_company_bd" model="res.company" forcecreate="1">
+        <field name="name">My Bangladeshi Company</field>
+        <field name="partner_id" ref="base.partner_demo_company_bd"/>
+        <field name="currency_id" ref="base.BDT"/>
+        <field name="street">Bangladeshi Street</field>
+        <field name="zip">1000</field>
+        <field name="city">Dhaka</field>
+        <field name="country_id" ref="base.bd"/>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_bd'))]"/>
+        <field name="tz">Asia/Dhaka</field>
+    </record>
+
+    <record id="base.user_demo" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_bd'))]"/>
+    </record>
+
+    <record id="bd_hr_department_rd" model="hr.department">
+        <field name="name">R&amp;D BD</field>
+        <field name="company_id" ref="base.demo_company_bd"/>
+    </record>
+
+    <record id="res_partner_rahmat" model="res.partner">
+        <field name="name">Rahmat Tabassum</field>
+        <field name="street">Bangladeshi Street</field>
+        <field name="city">Dhaka</field>
+        <field name="zip">1208</field>
+        <field name="state_id" ref="base.state_bd_c"/>
+        <field name="country_id" ref="base.bd"/>
+        <field name="phone">09934-251600</field>
+        <field name="company_id" ref="base.demo_company_bd"/>
+    </record>
+    <record id="res_partner_rahmat" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_bd_hr_payroll.res_partner_rahmat')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_tarek" model="res.partner">
+        <field name="name">Tarek Jahangir</field>
+        <field name="street">102 Rd 137</field>
+        <field name="city">Dhaka</field>
+        <field name="zip">1208</field>
+        <field name="state_id" ref="base.state_bd_c"/>
+        <field name="country_id" ref="base.bd"/>
+        <field name="phone">09947-932705</field>
+        <field name="company_id" ref="base.demo_company_bd"/>
+    </record>
+    <record id="res_partner_tarek" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="user_tarek" model="res.users">
+        <field name="partner_id" ref="l10n_bd_hr_payroll.res_partner_tarek"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_bd'))]"/>
+        <field name="company_id" ref="base.demo_company_bd"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_al-image.jpg"/>
+    </record>
+
+    <record id="bd_res_bank_city" model="res.bank">
+        <field name="name">City Bank</field>
+        <field name="bic">CIBLBDDHXXX</field>
+        <field name="street">City Bank Street</field>
+        <field name="city">Dhaka</field>
+        <field name="zip">1200</field>
+        <field name="state" ref="base.state_bd_c"/>
+        <field name="country" ref="base.bd"/>
+        <field name="phone">09934-949000</field>
+    </record>
+    <record id="bd_res_bank_city" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_bd_hr_payroll.bd_res_bank_city')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="bd_res_bank_union" model="res.bank">
+        <field name="name">Union Bank</field>
+        <field name="bic">UBLDBDDHXXX</field>
+        <field name="street">Union Bank Street</field>
+        <field name="city">Dhaka</field>
+        <field name="zip">1210</field>
+        <field name="state" ref="base.state_bd_c"/>
+        <field name="country" ref="base.bd"/>
+        <field name="phone">09934-213400</field>
+    </record>
+    <record id="bd_res_bank_union" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_bd_hr_payroll.bd_res_bank_union')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_rahmat" model="res.partner.bank">
+        <field name="acc_number">999-7624-01234678</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_bd_hr_payroll.bd_res_bank_city"/>
+        <field name="partner_id" ref="l10n_bd_hr_payroll.res_partner_rahmat"/>
+        <field name="company_id" ref="base.demo_company_bd"/>
+        <field name="currency_id" ref="base.BDT"/>
+    </record>
+
+    <record id="res_partner_bank_account_tarek" model="res.partner.bank">
+        <field name="acc_number">999-0123-987654321</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_bd_hr_payroll.bd_res_bank_union"/>
+        <field name="partner_id" ref="l10n_bd_hr_payroll.res_partner_tarek"/>
+        <field name="company_id" ref="base.demo_company_bd"/>
+        <field name="currency_id" ref="base.BDT"/>
+    </record>
+
+    <record id="hr_employee_rahmat" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_rahmat')).name"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_mit-image.jpg"/>
+        <field name="work_phone">09932-914693</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_rahmat')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="work_contact_id" ref="l10n_bd_hr_payroll.res_partner_rahmat"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Asia/Dhaka</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_rahmat')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_rahmat')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_rahmat')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_rahmat')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_rahmat')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_rahmat')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_rahmat')).phone"/>
+        <field name="distance_home_work">1</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_rahmat')).country_id"/>
+        <field name="identification_id">327 950 2884</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1985, 5, 12).date()"/>
+        <field name="place_of_birth">Dhaka</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_rahmat')).country_id"/>
+        <field name="emergency_contact">Tania Tabassum</field>
+        <field name="emergency_phone">09932-474564</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Engineering</field>
+        <field name="study_school">Bangladesh University of Engineering and Technology</field>
+        <field name="marital">single</field>
+        <field name="l10n_bd_gazetted_war_founded_freedom_fighter">False</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_bd_hr_payroll.res_partner_bank_account_rahmat'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_bd_hr_payroll.bd_hr_department_rd"/>
+        <field name="company_id" ref="base.demo_company_bd"/>
+        <field name="structure_type_id" ref="l10n_bd_hr_payroll.structure_type_employee_bd"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">35000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="datetime(2020, 3, 16).date()"/>
+        <field name="date_version" eval="datetime(2020, 3, 16).date()"/>
+    </record>
+
+    <record id="hr_employee_tarek" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).name"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_al-image.jpg"/>
+        <field name="work_phone">09932-914693</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="parent_id" ref="l10n_bd_hr_payroll.hr_employee_rahmat"/>
+        <field name="user_id" ref="l10n_bd_hr_payroll.user_tarek"/>
+        <field name="company_id" ref="base.demo_company_bd"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Asia/Dhaka</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).phone"/>
+        <field name="distance_home_work">3</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).country_id"/>
+        <field name="identification_id">709-369-9959</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1972, 4, 18).date()"/>
+        <field name="place_of_birth">Dhaka</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_bd_hr_payroll.res_partner_tarek')).country_id"/>
+        <field name="emergency_contact">Abdul Jahangir</field>
+        <field name="emergency_phone">09947-478235</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Computer Science</field>
+        <field name="study_school">Bangladesh University of Engineering and Technology</field>
+        <field name="marital">single</field>
+        <field name="l10n_bd_gazetted_war_founded_freedom_fighter">False</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_bd_hr_payroll.res_partner_bank_account_tarek'))]"/>
+        <field name="job_id" ref="hr.job_consultant"/>
+        <field name="department_id" ref="l10n_bd_hr_payroll.bd_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_bd_hr_payroll.structure_type_employee_bd"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">30000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="datetime(2022, 6, 1).date()"/>
+        <field name="date_version" eval="datetime(2022, 6, 1).date()"/>
+    </record>
+</odoo>

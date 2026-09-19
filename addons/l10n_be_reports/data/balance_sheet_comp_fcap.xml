@@ -1,0 +1,1185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data auto_sequence="1">
+        <record id="account_financial_report_bs_comp_fcap" model="account.report">
+            <field name="name">Balance Sheet (Full Cap)</field>
+            <field name="name@nl">Balans (VOL-kap)</field>
+            <field name="name@fr">Bilan (C-cap)</field>
+            <field name="name@de">Bilanz (Voll-K)</field>
+            <field name="root_report_id" ref="account_reports.balance_sheet"/>
+            <field name="availability_condition">coa</field>
+            <field name="chart_template">be_comp</field>
+            <field name="filter_unfold_all" eval="True"/>
+            <field name="filter_date_range" eval="False"/>
+            <field name="filter_analytic_groupby" eval="True"/>
+            <field name="filter_journals" eval="True"/>
+            <field name="country_id" ref="base.be"/>
+            <field name="filter_multi_company">selector</field>
+            <field name="column_ids">
+                <record id="account_financial_report_bs_comp_fcap_column" model="account.report.column">
+                    <field name="name">Balance</field>
+                    <field name="name@nl">Saldo</field>
+                    <field name="name@fr">Solde</field>
+                    <field name="name@de">Saldo</field>
+                    <field name="expression_label">balance</field>
+                </record>
+            </field>
+            <field name="line_ids">
+                <record id="account_financial_report_bs_comp_fcap_a" model="account.report.line">
+                    <field name="name">ASSETS</field>
+                    <field name="name@nl">ACTIVA</field>
+                    <field name="name@fr">ACTIF</field>
+                    <field name="name@de">AKTIVA</field>
+                    <field name="hierarchy_level">0</field>
+                    <field name="horizontal_split_side">left</field>
+                    <field name="children_ids">
+                        <record id="account_financial_report_bs_comp_fcap_a_fe" model="account.report.line">
+                            <field name="name">20 - Formation Expenses</field>
+                            <field name="name@nl">20 - Oprichtingskosten</field>
+                            <field name="name@fr">20 - Frais d'établissement</field>
+                            <field name="name@de">20 - Errichtungs- und Erweiterungsaufwendungen</field>
+                            <field name="hierarchy_level">1</field>
+                            <field name="code">BE_BS_20</field>
+                            <field name="groupby">account_id</field>
+                            <field name="foldable" eval="True"/>
+                            <field name="account_codes_formula">20</field>
+                        </record>
+                        <record id="account_financial_report_bs_comp_fcap_a_fa" model="account.report.line">
+                            <field name="name">21/28 - Fixed Assets</field>
+                            <field name="name@nl">21/28 - Vaste activa</field>
+                            <field name="name@fr">21/28 - Actifs immobilisés</field>
+                            <field name="name@de">21/28 - Anlagevermögen</field>
+                            <field name="hierarchy_level">1</field>
+                            <field name="code">BE_BS_F_21_28</field>
+                            <field name="aggregation_formula">BE_BS_21.balance + BE_BS_22_27.balance + BE_BS_F_28.balance</field>
+                            <field name="children_ids">
+                                <record id="account_financial_report_bs_comp_fcap_a_fa_ifa" model="account.report.line">
+                                    <field name="name">21 - Intangible Fixed Assets</field>
+                                    <field name="name@nl">21 - Immateriële vaste activa</field>
+                                    <field name="name@fr">21 - Immobilisations incorporelles</field>
+                                    <field name="name@de">21 - Immaterielle Anlagewerte</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_21</field>
+                                    <field name="groupby">account_id</field>
+                                    <field name="foldable" eval="True"/>
+                                    <field name="account_codes_formula">21</field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_a_fa_tfa" model="account.report.line">
+                                    <field name="name">22/27 - Tangible Fixed Assets</field>
+                                    <field name="name@nl">22/27 - Materiële vaste activa</field>
+                                    <field name="name@fr">22/27 - Immobilisations corporelles</field>
+                                    <field name="name@de">22/27 - Sachanlagen</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_22_27</field>
+                                    <field name="aggregation_formula">BE_BS_22.balance + BE_BS_23.balance + BE_BS_24.balance + BE_BS_25.balance + BE_BS_26.balance + BE_BS_27.balance</field>
+                                    <field name="children_ids">
+                                        <record id="account_financial_report_bs_comp_fcap_a_fa_tfa_lb" model="account.report.line">
+                                            <field name="name">22 - Land and Buildings</field>
+                                            <field name="name@nl">22 - Terreinen en gebouwen</field>
+                                            <field name="name@fr">22 - Terrains et constructions</field>
+                                            <field name="name@de">22 - Grundstücke und Bauten</field>
+                                            <field name="code">BE_BS_22</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">22</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_a_fa_tfa_pme" model="account.report.line">
+                                            <field name="name">23 - Plant, Machinery and Equipment</field>
+                                            <field name="name@nl">23 - Installaties, machines en uitrusting</field>
+                                            <field name="name@fr">23 - Installations, machines et outillage</field>
+                                            <field name="name@de">23 - Anlagen, Maschinen und Betriebsausstattung</field>
+                                            <field name="code">BE_BS_23</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">23</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_a_fa_tfa_fv" model="account.report.line">
+                                            <field name="name">24 - Furniture and Vehicles</field>
+                                            <field name="name@nl">24 - Meubilair en rollend materieel</field>
+                                            <field name="name@fr">24 - Mobilier et matériel roulant</field>
+                                            <field name="name@de">24 - Geschäftsausstattung und Fuhrpark</field>
+                                            <field name="code">BE_BS_24</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">24</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_a_fa_tfa_losr" model="account.report.line">
+                                            <field name="name">25 - Leasing and Other Similar Rights</field>
+                                            <field name="name@nl">25 - Leasing en soortgelijke rechten</field>
+                                            <field name="name@fr">25 - Location-financement et droits similaires</field>
+                                            <field name="name@de">25 - Leasing und ähnliche Rechte</field>
+                                            <field name="code">BE_BS_25</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">25</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_a_fa_tfa_otfa" model="account.report.line">
+                                            <field name="name">26 - Other Tangible Fixed Assets</field>
+                                            <field name="name@nl">26 - Overige materiële vaste activa</field>
+                                            <field name="name@fr">26 - Autres immobilisations corporelles</field>
+                                            <field name="name@de">26 - Sonstige Sachanlagen</field>
+                                            <field name="code">BE_BS_26</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">26</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_a_fa_tfa_aucap" model="account.report.line">
+                                            <field name="name">27 - Assets Under Construction and Advance Payments</field>
+                                            <field name="name@nl">27 - Activa in aanbouw en vooruitbetalingen</field>
+                                            <field name="name@fr">27 - Immobilisations en cours et acomptes versés</field>
+                                            <field name="name@de">27 - Anlagen im Bau und geleistete Anzahlungen</field>
+                                            <field name="code">BE_BS_27</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">27</field>
+                                        </record>
+                                    </field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_a_fa_ffa" model="account.report.line">
+                                    <field name="name">28 - Financial Fixed Assets</field>
+                                    <field name="name@nl">28 - Financiële vaste activa</field>
+                                    <field name="name@fr">28 - Immobilisations financières</field>
+                                    <field name="name@de">28 - Finanzanlagen</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_F_28</field>
+                                    <field name="aggregation_formula">BE_BS_F_280_1.balance + BE_BS_F_282_3.balance + BE_BS_F_284_8.balance</field>
+                                    <field name="children_ids">
+                                        <record id="account_financial_report_bs_comp_fcap_a_fa_ffa_ac" model="account.report.line">
+                                            <field name="name">280/1 - Affiliated Companies</field>
+                                            <field name="name@nl">280/1 - Verbonden ondernemingen</field>
+                                            <field name="name@fr">280/1 - Entreprises liées</field>
+                                            <field name="name@de">280/1 - Verbundene Unternehmen</field>
+                                            <field name="code">BE_BS_F_280_1</field>
+                                            <field name="aggregation_formula">BE_BS_F_280.balance + BE_BS_F_281.balance</field>
+                                            <field name="children_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_a_fa_ffa_ac_pi" model="account.report.line">
+                                                    <field name="name">280 - Participating Interests</field>
+                                                    <field name="name@nl">280 - Deelnemingen</field>
+                                                    <field name="name@fr">280 - Participations</field>
+                                                    <field name="name@de">280 - Beteiligungen</field>
+                                                    <field name="code">BE_BS_F_280</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">280</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_a_fa_ffa_ac_ar" model="account.report.line">
+                                                    <field name="name">281 - Amounts Receivable</field>
+                                                    <field name="name@nl">281 - Vorderingen</field>
+                                                    <field name="name@fr">281 - Créances</field>
+                                                    <field name="name@de">281 - Forderungen</field>
+                                                    <field name="code">BE_BS_F_281</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">281</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_a_fa_ffa_oclpi" model="account.report.line">
+                                            <field name="name">282/3 - Other Companies Linked by Participating Interests</field>
+                                            <field name="name@nl">282/3 - Ondernemingen waarmee een deelnemingsverhouding bestaat</field>
+                                            <field name="name@fr">282/3 - Entreprises avec lesquelles il existe un lien de participation</field>
+                                            <field name="name@de">282/3 - Andere Unternehmen, mit denen ein Beteiligungsverhältnis besteht</field>
+                                            <field name="code">BE_BS_F_282_3</field>
+                                            <field name="aggregation_formula">BE_BS_F_282.balance + BE_BS_F_283.balance</field>
+                                            <field name="children_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_a_fa_ffa_oclpi_pi" model="account.report.line">
+                                                    <field name="name">282 - Participating Interests</field>
+                                                    <field name="name@nl">282 - Deelnemingen</field>
+                                                    <field name="name@fr">282 - Participations</field>
+                                                    <field name="name@de">282 - Beteiligungen</field>
+                                                    <field name="code">BE_BS_F_282</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">282</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_a_fa_ffa_oclpi_ar" model="account.report.line">
+                                                    <field name="name">283 - Amounts Receivable</field>
+                                                    <field name="name@nl">283 - Vorderingen</field>
+                                                    <field name="name@fr">283 - Créances</field>
+                                                    <field name="name@de">283 - Forderungen</field>
+                                                    <field name="code">BE_BS_F_283</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">283</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_a_fa_ffa_offa" model="account.report.line">
+                                            <field name="name">284/8 - Other Financial Fixed Assets</field>
+                                            <field name="name@nl">284/8 - Andere financiële vaste activa</field>
+                                            <field name="name@fr">284/8 - Autres immobilisations financières</field>
+                                            <field name="name@de">284/8 - Sonstige Finanzanlagen</field>
+                                            <field name="code">BE_BS_F_284_8</field>
+                                            <field name="aggregation_formula">BE_BS_F_284.balance + BE_BS_F_285_8.balance</field>
+                                            <field name="children_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_a_fa_ffa_offa_s" model="account.report.line">
+                                                    <field name="name">284 - Shares</field>
+                                                    <field name="name@nl">284 - Aandelen</field>
+                                                    <field name="name@fr">284 - Actions et parts</field>
+                                                    <field name="name@de">284 - Aktien oder Anteile</field>
+                                                    <field name="code">BE_BS_F_284</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">284</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_a_fa_ffa_offa_arcg" model="account.report.line">
+                                                    <field name="name">285/8 - Amounts Receivable and Cash Guarantees</field>
+                                                    <field name="name@nl">285/8 - Vorderingen en borgtochten in contanten</field>
+                                                    <field name="name@fr">285/8 - Créances et cautionnements en numéraire</field>
+                                                    <field name="name@de">285/8 - Forderungen und gezahlte Kautionen</field>
+                                                    <field name="code">BE_BS_F_285_8</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">285 + 286 + 287 + 288</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                    </field>
+                                </record>
+                            </field>
+                        </record>
+                        <record id="account_financial_report_bs_comp_fcap_a_ca" model="account.report.line">
+                            <field name="name">29/58 - Current Assets</field>
+                            <field name="name@nl">29/58 - Vlottende activa</field>
+                            <field name="name@fr">29/58 - Actifs circulants</field>
+                            <field name="name@de">29/58 - Umlaufvermögen</field>
+                            <field name="hierarchy_level">1</field>
+                            <field name="print_on_new_page" eval="True"/>
+                            <field name="code">BE_BS_COMP_F_29_58</field>
+                            <field name="aggregation_formula">BE_BS_29.balance + BE_BS_F_3.balance + BE_BS_40_41.balance + BE_BS_COMP_F_50_53.balance + BE_BS_54_58.balance + BE_BS_490_1.balance</field>
+                            <field name="children_ids">
+                                <record id="account_financial_report_bs_comp_fcap_a_ca_aramtoy" model="account.report.line">
+                                    <field name="name">29 - Amounts Receivable After More Than One Year</field>
+                                    <field name="name@nl">29 - Vorderingen op meer dan één jaar</field>
+                                    <field name="name@fr">29 - Créances à plus d'un an</field>
+                                    <field name="name@de">29 - Forderungen mit einer Restlaufzeit von mehr als einem Jahr</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_29</field>
+                                    <field name="expression_ids">
+                                        <record id="account_financial_report_bs_comp_fcap_a_ca_aramtoy_remaining_balance" model="account.report.expression">
+                                            <field name="label">remaining_balance</field>
+                                            <field name="engine">account_codes</field>
+                                            <field name="formula">29\(290,291)</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_a_ca_aramtoy_balance" model="account.report.expression">
+                                            <field name="label">balance</field>
+                                            <field name="engine">aggregation</field>
+                                            <field name="formula">BE_BS_290.balance + BE_BS_291.balance + BE_BS_29.remaining_balance</field>
+                                        </record>
+                                    </field>
+                                    <field name="children_ids">
+                                        <record id="account_financial_report_bs_comp_fcap_a_ca_aramtoy_td" model="account.report.line">
+                                            <field name="name">290 - Trade Debtors</field>
+                                            <field name="name@nl">290 - Handelsvorderingen</field>
+                                            <field name="name@fr">290 - Créances commerciales</field>
+                                            <field name="name@de">290 - Forderungen aus Lieferungen und Leistungen</field>
+                                            <field name="code">BE_BS_290</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">290</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_a_ca_aramtoy_oar" model="account.report.line">
+                                            <field name="name">291 - Other Amounts Receivable</field>
+                                            <field name="name@nl">291 - Overige vorderingen</field>
+                                            <field name="name@fr">291 - Autres créances</field>
+                                            <field name="name@de">291 - Sonstige Forderungen</field>
+                                            <field name="code">BE_BS_291</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">291</field>
+                                        </record>
+                                    </field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_a_ca_scp" model="account.report.line">
+                                    <field name="name">3 - Stocks and Contracts in Progress</field>
+                                    <field name="name@nl">3 - Voorraden en bestellingen in uitvoering</field>
+                                    <field name="name@fr">3 - Stocks et commandes en cours d'exécution</field>
+                                    <field name="name@de">3 - Vorräte und in Ausführung befindliche Bestellungen</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_F_3</field>
+                                    <field name="aggregation_formula">BE_BS_F_30_36.balance + BE_BS_37.balance</field>
+                                    <field name="children_ids">
+                                        <record id="account_financial_report_bs_comp_fcap_a_ca_scp_s" model="account.report.line">
+                                            <field name="name">30/36 - Stocks</field>
+                                            <field name="name@nl">30/36 - Voorraden</field>
+                                            <field name="name@fr">30/36 - Stocks</field>
+                                            <field name="name@de">30/36 - Vorräte</field>
+                                            <field name="code">BE_BS_F_30_36</field>
+                                            <field name="aggregation_formula">BE_BS_F_30_31.balance + BE_BS_F_32.balance + BE_BS_F_33.balance + BE_BS_F_34.balance + BE_BS_F_35.balance + BE_BS_F_36.balance</field>
+                                            <field name="children_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_a_ca_scp_s_rmc" model="account.report.line">
+                                                    <field name="name">30/31 - Raw Materials and Consumables</field>
+                                                    <field name="name@nl">30/31 - Grond- en hulpstoffen</field>
+                                                    <field name="name@fr">30/31 - Approvisionnements</field>
+                                                    <field name="name@de">30/31 - Roh-, Hilfs- und Betriebsstoffe</field>
+                                                    <field name="code">BE_BS_F_30_31</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">30 + 31</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_a_ca_scp_s_wip" model="account.report.line">
+                                                    <field name="name">32 - Work in Progress</field>
+                                                    <field name="name@nl">32 - Goederen in bewerking</field>
+                                                    <field name="name@fr">32 - En-cours de fabrication</field>
+                                                    <field name="name@de">32 - Unfertige Erzeugnisse</field>
+                                                    <field name="code">BE_BS_F_32</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">32</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_a_ca_scp_s_fg" model="account.report.line">
+                                                    <field name="name">33 - Finished Goods</field>
+                                                    <field name="name@nl">33 - Gereed product</field>
+                                                    <field name="name@fr">33 - Produits finis</field>
+                                                    <field name="name@de">33 - Fertige Erzeugnisse</field>
+                                                    <field name="code">BE_BS_F_33</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">33</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_a_ca_scp_s_gpr" model="account.report.line">
+                                                    <field name="name">34 - Goods Purchased for Resale</field>
+                                                    <field name="name@nl">34 - Handelsgoederen</field>
+                                                    <field name="name@fr">34 - Marchandises</field>
+                                                    <field name="name@de">34 - Waren</field>
+                                                    <field name="code">BE_BS_F_34</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">34</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_a_ca_scp_s_ipis" model="account.report.line">
+                                                    <field name="name">35 - Immovable Property Intended for Sale</field>
+                                                    <field name="name@nl">35 - Onroerende goederen bestemd voor verkoop</field>
+                                                    <field name="name@fr">35 - Immeubles destinés à la vente</field>
+                                                    <field name="name@de">35 - Zum Verkauf bestimmte unbewegliche Gegenstände</field>
+                                                    <field name="code">BE_BS_F_35</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">35</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_a_ca_scp_s_ap" model="account.report.line">
+                                                    <field name="name">36 - Advance Payments</field>
+                                                    <field name="name@nl">36 - Vooruitbetalingen</field>
+                                                    <field name="name@fr">36 - Acomptes versés</field>
+                                                    <field name="name@de">36 - Geleistete Anzahlungen</field>
+                                                    <field name="code">BE_BS_F_36</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">36</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_a_ca_scp_cp" model="account.report.line">
+                                            <field name="name">37 - Contracts in Progress</field>
+                                            <field name="name@nl">37 - Bestellingen in uitvoering</field>
+                                            <field name="name@fr">37 - Commandes en cours d'exécution</field>
+                                            <field name="name@de">37 - In Ausführung befindliche Bestellungen</field>
+                                            <field name="code">BE_BS_37</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">37</field>
+                                        </record>
+                                    </field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_a_ca_arwoy" model="account.report.line">
+                                    <field name="name">40/41 - Amounts Receivable Within One Year</field>
+                                    <field name="name@nl">40/41 - Vorderingen op ten hoogste één jaar</field>
+                                    <field name="name@fr">40/41 - Créances à un an au plus</field>
+                                    <field name="name@de">40/41 - Forderungen mit einer Restlaufzeit bis zu einem Jahr</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_40_41</field>
+                                    <field name="aggregation_formula">BE_BS_40.balance + BE_BS_41.balance</field>
+                                    <field name="children_ids">
+                                        <record id="account_financial_report_bs_comp_fcap_a_ca_arwoy_td" model="account.report.line">
+                                            <field name="name">40 - Trade Debtors</field>
+                                            <field name="name@nl">40 - Handelsvorderingen</field>
+                                            <field name="name@fr">40 - Créances commerciales</field>
+                                            <field name="name@de">40 - Forderungen aus Lieferungen und Leistungen</field>
+                                            <field name="code">BE_BS_40</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">40</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_a_ca_arwoy_oar" model="account.report.line">
+                                            <field name="name">41 - Other Amounts Receivable</field>
+                                            <field name="name@nl">41 - Overige vorderingen</field>
+                                            <field name="name@fr">41 - Autres créances</field>
+                                            <field name="name@de">41 - Sonstige Forderungen</field>
+                                            <field name="code">BE_BS_41</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">41</field>
+                                        </record>
+                                    </field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_a_ca_ci" model="account.report.line">
+                                    <field name="name">50/53 - Current Investments</field>
+                                    <field name="name@nl">50/53 - Geldbeleggingen</field>
+                                    <field name="name@fr">50/53 - Placements de trésorerie</field>
+                                    <field name="name@de">50/53 - Geldanlagen</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_COMP_F_50_53</field>
+                                    <field name="aggregation_formula">BE_BS_F_50.balance + BE_BS_F_51_53.balance</field>
+                                    <field name="children_ids">
+                                        <record id="account_financial_report_bs_comp_fcap_a_ca_ci_os" model="account.report.line">
+                                            <field name="name">50 - Own Shares</field>
+                                            <field name="name@nl">50 - Eigen aandelen</field>
+                                            <field name="name@fr">50 - Actions propres</field>
+                                            <field name="name@de">50 - Eigene Anteile</field>
+                                            <field name="code">BE_BS_F_50</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">50</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_a_ca_ci_oi" model="account.report.line">
+                                            <field name="name">51/53 - Other Investments</field>
+                                            <field name="name@nl">51/53 - Overige beleggingen</field>
+                                            <field name="name@fr">51/53 - Autres placements</field>
+                                            <field name="name@de">51/53 - Sonstige Geldanlagen</field>
+                                            <field name="code">BE_BS_F_51_53</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">51 + 52 + 53</field>
+                                        </record>
+                                    </field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_a_ca_cbh" model="account.report.line">
+                                    <field name="name">54/58 - Cash at Bank and in Hand</field>
+                                    <field name="name@nl">54/58 - Liquide middelen</field>
+                                    <field name="name@fr">54/58 - Valeurs disponibles</field>
+                                    <field name="name@de">54/58 - Flüssige Mittel</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_54_58</field>
+                                    <field name="groupby">account_id</field>
+                                    <field name="foldable" eval="True"/>
+                                    <field name="account_codes_formula">54 + 55 + 56 + 57 + 58</field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_a_ca_adi" model="account.report.line">
+                                    <field name="name">490/1 - Accruals and Deferred Income</field>
+                                    <field name="name@nl">490/1 - Overlopende rekeningen</field>
+                                    <field name="name@fr">490/1 - Comptes de régularisation</field>
+                                    <field name="name@de">490/1 - Rechnungsabgrenzungsposten</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_490_1</field>
+                                    <field name="groupby">account_id</field>
+                                    <field name="foldable" eval="True"/>
+                                    <field name="account_codes_formula">490 + 491 + 495 + 496</field>
+                                </record>
+                            </field>
+                        </record>
+                        <record id="account_financial_report_bs_comp_fcap_a_tot" model="account.report.line">
+                            <field name="name">20/58 - TOTAL ASSETS</field>
+                            <field name="name@nl">20/58 - TOTAAL VAN DE ACTIVA</field>
+                            <field name="name@fr">20/58 - TOTAL DE L'ACTIF</field>
+                            <field name="name@de">20/58 - SUMME DER AKTIVA</field>
+                            <field name="hierarchy_level">1</field>
+                            <field name="code">BE_BS_COMP_F_20_58</field>
+                            <field name="aggregation_formula">BE_BS_20.balance + BE_BS_F_21_28.balance + BE_BS_COMP_F_29_58.balance</field>
+                        </record>
+                    </field>
+                </record>
+                <record id="account_financial_report_bs_comp_fcap_el" model="account.report.line">
+                    <field name="name">EQUITY AND LIABILITIES</field>
+                    <field name="name@nl">PASSIVA</field>
+                    <field name="name@fr">PASSIF</field>
+                    <field name="name@de">PASSIVA</field>
+                    <field name="hierarchy_level">0</field>
+                    <field name="print_on_new_page" eval="True"/>
+                    <field name="horizontal_split_side">right</field>
+                    <field name="children_ids">
+                        <record id="account_financial_report_bs_comp_fcap_el_e" model="account.report.line">
+                            <field name="name">10/15 - Equity</field>
+                            <field name="name@nl">10/15 - Eigen vermogen</field>
+                            <field name="name@fr">10/15 - Capitaux propres</field>
+                            <field name="name@de">10/15 - Eigenkapital</field>
+                            <field name="hierarchy_level">1</field>
+                            <field name="code">BE_BS_COMP_FCAP_10_15</field>
+                            <field name="aggregation_formula">BE_BS_COMP_CAP_10_11.balance + BE_BS_12.balance + BE_BS_COMP_CAP_13.balance + BE_BS_COMP_F_14.balance + BE_BS_15.balance - BE_BS_COMP_19.balance</field>
+                            <field name="children_ids">
+                                <record id="account_financial_report_bs_comp_fcap_el_e_c" model="account.report.line">
+                                    <field name="name">10/11 - Contributions</field>
+                                    <field name="name@nl">10/11 - Inbreng</field>
+                                    <field name="name@fr">10/11 - Apport</field>
+                                    <field name="name@de">10/11 - Einlage</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_COMP_CAP_10_11</field>
+                                    <field name="aggregation_formula">BE_BS_COMP_CAP_10.balance + BE_BS_COMP_CAP_11.balance</field>
+                                    <field name="children_ids">
+                                        <record id="account_financial_report_bs_comp_fcap_el_e_c_c" model="account.report.line">
+                                            <field name="name">10 - Capital</field>
+                                            <field name="name@nl">10 - Kapitaal</field>
+                                            <field name="name@fr">10 - Capital</field>
+                                            <field name="name@de">10 - Kapital</field>
+                                            <field name="code">BE_BS_COMP_CAP_10</field>
+                                            <field name="expression_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_c_c_remaining_balance" model="account.report.expression">
+                                                    <field name="label">remaining_balance</field>
+                                                    <field name="engine">account_codes</field>
+                                                    <field name="formula">-10\(100,101)</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_c_c_balance" model="account.report.expression">
+                                                    <field name="label">balance</field>
+                                                    <field name="engine">aggregation</field>
+                                                    <field name="formula">BE_BS_COMP_CAP_100.balance - BE_BS_COMP_CAP_101.balance + BE_BS_COMP_CAP_10.remaining_balance</field>
+                                                </record>
+                                            </field>
+                                            <field name="children_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_c_c_ic" model="account.report.line">
+                                                    <field name="name">100 - Issued Capital</field>
+                                                    <field name="name@nl">100 - Geplaatst kapitaal</field>
+                                                    <field name="name@fr">100 - Capital souscrit</field>
+                                                    <field name="name@de">100 - Gezeichnetes Kapital</field>
+                                                    <field name="code">BE_BS_COMP_CAP_100</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-100</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_c_c_uc" model="account.report.line">
+                                                    <field name="name">101 - Uncalled Capital</field>
+                                                    <field name="name@nl">101 - Niet-opgevraagd kapitaal</field>
+                                                    <field name="name@fr">101 - Capital non appelé</field>
+                                                    <field name="name@de">101 - Nicht eingefordertes Kapital</field>
+                                                    <field name="code">BE_BS_COMP_CAP_101</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">101</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_e_c_bc" model="account.report.line">
+                                            <field name="name">11 - Beyond Capital</field>
+                                            <field name="name@nl">11 - Buiten kapitaal</field>
+                                            <field name="name@fr">11 - En dehors du capital</field>
+                                            <field name="name@de">11 - Sacheinlage</field>
+                                            <field name="code">BE_BS_COMP_CAP_11</field>
+                                            <field name="expression_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_c_bc_remaining_balance" model="account.report.expression">
+                                                    <field name="label">remaining_balance</field>
+                                                    <field name="engine">account_codes</field>
+                                                    <field name="formula">-11\(1100,1109,1110,1119)</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_c_bc_balance" model="account.report.expression">
+                                                    <field name="label">balance</field>
+                                                    <field name="engine">aggregation</field>
+                                                    <field name="formula">BE_BS_COMP_CAP_1100_10.balance + BE_BS_COMP_CAP_1109_19.balance + BE_BS_COMP_CAP_11.remaining_balance</field>
+                                                </record>
+                                            </field>
+                                            <field name="children_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_c_bc_spa" model="account.report.line">
+                                                    <field name="name">1100/10 - Share Premium Account</field>
+                                                    <field name="name@nl">1100/10 - Uitgiftepremies</field>
+                                                    <field name="name@fr">1100/10 - Primes d'émission</field>
+                                                    <field name="name@de">1100/10 - Agio</field>
+                                                    <field name="code">BE_BS_COMP_CAP_1100_10</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-1100 - 1110</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_c_bc_o" model="account.report.line">
+                                                    <field name="name">1109/19 - Other</field>
+                                                    <field name="name@nl">1109/19 - Andere</field>
+                                                    <field name="name@fr">1109/19 - Autres</field>
+                                                    <field name="name@de">1109/19 - Sonstige</field>
+                                                    <field name="code">BE_BS_COMP_CAP_1109_19</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-1109 - 1119</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                    </field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_el_e_rs" model="account.report.line">
+                                    <field name="name">12 - Revaluation Surpluses</field>
+                                    <field name="name@nl">12 - Herwaarderingsmeerwaarden</field>
+                                    <field name="name@fr">12 - Plus-values de réévaluation</field>
+                                    <field name="name@de">12 - Neubewertungsrücklagen</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_12</field>
+                                    <field name="groupby">account_id</field>
+                                    <field name="foldable" eval="True"/>
+                                    <field name="account_codes_formula">-12</field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_el_e_r" model="account.report.line">
+                                    <field name="name">13 - Reserves</field>
+                                    <field name="name@nl">13 - Reserves</field>
+                                    <field name="name@fr">13 - Réserves</field>
+                                    <field name="name@de">13 - Rücklagen</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_COMP_CAP_13</field>
+                                    <field name="aggregation_formula">BE_BS_COMP_CAP_130_1.balance + BE_BS_COMP_132.balance + BE_BS_COMP_133.balance</field>
+                                    <field name="children_ids">
+                                        <record id="account_financial_report_bs_comp_fcap_el_e_r_rno" model="account.report.line">
+                                            <field name="name">130/1 - Reserves Not Available</field>
+                                            <field name="name@nl">130/1 - Onbeschikbare reserves</field>
+                                            <field name="name@fr">130/1 - Réserves indisponibles</field>
+                                            <field name="name@de">130/1 - Nicht verfügbare Rücklagen</field>
+                                            <field name="code">BE_BS_COMP_CAP_130_1</field>
+                                            <field name="aggregation_formula">BE_BS_COMP_CAP_130.balance + BE_BS_COMP_1311.balance + BE_BS_COMP_1312.balance + BE_BS_COMP_1313.balance + BE_BS_COMP_1319.balance</field>
+                                            <field name="children_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_r_rno_lr" model="account.report.line">
+                                                    <field name="name">130 - Legal Reserve</field>
+                                                    <field name="name@nl">130 - Wettelijke reserve</field>
+                                                    <field name="name@fr">130 - Réserve légale</field>
+                                                    <field name="name@de">130 - Gesetzliche Rücklage</field>
+                                                    <field name="code">BE_BS_COMP_CAP_130</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-130</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_r_rno_rnos" model="account.report.line">
+                                                    <field name="name">1311 - Reserves Not Available Statutorily</field>
+                                                    <field name="name@nl">1311 - Statutair onbeschikbare reserves</field>
+                                                    <field name="name@fr">1311 - Réserves statutairement indisponibles</field>
+                                                    <field name="name@de">1311 - Satzungsgemäße nicht verfügbare Rücklagen</field>
+                                                    <field name="code">BE_BS_COMP_1311</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-1311</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_r_rno_pos" model="account.report.line">
+                                                    <field name="name">1312 - Purchase of Own Shares</field>
+                                                    <field name="name@nl">1312 - Inkoop eigen aandelen</field>
+                                                    <field name="name@fr">1312 - Acquisition d'actions propres</field>
+                                                    <field name="name@de">1312 - Erwerb eigener Aktien</field>
+                                                    <field name="code">BE_BS_COMP_1312</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-1312</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_r_rno_fs" model="account.report.line">
+                                                    <field name="name">1313 - Financial Support</field>
+                                                    <field name="name@nl">1313 - Financiële steunverlening</field>
+                                                    <field name="name@fr">1313 - Soutien financier</field>
+                                                    <field name="name@de">1313 - Finanzielle Unterstützung</field>
+                                                    <field name="code">BE_BS_COMP_1313</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-1313</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_r_rno_o" model="account.report.line">
+                                                    <field name="name">1319 - Other</field>
+                                                    <field name="name@nl">1319 - Overige</field>
+                                                    <field name="name@fr">1319 - Autres</field>
+                                                    <field name="name@de">1319 - Sonstige</field>
+                                                    <field name="code">BE_BS_COMP_1319</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-1319</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_e_r_ur" model="account.report.line">
+                                            <field name="name">132 - Untaxed Reserves</field>
+                                            <field name="name@nl">132 - Belastingvrije reserves</field>
+                                            <field name="name@fr">132 - Réserves immunisées</field>
+                                            <field name="name@de">132 - Steuerfreie Rücklagen</field>
+                                            <field name="code">BE_BS_COMP_132</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">-132</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_e_r_ar" model="account.report.line">
+                                            <field name="name">133 - Available Reserves</field>
+                                            <field name="name@nl">133 - Beschikbare reserves</field>
+                                            <field name="name@fr">133 - Réserves disponibles</field>
+                                            <field name="name@de">133 - Verfügbare Rücklagen</field>
+                                            <field name="code">BE_BS_COMP_133</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">-133</field>
+                                        </record>
+                                    </field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_el_e_apl" model="account.report.line">
+                                    <field name="name">14 - Accumulated Profits (Losses) (+)/(-)</field>
+                                    <field name="name@nl">14 - Overgedragen winst (verlies) (+)/(-)</field>
+                                    <field name="name@fr">14 - Bénéfice (Perte) reporté(e) (+)/(-)</field>
+                                    <field name="name@de">14 - Gewinnvortrag (Verlustvortrag) (+)/(-)</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_COMP_F_14</field>
+                                    <field name="aggregation_formula">BE_BS_COMP_F_14_PLY.balance + BE_BS_14_OAY.balance + BE_BS_14_PLPY.balance</field>
+                                    <field name="children_ids">
+                                        <record id="account_financial_report_bs_comp_fcap_el_e_apl_ply" model="account.report.line">
+                                            <field name="name">Profit (Loss) of the Year</field>
+                                            <field name="name@nl">Winst (Verlies) van het boekjaar</field>
+                                            <field name="name@fr">Bénéfice (Perte) de l'exercice</field>
+                                            <field name="name@de">Gewinne (Verluste) des Geschäftsjahres</field>
+                                            <field name="code">BE_BS_COMP_F_14_PLY</field>
+                                            <field name="expression_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_apl_ply_balance" model="account.report.expression">
+                                                    <field name="label">balance</field>
+                                                    <field name="engine">aggregation</field>
+                                                    <field name="formula">BE_PL_COMP_F_9905.balance</field>
+                                                    <field name="subformula">cross_report(l10n_be_reports.account_financial_report_pl_comp_f)</field>
+                                                    <field name="date_scope">from_fiscalyear</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_e_apl_oay" model="account.report.line">
+                                            <field name="name">Other Appropriations of the Year</field>
+                                            <field name="name@nl">Andere resultaatverwerkingen van het boekjaar</field>
+                                            <field name="name@fr">Autres affectations de l’année</field>
+                                            <field name="name@de">Andere Zuwendungen des Geschäftsjahres</field>
+                                            <field name="code">BE_BS_14_OAY</field>
+                                            <field name="expression_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_apl_oay_balance" model="account.report.expression">
+                                                    <field name="label">balance</field>
+                                                    <field name="engine">account_codes</field>
+                                                    <field name="formula">-69 - 79 - 14</field>
+                                                    <field name="date_scope">from_fiscalyear</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_e_apl_plpy" model="account.report.line">
+                                            <field name="name">Profits (Losses) from Previous Years</field>
+                                            <field name="name@nl">Winst (Verlies) van vorige boekjaren</field>
+                                            <field name="name@fr">Bénéfice (Perte) des exercices antérieurs</field>
+                                            <field name="name@de">Gewinne (Verluste) aus den Vorjahren</field>
+                                            <field name="code">BE_BS_14_PLPY</field>
+                                            <field name="expression_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_e_apl_plpy_balance" model="account.report.expression">
+                                                    <field name="label">balance</field>
+                                                    <field name="engine">account_codes</field>
+                                                    <field name="formula">-6 - 7 - 14</field>
+                                                    <field name="date_scope">to_beginning_of_fiscalyear</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                    </field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_el_e_cs" model="account.report.line">
+                                    <field name="name">15 - Capital Subsidies</field>
+                                    <field name="name@nl">15 - Kapitaalsubsidies</field>
+                                    <field name="name@fr">15 - Subsides en capital</field>
+                                    <field name="name@de">15 - Kapitalsubventionen</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_15</field>
+                                    <field name="groupby">account_id</field>
+                                    <field name="foldable" eval="True"/>
+                                    <field name="account_codes_formula">-15</field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_el_e_asdna" model="account.report.line">
+                                    <field name="name">19 - Advance to Shareholders on the Distribution of Net Assets</field>
+                                    <field name="name@nl">19 - Voorschot aan de vennoten op de verdeling van het netto-actief</field>
+                                    <field name="name@fr">19 - Avance aux associés sur la répartition de l'actif net</field>
+                                    <field name="name@de">19 - Vorschuss an die Gesellschafter auf der Verteilung des Nettoaktiva</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_COMP_19</field>
+                                    <field name="groupby">account_id</field>
+                                    <field name="foldable" eval="True"/>
+                                    <field name="account_codes_formula">19</field>
+                                </record>
+                            </field>
+                        </record>
+                        <record id="account_financial_report_bs_comp_fcap_el_pdt" model="account.report.line">
+                            <field name="name">16 - Provisions and Deferred Taxes</field>
+                            <field name="name@nl">16 - Voorzieningen en uitgestelde belastingen</field>
+                            <field name="name@fr">16 - Provisions et impôts différés</field>
+                            <field name="name@de">16 - Rückstellungen und aufgeschobene Steuern</field>
+                            <field name="hierarchy_level">1</field>
+                            <field name="code">BE_BS_COMP_16</field>
+                            <field name="aggregation_formula">BE_BS_COMP_160_5.balance + BE_BS_168.balance</field>
+                            <field name="children_ids">
+                                <record id="account_financial_report_bs_comp_fcap_el_pdt_plc" model="account.report.line">
+                                    <field name="name">160/5 - Provisions for Liabilities and Charges</field>
+                                    <field name="name@nl">160/5 - Voorzieningen voor risico's en kosten</field>
+                                    <field name="name@fr">160/5 - Provisions pour risques et charges</field>
+                                    <field name="name@de">160/5 - Rückstellungen für Risiken und Aufwendungen</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_COMP_160_5</field>
+                                    <field name="aggregation_formula">BE_BS_160.balance + BE_BS_161.balance + BE_BS_162.balance + BE_BS_163.balance + BE_BS_164_5.balance</field>
+                                    <field name="children_ids">
+                                        <record id="account_financial_report_bs_comp_fcap_el_pdt_plc_pso" model="account.report.line">
+                                            <field name="name">160 - Pensions and Similar Obligations</field>
+                                            <field name="name@nl">160 - Pensioenen en soortgelijke verplichtingen</field>
+                                            <field name="name@fr">160 - Pensions et obligations similaires</field>
+                                            <field name="name@de">160 - Pensionen und ähnliche Verpflichtungen</field>
+                                            <field name="code">BE_BS_160</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">-160</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_pdt_plc_t" model="account.report.line">
+                                            <field name="name">161 - Taxes</field>
+                                            <field name="name@nl">161 - Belastingen</field>
+                                            <field name="name@fr">161 - Charges fiscales</field>
+                                            <field name="name@de">161 - Steuern</field>
+                                            <field name="code">BE_BS_161</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">-161</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_pdt_plc_mrm" model="account.report.line">
+                                            <field name="name">162 - Major Repairs and Maintenance</field>
+                                            <field name="name@nl">162 - Grote herstellings- en onderhoudswerken</field>
+                                            <field name="name@fr">162 - Grosses réparations et gros entretien</field>
+                                            <field name="name@de">162 - Große Reparaturen und Instandhaltungsarbeiten</field>
+                                            <field name="code">BE_BS_162</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">-162</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_pdt_plc_eo" model="account.report.line">
+                                            <field name="name">163 - Environmental Obligations</field>
+                                            <field name="name@nl">163 - Milieuverplichtingen</field>
+                                            <field name="name@fr">163 - Obligations environnementales</field>
+                                            <field name="name@de">163 - Umweltschutzverpflichtungen</field>
+                                            <field name="code">BE_BS_163</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">-163</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_pdt_plc_olc" model="account.report.line">
+                                            <field name="name">164/5 - Other Liabilities and Charges</field>
+                                            <field name="name@nl">164/5 - Overige risico's en kosten</field>
+                                            <field name="name@fr">164/5 - Autres risques et charges</field>
+                                            <field name="name@de">164/5 - Sonstige Risiken und Aufwendungen</field>
+                                            <field name="code">BE_BS_164_5</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">-164 - 165</field>
+                                        </record>
+                                    </field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_el_pdt_dt" model="account.report.line">
+                                    <field name="name">168 - Deferred Taxes</field>
+                                    <field name="name@nl">168 - Uitgestelde belastingen</field>
+                                    <field name="name@fr">168 - Impôts différés</field>
+                                    <field name="name@de">168 - Aufgeschobene Steuern</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_168</field>
+                                    <field name="groupby">account_id</field>
+                                    <field name="foldable" eval="True"/>
+                                    <field name="account_codes_formula">-168</field>
+                                </record>
+                            </field>
+                        </record>
+                        <record id="account_financial_report_bs_comp_fcap_el_ap" model="account.report.line">
+                            <field name="name">17/49 - Amounts Payable</field>
+                            <field name="name@nl">17/49 - Schulden</field>
+                            <field name="name@fr">17/49 - Dettes</field>
+                            <field name="name@de">17/49 - Verbindlichkeiten</field>
+                            <field name="hierarchy_level">1</field>
+                            <field name="print_on_new_page" eval="True"/>
+                            <field name="code">BE_BS_COMP_F_17_49</field>
+                            <field name="aggregation_formula">BE_BS_F_17.balance + BE_BS_COMP_42_48.balance + BE_BS_492_3.balance + BE_BS_499.balance</field>
+                            <field name="children_ids">
+                                <record id="account_financial_report_bs_comp_fcap_el_ap_apamtoy" model="account.report.line">
+                                    <field name="name">17 - Amounts Payable After More Than One Year</field>
+                                    <field name="name@nl">17 - Schulden op meer dan één jaar</field>
+                                    <field name="name@fr">17 - Dettes à plus d’un an</field>
+                                    <field name="name@de">17 - Verbindlichkeiten mit einer Restlaufzeit von mehr als einem Jahr</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_F_17</field>
+                                    <field name="aggregation_formula">BE_BS_F_170_4.balance + BE_BS_F_175.balance + BE_BS_176.balance + BE_BS_178_9.balance</field>
+                                    <field name="children_ids">
+                                        <record id="account_financial_report_bs_comp_fcap_el_ap_apamtoy_fd" model="account.report.line">
+                                            <field name="name">170/4 - Financial Debts</field>
+                                            <field name="name@nl">170/4 - Financiële schulden</field>
+                                            <field name="name@fr">170/4 - Dettes financières</field>
+                                            <field name="name@de">170/4 - Finanzverbindlichkeiten</field>
+                                            <field name="code">BE_BS_F_170_4</field>
+                                            <field name="aggregation_formula">BE_BS_F_170.balance + BE_BS_F_171.balance + BE_BS_F_172.balance + BE_BS_F_173.balance + BE_BS_F_174.balance</field>
+                                            <field name="children_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apamtoy_fd_sl" model="account.report.line">
+                                                    <field name="name">170 - Subordinated Loans</field>
+                                                    <field name="name@nl">170 - Achtergestelde leningen</field>
+                                                    <field name="name@fr">170 - Emprunts subordonnés</field>
+                                                    <field name="name@de">170 - Nachrangige Anleihen</field>
+                                                    <field name="code">BE_BS_F_170</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-170</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apamtoy_fd_ud" model="account.report.line">
+                                                    <field name="name">171 - Unsubordinated Debentures</field>
+                                                    <field name="name@nl">171 - Niet-achtergestelde obligatieleningen</field>
+                                                    <field name="name@fr">171 - Emprunts obligataires non subordonnés</field>
+                                                    <field name="name@de">171 - Nicht nachrangige Anleihen</field>
+                                                    <field name="code">BE_BS_F_171</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-171</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apamtoy_fd_loso" model="account.report.line">
+                                                    <field name="name">172 - Leasing and Other Similar Obligations</field>
+                                                    <field name="name@nl">172 - Leasingschulden en soortgelijke schulden</field>
+                                                    <field name="name@fr">172 - Dettes de location-financement et dettes assimilées</field>
+                                                    <field name="name@de">172 - Verbindlichkeiten aufgrund von Leasing- und ähnlichen Verträgen</field>
+                                                    <field name="code">BE_BS_F_172</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-172</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apamtoy_fd_ci" model="account.report.line">
+                                                    <field name="name">173 - Credit Institutions</field>
+                                                    <field name="name@nl">173 - Kredietinstellingen</field>
+                                                    <field name="name@fr">173 - Etablissements de crédit</field>
+                                                    <field name="name@de">173 - Kreditinstitute</field>
+                                                    <field name="code">BE_BS_F_173</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-173</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apamtoy_fd_ol" model="account.report.line">
+                                                    <field name="name">174 - Other Loans</field>
+                                                    <field name="name@nl">174 - Overige leningen</field>
+                                                    <field name="name@fr">174 - Autres emprunts</field>
+                                                    <field name="name@de">174 - Sonstige Anleihen</field>
+                                                    <field name="code">BE_BS_F_174</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-174</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_ap_apamtoy_td" model="account.report.line">
+                                            <field name="name">175 - Trade Debts</field>
+                                            <field name="name@nl">175 - Handelsschulden</field>
+                                            <field name="name@fr">175 - Dettes commerciales</field>
+                                            <field name="name@de">175 - Verbindlichkeiten aus Lieferungen und Leistungen</field>
+                                            <field name="code">BE_BS_F_175</field>
+                                            <field name="aggregation_formula">BE_BS_F_1750.balance + BE_BS_F_1751.balance</field>
+                                            <field name="children_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apamtoy_td_s" model="account.report.line">
+                                                    <field name="name">1750 - Suppliers</field>
+                                                    <field name="name@nl">1750 - Leveranciers</field>
+                                                    <field name="name@fr">1750 - Fournisseurs</field>
+                                                    <field name="name@de">1750 - Lieferanten</field>
+                                                    <field name="code">BE_BS_F_1750</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-1750</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apamtoy_td_bep" model="account.report.line">
+                                                    <field name="name">1751 - Bills of Exchange Payable</field>
+                                                    <field name="name@nl">1751 - Te betalen wissels</field>
+                                                    <field name="name@fr">1751 - Effets à payer</field>
+                                                    <field name="name@de">1751 - Verbindlichkeiten aus Wechseln</field>
+                                                    <field name="code">BE_BS_F_1751</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-1751</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_ap_apamtoy_apcp" model="account.report.line">
+                                            <field name="name">176 - Advance Payments on Contracts in Progress</field>
+                                            <field name="name@nl">176 - Vooruitbetalingen op bestellingen</field>
+                                            <field name="name@fr">176 - Acomptes sur commandes</field>
+                                            <field name="name@de">176 - Anzahlungen auf Bestellungen</field>
+                                            <field name="code">BE_BS_176</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">-176</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_ap_apamtoy_oap" model="account.report.line">
+                                            <field name="name">178/9 - Other Amounts Payable</field>
+                                            <field name="name@nl">178/9 - Overige schulden</field>
+                                            <field name="name@fr">178/9 - Autres dettes</field>
+                                            <field name="name@de">178/9 - Sonstige Verbindlichkeiten</field>
+                                            <field name="code">BE_BS_178_9</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">-178 - 179</field>
+                                        </record>
+                                    </field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy" model="account.report.line">
+                                    <field name="name">42/48 - Amounts Payable Within One Year</field>
+                                    <field name="name@nl">42/48 - Schulden op ten hoogste één jaar</field>
+                                    <field name="name@fr">42/48 - Dettes à un an au plus</field>
+                                    <field name="name@de">42/48 - Verbindlichkeiten mit einer Restlaufzeit bis zu 1 Jahr</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_COMP_42_48</field>
+                                    <field name="aggregation_formula">BE_BS_42.balance + BE_BS_43.balance + BE_BS_44.balance + BE_BS_46.balance + BE_BS_45.balance + BE_BS_COMP_47_48.balance</field>
+                                    <field name="children_ids">
+                                        <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_cpapdwoy" model="account.report.line">
+                                            <field name="name">42 - Current Portion of Amounts Payable After More Than One Year Falling Due Within One Year</field>
+                                            <field name="name@nl">42 - Schulden op meer dan één jaar die binnen het jaar vervallen</field>
+                                            <field name="name@fr">42 - Dettes à plus d'un an échéant dans l'année</field>
+                                            <field name="name@de">42 - Innerhalb eines Jahres fällig werdende Verbindlichkeiten mit einer ursprünglichen Laufzeit von mehr als 1 Jahr</field>
+                                            <field name="code">BE_BS_42</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">-42</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_fd" model="account.report.line">
+                                            <field name="name">43 - Financial Debts</field>
+                                            <field name="name@nl">43 - Financiële schulden</field>
+                                            <field name="name@fr">43 - Dettes financières</field>
+                                            <field name="name@de">43 - Finanzverbindlichkeiten</field>
+                                            <field name="code">BE_BS_43</field>
+                                            <field name="aggregation_formula">BE_BS_430_8.balance + BE_BS_439.balance</field>
+                                            <field name="children_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_fd_ci" model="account.report.line">
+                                                    <field name="name">430/8 - Credit Institutions</field>
+                                                    <field name="name@nl">430/8 - Kredietinstellingen</field>
+                                                    <field name="name@fr">430/8 - Etablissements de crédit</field>
+                                                    <field name="name@de">430/8 - Kreditinstitute</field>
+                                                    <field name="code">BE_BS_430_8</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-430 - 431 - 432 - 433 - 434 - 435 - 436 - 437 - 438</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_fd_ol" model="account.report.line">
+                                                    <field name="name">439 - Other Loans</field>
+                                                    <field name="name@nl">439 - Overige leningen</field>
+                                                    <field name="name@fr">439 - Autres emprunts</field>
+                                                    <field name="name@de">439 - Sonstige Anleihen</field>
+                                                    <field name="code">BE_BS_439</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-439</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_td" model="account.report.line">
+                                            <field name="name">44 - Trade Debts</field>
+                                            <field name="name@nl">44 - Handelsschulden</field>
+                                            <field name="name@fr">44 - Dettes commerciales</field>
+                                            <field name="name@de">44 - Verbindlichkeiten aus Lieferungen und Leistungen</field>
+                                            <field name="code">BE_BS_44</field>
+                                            <field name="expression_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_td_remaining_balance" model="account.report.expression">
+                                                    <field name="label">remaining_balance</field>
+                                                    <field name="engine">account_codes</field>
+                                                    <field name="formula">-44\(440,441,442,443,444)</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_td_balance" model="account.report.expression">
+                                                    <field name="label">balance</field>
+                                                    <field name="engine">aggregation</field>
+                                                    <field name="formula">BE_BS_440_4.balance + BE_BS_441.balance + BE_BS_44.remaining_balance</field>
+                                                </record>
+                                            </field>
+                                            <field name="children_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_td_s" model="account.report.line">
+                                                    <field name="name">440/4 - Suppliers</field>
+                                                    <field name="name@nl">440/4 - Leveranciers</field>
+                                                    <field name="name@fr">440/4 - Fournisseurs</field>
+                                                    <field name="name@de">440/4 - Lieferanten</field>
+                                                    <field name="code">BE_BS_440_4</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-440 - 442 - 443 - 444</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_td_bep" model="account.report.line">
+                                                    <field name="name">441 - Bills of Exchange Payable</field>
+                                                    <field name="name@nl">441 - Te betalen wissels</field>
+                                                    <field name="name@fr">441 - Effets à payer</field>
+                                                    <field name="name@de">441 - Verbindlichkeiten aus Wechseln</field>
+                                                    <field name="code">BE_BS_441</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-441</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_apcp" model="account.report.line">
+                                            <field name="name">46 - Advance Payments on Contracts in Progress</field>
+                                            <field name="name@nl">46 - Vooruitbetalingen op bestellingen</field>
+                                            <field name="name@fr">46 - Acomptes sur commandes</field>
+                                            <field name="name@de">46 - Anzahlungen auf Bestellungen</field>
+                                            <field name="code">BE_BS_46</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">-46</field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_trss" model="account.report.line">
+                                            <field name="name">45 - Taxes, Remuneration and Social Security</field>
+                                            <field name="name@nl">45 - Schulden met betrekking tot belastingen, bezoldigingen en sociale lasten</field>
+                                            <field name="name@fr">45 - Dettes fiscales, salariales et sociales</field>
+                                            <field name="name@de">45 - Verbindlichkeiten aufgrund von Steuern, Arbeitsentgelten und Soziallasten</field>
+                                            <field name="code">BE_BS_45</field>
+                                            <field name="aggregation_formula">BE_BS_450_3.balance + BE_BS_454_9.balance</field>
+                                            <field name="children_ids">
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_trss_t" model="account.report.line">
+                                                    <field name="name">450/3 - Taxes</field>
+                                                    <field name="name@nl">450/3 - Belastingen</field>
+                                                    <field name="name@fr">450/3 - Impôts</field>
+                                                    <field name="name@de">450/3 - Steuern</field>
+                                                    <field name="code">BE_BS_450_3</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-450 - 451 - 452 - 453</field>
+                                                </record>
+                                                <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_trss_rss" model="account.report.line">
+                                                    <field name="name">454/9 - Remuneration and Social Security</field>
+                                                    <field name="name@nl">454/9 - Bezoldigingen en sociale lasten</field>
+                                                    <field name="name@fr">454/9 - Rémunérations et charges sociales</field>
+                                                    <field name="name@de">454/9 - Arbeitsentgelte und Soziallasten</field>
+                                                    <field name="code">BE_BS_454_9</field>
+                                                    <field name="groupby">account_id</field>
+                                                    <field name="foldable" eval="True"/>
+                                                    <field name="account_codes_formula">-454 - 455 - 456 - 457 - 458 - 459</field>
+                                                </record>
+                                            </field>
+                                        </record>
+                                        <record id="account_financial_report_bs_comp_fcap_el_ap_apwoy_oap" model="account.report.line">
+                                            <field name="name">47/48 - Other Amounts Payable</field>
+                                            <field name="name@nl">47/48 - Overige schulden</field>
+                                            <field name="name@fr">47/48 - Autres dettes</field>
+                                            <field name="name@de">47/48 - Sonstige Verbindlichkeiten</field>
+                                            <field name="code">BE_BS_COMP_47_48</field>
+                                            <field name="groupby">account_id</field>
+                                            <field name="foldable" eval="True"/>
+                                            <field name="account_codes_formula">-47 - 48</field>
+                                        </record>
+                                    </field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_el_ap_adi" model="account.report.line">
+                                    <field name="name">492/3 - Accruals and Deferred Income</field>
+                                    <field name="name@nl">492/3 - Overlopende rekeningen</field>
+                                    <field name="name@fr">492/3 - Comptes de régularisation</field>
+                                    <field name="name@de">492/3 - Rechnungsabgrenzungsposten</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_492_3</field>
+                                    <field name="groupby">account_id</field>
+                                    <field name="foldable" eval="True"/>
+                                    <field name="account_codes_formula">-492 - 493 - 497</field>
+                                </record>
+                                <record id="account_financial_report_bs_comp_fcap_el_ap_sa" model="account.report.line">
+                                    <field name="name">499 - Suspense Accounts</field>
+                                    <field name="name@nl">499 - Wachtrekeningen</field>
+                                    <field name="name@fr">499 - Comptes d'attente</field>
+                                    <field name="name@de">499 - Wartekonten</field>
+                                    <field name="hierarchy_level">2</field>
+                                    <field name="code">BE_BS_499</field>
+                                    <field name="groupby">account_id</field>
+                                    <field name="foldable" eval="True"/>
+                                    <field name="account_codes_formula">-499</field>
+                                </record>
+                            </field>
+                        </record>
+                        <record id="account_financial_report_bs_comp_fcap_el_tot" model="account.report.line">
+                            <field name="name">10/49 - TOTAL LIABILITIES</field>
+                            <field name="name@nl">10/49 - TOTAAL VAN DE PASSIVA</field>
+                            <field name="name@fr">10/49 - TOTAL DU PASSIF</field>
+                            <field name="name@de">10/49 - SUMME DER PASSIVA</field>
+                            <field name="hierarchy_level">1</field>
+                            <field name="code">BE_BS_COMP_FCAP_10_49</field>
+                            <field name="aggregation_formula">BE_BS_COMP_FCAP_10_15.balance + BE_BS_COMP_16.balance + BE_BS_COMP_F_17_49.balance</field>
+                        </record>
+                    </field>
+                </record>
+            </field>
+        </record>
+    </data>
+    <data>
+        <record id="action_account_report_be_pl_comp_f" model="ir.actions.client">
+            <!--Kept as a separate action to force opening of the correct Belgian P&L, whatever the previous options.-->
+            <field name="name">Profit and Loss</field>
+            <field name="tag">account_report</field>
+            <field name="context" eval="{'report_id': ref('account_financial_report_pl_comp_f')}"/>
+        </record>
+        <record id="account_financial_report_bs_comp_fcap_el_e_apl_ply" model="account.report.line">
+            <field name="action_id" ref="action_account_report_be_pl_comp_f"/>
+        </record>
+    </data>
+    <data noupdate="1">
+        <record id="account_financial_report_bs_comp_fcap" model="account.report">
+            <field name="active" eval="False"/>
+        </record>
+    </data>
+</odoo>

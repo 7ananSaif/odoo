@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="knowledge.PermissionPanelDialog">
+        <Dialog
+            title.translate="Share settings"
+            fullscreen="true"
+            footer="false"
+            withBodyPadding="false">
+            <PermissionPanel t-props="this.props"/>
+        </Dialog>
+    </t>
+</templates>

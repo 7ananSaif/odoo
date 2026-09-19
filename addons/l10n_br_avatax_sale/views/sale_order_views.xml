@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="order_form_inherit" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <header position="after">
+                    <div class="m-0" name="warnings" invisible="not l10n_br_avatax_warnings">
+                        <field name="l10n_br_avatax_warnings" class="o_field_html" widget="actionable_errors"/>
+                    </div>
+                </header>
+                <field name="payment_term_id" position="after">
+                    <field name="l10n_br_goods_operation_type_id"
+                           required="True"
+                           invisible="country_code != 'BR' or not l10n_br_is_avatax or l10n_br_is_service_transaction"
+                           readonly="state in ['cancel', 'sale']"
+                    />
+                </field>
+                <group name="sale_info" position="inside">
+                    <field name="l10n_br_cnae_code_id"
+                           invisible="country_code != 'BR' or not l10n_br_is_avatax"
+                           readonly="locked"
+                    />
+                    <field name="l10n_br_use_type"
+                           invisible="country_code != 'BR' or not l10n_br_is_avatax"
+                           readonly="locked"
+                    />
+                </group>
+                <xpath expr="//notebook/page[@name='order_lines']/field/list/field[@name='product_template_id']" position="after">
+                    <field name="l10n_br_goods_operation_type_id"
+                           column_invisible="parent.country_code != 'BR' or not parent.l10n_br_is_avatax or
+                                             parent.l10n_br_is_service_transaction"
+                           readonly="state in ['cancel', 'sale']"
+                    />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

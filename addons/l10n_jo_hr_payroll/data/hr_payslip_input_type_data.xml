@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_jo_input_weekdays_overtime_hours" model="hr.payslip.input.type">
+        <field name="name">Weekdays Overtime Hours</field>
+        <field name="code">WOVT</field>
+        <field name="country_id" ref="base.jo"/>
+        <field name="struct_ids" eval="[Command.link(ref('hr_payroll_structure_jo_employee_salary'))]"/>
+    </record>
+
+    <record id="l10n_jo_input_restdays_overtime_hours" model="hr.payslip.input.type">
+        <field name="name">Restdays Overtime Hours</field>
+        <field name="code">ROVT</field>
+        <field name="country_id" ref="base.jo"/>
+        <field name="struct_ids" eval="[Command.link(ref('hr_payroll_structure_jo_employee_salary'))]"/>
+    </record>
+</odoo>

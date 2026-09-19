@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="knowledge.Sidebar">
+        <aside class="o_knowledge_sidebar d-flex flex-shrink-0 d-print-none bg-100"
+            t-attf-style="--knowledge-article-sidebar-size: #{state.sidebarSize}px">
+            <div class="d-flex flex-column flex-grow-1 min-w-0">
+                <!-- Search bar -->
+                <div class="d-flex px-1 pt-2">
+                    <button class="o_knowledge_toggle_sidebar d-md-none btn text-black"
+                        t-on-click="() => env.toggleAsideMobile()"
+                        title="Toggle aside menu">
+                        <i class="oi oi-lg oi-panel-right"/>
+                    </button>
+                    <div class="d-flex flex-grow-1 justify-content-between">
+                        <a t-if="isPortalUser" class="flex-grow-1 ps-3 fs-3 fw-bold text-black" href="/my" data-hotkey="h">
+                            <i class="fa fa-home pe-2"/>Home
+                        </a>
+                        <button t-if="canCreateArticle and isInternalUser" data-hotkey="n" t-on-click="() => this.env.createArticle('private')"
+                            class="o_knowledge_create_article btn fw-normal text-black text-start text-truncate">
+                            <i class="fa fa-fw fa-plus pe-2"/>New Article
+                        </button>
+                        <button data-hotkey="f" t-on-click="onSearchBarClick"
+                            class="o_knowledge_search btn fw-normal text-black text-start text-truncate"
+                            data-tooltip="Search for an article or a keyword"
+                            aria-label="Search for an article or a keyword">
+                            <i class="oi oi-search"/>
+                        </button>
+                    </div>
+                </div>
+                <!-- File explorer -->
+                <div t-if="state.loading" class="p-5 text-center">
+                    <i class="fa fa-circle-o-notch fa-2x fa-spin" title="loader" role="img"/>
+                </div>
+                <t t-else="" t-call="knowledge.ArticlesTree"/>
+            </div>
+            <span class="o_knowledge_article_form_resizer d-none d-md-flex opacity-75 opacity-100-hover"
+                  t-on-pointerdown="resize">
+                  <span t-attf-class="pe-1 border-end border-secondary #{state.resizing ? 'o_resizer_bg' : ''}"/>
+            </span>
+        </aside>
+    </t>
+
+    <t t-name="knowledge.ArticlesTree">
+        <div t-attf-class="o_knowledge_tree flex-fill position-relative o_scroll_view d-flex flex-column ps-3 pe-1 #{state.dragging ? 'o_dragging' : ''}">
+            <div t-ref="favoriteTree" t-if="state.favoriteIds.length" class="o_favorite_container">
+                <KnowledgeSidebarFavoriteSection rootIds="state.favoriteIds" unfoldedIds="unfoldedFavoritesIds" record="props.record"/>
+            </div>
+            <div t-ref="mainTree" class="d-flex flex-column flex-fill">
+                <KnowledgeSidebarWorkspaceSection rootIds="state.workspaceIds" unfoldedIds="unfoldedArticlesIds" record="props.record"/>
+                <KnowledgeSidebarSharedSection rootIds="state.sharedIds" unfoldedIds="unfoldedArticlesIds" record="props.record"/>
+                <KnowledgeSidebarPrivateSection rootIds="state.privateIds" unfoldedIds="unfoldedArticlesIds" record="props.record"/>
+                <!-- Trash is a "o_section" so that one can drop articles in the trash -->
+                <div t-if="isInternalUser" class="o_section o_knowledge_sidebar_trash w-100 py-2 position-sticky bg-100 mt-auto">
+                    <a t-if="!state.dragging" href="#" role="button" t-on-click="browseTemplates"
+                        class="o_knowledge_load_template_btn btn d-block fw-normal text-black text-start text-truncate">
+                        <i class="fa fa-fw fs-6 fa-paint-brush me-1"/>
+                        <span>Browse Templates</span>
+                    </a>
+                    <a href="#" role="button" class="btn d-block fw-normal text-black text-start text-truncate"
+                        t-on-click="() => actionService.doAction('knowledge.knowledge_article_action_trashed')">
+                        <i class="fa fa-fw fa-trash me-1"/>
+                        <span class="flex-grow-1">
+                            <t t-if="state.dragging">Drop here to delete this article</t>
+                            <t t-else="">Open the Trash</t>
+                        </span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

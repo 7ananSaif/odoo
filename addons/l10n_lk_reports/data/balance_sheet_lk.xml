@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo auto_sequence="1">
+    <record id="l10n_lk_bs" model="account.report">
+        <field name="name">Balance Sheet</field>
+        <field name="root_report_id" ref="account_reports.balance_sheet" />
+        <field name="country_id" ref="base.lk" />
+        <field name="column_ids">
+            <record id="l10n_lk_bs_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="l10n_lk_bs_lk_sfp_a" model="account.report.line">
+                <field name="name">Assets</field>
+                <field name="code">LK_SFP_A</field>
+                <field name="hierarchy_level">0</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_bs_lk_sfp_a_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">LK_SFP_PPE.balance + LK_SFP_IA.balance + LK_SFP_OA.balance + LK_SFP_DTA.balance + LK_SFP_INV.balance + LK_SFP_TOR.balance + LK_SFP_IFD.balance + LK_SFP_PE.balance + LK_SFP_CCE.balance</field>
+                    </record>
+                </field>
+                <field name="children_ids">
+                    <record id="l10n_lk_bs_lk_sfp_nca" model="account.report.line">
+                        <field name="name">Non-current assets</field>
+                        <field name="code">LK_SFP_NCA</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="children_ids">
+                            <record id="l10n_lk_bs_lk_sfp_ppe" model="account.report.line">
+                                <field name="name">Property, plant and equipment</field>
+                                <field name="code">LK_SFP_PPE</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_ppe_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">151</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="l10n_lk_bs_lk_sfp_ia" model="account.report.line">
+                                <field name="name">Intangible assets</field>
+                                <field name="code">LK_SFP_IA</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_ia_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">161</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="l10n_lk_bs_lk_sfp_oa" model="account.report.line">
+                                <field name="name">Other Assets</field>
+                                <field name="code">LK_SFP_OA</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_oa_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">162</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="l10n_lk_bs_lk_sfp_dta" model="account.report.line">
+                                <field name="name">Deferred tax assets</field>
+                                <field name="code">LK_SFP_DTA</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_dta_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">163</field>
+                                    </record>
+                                </field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="l10n_lk_bs_lk_sfp_ca" model="account.report.line">
+                        <field name="name">Current assets</field>
+                        <field name="code">LK_SFP_CA</field>
+                        <field name="hierarchy_level">1</field>
+                        <field name="children_ids">
+                            <record id="l10n_lk_bs_lk_sfp_inv" model="account.report.line">
+                                <field name="name">Inventories</field>
+                                <field name="code">LK_SFP_INV</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_inv_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">141</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="l10n_lk_bs_lk_sfp_tor" model="account.report.line">
+                                <field name="name">Trade and other receivables</field>
+                                <field name="code">LK_SFP_TOR</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_tor_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">11</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="l10n_lk_bs_lk_sfp_ifd" model="account.report.line">
+                                <field name="name">Investment in fixed deposits</field>
+                                <field name="code">LK_SFP_IFD</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_ifd_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">121</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="l10n_lk_bs_lk_sfp_pe" model="account.report.line">
+                                <field name="name">Prepaid Expenses</field>
+                                <field name="code">LK_SFP_PE</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_pe_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">131</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="l10n_lk_bs_lk_sfp_cce" model="account.report.line">
+                                <field name="name">Cash and cash equivalents</field>
+                                <field name="code">LK_SFP_CCE</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_cce_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">101</field>
+                                    </record>
+                                </field>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+            <record id="l10n_lk_bs_lk_sfp_eql" model="account.report.line">
+                <field name="name">Equity and liabilities</field>
+                <field name="code">LK_SFP_EQL</field>
+                <field name="hierarchy_level">0</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_bs_lk_sfp_eql_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">LK_SFP_SC.balance + LK_SFP_FVR.balance + CURR_YEAR_EARNINGS.balance + PREV_YEAR_EARNINGS.balance + CURR_YEAR_RET_EARNINGS.balance + PREV_YEAR_RET_EARNINGS.balance + LK_SFP_RBO.balance + LK_SFP_TOP.balance + LK_SFP_BO.balance + LK_SFP_OL.balance</field>
+                    </record>
+                </field>
+                <field name="children_ids">
+                    <record id="l10n_lk_bs_lk_sfp_eq" model="account.report.line">
+                        <field name="name">Equity</field>
+                        <field name="code">LK_SFP_EQ</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="children_ids">
+                            <record id="l10n_lk_bs_lk_sfp_sc" model="account.report.line">
+                                <field name="name">Stated capital</field>
+                                <field name="code">LK_SFP_SC</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_sc_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">-301</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="l10n_lk_bs_lk_sfp_fvr" model="account.report.line">
+                                <field name="name">Fair value through other comprehensive income reserve</field>
+                                <field name="code">LK_SFP_FVR</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_fvr_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">-302 -90</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="l10n_lk_bs_lk_sfp_ue" model="account.report.line">
+                                <field name="name">Unallocated Earnings</field>
+                                <field name="code">LK_SFP_UE</field>
+                                <field name="hierarchy_level">3</field>
+                                <field name="children_ids">
+                                    <record id="l10n_lk_bs_curr_year_earnings" model="account.report.line">
+                                        <field name="name">Current Year Unallocated Earnings</field>
+                                        <field name="code">CURR_YEAR_EARNINGS</field>
+                                        <field name="hierarchy_level">5</field>
+                                        <field name="foldable" eval="True" />
+                                        <field name="expression_ids">
+                                            <record id="l10n_lk_bs_curr_year_earnings_pnl" model="account.report.expression">
+                                                <field name="label">pnl</field>
+                                                <field name="engine">aggregation</field>
+                                                <field name="formula">LK_SCI_NEP.balance</field>
+                                                <field name="subformula">cross_report(l10n_lk_reports.l10n_lk_pnl)</field>
+                                                <field name="date_scope">from_fiscalyear</field>
+                                            </record>
+                                            <record id="l10n_lk_bs_curr_year_earnings_alloc" model="account.report.expression">
+                                                <field name="label">alloc</field>
+                                                <field name="engine">account_codes</field>
+                                                <field name="formula">-99</field>
+                                                <field name="date_scope">from_fiscalyear</field>
+                                            </record>
+                                            <record id="l10n_lk_bs_curr_year_earnings_balance" model="account.report.expression">
+                                                <field name="label">balance</field>
+                                                <field name="engine">aggregation</field>
+                                                <field name="formula">CURR_YEAR_EARNINGS.pnl + CURR_YEAR_EARNINGS.alloc</field>
+                                                <field name="date_scope">strict_range</field>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="l10n_lk_bs_prev_year_earnings" model="account.report.line">
+                                        <field name="name">Previous Years Unallocated Earnings</field>
+                                        <field name="code">PREV_YEAR_EARNINGS</field>
+                                        <field name="hierarchy_level">5</field>
+                                        <field name="foldable" eval="True" />
+                                        <field name="expression_ids">
+                                            <record id="l10n_lk_bs_prev_year_earnings_allocated_earnings" model="account.report.expression">
+                                                <field name="label">allocated_earnings</field>
+                                                <field name="engine">account_codes</field>
+                                                <field name="formula">-99</field>
+                                                <field name="date_scope">from_beginning</field>
+                                            </record>
+                                            <record id="l10n_lk_bs_prev_year_earnings_balance_domain" model="account.report.expression">
+                                                <field name="label">balance_domain</field>
+                                                <field name="engine">aggregation</field>
+                                                <field name="formula">LK_SCI_NEP.balance</field>
+                                                <field name="subformula">cross_report(l10n_lk_reports.l10n_lk_pnl)</field>
+                                                <field name="date_scope">from_beginning</field>
+                                            </record>
+                                            <record id="l10n_lk_bs_prev_year_earnings_balance" model="account.report.expression">
+                                                <field name="label">balance</field>
+                                                <field name="engine">aggregation</field>
+                                                <field name="formula">PREV_YEAR_EARNINGS.balance_domain + PREV_YEAR_EARNINGS.allocated_earnings - CURR_YEAR_EARNINGS.balance</field>
+                                                <field name="date_scope">strict_range</field>
+                                            </record>
+                                        </field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="l10n_lk_bs_lk_sfp_ret" model="account.report.line">
+                                <field name="name">Retained Earnings</field>
+                                <field name="code">LK_SFP_RET</field>
+                                <field name="hierarchy_level">3</field>
+                                <field name="children_ids">
+                                    <record id="l10n_lk_bs_curr_year_ret_earnings" model="account.report.line">
+                                        <field name="name">Current Year Retained Earnings</field>
+                                        <field name="code">CURR_YEAR_RET_EARNINGS</field>
+                                        <field name="hierarchy_level">5</field>
+                                        <field name="foldable" eval="True" />
+                                        <field name="groupby">account_id</field>
+                                        <field name="expression_ids">
+                                            <record id="l10n_lk_bs_curr_year_ret_earnings_balance" model="account.report.expression">
+                                                <field name="label">balance</field>
+                                                <field name="engine">account_codes</field>
+                                                <field name="formula">- 303</field>
+                                                <field name="date_scope">from_fiscalyear</field>
+                                            </record>
+                                        </field>
+                                    </record>
+                                    <record id="l10n_lk_bs_prev_year_ret_earnings" model="account.report.line">
+                                        <field name="name">Previous Years Retained Earnings</field>
+                                        <field name="code">PREV_YEAR_RET_EARNINGS</field>
+                                        <field name="hierarchy_level">5</field>
+                                        <field name="foldable" eval="True" />
+                                        <field name="expression_ids">
+                                            <record id="l10n_lk_bs_prev_year_ret_earnings_total" model="account.report.expression">
+                                                <field name="label">total</field>
+                                                <field name="engine">account_codes</field>
+                                                <field name="formula">- 303</field>
+                                                <field name="date_scope">strict_range</field>
+                                            </record>
+                                            <record id="l10n_lk_bs_prev_year_ret_earnings_balance" model="account.report.expression">
+                                                <field name="label">balance</field>
+                                                <field name="engine">aggregation</field>
+                                                <field name="formula">PREV_YEAR_RET_EARNINGS.total - CURR_YEAR_RET_EARNINGS.balance</field>
+                                                <field name="date_scope">strict_range</field>
+                                            </record>
+                                        </field>
+                                    </record>
+                                </field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="l10n_lk_bs_lk_sfp_ncl" model="account.report.line">
+                        <field name="name">Non-current liabilities</field>
+                        <field name="code">LK_SFP_NCL</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="children_ids">
+                            <record id="l10n_lk_bs_lk_sfp_rbo" model="account.report.line">
+                                <field name="name">Retirement benefit obligation</field>
+                                <field name="code">LK_SFP_RBO</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_rbo_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">-251</field>
+                                    </record>
+                                </field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="l10n_lk_bs_lk_sfp_cl" model="account.report.line">
+                        <field name="name">Current liabilities</field>
+                        <field name="code">LK_SFP_CL</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="children_ids">
+                            <record id="l10n_lk_bs_lk_sfp_top" model="account.report.line">
+                                <field name="name">Trade and other payables</field>
+                                <field name="code">LK_SFP_TOP</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_top_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">-22</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="l10n_lk_bs_lk_sfp_bo" model="account.report.line">
+                                <field name="name">Bank overdrafts</field>
+                                <field name="code">LK_SFP_BO</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_bo_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">-201</field>
+                                    </record>
+                                </field>
+                            </record>
+                            <record id="l10n_lk_bs_lk_sfp_ol" model="account.report.line">
+                                <field name="name">Other Liabilities</field>
+                                <field name="code">LK_SFP_OL</field>
+                                <field name="hierarchy_level">5</field>
+                                <field name="foldable" eval="True" />
+                                <field name="groupby">account_id</field>
+                                <field name="expression_ids">
+                                    <record id="l10n_lk_bs_lk_sfp_ol_balance" model="account.report.expression">
+                                        <field name="label">balance</field>
+                                        <field name="engine">account_codes</field>
+                                        <field name="formula">- 202 - 211</field>
+                                    </record>
+                                </field>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+        </field>
+    </record>
+</odoo>

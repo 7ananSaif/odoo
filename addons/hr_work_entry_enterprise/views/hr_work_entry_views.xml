@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="hr_work_entry_action_view_gantt" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">gantt</field>
+        <field name="act_window_id" ref="hr_work_entry.hr_work_entry_action"/>
+    </record>
+
+    <record id="hr_work_entry_action_conflict_view_gantt" model="ir.actions.act_window.view">
+        <field name="sequence" eval="2"/>
+        <field name="view_mode">gantt</field>
+        <field name="act_window_id" ref="hr_work_entry.hr_work_entry_action_conflict"/>
+    </record>
+
+    <record id="hr_work_entry_view_gantt_multi_create_form" model="ir.ui.view">
+        <field name="name">hr.work.entry.gantt.multi_create</field>
+        <field name="model">hr.work.entry</field>
+        <field name="priority" eval="50"/>
+        <field name="inherit_id" ref="hr_work_entry.hr_work_entry_view_calendar_multi_create_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='employee_id']" position="replace"/>
+        </field>
+    </record>
+
+    <record id="hr_work_entry_gantt" model="ir.ui.view">
+        <field name="name">hr.work.entry.gantt</field>
+        <field name="model">hr.work.entry</field>
+        <field name="arch" type="xml">
+            <gantt js_class="work_entries_gantt"
+                   string="Work Entries"
+                   date_start="date"
+                   date_stop="date"
+                   color="color"
+                   create="0"
+                   default_group_by='employee_id'
+                   decoration-warning="state == 'conflict'"
+                   disable_drag_drop="1"
+                   display_unavailability="1"
+                   pill_label="True"
+                   scales="week,month"
+                   default_range="month"
+                   total_row="1"
+                   progress_bar="employee_id"
+                   precision="{'week': 'day:full', 'month': 'day:full'}"
+                   multi_create_view="hr_work_entry_enterprise.hr_work_entry_view_gantt_multi_create_form"
+                   plan="0"
+                   sample="1">
+                <templates>
+                    <div t-name="gantt-popover">
+                        <div class="d-grid column-gap-2" style="grid-template-columns: min-content minmax(0,1fr);">
+                            <span class="fw-medium">Date</span>
+                            <t t-out="date.toLocaleString({ month: 'numeric', day: 'numeric', year: 'numeric' })"/>
+                            <span class="fw-medium">Duration</span>
+                            <t t-out="durationToStr(duration)"/>
+                            <span t-if="name" class="fw-medium">Description</span>
+                            <t t-out="name"/>
+                            <span class="mt-2" style="grid-column: 2 span;" t-if="state === 'validated'"><i class="fa fa-lock me-1"/> You cannot edit a validated work entry</span>
+                        </div>
+                    </div>
+                </templates>
+                <field name="work_entry_type_id"/>
+                <field name="display_code"/>
+                <field name="duration"/>
+                <field name="color"/>
+                <field name="state"/>
+                <field name="employee_id"/>
+                <field name="duration"/>
+                <field name="name"/>
+            </gantt>
+        </field>
+    </record>
+
+</odoo>

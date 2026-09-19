@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="hr_expense_stripe.pauseCardWarningDialog">
+        <Dialog size="'md'" title.translate="Pause Card">
+            <span>
+                Pausing your card will disable it. Only Expense Administrators can reactivate it.<br/>
+                Please make sure it is what you want to do.
+            </span>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="actionPauseCard">Pause</button>
+                <button class="btn btn-secondary" t-on-click="close">Discard</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

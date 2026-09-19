@@ -1,0 +1,46 @@
+<templates>
+    <t t-name="knowledge.ArticleSearchDialog">
+        <Dialog size="'md'" footer="false" header="false" withBodyPadding="false">
+            <div t-ref="root" class="o_article_search_dialog">
+                <div class="o_article_search_input px-4 py-2 input-group sticky-top bg-white border-bottom rounded-top"
+                    t-att-class="{'rounded-bottom': !state.articles.length and !state.displayEmptySearch}">
+                    <input type="text" t-on-input="onSearchInput" t-ref="searchInput"
+                        class="form-control border-0 shadow-none ps-0" placeholder="Search for an article or a keyword..."/>
+                    <div class="input-group-text bg-transparent border-0 pe-0"><i class="oi oi-search"/></div>
+                </div>
+                <div t-if="state.displayEmptySearch or state.articles.length" class="py-1">
+                    <div t-if="!state.articles.length and state.displayEmptySearch"
+                        class="text-muted p-2 d-flex align-items-center justify-content-center">
+                        <span>No article found. </span>
+                        <a t-if="props.create and searchInput.el.value" class="btn btn-link py-0 my-0 border-0 text-break" t-on-click.prevent="() => this.onCreateClick()">
+                            Create "<u t-out="searchInput.el.value"/>"
+                        </a>
+                    </div>
+                    <t t-foreach="state.articles" t-as="article" t-key="article.id">
+                        <div t-attf-class="o_article_search_item #{article_index === state.selectedIdx ? 'o_selected' : ''}"
+                            t-on-mouseenter="() => this.onArticleMouseEnter(article_index)"
+                            t-on-click.prevent="() => this.onArticleClick(article_index)">
+                            <a t-attf-href="/knowledge/article/#{article.id}" class="text-decoration-none">
+                                <div class="px-4 py-2">
+                                    <div class="d-flex align-items-center">
+                                        <span class="pe-2" t-out="article.icon"/>
+                                        <span class="o_article_search_name text-truncate" t-att-class="{ 'pe-2': article.isFavorite or article.subjectText }">
+                                            <t t-if="article.text" t-out="article.text"/>
+                                            <t t-else="">Untitled</t>
+                                        </span>
+                                        <icon t-if="article.isFavorite" class="fa fa-star o_favorite pe-2 position-static"/>
+                                        <t t-if="article.subjectText">
+                                            <span class="text-muted small pe-2">—</span>
+                                            <span class="o_article_search_subject text-truncate text-muted small" t-out="article.subjectText"/>
+                                        </t>
+                                    </div>
+                                    <div t-if="article.headline" class="border rounded text-muted my-2 p-2 text-break" t-out="article.headline"/>
+                                </div>
+                            </a>
+                        </div>
+                    </t>
+                </div>
+            </div>
+        </Dialog>
+    </t>
+</templates>

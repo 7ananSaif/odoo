@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="hr_payroll.PayslipListView" t-inherit="web.ListView" t-inherit-mode="primary">
+        <xpath expr="//Layout//t[@t-component='props.Renderer']" position="before">
+            <Record t-if="payrunId"
+                    t-props="recordComponentProps"
+                    t-slot-scope="recordScope"
+                    t-key="revId">
+                <PayRunCard t-if="recordScope.record" record="recordScope.record"/>
+            </Record>
+        </xpath>
+        <xpath expr="//Layout//t[@t-component='props.Renderer']" position="attributes">
+            <attribute name="onGenerate.bind">selectEmployees</attribute>
+            <attribute name="payRunInfo">state.payRunInfo</attribute>
+        </xpath>
+        <xpath expr="//t[@t-set-slot='control-panel-selection-actions']//MultiRecordViewButton" position="attributes">
+            <attribute name="t-if">displayButton(button) &amp;&amp; !this.env.inDialog</attribute>
+        </xpath>
+        <xpath expr="//t[@t-set-slot='control-panel-create-button']//button" position="inside">
+            <t t-if="!payrunId &amp;&amp; !this.env.inDialog"> Off-Cycle</t>
+        </xpath>
+    </t>
+
+    <t t-name="hr_payroll.PayslipListView.Buttons" t-inherit="web.ListView.Buttons" t-inherit-mode="primary">
+        <xpath expr="." position="inside">
+            <button class="btn btn-primary" t-on-click="createNewPayRun" t-if="!payrunId &amp;&amp; !this.env.inDialog">
+                Pay Run
+            </button>
+            <button class="btn btn-primary" t-on-click="addPayslips" t-if="this.env.inDialog &amp;&amp; this.props.context.add_payslips" t-att-disabled="!hasSelectedRecords">
+                Select
+            </button>
+            <button class="btn btn-secondary" t-on-click="onClose" t-if="this.env.inDialog &amp;&amp; this.props.context.add_payslips">
+                Discard
+            </button>
+        </xpath>
+    </t>
+</templates>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="kz_tax_return_type" model="account.return.type">
+            <field name="name">Tax</field>
+            <field name="report_id" ref="l10n_kz.l10n_kz_tr_form_300_00"/>
+            <field name="country_id" ref="base.kz" />
+        </record>
+    </data>
+</odoo>

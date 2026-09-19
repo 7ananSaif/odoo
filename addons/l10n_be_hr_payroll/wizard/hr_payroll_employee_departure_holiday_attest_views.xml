@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_payroll_employee_departure_holiday_attests" model="ir.ui.view">
+        <field name="name">view_hr_payroll_employee_departure_holiday_attests</field>
+        <field name="model">hr.payslip.employee.depature.holiday.attests</field>
+        <field name="arch" type="xml">
+            <form string="Employee Departure - Holiday Attests">
+                <field name="currency_id" invisible="1"/> <!-- For monetary fields -->
+                <group class="o_label_nowrap">
+                    <group>
+                        <field name="employee_id" widget="many2one_avatar_employee"/>
+                    </group>
+                    <group/>
+                    <group string="Payroll" colspan="2">
+                        <label for="net_n1"/>
+                        <span class="o_row">
+                            <field name="net_n1" class="o_hr_narrow_field"/>
+                            <widget name="payslips_internal_link" payslips_year="n1"/>
+                        </span>
+                        <label for="net_n"/>
+                        <span class="o_row">
+                            <field name="net_n" class="o_hr_narrow_field"/>
+                            <widget name="payslips_internal_link" payslips_year="n"/>
+                        </span>
+                    </group>
+                    <group string="Time Off" colspan="2">
+                        <field name="time_off_line_ids" nolabel="1" colspan="2">
+                            <list create="0" no_open="1" delete="0">
+                                <field name="year" options="{'enable_formatting': false}"/>
+                                <field name="leave_type_id"/>
+                                <field name="leave_allocation_count" string="Allocated"/>
+                                <field name="leave_count" string="Taken"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group>
+                        <field name="fictitious_remuneration_n1" invisible="not fictitious_remuneration_n1 and not fictitious_remuneration_n"/>
+                        <field name="gross_reference_remuneration_n1" invisible="not fictitious_remuneration_n1 and not fictitious_remuneration_n"/>
+                    </group>
+                    <group>
+                        <field name="fictitious_remuneration_n" invisible="not fictitious_remuneration_n1 and not fictitious_remuneration_n"/>
+                        <field name="gross_reference_remuneration_n" invisible="not fictitious_remuneration_n1 and not fictitious_remuneration_n"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="compute_termination_holidays" string="Validate &amp; Compute holiday attests" type="object" class="oe_highlight" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_employee_departure_holiday_attests_n_payslips" model="ir.ui.view">
+        <field name="name">view_hr_payroll_employee_departure_holiday_attests_n_payslips</field>
+        <field name="model">hr.payslip.employee.depature.holiday.attests</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="currency_id" invisible="1"/> <!-- For monetary fields -->
+                <group>
+                    <field name="payslip_n_ids" nolabel="1" colspan="2">
+                        <list create="0" delete="0">
+                            <field name="payslip_run_id" readonly="state not in ['draft', 'draft']"/>
+                            <field name="date_from" string="Period" widget="daterange" options="{'end_date_field': 'date_to', 'hide_in_payrun': 1}" readonly="state in ['cancel', 'validated', 'paid']"/>
+                            <field name="date_to" invisible="1" column_invisible="1" readonly="state in ['cancel', 'validated', 'paid']"/>
+                            <field name="line_ids" column_invisible="True" readonly="state not in ['draft', 'draft']"/>
+                            <field name="basic_wage" sum="Total basic wage" optional="hide"/>
+                            <field name="gross_wage" string="Taxable Wage" sum="Total taxable wage" optional="hide"/>
+                            <field name="net_wage" sum="Total net wage" optional="hide"/>
+                            <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'draft'" decoration-success="state == 'validated'" decoration-primary="state == 'paid'"/>
+                        </list>
+                    </field>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_payroll_employee_departure_holiday_attests_n1_payslips" model="ir.ui.view">
+        <field name="name">view_hr_payroll_employee_departure_holiday_attests_n1_payslips</field>
+        <field name="model">hr.payslip.employee.depature.holiday.attests</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="currency_id" invisible="1"/> <!-- For monetary fields -->
+                <group>
+                    <field name="payslip_n1_ids" nolabel="1" colspan="2">
+                        <list create="0" delete="0">
+                            <field name="payslip_run_id" readonly="state not in ['draft', 'draft']"/>
+                            <field name="date_from" string="Period" widget="daterange" options="{'end_date_field': 'date_to', 'hide_in_payrun': 1}" readonly="state in ['cancel', 'validated', 'paid']"/>
+                            <field name="date_to" invisible="1" column_invisible="1" readonly="state in ['cancel', 'validated', 'paid']"/>
+                            <field name="line_ids" column_invisible="True" readonly="state not in ['draft', 'draft']"/>
+                            <field name="basic_wage" sum="Total basic wage" optional="hide"/>
+                            <field name="gross_wage" string="Taxable Wage" sum="Total taxable wage" optional="hide"/>
+                            <field name="net_wage" sum="Total net wage" optional="hide"/>
+                            <field name="state" widget="badge" decoration-info="state == 'draft'" decoration-warning="state == 'draft'" decoration-success="state == 'validated'" decoration-primary="state == 'paid'"/>
+                        </list>
+                    </field>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="departure_holiday_wizard_action" model="ir.actions.act_window">
+        <field name="name">Departure: Holiday Attests</field>
+        <field name="res_model">hr.payslip.employee.depature.holiday.attests</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_view_types">form</field>
+    </record>
+
+    <menuitem
+        id="menu_l10n_be_hr_payroll_holiday_attests"
+        name="Departure: Holiday Attests"
+        action="departure_holiday_wizard_action"
+        parent="l10n_be_hr_payroll.menu_reporting_l10n_be"
+        sequence="55"
+    />
+
+</odoo>

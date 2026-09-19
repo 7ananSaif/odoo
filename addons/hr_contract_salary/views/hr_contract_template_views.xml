@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record id="hr_contract_template_form_view" model="ir.ui.view">
+        <field name="name">hr.contract.template.form</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//label[@for='wage']" position="attributes">
+                <attribute name="invisible">holidays != 0.0</attribute>
+            </xpath>
+            <xpath expr="//div[@name='wage']" position="attributes">
+                <attribute name="invisible">holidays != 0.0</attribute>
+            </xpath>
+            <xpath expr="//div[@name='wage']" position="after">
+                <label name="label_wage_with_holidays" for="wage_with_holidays" invisible="holidays == 0.0"/>
+                <div class="o_row" name="div_wage_with_holidays" invisible="holidays == 0.0">
+                    <field name="wage_with_holidays" class="o_hr_narrow_field"/>
+                    <span>/ month</span>
+                </div>
+            </xpath>
+            <separator name="schedule" position="before">
+                <separator name="employer_costs" string="Employer Costs"/>
+                <label name="final_yearly_costs" for="final_yearly_costs"/>
+                <div name="final_yearly_costs" class="o_row">
+                    <field name="final_yearly_costs" class="o_hr_narrow_field"/>
+                    <span>/ year</span>
+                </div>
+                <label name="monthly_yearly_costs" for="monthly_yearly_costs"/>
+                <div name="monthly_yearly_costs" class="o_row">
+                    <field name="monthly_yearly_costs" class="o_hr_narrow_field text-muted"/>
+                    <span class="text-muted">/ month</span>
+                </div>
+                <label name="wage_on_signature" for="wage_on_signature"/>
+                <div name="wage_on_signature" class="o_row">
+                    <field class="o_hr_narrow_field" name="wage_on_signature"/>
+                    <div name="wage_on_signature_period_label">/ month</div>
+                </div>
+            </separator>
+            <page name="information" position="after">
+                <page string="Signatories" groups="hr.group_hr_manager">
+                    <div class="d-flex align-items-center">
+                        <field name="template_warning" class="mb-0" readonly="1" invisible="not template_warning"/>
+                        <widget name="upload_pdf_button" invisible="not template_warning"/>
+                    </div>
+                    <group string="New Contract" invisible="template_warning">
+                        <field string="PDF Template" name="sign_template_id" options="{'no_create': True}" context="{'kanban_view_ref': 'sign.sign_template_view_kanban_mobile', 'list_view_ref': 'hr_contract_salary.view_sign_template_tree_custom'}"/>
+                        <field name="sign_template_signatories_ids" nolabel="1" colspan="2" invisible="not sign_template_id">
+                            <list editable="bottom" create="false" delete="false">
+                                <field name="sign_role_id" readonly="1" force_save="1" options="{'no_open': True}"/>
+                                <field name="signatory" required="1" force_save="1" options="{'no_open': True}"/>
+                                <field name="partner_id" placeholder="Name or email..." options="{'no_open': True}"
+                                       context="{'force_email': True, 'show_email': True}"
+                                       invisible="signatory != 'partner'" required="signatory == 'partner'"/>
+                                <field name="order" force_save="1" options="{'no_open': True}" optional="hide"/>
+                            </list>
+                        </field>
+                    </group>
+                    <group string="Contract Update" invisible="template_warning">
+                        <field string="PDF Template" name="contract_update_template_id" options="{'no_create': True}" context="{'list_view_ref': 'hr_contract_salary.view_sign_template_tree_custom'}"/>
+                        <field name="contract_update_signatories_ids" nolabel="1" colspan="2" invisible="not contract_update_template_id">
+                            <list editable="bottom" create="false" delete="false">
+                                <field name="sign_role_id" readonly="1" force_save="1" options="{'no_open': True}"/>
+                                <field name="signatory" required="1" force_save="1" options="{'no_open': True}"/>
+                                <field name="partner_id" placeholder="Name or email..." options="{'no_open': True}"
+                                       context="{'force_email': True, 'show_email': True}"
+                                       invisible="signatory != 'partner'" required="signatory == 'partner'"/>
+                                <field name="order" force_save="1" options="{'no_open': True}" optional="hide"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+            </page>
+        </field>
+    </record>
+</odoo>

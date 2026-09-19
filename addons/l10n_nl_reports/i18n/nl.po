@@ -1,0 +1,934 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * l10n_nl_reports
+#
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Bren Driesen <brdri@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.2+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 19:08+0000\n"
+"PO-Revision-Date: 2025-12-20 09:32+0000\n"
+"Last-Translator: Bren Driesen <brdri@odoo.com>\n"
+"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-19-l10n/"
+"l10n_nl_reports/nl/>\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/l10n_nl_reports_sbr_status_service.py:0
+msgid "%(report_name)s status retrieval failed"
+msgstr "Ophalen van de status van %(report_name)s mislukt"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/l10n_nl_reports_sbr_status_service.py:0
+msgid "%(report_name)s submission failed"
+msgstr "Indiening van %(report_name)s mislukt"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/l10n_nl_reports_sbr_status_service.py:0
+msgid "%(report_name)s submission succeeded"
+msgstr "Indiening van %(report_name)s geslaagd"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/account_general_ledger.py:0
+msgid "- Country"
+msgstr "- Land"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/account_general_ledger.py:0
+msgid "- VAT number"
+msgstr "- Btw-nummer"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/dutch_report_custom_handler.py:0
+msgid "5e. End total"
+msgstr ""
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/dutch_report_custom_handler.py:0
+msgid "5f. Balance already declared amount"
+msgstr ""
+
+#. module: l10n_nl_reports
+#: model:mail.template,body_html:l10n_nl_reports.email_template_vat_payment_instructions
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"                <p>\n"
+"                    Dear <t t-out=\"object.company_id.name or ''\">NL "
+"Company</t>,\n"
+"                </p>\n"
+"                <p>\n"
+"                    Based on the documents and information received, the VAT "
+"return of <t t-out=\"object.company_id.name or ''\">NL Company</t>\n"
+"                    for period <t t-"
+"out=\"object.type_id._get_period_name(object.company_id, object.date_from, "
+"object.date_to)\"/> has been submitted.\n"
+"                </p>\n"
+"                <p>\n"
+"                    It has been determined that an amount of <t t-"
+"out=\"format_amount(object.total_amount_to_pay, "
+"object.amount_to_pay_currency_id)\"/> remains payable.\n"
+"                </p>\n"
+"                <t t-call=\"l10n_nl_reports.vat_payment_details_table\"/>\n"
+"                <p>Kind regards,</p>\n"
+"                <p><t t-out=\"user.name\">Mitchell Admin</t></p>\n"
+"            </div>\n"
+"        "
+msgstr ""
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.vat_payment_details_table
+msgid "<strong>Scan me with your banking app.</strong>"
+msgstr "<strong>Scan mij met je bank-app.</strong>"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__partner_id
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.vat_payment_details_table
+msgid "Account Holder"
+msgstr "Rekeninghouder"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,help:l10n_nl_reports.field_res_config_settings__l10n_nl_rounding_difference_loss_account_id
+msgid "Account used for losses from rounding the lines of Dutch tax reports"
+msgstr ""
+"Rekening gebruikt voor verliezen door afrondingen in Nederlandse "
+"belastingrapporten."
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,help:l10n_nl_reports.field_res_config_settings__l10n_nl_rounding_difference_profit_account_id
+msgid "Account used for profits from rounding the lines of Dutch tax reports"
+msgstr ""
+"Rekening gebruikt voor winsten door afrondingen in Nederlandse "
+"belastingrapporten."
+
+#. module: l10n_nl_reports
+#: model:ir.model,name:l10n_nl_reports.model_account_return
+msgid "Accounting Return"
+msgstr "Btw-aangifte"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__amount_to_pay
+msgid "Amount To Pay"
+msgstr "Te betalen bedrag"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__currency_id
+msgid "Amount To Pay Currency"
+msgstr "Valuta van te betalen bedrag"
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.vat_payment_details_table
+msgid "Amount to Pay"
+msgstr ""
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+msgid ""
+"An error occurred while using your certificate. Please verify the "
+"certificate you uploaded and try again."
+msgstr ""
+"Er is een fout opgetreden bij het gebruik van je certificaat. Controleer het "
+"certificaat dat je hebt geüpload en probeer het opnieuw."
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,help:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__contact_type
+#: model:ir.model.fields,help:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__contact_type
+msgid ""
+"BPL: if the taxpayer files a turnover tax return as an individual "
+"entrepreneur.INT: if the turnover tax return is made by an intermediary."
+msgstr ""
+"BPL: Als de belastingplichtige zelf de aangifte omzetbelasting indient. INT: "
+"Als de aangifte omzetbelasting wordt ingediend door een intermediair."
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__can_report_be_sent
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__can_report_be_sent
+msgid "Can Report Be Sent"
+msgstr "Kan rapport worden verzonden"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,help:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__is_test
+#: model:ir.model.fields,help:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__is_test
+msgid ""
+"Check this if you want the system to use the pre-production environment with "
+"test certificates."
+msgstr ""
+"Vink dit aan als je de pre-productieomgeving met testcertificaten wilt "
+"gebruiken."
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_reports_sbr_icp_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_reports_sbr_tax_report_wizard_form
+msgid "Close"
+msgstr "Sluiten"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_sbr_icp_wizard.py:0
+msgid "Closing Entry"
+msgstr "Afsluitboeking"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__communication
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.vat_payment_details_table
+msgid "Communication"
+msgstr "Communicatie"
+
+#. module: l10n_nl_reports
+#: model:ir.model,name:l10n_nl_reports.model_res_company
+msgid "Companies"
+msgstr "Bedrijven"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__company_id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_status_service__company_id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__company_id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__company_id
+msgid "Company"
+msgstr "Bedrijf"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+msgid "Company Settings"
+msgstr "Bedrijfsinstellingen"
+
+#. module: l10n_nl_reports
+#: model:ir.model,name:l10n_nl_reports.model_res_config_settings
+msgid "Config Settings"
+msgstr "Configuratie-instellingen"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__contact_initials
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__contact_initials
+msgid "Contact Initials"
+msgstr "Initialen contactpersoon"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__contact_surname
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__contact_surname
+msgid "Contact Last Name"
+msgstr "Achternaam contactpersoon"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__contact_prefix
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__contact_prefix
+msgid "Contact Name Infix"
+msgstr "Tussenvoegsel contactnaam"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__contact_phone
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__contact_phone
+msgid "Contact Phone"
+msgstr "Telefoonnummer contactpersoon"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__contact_type
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__contact_type
+msgid "Contact Type"
+msgstr "Type contactpersoon"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/account_general_ledger.py:0
+msgid "Continue and skip country fields"
+msgstr "Ga verder en sla landvelden over"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_sbr_icp_wizard.py:0
+msgid "Create Closing Entry"
+msgstr "Afsluitboeking aanmaken"
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_reports_sbr_icp_wizard_form
+msgid "Create EC Sales (ICP) XBRL for SBR"
+msgstr "Maak ICP-rapport (XBRL) voor SBR aan"
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_reports_sbr_tax_report_wizard_form
+msgid "Create Tax Report XBRL for SBR"
+msgstr "XBRL btw-aangifte voor SBR aanmaken"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__create_uid
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_status_service__create_uid
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__create_uid
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__create_uid
+msgid "Created by"
+msgstr "Aangemaakt door"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__create_date
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_status_service__create_date
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__create_date
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__create_date
+msgid "Created on"
+msgstr "Aangemaakt op"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_company__l10n_nl_reports_sbr_cert_id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_config_settings__l10n_nl_reports_sbr_cert_id
+msgid "Digipoort Certificate"
+msgstr "Digipoort-certificaat"
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_vat_pay_wizard_form
+msgid "Discard"
+msgstr "Negeren"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_account_general_ledger_report_handler__display_name
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_account_return__display_name
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_ec_sales_report_handler__display_name
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_status_service__display_name
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_tax_report_handler__display_name
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_company__display_name
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_users__display_name
+msgid "Display Name"
+msgstr "Schermnaam"
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_reports_sbr_icp_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_reports_sbr_tax_report_wizard_form
+msgid "Download"
+msgstr "Downloaden"
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.vat_payment_details_table
+msgid "Due By"
+msgstr ""
+
+#. module: l10n_nl_reports
+#: model:ir.model,name:l10n_nl_reports.model_l10n_nl_reports_ec_sales_report_handler
+msgid "Dutch EC Sales Report Custom Handler"
+msgstr "Aangepaste handler voor Nederlandse ICP-aangifte"
+
+#. module: l10n_nl_reports
+#: model:ir.model,name:l10n_nl_reports.model_l10n_nl_reports_tax_report_handler
+msgid "Dutch Report Custom Handler"
+msgstr "Aangepaste handler voor Nederlandse btw-aangifte"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_config_settings__l10n_nl_rounding_difference_loss_account_id
+msgid "Dutch VAT Rounding Loss Account"
+msgstr "Nederlandse btw-afrondingsverliesrekening"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_config_settings__l10n_nl_rounding_difference_profit_account_id
+msgid "Dutch VAT Rounding Profit Account"
+msgstr "Nederlandse btw-afrondingswinstrekening"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/account_sales_report.py:0
+msgid "EC Sales (ICP) SBR"
+msgstr "ICP SBR"
+
+#. module: l10n_nl_reports
+#: model:ir.model,name:l10n_nl_reports.model_account_general_ledger_report_handler
+msgid "FEC Report Custom Handler"
+msgstr ""
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/account_sales_report.py:0
+#: code:addons/l10n_nl_reports/models/dutch_report_custom_handler.py:0
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_sbr_icp_wizard.py:0
+msgid "Go to Apps"
+msgstr "Ga naar Apps"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+msgid "Go to the Accounting Settings"
+msgstr "Ga naar Boekhoudinstellingen"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__acc_number
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.vat_payment_details_table
+msgid "IBAN"
+msgstr "IBAN"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_sbr_icp_wizard.py:0
+msgid "ICP report sent"
+msgstr "ICP-rapportage verzonden"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_account_general_ledger_report_handler__id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_account_return__id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_ec_sales_report_handler__id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_status_service__id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_tax_report_handler__id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_company__id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_config_settings__id
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_users__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields.selection,name:l10n_nl_reports.selection__l10n_nl_reports_sbr_icp_wizard__contact_type__int
+#: model:ir.model.fields.selection,name:l10n_nl_reports.selection__l10n_nl_reports_sbr_tax_report_wizard__contact_type__int
+msgid "Intermediary (INT)"
+msgstr "Intermediair (INT)"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/vat_pay_wizard.py:0
+msgid "Invalid tax periodicity. Please use one of the following: %s."
+msgstr "Ongeldige belastingperiodiciteit. Gebruik een van de volgende: %s."
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__is_recoverable
+msgid "Is Recoverable"
+msgstr "Is terugvorderbaar"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__is_test
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__is_test
+msgid "Is Test"
+msgstr "Is een test"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_status_service__is_test
+msgid "Is it a test?"
+msgstr "Is het een test?"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_status_service__is_done
+msgid "Is the cycle finished?"
+msgstr "Is de cyclus voltooid?"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_users__l10n_nl_report_xaf_userid
+msgid "L10N Nl Report Xaf Userid"
+msgstr "L10N Nl Rrapport XAF-gebruikers-ID"
+
+#. module: l10n_nl_reports
+#: model:ir.model,name:l10n_nl_reports.model_l10n_nl_reports_sbr_icp_wizard
+msgid "L10n NL Intra-Communautaire Prestaties for SBR Wizard"
+msgstr "Nederlandse ICP-aangifte voor SBR-wizard"
+
+#. module: l10n_nl_reports
+#: model:ir.model,name:l10n_nl_reports.model_l10n_nl_reports_sbr_tax_report_wizard
+msgid "L10n NL Tax Report for SBR Wizard"
+msgstr "Nederlandse btw-aangifte voor SBR-wizard"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_company__l10n_nl_reports_sbr_last_sent_date_to
+msgid "Last Date Sent"
+msgstr "Laatste verzenddatum"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_company__l10n_nl_reports_sbr_icp_last_sent_date_to
+msgid "Last Date Sent (ICP)"
+msgstr "Laatste verzenddatum (ICP)"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__write_uid
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_status_service__write_uid
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__write_uid
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Laatst bijgewerkt door"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__write_date
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_status_service__write_date
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__write_date
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__write_date
+msgid "Last Updated on"
+msgstr "Laatst bijgewerkt op"
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.xaf_audit_file
+msgid "Last write"
+msgstr "Laatste schrijfdatum"
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_vat_pay_wizard_form
+msgid "Mark Paid"
+msgstr "Markeer als betaald"
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_vat_pay_wizard_form
+msgid "Mark as Recovered"
+msgstr ""
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_status_service__kenmerk
+msgid "Message Exchange ID"
+msgstr "Berichtuitwisselings-ID"
+
+#. module: l10n_nl_reports
+#: model:ir.actions.client,name:l10n_nl_reports.action_account_financial_report_nl_pnl
+#: model:ir.actions.client,name:l10n_nl_reports.action_account_financial_report_nl_pnl_tags
+msgid "NL Profit And Loss"
+msgstr "NL Winst-en-verliesrekening"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_status_service__report_name
+msgid "Name of the submitted report"
+msgstr "Naam van het ingediende rapport"
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_reports_sbr_icp_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_reports_sbr_tax_report_wizard_form
+msgid "New SBR File"
+msgstr "Nieuw SBR-bestand"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_sbr_icp_wizard.py:0
+msgid ""
+"No closing entry was found for the selected period. Please create one and "
+"post it before sending your report."
+msgstr ""
+"Voor de geselecteerde periode is geen afsluitboeking gevonden. Maak er een "
+"aan en boek deze voordat je je aangifte verzendt."
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.xaf_audit_file
+msgid "Odoo"
+msgstr "Odoo"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_company__l10n_nl_reports_sbr_ob_nummer
+msgid "Omzetbelastingnummer"
+msgstr "Omzetbelastingnummer"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__partner_bank_id
+msgid "Partner Bank"
+msgstr "Bank van partner"
+
+#. module: l10n_nl_reports
+#: model:ir.model,name:l10n_nl_reports.model_l10n_nl_reports_vat_pay_wizard
+msgid "Payment instructions for VAT"
+msgstr "Betalingsinstructies voor btw"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__date_to
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__date_to
+msgid "Period Ending Date"
+msgstr "Einddatum periode"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__date_from
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__date_from
+msgid "Period Starting Date"
+msgstr "Startdatum periode"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/dutch_report_custom_handler.py:0
+msgid ""
+"Please select only one company to send the report. If you wish to aggregate "
+"multiple companies, please create a tax unit."
+msgstr ""
+"Selecteer slechts één bedrijf om het rapport mee te sturen. Als je meerdere "
+"bedrijven wilt samenvoegen, maak dan een fiscale eenheid aan."
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.res_config_settings_view_form
+msgid "Post difference from rounding tax closing entries in:"
+msgstr "Boek verschil door afronding van belastingafsluitingen in:"
+
+#. module: l10n_nl_reports
+#: model:ir.actions.server,name:l10n_nl_reports.cron_l10n_nl_reports_status_process_ir_actions_server
+msgid "Process statusses of the unfinished submitted SBR reports"
+msgstr "Verwerkingsstatussen van de niet-voltooide ingediende SBR-rapporten"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__qr_code
+msgid "Qr Code"
+msgstr "QR-code"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_status_service__closing_entry_id
+msgid "Related closing entry"
+msgstr "Bijbehorende afsluitboeking"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_vat_pay_wizard__return_id
+msgid "Return"
+msgstr "Retour"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_res_company__l10n_nl_reports_sbr_server_root_cert_id
+msgid "SBR Root Certificate"
+msgstr "SBR-rootcertificaat"
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.res_config_settings_view_form_l10n_nl
+msgid "SBR Services"
+msgstr "SBR-diensten"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,help:l10n_nl_reports.field_res_company__l10n_nl_reports_sbr_cert_id
+#: model:ir.model.fields,help:l10n_nl_reports.field_res_config_settings__l10n_nl_reports_sbr_cert_id
+msgid ""
+"Select the certificate that will be used to connect to the Digipoort "
+"infrastructure. The private key from this certificate will be used if one is "
+"included."
+msgstr ""
+"Selecteer het certificaat dat gebruikt zal worden om verbinding te maken met "
+"de Digipoort-infrastructuur. De privésleutel van dit certificaat wordt "
+"gebruikt als deze is inbegrepen."
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_reports_sbr_icp_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_reports_sbr_tax_report_wizard_form
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.l10n_nl_vat_pay_wizard_form
+msgid "Send"
+msgstr "Verzenden"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_sbr_icp_wizard.py:0
+msgid "Sending your report"
+msgstr "Je rapport wordt verzonden"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/account_general_ledger.py:0
+msgid "Some fields must be specified on the company:"
+msgstr "Sommige velden moeten ingevuld worden op het bedrijf:"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/account_general_ledger.py:0
+msgid ""
+"Some partners are located in countries forbidden in Dutch audit reports.\n"
+"Those countries are:\n"
+"\n"
+"%s\n"
+"If you continue, please note that the fields <country> and "
+"<taxRegistrationCountry> will be skipped in the report for those partners.\n"
+"\n"
+"Otherwise, please change the address of the partners located in those "
+"countries.\n"
+msgstr ""
+"Sommige partners zijn gevestigd in landen die verboden zijn in Nederlandse "
+"auditrapporten.\n"
+"Deze landen zijn:\n"
+"\n"
+"%s\n"
+"Als je doorgaat, houd er dan rekening mee dat de velden <country> en "
+"<taxRegistrationCountry> voor deze partners in het rapport worden "
+"overgeslagen.\n"
+"\n"
+"Wijzig anders het adres van de partners in deze landen.\n"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/vat_pay_wizard.py:0
+msgid ""
+"Something went wrong while validating the VAT number: %s. You can modify it "
+"in the company settings."
+msgstr ""
+"Er is iets misgegaan bij het valideren van het btw-nummer: %s. Je kunt het "
+"wijzigen in de bedrijfsinstellingen."
+
+#. module: l10n_nl_reports
+#: model:ir.model,name:l10n_nl_reports.model_l10n_nl_reports_sbr_status_service
+msgid "Status checking service for Digipoort submission"
+msgstr "Dienst voor het controleren van de status van Digipoort-indiening"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,help:l10n_nl_reports.field_res_company__l10n_nl_reports_sbr_icp_last_sent_date_to
+msgid ""
+"Stores the date of the end of the last period submitted to the Digipoort "
+"Services for ICP"
+msgstr ""
+"Slaat de datum op van het einde van de laatste periode die bij de Digipoort-"
+"diensten voor ICP is ingediend."
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,help:l10n_nl_reports.field_res_company__l10n_nl_reports_sbr_last_sent_date_to
+msgid ""
+"Stores the date of the end of the last period submitted to the Tax Services"
+msgstr ""
+"Slaat de datum op van het einde van de laatste periode die is ingediend bij "
+"de Belastingdienst"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__tax_consultant_number
+#: model:ir.model.fields,field_description:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__tax_consultant_number
+msgid "Tax Consultant Number"
+msgstr "Beconnummer"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/dutch_report_custom_handler.py:0
+msgid "Tax Report SBR"
+msgstr "Btw-aangifte SBR"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+msgid "Tax report sent"
+msgstr "Btw-aangifte verzonden"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields.selection,name:l10n_nl_reports.selection__l10n_nl_reports_sbr_icp_wizard__contact_type__bpl
+#: model:ir.model.fields.selection,name:l10n_nl_reports.selection__l10n_nl_reports_sbr_tax_report_wizard__contact_type__bpl
+msgid "Taxpayer (BPL)"
+msgstr "Belastingplichtige (BPL)"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_sbr_icp_wizard.py:0
+msgid ""
+"The ICP report from %(date_from)s to %(date_to)s was sent to Digipoort.%"
+"(newline)sWe will post its processing status in this chatter once received.%"
+"(newline)sDiscussion ID: %(id)s"
+msgstr ""
+"De ICP-aangifte van %(date_from)s tot %(date_to)s is verzonden naar "
+"Digipoort.%(newline)sWe zullen de verwerkingsstatus in deze chatter posten "
+"zodra we deze ontvangen hebben.%(newline)sDiscussie-ID: %(id)s"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,help:l10n_nl_reports.field_res_company__l10n_nl_reports_sbr_server_root_cert_id
+msgid ""
+"The SBR Tax Service Server Root Certificate is used to verifiy the "
+"connection with the Tax services server of the SBR.It is used in order to "
+"make the connection library trust the server."
+msgstr ""
+"Het SBR-certificaat voor de Belastingdienst wordt gebruikt om de verbinding "
+"met de server van de Belastingdienst via SBR te verifiëren. Het zorgt ervoor "
+"dat de verbindingsbibliotheek de server vertrouwt."
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_sbr_icp_wizard.py:0
+msgid ""
+"The Tax Service returned the following error. Please upgrade your module and "
+"try again before submitting a support ticket."
+msgstr ""
+"De Belastingdienst heeft de volgende fout geretourneerd. Werk je module bij "
+"en probeer het opnieuw voordat je een supportticket indient."
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+msgid ""
+"The certificate or the private key is missing. Please upload it in the "
+"Accounting Settings first."
+msgstr ""
+"Het certificaat of de privésleutel ontbreekt. Upload het eerst in de "
+"boekhoudinstellingen."
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_sbr_icp_wizard.py:0
+msgid ""
+"The closing entry for the selected period is still in draft. Please post it "
+"before sending your report."
+msgstr ""
+"De afsluitboeking voor de geselecteerde periode staat nog in concept. Boek "
+"deze voordat je je aangifte verzendt."
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/res_company.py:0
+msgid ""
+"The server root certificate is not accessible at the moment. Please try "
+"again later."
+msgstr ""
+"Het rootcertificaat van de server is momenteel niet toegankelijk. Probeer "
+"het later nog eens."
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/l10n_nl_reports_sbr_status_service.py:0
+msgid ""
+"The status retrieval for the %(report_name)s with discussion ID '%(id)s' "
+"failed with the error:%(newline)s%(newline)s%(italic_start)s%(error)s%"
+"(italic_end)s%(newline)s%(newline)sTry submitting your report again."
+msgstr ""
+"Het ophalen van de status voor de %(report_name)s met discussie-ID '%(id)s' "
+"is mislukt met de fout:%(newline)s%(newline)s%(italic_start)s%(error)s%"
+"(italic_end)s%(newline)s%(newline)sProbeer je aangifte opnieuw in te dienen."
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/l10n_nl_reports_sbr_status_service.py:0
+msgid ""
+"The submission for the %(report_name)s with discussion ID '%(id)s' failed "
+"with the error:%(newline)s%(newline)s%(italic_start)s%(error)s%(italic_end)s%"
+"(newline)s%(italic_start)s%(detailed_error)s%(italic_end)s%(newline)s%"
+"(newline)sTry submitting your report again."
+msgstr ""
+"De indiening van de %(report_name)s met discussie-ID '%(id)s' is mislukt met "
+"de fout:%(newline)s%(newline)s%(italic_start)s%(error)s%(italic_end)s%"
+"(newline)s%(italic_start)s%(detailed_error)s%(italic_end)s%(newline)s%"
+"(newline)sProbeer je aangifte opnieuw in te dienen."
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/l10n_nl_reports_sbr_status_service.py:0
+msgid ""
+"The submission for the %(report_name)s with discussion ID '%(id)s' was "
+"successfully received by Digipoort."
+msgstr ""
+"De indiening van de %(report_name)s met discussie-ID '%(id)s' is succesvol "
+"ontvangen door Digipoort."
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,help:l10n_nl_reports.field_l10n_nl_reports_sbr_icp_wizard__tax_consultant_number
+#: model:ir.model.fields,help:l10n_nl_reports.field_l10n_nl_reports_sbr_tax_report_wizard__tax_consultant_number
+msgid ""
+"The tax consultant number of the office aware of the content of this report."
+msgstr ""
+"Het beconnummer van het administratiekantoor dat op de hoogte is van de "
+"inhoud van deze aangifte."
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+msgid ""
+"The tax report from %(date_from)s to %(date_to)s was sent to Digipoort.%"
+"(newline)sWe will post its processing status in this chatter once received.%"
+"(newline)sDiscussion ID: %(id)s"
+msgstr ""
+"De btw-aangifte van %(date_from)s tot %(date_to)s is verzonden naar "
+"Digipoort.%(newline)sWe zullen de verwerkingsstatus in deze chatter posten "
+"zodra we deze ontvangen hebben.%(newline)sDiscussie-ID: %(id)s"
+
+#. module: l10n_nl_reports
+#: model:ir.model.fields,help:l10n_nl_reports.field_res_company__l10n_nl_reports_sbr_ob_nummer
+msgid "This number is used for contacts with the Tax Administration."
+msgstr "Dit nummer wordt gebruikt voor contact met de Belastingdienst."
+
+#. module: l10n_nl_reports
+#: model:ir.model,name:l10n_nl_reports.model_res_users
+msgid "User"
+msgstr "Gebruiker"
+
+#. module: l10n_nl_reports
+#: model:account.return.type,name:l10n_nl_reports.nl_tax_return_type
+msgid "VAT"
+msgstr "Btw"
+
+#. module: l10n_nl_reports
+#: model:account.return.type,name:l10n_nl_reports.nl_tax_correction_return_type
+msgid "VAT Correction"
+msgstr ""
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/account_return.py:0
+msgid "VAT Payment"
+msgstr "BTW-betaling"
+
+#. module: l10n_nl_reports
+#: model:mail.template,name:l10n_nl_reports.email_template_vat_payment_instructions
+msgid "VAT payment"
+msgstr "Btw-betaling"
+
+#. module: l10n_nl_reports
+#: model:mail.template,subject:l10n_nl_reports.email_template_vat_payment_instructions
+msgid "VAT return payment instructions"
+msgstr ""
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/account_sales_report.py:0
+msgid "View Partner"
+msgstr "Bekijk partner"
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/models/account_sales_report.py:0
+#: code:addons/l10n_nl_reports/models/dutch_report_custom_handler.py:0
+msgid ""
+"We couldn't find the correct export template for the year %(year)s. Please "
+"upgrade your module 'Netherlands - Accounting Reports' and try again."
+msgstr ""
+"We konden het juiste exportsjabloon voor het jaar %(year)s niet vinden. "
+"Upgrade je module 'Nederland - Boekhoudrapporten' en probeer het opnieuw."
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_sbr_icp_wizard.py:0
+msgid ""
+"Your ICP report is being sent to Digipoort. Check its status in the closing "
+"entry's chatter."
+msgstr ""
+"Je ICP-rapport wordt verzonden naar Digipoort. Controleer de status in de "
+"chatter van de sluitingsboeking."
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+msgid ""
+"Your accounting firm does not have a VAT number set. Please set it up before "
+"trying to send the report."
+msgstr ""
+"Je accountantskantoor heeft geen btw-nummer ingesteld. Stel deze in voordat "
+"je de aangifte probeert te verzenden."
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+msgid ""
+"Your company does not have a VAT number set. Please set it up before trying "
+"to send the report."
+msgstr ""
+"Je bedrijf heeft geen btw-nummer ingesteld. Stel deze in voordat je de "
+"aangifte probeert te verzenden."
+
+#. module: l10n_nl_reports
+#. odoo-python
+#: code:addons/l10n_nl_reports/wizard/l10n_nl_reports_sbr_tax_report_wizard.py:0
+msgid ""
+"Your tax report is being sent to Digipoort. Check its status in the closing "
+"entry's chatter."
+msgstr ""
+"Je btw-aangifte wordt verzonden naar Digipoort. Controleer de status in de "
+"chatter van de afsluitboeking."
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.icp_report_sbr
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.icp_report_sbr_nt18
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.suppletie_tax_report_sbr
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.tax_report_sbr
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.tax_report_sbr_nt18
+msgid "iso4217:EUR"
+msgstr "iso4217:EUR"
+
+#. module: l10n_nl_reports
+#: model_terms:ir.ui.view,arch_db:l10n_nl_reports.vat_payment_details_table
+msgid "payment qr"
+msgstr ""

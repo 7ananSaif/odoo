@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="base.partner_demo_company_id" model="res.partner" forcecreate="1">
+        <field name="name">My Indonesian Company</field>
+        <field name="country_id" ref="base.id"/>
+    </record>
+
+    <record id="base.demo_company_id" model="res.company" forcecreate="1">
+        <field name="name">My Indonesian Company</field>
+        <field name="partner_id" ref="base.partner_demo_company_id"/>
+        <field name="currency_id" ref="base.IDR"/>
+        <field name="street">Indonesian Street</field>
+        <field name="zip">10110</field>
+        <field name="city">Jakarta</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="resource_calendar_id" ref="resource_calendar_standard" />
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_id'))]"/>
+    </record>
+
+    <record id="base.user_demo" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_id'))]"/>
+    </record>
+
+    <record id="id_hr_department_rd" model="hr.department">
+        <field name="name">R&amp;D ID</field>
+        <field name="company_id" ref="base.demo_company_id"/>
+    </record>
+
+    <record id="res_partner_siti" model="res.partner">
+        <field name="name">Siti Kusuma</field>
+        <field name="street">Jalan Kenanga</field>
+        <field name="city">Surabaya</field>
+        <field name="zip">60293</field>
+        <field name="state_id" ref="base.state_id_ji"/>
+        <field name="country_id" ref="base.id"/>
+        <field name="phone">0999-9876-5432</field>
+        <field name="company_id" ref="base.demo_company_id"/>
+    </record>
+    <record id="res_partner_siti" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_id_hr_payroll.res_partner_siti')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_agus" model="res.partner">
+        <field name="name">Agus Pratama</field>
+        <field name="street">Jalan Melati</field>
+        <field name="city">Jakarta</field>
+        <field name="zip">10110</field>
+        <field name="state_id" ref="base.state_id_jk"/>
+        <field name="country_id" ref="base.id"/>
+        <field name="phone">0999-3456-7890</field>
+        <field name="company_id" ref="base.demo_company_id"/>
+    </record>
+    <record id="res_partner_agus" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_id_hr_payroll.res_partner_agus')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="user_agus" model="res.users">
+        <field name="partner_id" ref="l10n_id_hr_payroll.res_partner_agus"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_agus')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_agus')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_id_hr_payroll.res_partner_agus')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_id'))]"/>
+        <field name="company_id" ref="base.demo_company_id"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_al-image.jpg"/>
+    </record>
+
+    <record id="id_res_bank_central_asia" model="res.bank">
+        <field name="name">Bank Central Asia</field>
+        <field name="bic">CENAIDJAXXX</field>
+        <field name="street">Jalan Bank Central Asia</field>
+        <field name="city">Surabaya</field>
+        <field name="zip">10350</field>
+        <field name="state" ref="base.state_id_ji"/>
+        <field name="country" ref="base.id"/>
+        <field name="phone">99-2379 4879</field>
+    </record>
+    <record id="id_res_bank_central_asia" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_id_hr_payroll.id_res_bank_central_asia')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="id_res_bank_mandiri" model="res.bank">
+        <field name="name">Bank Mandiri</field>
+        <field name="bic">BMRIIDJAXXX</field>
+        <field name="street">Jalan Bank Mandiri</field>
+        <field name="city">Jakarta</field>
+        <field name="zip">10210</field>
+        <field name="state" ref="base.state_id_jk"/>
+        <field name="country" ref="base.id"/>
+        <field name="phone">99-5299 1273</field>
+    </record>
+    <record id="id_res_bank_mandiri" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_id_hr_payroll.id_res_bank_mandiri')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_siti" model="res.partner.bank">
+        <field name="acc_number">099345678901</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_id_hr_payroll.id_res_bank_central_asia"/>
+        <field name="partner_id" ref="l10n_id_hr_payroll.res_partner_siti"/>
+        <field name="company_id" ref="base.demo_company_id"/>
+        <field name="currency_id" ref="base.IDR"/>
+    </record>
+
+    <record id="res_partner_bank_account_agus" model="res.partner.bank">
+        <field name="acc_number">0099234567890</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_id_hr_payroll.id_res_bank_mandiri"/>
+        <field name="partner_id" ref="l10n_id_hr_payroll.res_partner_agus"/>
+        <field name="company_id" ref="base.demo_company_id"/>
+        <field name="currency_id" ref="base.IDR"/>
+    </record>
+
+    <record id="hr_employee_siti" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_siti')).name"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_mit-image.jpg"/>
+        <field name="work_phone">0999-1234-0001</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_siti')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="work_contact_id" ref="l10n_id_hr_payroll.res_partner_siti"/>
+        <field name="company_id" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_siti')).company_id"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Asia/Jakarta</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_siti')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_siti')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_siti')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_siti')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_siti')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_siti')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_siti')).phone"/>
+        <field name="distance_home_work">1</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_siti')).country_id"/>
+        <field name="identification_id">3174990907961234</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1996, 7, 9).date()"/>
+        <field name="place_of_birth">Surabaya</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_siti')).country_id"/>
+        <field name="emergency_contact">Endang Kusuma</field>
+        <field name="emergency_phone">0999-1930-2130</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Engineering</field>
+        <field name="study_school">Airlangga University</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_id_hr_payroll.res_partner_bank_account_siti'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_id_hr_payroll.id_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_id_hr_payroll.structure_type_employee_id"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">12550000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="datetime(2020, 3, 16).date()"/>
+        <field name="contract_date_start" eval="datetime(2020, 3, 16).date()"/>
+    </record>
+
+    <record id="hr_employee_agus" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_agus')).name"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_al-image.jpg"/>
+        <field name="work_phone">0999-1234-0002</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_agus')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="parent_id" ref="l10n_id_hr_payroll.hr_employee_siti"/>
+        <field name="user_id" ref="l10n_id_hr_payroll.user_agus"/>
+        <field name="company_id" ref="base.demo_company_id"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Asia/Jakarta</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_agus')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_agus')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_agus')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_agus')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_agus')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_agus')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_agus')).phone"/>
+        <field name="distance_home_work">3</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_agus')).country_id"/>
+        <field name="identification_id">3174991701932345</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1993, 1, 17).date()"/>
+        <field name="place_of_birth">Jakarta</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_id_hr_payroll.res_partner_agus')).country_id"/>
+        <field name="emergency_contact">Bambang Pratama</field>
+        <field name="emergency_phone">0999-3839-8678</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Computer Science</field>
+        <field name="study_school">University of Indonesia</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_id_hr_payroll.res_partner_bank_account_agus'))]"/>
+        <field name="job_id" ref="hr.job_consultant"/>
+        <field name="department_id" ref="l10n_id_hr_payroll.id_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_id_hr_payroll.structure_type_employee_id"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">8750000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="datetime(2022, 6, 1).date()"/>
+        <field name="date_version" eval="datetime(2022, 6, 1).date()"/>
+    </record>
+
+    <record id="l10n_id_hr_payroll.structure_type_employee_id" model="hr.payroll.structure.type">
+        <field name="default_resource_calendar_id" ref="resource_calendar_standard" />
+    </record>
+
+    <record id="l10n_id_hr_payroll.resource_calendar_standard" model="resource.calendar">
+        <field name="company_id" ref="base.demo_company_id" />
+    </record>
+</odoo>

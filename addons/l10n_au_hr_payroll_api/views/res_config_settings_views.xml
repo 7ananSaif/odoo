@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.l10n_au_hr_payroll_account</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="51"/>
+        <field name="inherit_id" ref="l10n_au_hr_payroll_account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//setting[@id='au_payroll_info_settings']" position="inside">
+                <div name="au_payroll_stp_api" invisible="l10n_au_bms_id" class="mt16 content-group">
+                    <div class="row mt16 ms-2">
+                        <label for="l10n_au_payroll_mode" class="col-md-6 p-0 m-0 o_light_label"/>
+                        <field name="l10n_au_payroll_mode" class="col-lg-6 p-0"/>
+                    </div>
+                    <div class="row mt16 ms-2">
+                        <label for="l10n_au_registration_status" class="col-md-6 p-0 m-0 o_light_label"/>
+                        <field name="l10n_au_registration_status" class="col-lg-6 p-0"/>
+                    </div>
+                    <div class="row mt16 ms-2">
+                        <button name="action_view_payroll_onboarding"
+                                string="Start Payroll Onboarding"
+                                type="object"
+                                class="btn-primary"/>
+                    </div>
+                </div>
+            </xpath>
+            <xpath expr="//setting[@id='au_payroll_info_settings']/div" position="inside">
+                <div class="row mt16 ms-2">
+                    <label for="l10n_au_payroll_mode" class="col-md-6 p-0 m-0 o_light_label"/>
+                    <field name="l10n_au_payroll_mode" class="col-lg-6 p-0"/>
+                </div>
+                <div class="row mt16 ms-2">
+                    <label for="l10n_au_registration_status" class="col-md-6 p-0 m-0 o_light_label"/>
+                    <field name="l10n_au_registration_status" class="col-lg-6 p-0"/>
+                </div>
+                <div class="row mt16 ms-2">
+                    <button name="action_view_payroll_onboarding"
+                            string="Re-Enroll Payroll"
+                            type="object"
+                            icon="fa-repeat"
+                            class="oe_link oe_inline p-0"
+                            invisible="l10n_au_registration_status not in ('registered', 'expired')"/>
+                    <button name="action_view_payroll_onboarding"
+                            string="Continue Onboarding"
+                            type="object"
+                            icon="oi-arrow-right"
+                            class="oe_link oe_inline p-0"
+                            invisible="l10n_au_registration_status not in ('registered_ongoing', 'ongoing')"/>
+                </div>
+                <div class="row mt16 ms-2">
+                    <button name="cancel_ongoing_registration"
+                            string="Cancel Ongoing Registration"
+                            type="object"
+                            icon="fa-close"
+                            class="oe_link oe_inline p-0"
+                            invisible="l10n_au_registration_status != 'registered_ongoing'"/>
+                </div>
+            </xpath>
+            <xpath expr="//div[@name='au_payroll_info']" position="attributes">
+                <attribute name="invisible">not l10n_au_bms_id</attribute>
+            </xpath>
+
+            <field name="l10n_au_hr_super_responsible_id" position="attributes">
+                <attribute name="readonly">True</attribute>
+            </field>
+            <field name="l10n_au_stp_responsible_id" position="attributes">
+                <attribute name="readonly">True</attribute>
+            </field>
+
+            <field name="l10n_au_bms_id" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </field>
+        </field>
+    </record>
+
+</odoo>

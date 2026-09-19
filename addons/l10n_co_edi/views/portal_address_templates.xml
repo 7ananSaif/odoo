@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="address_form_fields" inherit_id="portal.address_form_fields">
+        <div id="div_vat" position="after">
+            <t t-if="is_used_as_billing and res_company.account_fiscal_country_id.code == 'CO'">
+                <!-- Show fiscal regimen and obligation types-->
+                <div id="div_obligation_types" class="col-xl-6 mb-3">
+                    <label class="col-form-label" for="l10n_co_edi_obligation_type_ids">
+                        Obligation Types
+                    </label>
+                    <select
+                        name="l10n_co_edi_obligation_type_ids"
+                        multiple="multiple"
+                        class="form-control"
+                    >
+                        <option
+                            t-foreach="obligation_types"
+                            t-as="ob_type"
+                            t-att-value="ob_type.id"
+                            t-att-selected="ob_type.id in selected_obligation_types_ids"
+                            t-out="ob_type.name"
+                        />
+                    </select>
+                </div>
+
+                <div id="div_fiscal_regimen" class="col-xl-6 mb-3" style="display:none">
+                    <label class="col-form-label" for="l10n_co_edi_fiscal_regimen">
+                        Fiscal Regime
+                    </label>
+                    <select name="l10n_co_edi_fiscal_regimen" class="form-select">
+                        <option
+                            t-foreach="fiscal_regimen_selection"
+                            t-as="regimen"
+                            t-att-value="regimen[0]"
+                            t-att-selected="regimen[0] == partner_sudo.l10n_co_edi_fiscal_regimen"
+                            t-out="regimen[1]"
+                        />
+                    </select>
+                </div>
+            </t>
+        </div>
+
+        <div id="div_city" position="before">
+            <div
+                t-if="res_company.account_fiscal_country_id.code == 'CO'"
+                id="div_city_id"
+                class="col-lg-6 mb-3"
+                t-attf-style="(country and country.code != 'CO') and 'display:none;'"
+            >
+                <label class="col-form-label" for="city_id">City</label>
+                <select id="city_id" name="city_id" class="form-select" data-init="1">
+                    <option value="">City...</option>
+                    <option
+                        t-foreach="state_cities"
+                        t-as="city"
+                        t-att-value="city.id"
+                        t-att-selected="city.id == partner_sudo.city_id.id"
+                        t-out="city.name"
+                    />
+                </select>
+            </div>
+        </div>
+    </template>
+</odoo>

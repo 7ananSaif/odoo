@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="l10n_at_pos.DateSelectionPopup">
+        <Dialog title="props.title" size="'md'">
+            <label class="form-check-label me-5 mb-3">
+                <input type="radio" class="form-check-input" value="monthly" t-model="state.period"/>
+                Monthly
+            </label>
+            <label class="form-check-label">
+                <input type="radio" class="form-check-input" value="yearly" t-model="state.period"/>
+                Yearly
+            </label>
+            <input class="form-control form-control-lg mx-auto" type="month" t-model="state.selectedDate" t-ref="input"/>
+            <t t-set-slot="footer">
+                <button class="btn btn-lg btn-primary" t-on-click="confirm" t-esc="props.confirmLabel"/>
+            </t>
+        </Dialog>
+    </t>
+</templates>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.l10n_it_hr_payroll_sd_worx</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="45"/>
+        <field name="inherit_id" ref="hr_payroll.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='hr_payroll_accountant']" position="after">
+                <block title="Italy Localization" invisible="company_country_code != 'IT'">
+                <setting id="company_information" string="SDWorx" company_dependent="1" help="Allow to export Working Entries to your Social Secretariat">
+                    <group class="mt16">
+                        <field name="official_company_code" placeholder="Provide a 6 characters code"/>
+                    </group>
+                </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

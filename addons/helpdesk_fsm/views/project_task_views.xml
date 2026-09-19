@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_task_form2_inherited_helpdesk_fsm" model="ir.ui.view">
+        <field name="name">view.task.form2.inherited.helpdesk.fsm</field>
+        <field name="model">project.task</field>
+        <field name="inherit_id" ref="industry_fsm.view_task_form2_inherit"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    string="Ticket"
+                    type="object"
+                    name="action_open_helpdesk_ticket"
+                    class="oe_stat_button"
+                    icon="fa-life-ring"
+                    groups="helpdesk.group_helpdesk_user"
+                    invisible="not display_helpdesk_ticket_button"
+                    help="Ticket from this task"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

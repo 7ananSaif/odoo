@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_contract_salary.hr_contract_salary_view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='wage_on_signature_period_label']" position="attributes">
+                <attribute name="invisible">schedule_pay != 'monthly'</attribute>
+            </xpath>
+            <xpath expr="//div[@name='wage_on_signature_period_label']" position="after">
+                <div class="mb-3" invisible="schedule_pay != 'annually'">/ year</div>
+                <div class="mb-3" invisible="schedule_pay != 'semi-annually'">/ half-year</div>
+                <div class="mb-3" invisible="schedule_pay != 'quarterly'">/ quarter</div>
+                <div class="mb-3" invisible="schedule_pay != 'bi-monthly'">/ two months</div>
+                <div class="mb-3" invisible="schedule_pay != 'semi-monthly'">/ half-month</div>
+                <div class="mb-3" invisible="schedule_pay != 'bi-weekly'">/ two weeks</div>
+                <div class="mb-3" invisible="schedule_pay != 'weekly'">/ week</div>
+                <div class="mb-3" invisible="schedule_pay != 'daily'">/ day</div>
+                <div class="mb-3" invisible="schedule_pay != '10_days'">/ 10 days</div>
+                <div class="mb-3" invisible="schedule_pay != '14_days'">/ 14 days</div>
+            </xpath>
+             <xpath expr="//button[@name='action_generate_offer']" position="attributes">
+                <attribute name="groups">hr_payroll.group_hr_payroll_user</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_show_offers']" position="attributes">
+                <attribute name="groups">hr_payroll.group_hr_payroll_user</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

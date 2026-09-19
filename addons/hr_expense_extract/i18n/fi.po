@@ -1,0 +1,344 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * hr_expense_extract
+#
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.2+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:45+0000\n"
+"PO-Revision-Date: 2025-09-16 17:06+0000\n"
+"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"hr_expense_extract/fi/>\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: hr_expense_extract
+#. odoo-javascript
+#: code:addons/hr_expense_extract/static/src/js/tours/expense_tour.js:0
+msgid "<b>Wasting time recording your receipts?</b> Let’s try a better way."
+msgstr ""
+"<b>Tuhlaatko aikaa kuittien kirjaamiseen?</b> Kokeillaan parempaa tapaa."
+
+#. module: hr_expense_extract
+#: model_terms:web_tour.tour,rainbow_man_message:hr_expense_extract.hr_expense_extract_tour
+msgid ""
+"<span><b>Congratulations</b>, you are now an expert of Expenses.\n"
+"        </span>"
+msgstr ""
+"<span><b>Onneksi olkoon</b>, olet nyt Kulut-asiantuntija.\n"
+"        </span>"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_needaction
+msgid "Action Needed"
+msgstr "Vaatii toimenpiteitä"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_attachment_count
+msgid "Attachment Count"
+msgstr "Liitteiden määrä"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__extract_can_show_send_button
+msgid "Can show the ocr send button"
+msgstr "Voi näyttää tekstintunnistuksen lähetyspainikkeen"
+
+#. module: hr_expense_extract
+#. odoo-javascript
+#: code:addons/hr_expense_extract/static/src/js/tours/expense_tour.js:0
+msgid "Choose a receipt."
+msgstr "Valitse kuitti."
+
+#. module: hr_expense_extract
+#: model:ir.model,name:hr_expense_extract.model_res_company
+msgid "Companies"
+msgstr "Yritykset"
+
+#. module: hr_expense_extract
+#: model:ir.model,name:hr_expense_extract.model_res_config_settings
+msgid "Config Settings"
+msgstr "Asetukset"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_expense_sample_receipt__create_uid
+msgid "Created by"
+msgstr "Luonut"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_expense_sample_receipt__create_date
+msgid "Created on"
+msgstr "Luotu"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields.selection,name:hr_expense_extract.selection__res_company__expense_extract_show_ocr_option_selection__auto_send
+msgid "Digitize automatically"
+msgstr "Digitoi automaattisesti"
+
+#. module: hr_expense_extract
+#: model:ir.actions.server,name:hr_expense_extract.hr_expense_parse_action_server
+#: model_terms:ir.ui.view,arch_db:hr_expense_extract.hr_expense_extract_view_form
+msgid "Digitize document"
+msgstr "Digitoi asiakirja"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields.selection,name:hr_expense_extract.selection__res_company__expense_extract_show_ocr_option_selection__manual_send
+msgid "Digitize on demand only"
+msgstr "Digitoi vain pyynnöstä"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_expense_sample_receipt__display_name
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__display_name
+#: model:ir.model.fields,field_description:hr_expense_extract.field_res_company__display_name
+#: model:ir.model.fields,field_description:hr_expense_extract.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "Näyttönimi"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields.selection,name:hr_expense_extract.selection__res_company__expense_extract_show_ocr_option_selection__no_send
+msgid "Do not digitize"
+msgstr "Älä digitoi"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__extract_error_message
+msgid "Error message"
+msgstr "Virheilmoitus"
+
+#. module: hr_expense_extract
+#: model:ir.model,name:hr_expense_extract.model_hr_expense
+msgid "Expense"
+msgstr "Kulu"
+
+#. module: hr_expense_extract
+#: model:ir.actions.server,name:hr_expense_extract.ir_cron_update_ocr_status_ir_actions_server
+msgid "Expense OCR: Update All Status"
+msgstr "Kulujen tekstintunnistus: Päivitä kaikki tilat"
+
+#. module: hr_expense_extract
+#: model:ir.actions.server,name:hr_expense_extract.ir_cron_ocr_validate_ir_actions_server
+msgid "Expense OCR: Validate Expenses"
+msgstr "Kulujen tekstintunnistus: Vahvista kulut"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_res_config_settings__expense_extract_show_ocr_option_selection
+msgid "Expense processing option"
+msgstr "Kulujen käsittelyvaihtoehto"
+
+#. module: hr_expense_extract
+#. odoo-python
+#: code:addons/hr_expense_extract/wizard/expense_sample_receipt.py:0
+msgid "Expenses"
+msgstr "Kulut"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__sample
+msgid "Expenses created from sample receipt"
+msgstr "Esimerkkikuitista luodut kulut"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__extract_state_processed
+msgid "Extract State Processed"
+msgstr "Poimi käsittelty-tila"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__extract_state
+msgid "Extract state"
+msgstr "Poimi tila"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__extract_status
+msgid "Extract status"
+msgstr "Poimi status"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_follower_ids
+msgid "Followers"
+msgstr "Seuraajat"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Seuraajat (kumppanit)"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__has_message
+msgid "Has Message"
+msgstr "Sisältää viestin"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_expense_sample_receipt__id
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__id
+#: model:ir.model.fields,field_description:hr_expense_extract.field_res_company__id
+#: model:ir.model.fields,field_description:hr_expense_extract.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__extract_document_uuid
+msgid "ID of the request to IAP-OCR"
+msgstr "IAP-OCR:lle osoitetun pyynnön tunniste"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Jos valittu, uudet viestit vaativat huomiotasi."
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__message_has_error
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "Jos valittu, joitakin viestejä ei ole toimitettu."
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_is_follower
+msgid "Is Follower"
+msgstr "On seuraaja"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__is_in_extractable_state
+msgid "Is In Extractable State"
+msgstr "On poiminnan sallivassa tilassa"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_expense_sample_receipt__write_uid
+msgid "Last Updated by"
+msgstr "Viimeksi päivittänyt"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_expense_sample_receipt__write_date
+msgid "Last Updated on"
+msgstr "Viimeksi päivitetty"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_main_attachment_id
+msgid "Main Attachment"
+msgstr "Pääliitetiedosto"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_has_error
+msgid "Message Delivery error"
+msgstr "Ongelma viestin toimituksessa"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_ids
+msgid "Messages"
+msgstr "Viestit"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Toimenpiteiden määrä"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_has_error_counter
+msgid "Number of errors"
+msgstr "Virheiden määrä"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Toimenpiteitä vaativien viestien määrä"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Toimitusvirheellisten viestien määrä"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__rating_ids
+msgid "Ratings"
+msgstr "Arviointi"
+
+#. module: hr_expense_extract
+#. odoo-javascript
+#: code:addons/hr_expense_extract/static/src/js/tours/expense_tour.js:0
+msgid "Report this expense to your manager for validation."
+msgstr "Ilmoita tästä kulusta esimiehellesi hyväksyntää varten."
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Tekstiviestin toimitusvirhe"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__sample
+msgid "Sample"
+msgstr "Näyte"
+
+#. module: hr_expense_extract
+#. odoo-python
+#: code:addons/hr_expense_extract/wizard/expense_sample_receipt.py:0
+msgid "Sample Employee"
+msgstr "Näytetyöntekijä"
+
+#. module: hr_expense_extract
+#. odoo-python
+#: code:addons/hr_expense_extract/wizard/expense_sample_receipt.py:0
+msgid "Sample Receipt: %s"
+msgstr "Näytekuitti: %s"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_res_company__expense_extract_show_ocr_option_selection
+msgid "Send mode on expense attachments"
+msgstr "Kulujen liitetiedostojen lähetystila"
+
+#. module: hr_expense_extract
+#: model_terms:ir.ui.view,arch_db:hr_expense_extract.expense_sample_receipt_view_form
+msgid "Try Expense Digitization"
+msgstr "Kokeile kulujen digitalisointia"
+
+#. module: hr_expense_extract
+#: model:ir.actions.act_window,name:hr_expense_extract.action_expense_sample_receipt
+msgid "Try Sample Receipt"
+msgstr "Kokeile näytekuittia"
+
+#. module: hr_expense_extract
+#: model:ir.model,name:hr_expense_extract.model_expense_sample_receipt
+msgid "Try Sample Receipts"
+msgstr "Kokeile näytekuitteja"
+
+#. module: hr_expense_extract
+#. odoo-javascript
+#: code:addons/hr_expense_extract/static/src/js/tours/expense_tour.js:0
+msgid "Try the AI with a sample receipt."
+msgstr "Kokeile tekoälyä näytekuitin avulla."
+
+#. module: hr_expense_extract
+#. odoo-python
+#: code:addons/hr_expense_extract/models/hr_expense.py:0
+msgid "Upload or drop an expense receipt"
+msgstr "Lataa tai pudota kulukuitti"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__website_message_ids
+msgid "Website Messages"
+msgstr "Verkkosivun viestit"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__website_message_ids
+msgid "Website communication history"
+msgstr "Verkkosivun viestintähistoria"
+
+#. module: hr_expense_extract
+#. odoo-python
+#: code:addons/hr_expense_extract/models/hr_expense.py:0
+msgid "You cannot send a expense that is not in draft state!"
+msgstr "Et voi lähettää kuluja, jotka eivät ole luonnostilassa!"
+
+#. module: hr_expense_extract
+#. odoo-javascript
+#: code:addons/hr_expense_extract/static/src/js/tours/expense_tour.js:0
+msgid "Your manager will have to approve (or refuse) your expense reports."
+msgstr "Esimiehesi on hyväksyttävä (tai hylättävä) kuluraporttisi."
+
+#. module: hr_expense_extract
+#. odoo-python
+#: code:addons/hr_expense_extract/models/hr_expense.py:0
+msgid "try a sample receipt"
+msgstr "kokeile näytekuittia"

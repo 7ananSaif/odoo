@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="dashboard_warning_empf_unregistered_employee" model="hr.payroll.dashboard.warning">
+            <field name="name">Employees Without MPF Registration</field>
+            <field name="country_id" ref="base.hk"/>
+            <field name="color">4</field>
+            <field name="evaluation_code">
+hk_companies = self.env.companies.filtered(lambda c: c.country_id.code == 'HK')
+employees_without_registration = self.env['hr.employee'].search([
+    ('company_id', 'in', hk_companies.ids),
+    ('l10n_hk_mpf_registration_status', '=', False),
+])
+if employees_without_registration:
+    warning_count = len(employees_without_registration)
+    warning_records = employees_without_registration
+            </field>
+        </record>
+
+        <record id="dashboard_warning_empf_unreported_slips" model="hr.payroll.dashboard.warning">
+            <field name="name">Validated Payslip Not Reported To eMPF</field>
+            <field name="country_id" ref="base.hk"/>
+            <field name="color">2</field>
+            <field name="evaluation_code">
+# Only display the warning during the contribution period for the previous month (until the 10 of this month)
+is_contribution_period = 1 &lt;= date.today().day &lt;= 10
+if is_contribution_period:
+    hk_companies = self.env.companies.filtered(lambda c: c.country_id.code == 'HK')
+    validated_payslips_without_report_line = self.env['hr.payslip'].search([
+        ('state', 'in', ['validated', 'paid']),
+        ('company_id', 'in', hk_companies.ids),
+        ('l10n_hk_contribution_line_id', '=', False),
+        ('date_from', '&gt;=', date.today() - relativedelta(months=1, day=1)),
+        ('date_to', '&lt;=', date.today() - relativedelta(months=1, day=31)),
+    ])
+    if validated_payslips_without_report_line:
+        warning_count = len(validated_payslips_without_report_line)
+        warning_records = validated_payslips_without_report_line
+            </field>
+        </record>
+    </data>
+</odoo>

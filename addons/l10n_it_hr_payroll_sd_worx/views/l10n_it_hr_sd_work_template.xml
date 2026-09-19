@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="l10n_it_sd_worx_template">
+            <Fornitura>
+                <t t-foreach="employees_data" t-as="employee">
+                    <Dipendente
+                        t-att-CodAziendaUfficiale="employee['employee'].company_id.official_company_code"
+                        t-att-CodDipendenteUfficiale="employee['employee'].l10n_it_sdworx_code"
+                    >
+                        <Movimenti GenerazioneAutomaticaDaTeorico="N">
+                            <t t-foreach="employee['transections']" t-as="transection">
+                                <Movimento>
+                                    <CodGiustificativoRilPres t-out="transection['CodGiustificativoRilPres']"/>
+                                    <CodGiustificativoUfficiale t-out="transection['CodGiustificativoUfficiale']"/>
+                                    <Data t-out="transection['Data']"/>
+                                    <NumOre t-out="transection['NumOre']"/>
+                                    <NumMinuti t-out="transection['NumMinuti']" t-if="transection['NumMinuti']" />
+                                </Movimento>
+                            </t>
+                        </Movimenti>
+                    </Dipendente>
+                </t>
+            </Fornitura>
+        </template>
+    </data>
+</odoo>

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<odoo>
+    <record model="ir.ui.view" id="product_template_unspsc">
+        <field name="name">product.template.unspsc.inherit.l10n.mx.edi.landing</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product_unspsc.product_template_unspsc"/>
+        <field name="arch" type="xml">
+            <field name="unspsc_code_id" position="after">
+                <field name="l10n_mx_edi_can_use_customs_invoicing"
+                    invisible="'MX' not in fiscal_country_codes or tracking == 'none' or invoice_policy != 'delivery' or not lot_valuated"
+                />
+            </field>
+        </field>
+    </record>
+</odoo>

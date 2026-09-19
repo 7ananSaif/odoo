@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="OrderReceipt" t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('before-footer')]" position="after">
+            <div t-if="this.header.company.country_id?.code === 'CL'" class="pt-3">
+                <div t-if="order.voucher_number">
+                    <div class="pos-receipt-order-data">
+                        Voucher Number: <t t-esc="order.voucher_number"/>
+                    </div>
+                </div>
+                <div t-if="!order.finalized">
+                    Suggested Tip: <t t-esc="formatCurrency(order.priceExcl * 0.10)"/>
+                    <!-- as per the chilean law we have to show 10% of subtotal(without tax) as suggested tip -->
+                </div>
+                <br/>
+                <div t-if= "order.finalized and order.company.l10n_cl_dte_resolution_date" class="d-flex flex-column align-items-center pos-receipt-order-data">
+                    <img class="img-fluid w-100" t-attf-src="data:image/*;base64,{{order.account_move?.l10n_cl_sii_barcode_image}}"/>
+                    <span>Timbre Electrónico SII</span>
+                    <span>Resolución Nº: <t t-out="order.company.l10n_cl_dte_resolution_number"/></span>
+                    <span>de Fecha: <t t-out="order.company.formatDateOrTime('l10n_cl_dte_resolution_date', 'date')"/></span>
+                    <span>Verifique documento en www.sii.cl</span>
+                </div>
+            </div>
+        </xpath>
+    </t>
+</templates>

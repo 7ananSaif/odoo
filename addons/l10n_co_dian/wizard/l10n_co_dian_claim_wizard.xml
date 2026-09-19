@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="action_commercial_event_reject" model="ir.actions.act_window">
+        <field name="name">Reject Invoice Event</field>
+        <field name="res_model">l10n_co_dian.claim.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context">{'move_id': active_id}</field>
+    </record>
+
+    <record id="view_l10n_co_dian_claim_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_co_dian.claim.wizard.form</field>
+        <field name="model">l10n_co_dian.claim.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Electronic Invoice Events">
+                <group>
+                    <field name="claim_reason"/>
+                </group>
+                <footer>
+                    <button string="Claim"
+                            name="button_claim"
+                            type="object"
+                            class="btn btn-primary"
+                            data-hotkey="c"/>
+
+                    <button string="Cancel"
+                            class="btn btn-secondary"
+                            special="cancel"
+                            data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

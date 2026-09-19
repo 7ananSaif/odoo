@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_return_kanban_view" model="ir.ui.view">
+        <field name="name">l10n_in.account.return.kanban</field>
+        <field name="model">account.return</field>
+        <field name="inherit_id" ref="account_reports.account_return_kanban_view"/>
+        <field name="arch" type="xml">
+            <div class="state-bubble" position="attributes">
+                <t t-if="record.type_external_id.raw_value in ('l10n_in_reports.in_gstr1_return_type', 'l10n_in_reports.in_gstr2b_return_type')">
+                    <attribute name="t-attf-class">bg-#{state.alert_type}</attribute>
+                </t>
+            </div>
+
+            <!-- Custom buttons for gstr1 and gstr2b workflow -->
+            <t id="default_buttons" position="before">
+                <t t-elif="record.type_external_id.raw_value == 'l10n_in_reports.in_gstr1_return_type'">
+                    <button invisible="not context.get('in_checks_view') or state != 'new' or is_completed or not is_main_company_active"
+                        class="btn btn-primary" type="object" name="action_validate">
+                        Validate
+                    </button>
+                    <button invisible="not context.get('in_checks_view') or state != 'waiting_for_status' or not is_main_company_active"
+                        class="btn btn-secondary" type="object" name="action_check_gstr_status">
+                        Check Status
+                    </button>
+                    <button invisible="not context.get('in_checks_view') or state != 'sent' or not is_main_company_active"
+                        class="btn btn-primary" type="object" name="button_gstr1_filed">
+                        Mark as Filed
+                    </button>
+                </t>
+                <t t-elif="record.type_external_id.raw_value == 'l10n_in_reports.in_gstr2b_return_type'">
+                    <button invisible="not context.get('in_checks_view') or state != 'new' or is_completed or not is_main_company_active"
+                        class="btn btn-primary" type="object" name="action_validate">
+                        Validate
+                    </button>
+                    <button class="btn btn-primary"
+                        invisible="not context.get('in_checks_view') or not state in ('reviewed', 'error_in_fetching') or not is_main_company_active"
+                        name="action_gstr2b_fetch"
+                        type="object"
+                        help="Click this button to fetch the GSTR-2B data from the GSTN portal.">
+                        Fetch GSTR-2B
+                    </button>
+                    <button class="btn btn-primary"
+                        invisible="not context.get('in_checks_view') or state not in ('partially_matched', 'matched')"
+                        name="action_get_gstr2b_view_reconciled_invoice"
+                        type="object"
+                        help="Click this button to mark the GSTR-2B as completed.">
+                        View Bills
+                    </button>
+                </t>
+            </t>
+
+            <a name="action_reset_tax_return_common" position="attributes">
+                <attribute name="invisible" add="type_external_id == 'l10n_in_reports.in_gstr1_return_type' and state == 'filed'" separator="or"/>
+            </a>
+            <a name="action_view_entry" position="attributes">
+                <attribute name="invisible" add="type_external_id in ('l10n_in_reports.in_gstr1_return_type', 'l10n_in_reports.in_gstr2b_return_type')" separator="or"/>
+            </a>
+
+            <!-- Action needed for work flow of gstr1 and gstr2b are added -->
+            <a name="action_view_entry" position="before">
+                <a invisible="type_external_id != 'l10n_in_reports.in_gstr1_return_type'"
+                    class="dropdown-item"
+                    name="action_generate_gstr1_xlsx"
+                    type="object"
+                    string="Generate XLSX"/>
+
+                <a invisible="type_external_id != 'l10n_in_reports.in_gstr1_return_type' or l10n_in_doc_summary_line_ids or l10n_in_gstr1_status != 'new'"
+                    name="action_generate_document_summary"
+                    class="dropdown-item"
+                    type="object"
+                    string="Document Summary"/>
+
+                <a invisible="type_external_id != 'l10n_in_reports.in_gstr1_return_type' or not l10n_in_doc_summary_line_ids or l10n_in_gstr1_status != 'new'"
+                    name="action_generate_document_summary"
+                    class="dropdown-item"
+                    type="object"
+                    string="Regenerate Document Summary"/>
+
+                <a invisible="not l10n_in_doc_summary_line_ids"
+                    class="dropdown-item"
+                    name="action_open_document_summary"
+                    type="object"
+                    string="View document summary"/>
+
+                <a invisible="type_external_id != 'l10n_in_reports.in_gstr2b_return_type' or state != 'fetch' or not is_main_company_active"
+                    class="dropdown-item"
+                    name="gstr2b_match_data"
+                    type="object"
+                    string="Re-Match"/>
+
+                <a invisible="type_external_id != 'l10n_in_reports.in_gstr2b_return_type'  or is_completed or not state in ('matched', 'partially_matched')"
+                    class="dropdown-item"
+                    name="button_gstr2b_completed"
+                    type="object"
+                    string="Mark Completed"/>
+            </a>
+        </field>
+    </record>
+</odoo>

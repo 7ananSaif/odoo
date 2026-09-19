@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="product_product_administracion" model="product.product">
+        <field name="name">Administracion</field>
+        <field name="default_code">ADM</field>
+        <field name="type">service</field>
+        <field name="purchase_ok" eval="False"/>
+        <field name="taxes_id" search="[('type_tax_use', '=', 'sale'), ('description', 'like', 'VAT Exempt'), ('l10n_co_edi_type.name', '=', 'IVA')]"/>
+    </record>
+
+    <record id="product_product_imprevistos" model="product.product">
+        <field name="name">Imprevistos</field>
+        <field name="default_code">IMP</field>
+        <field name="type">service</field>
+        <field name="purchase_ok" eval="False"/>
+        <field name="taxes_id" search="[('type_tax_use', '=', 'sale'), ('description', 'like', 'VAT Exempt'), ('l10n_co_edi_type.name', '=', 'IVA')]"/>
+    </record>
+
+    <record id="product_product_utilidad" model="product.product">
+        <field name="name">Utilidad</field>
+        <field name="default_code">UTI</field>
+        <field name="type">service</field>
+        <field name="purchase_ok" eval="False"/>
+        <field name="taxes_id" search="[('type_tax_use', '=', 'sale'), ('description', 'like', 'VAT Sales 19%'), ('l10n_co_edi_type.name', '=', 'IVA')]"/>
+    </record>
+</odoo>

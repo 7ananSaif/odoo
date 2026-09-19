@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="knowledge.KnowledgeTopbar">
+        <div class="o_knowledge_header d-flex align-items-center d-print-none py-2 px-md-2 px-1">
+            <div class="d-flex d-md-none align-self-start">
+                <button class="o_knowledge_toggle_sidebar btn btn-light text-muted"
+                    t-on-click="env.toggleAsideMobile"
+                    title="Toggle aside menu">
+                    <i class="oi oi-lg oi-panel-right"/>
+                </button>
+            </div>
+            <div t-if="props.record.resId" class="d-flex flex-grow-1 flex-wrap min-w-0">
+                <KnowledgeHierarchy record="props.record"/>
+            </div>
+            <div t-if="props.record.resId" class="d-flex align-self-start flex-shrink-0">
+                <button t-if="props.record.data.active" t-attf-class="btn btn-light text-muted #{state.shareBtnIsActive ? 'show' : ''}" t-on-click="togglePermissionPanel" data-hotkey="shift+s">
+                    <t t-if="isInternalUser">Share</t>
+                    <t t-else="">Members</t>
+                </button>
+                <button t-if="isInternalUser"
+                    t-attf-class="d-none d-md-block btn btn-light text-muted btn-chatter #{chatterPanelState.isDisplayed ? 'active' : ''}"
+                    t-on-click="env.toggleChatter"
+                    t-att-title="chatterButtonTitle"
+                    data-hotkey="d">
+                    <i class="fa fa-fw fs-6 fa-comments-o"/>
+                </button>
+                <button t-if="propertiesPanelState.isDisplayed or props.record.data.article_properties.some((prop) => !prop.definition_deleted)"
+                    t-attf-class="d-none d-md-block btn btn-light text-muted btn-properties #{propertiesPanelState.isDisplayed ? 'active' : ''}"
+                    t-on-click="env.toggleProperties"
+                    title="Show Properties"
+                    data-hotkey="o">
+                    <i class="fa fa-fw fs-6 fa-cogs"/>
+                </button>
+                <button t-if="commentsState.hasComments"
+                    t-attf-class="d-none d-md-block btn btn-light text-muted btn-comments #{commentsState.displayMode === 'panel' ? 'active' : ''}"
+                    t-on-click="env.toggleComments"
+                    t-att-title="commentButtonTitle">
+                    <i class="fa fa-fw fs-6 fa-commenting-o"/>
+                </button>
+                <button class="d-none d-md-block btn btn-light o_knowledge_toggle_favorite"
+                    t-on-click="env.toggleFavorite"
+                    t-att-title="favoriteButtonTitle"
+                    data-hotkey="t">
+                    <i t-if="props.record.data.is_user_favorite" class="fa fa-fw fs-4 fa-star"/>
+                    <i t-if="!props.record.data.is_user_favorite" class="fa fa-fw fs-4 fa-star-o"/>
+                </button>
+                <OptionsDropdown record="this.props.record"/>
+            </div>
+        </div>
+    </t>
+</templates>

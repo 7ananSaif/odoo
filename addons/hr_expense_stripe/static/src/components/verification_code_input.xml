@@ -1,0 +1,12 @@
+<templates>
+    <t t-name="hr_expense_stripe.InputVerificationCode">
+        <div class="row w-50 mx-auto d-flex justify-content-center">
+            <t t-foreach="[...Array(props.nbInputs).keys()]" t-as="i" t-key="i">
+                <input class="col rounded border-0 mx-1 my-0 p-0 text-center validation-buttons" type="text"
+                       inputmode="numeric" maxlength="1" t-ref="input_{{i}}" t-on-input="onInput" t-on-keydown="onKeydown"
+                       t-on-focus="onFocus" t-on-paste="onPaste"
+                />
+            </t>
+        </div>
+    </t>
+</templates>

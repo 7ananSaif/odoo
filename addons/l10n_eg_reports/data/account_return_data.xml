@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="eg_tax_return_type" model="account.return.type">
+            <field name="name">VAT</field>
+            <field name="report_id" ref="l10n_eg.tax_report_vat_return"/>
+            <field name="country_id" ref="base.eg" />
+        </record>
+
+        <record id="eg_withholding_tax_return_type" model="account.return.type">
+            <field name="name">Withholding Tax</field>
+            <field name="report_id" ref="l10n_eg.tax_report_withholding_tax"/>
+            <field name="country_id" ref="base.eg" />
+        </record>
+
+        <record id="eg_schedule_tax_return_type" model="account.return.type">
+            <field name="name">Schedule Tax</field>
+            <field name="report_id" ref="l10n_eg.tax_report_schedule_tax"/>
+            <field name="country_id" ref="base.eg" />
+            <field name="states_workflow">generic_state_review_submit</field>
+        </record>
+
+        <record id="eg_other_tax_return_type" model="account.return.type">
+            <field name="name">Other Tax</field>
+            <field name="report_id" ref="l10n_eg.tax_report_other_taxes"/>
+            <field name="country_id" ref="base.eg" />
+            <field name="states_workflow">generic_state_review_submit</field>
+        </record>
+    </data>
+</odoo>

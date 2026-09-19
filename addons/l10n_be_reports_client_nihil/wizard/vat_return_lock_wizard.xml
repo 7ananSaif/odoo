@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vat_return_lock_wizard_form_inherit" model="ir.ui.view">
+        <field name="name">l10n_be_reports.vat.return.lock.wizard.form.inherit</field>
+        <field name="model">l10n_be_reports.vat.return.lock.wizard</field>
+        <field name="inherit_id" ref="l10n_be_reports.vat_return_lock_wizard_form"/>
+        <field name="arch" type="xml">
+            <span id="ask_restitution_field" position="after">
+                <span class="o_stat_text oe_inline" invisible="not should_display_client_nihil"><label for="client_nihil"/></span>
+                <span class="o_stat_value ms-2 me-3" invisible="not should_display_client_nihil"><field name="client_nihil"/></span>
+            </span>
+        </field>
+    </record>
+</odoo>

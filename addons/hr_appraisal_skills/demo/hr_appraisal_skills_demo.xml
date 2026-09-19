@@ -1,0 +1,42 @@
+<odoo>
+    <data noupdate="1">
+        <function model="hr.appraisal" name="_copy_skills_when_confirmed" eval="[ref('hr_appraisal.hr_appraisal_3')]"/>
+        <function model="hr.appraisal" name="_copy_skills_when_confirmed" eval="[ref('hr_appraisal.hr_appraisal_4')]"/>
+        <function model="hr.appraisal" name="_copy_skills_when_confirmed" eval="[ref('hr_appraisal.hr_appraisal_4bis')]"/>
+
+        <record id="hr_appraisal_goal_skill_1" model="hr.appraisal.goal.skill">
+            <field name="goal_id" ref="hr_appraisal.hr_appraisal_goal_project_management"/>
+            <field name="skill_id" ref="hr_skills.hr_skill_time_management"/>
+            <field name="skill_type_id" ref="hr_skills.hr_skill_type_softskill"/>
+            <field name="skill_level_id" ref="hr_skills.hr_skill_level_advanced_softskill"/>
+        </record>
+
+        <record id="hr_appraisal_goal_skill_2" model="hr.appraisal.goal.skill">
+            <field name="goal_id" ref="hr_appraisal.hr_appraisal_goal_project_management"/>
+            <field name="skill_id" ref="hr_skills.hr_skill_teamwork"/>
+            <field name="skill_type_id" ref="hr_skills.hr_skill_type_softskill"/>
+            <field name="skill_level_id" ref="hr_skills.hr_skill_level_advanced_softskill"/>
+        </record>
+
+        <record id="hr_appraisal_goal_skill_3" model="hr.appraisal.goal.skill">
+            <field name="goal_id" ref="hr_appraisal.hr_appraisal_goal_demo"/>
+            <field name="skill_id" ref="hr_skills.hr_skill_adaptability"/>
+            <field name="skill_type_id" ref="hr_skills.hr_skill_type_softskill"/>
+            <field name="skill_level_id" ref="hr_skills.hr_skill_level_intermediate_softskill"/>
+        </record>
+
+        <record id="hr_appraisal_goal_skill_4" model="hr.appraisal.goal.skill">
+            <field name="goal_id" ref="hr_appraisal.hr_appraisal_goal_demo"/>
+            <field name="skill_id" ref="hr_skills.hr_skill_problem_solving"/>
+            <field name="skill_type_id" ref="hr_skills.hr_skill_type_softskill"/>
+            <field name="skill_level_id" ref="hr_skills.hr_skill_level_elementary_softskill"/>
+        </record>
+
+        <record id="hr_appraisal_goal_skill_5" model="hr.appraisal.goal.skill">
+            <field name="goal_id" ref="hr_appraisal.hr_appraisal_goal_odoo_advanced_training"/>
+            <field name="skill_id" ref="hr_skills.hr_skill_type_certifications_odoo"/>
+            <field name="skill_type_id" ref="hr_skills.hr_skill_type_certifications"/>
+            <field name="skill_level_id" ref="hr_skills.hr_skill_level_certifications"/>
+        </record>
+    </data>
+</odoo>

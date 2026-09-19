@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="knowledge.KnowledgeWysiwyg" t-inherit="html_editor.Wysiwyg" t-inherit-mode="primary">
+        <xpath expr="//div[hasclass('o-wysiwyg')]" position="inside">
+            <WysiwygArticleHelper record="this.env.model.root" editor="editor"
+                isVisible="articleHelperState.isVisible"/>
+        </xpath>
+        <!-- Remove `overflow-auto` to prevent box shadows and outlines from being clipped. -->
+        <xpath expr="//div[hasclass('o-wysiwyg')]/div[hasclass('flex-grow-1')]" position="attributes">
+            <attribute name="t-att-class"></attribute>
+        </xpath>
+    </t>
+</templates>

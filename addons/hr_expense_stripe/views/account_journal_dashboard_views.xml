@@ -1,0 +1,28 @@
+<odoo>
+    <data>
+        <record id="account_journal_dashboard_kanban_view_inherit_expense_stripe" model="ir.ui.view">
+            <field name="name">account.journal.dashboard.kanban</field>
+            <field name="model">account.journal</field>
+            <field name="inherit_id" ref="account.account_journal_dashboard_kanban_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@id='dashboard_bank_cash_left']" position="inside">
+                    <button t-if="dashboard.bank_statements_source == 'stripe_issuing' and dashboard.stripe_issuing_activated"
+                            name="action_open_topup_wizard" type="object" class="btn btn-secondary"
+                            groups="account.group_account_basic">Top-up</button>
+                </xpath>
+                <xpath expr="//div[@id='dashboard_bank_cash_right']" position="inside">
+                    <t t-if="dashboard.bank_statements_source == 'stripe_issuing' and dashboard.stripe_issuing_activated">
+                        <div class="row">
+                            <div id="dashboard_stripe_issuing_balance" class="col overflow-hidden text-start">
+                                <span>Available</span>
+                            </div>
+                            <div class="col-auto text-end">
+                                <span dir="ltr"><t t-out="dashboard.stripe_issuing_balance"/></span>
+                            </div>
+                        </div>
+                    </t>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="hr_salary_rule_view_form_l10n_mx_edi" model="ir.ui.view">
+        <field name="name">hr.salary.rule.form.inherit.l10n.mx.edi</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="inherit_id" ref="hr_payroll_account.hr_salary_rule_view_form"/>
+        <field name="arch" type="xml">
+            <field name="struct_id" position="after">
+                <field name="l10n_mx_concept" invisible="country_id != %(base.mx)d"/>
+            </field>
+        </field>
+    </record>
+</odoo>

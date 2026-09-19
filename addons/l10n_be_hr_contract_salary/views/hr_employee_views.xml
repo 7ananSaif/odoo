@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="l10n_be_hr_contract_salary_view_employee_form" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.l10n_be.contract_salary</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <label for="wage" position="attributes">
+                <attribute name="invisible">l10n_be_mobility_budget or holidays != 0</attribute>
+            </label>
+            <div name="wage" position="attributes">
+                <attribute name="invisible">l10n_be_mobility_budget or holidays != 0</attribute>
+            </div>
+            <label for="wage_with_holidays" position="attributes">
+                <attribute name="invisible">l10n_be_mobility_budget or holidays == 0</attribute>
+            </label>
+            <div name="div_wage_with_holidays" position="attributes">
+                <attribute name="invisible">l10n_be_mobility_budget or holidays == 0</attribute>
+            </div>
+            <label for="wage_with_holidays" position="after">
+                <label name="l10n_be_wage_with_mobility_budget" for="l10n_be_wage_with_mobility_budget" invisible="not l10n_be_mobility_budget"/>
+                <div class="o_row o_hr_narrow_field" name="div_wage_with_mobility_budget" invisible="not l10n_be_mobility_budget">
+                    <field name="l10n_be_wage_with_mobility_budget" nolabel="1"/>
+                    <span>/ Month</span>
+                </div>
+            </label>
+        </field>
+    </record>
+
+    <record id="hr_employee_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.view.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <group name="benefits" position="inside">
+                <label for="holidays"/>
+                <div class="o_row">
+                    <field name="holidays" class="o_hr_narrow_field"/>
+                    <span>days / year</span>
+                </div>
+            </group>
+        </field>
+    </record>
+</odoo>

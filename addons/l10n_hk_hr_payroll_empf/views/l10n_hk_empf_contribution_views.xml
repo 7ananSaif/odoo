@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Replace the manulife menu by the new one, as it replaces the feature. -->
+    <record id="l10n_hk_empf_action" model="ir.actions.act_window">
+        <field name="name">eMPF Contributions</field>
+        <field name="res_model">l10n_hk.empf.contribution.report</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+
+    <record id="l10n_hk_empf_contribution_report_tree" model="ir.ui.view">
+        <field name="name">l10n_hk.empf.contribution.report.list</field>
+        <field name="model">l10n_hk.empf.contribution.report</field>
+        <field name="arch" type="xml">
+            <list string="eMPF Contributions">
+                <field name="display_name" string="Name" />
+                <field
+                    name="state" widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-success="state == 'validated'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_hk_empf_contribution_report_form" model="ir.ui.view">
+        <field name="name">l10n_hk.empf.contribution.report.form</field>
+        <field name="model">l10n_hk.empf.contribution.report</field>
+        <field name="arch" type="xml">
+            <form string="eMPF Contributions">
+                <header>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,validated,paid"/>
+                    <button string="Validate" name="action_validate" type="object" class="btn-primary" invisible="state == 'validated'"/>
+                    <button string="Download Report" name="action_generate_report" type="object" class="btn-primary" invisible="state != 'validated'"/>
+                    <button string="Reset To Draft" name="action_draft" type="object" class="btn-secondary" invisible="state != 'validated'"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" nolabel="1" readonly="state == 'validated'"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="contribution_period_end" invisible="1"/>  <!-- required for the date range -->
+                            <field name="contribution_period_start" string="Contributions Period" widget="daterange" options="{'always_range': True, 'end_date_field': 'contribution_period_end'}" readonly="payslip_run_id or state == 'validated'"/>
+                            <field name="payslip_run_id" readonly="state == 'validated'"/>
+                        </group>
+                        <group>
+                            <field name="scheme_id" readonly="payslip_run_group_id or payslip_run_scheme_id or state == 'validated'"/>
+                            <field name="payroll_group_id" readonly="payslip_run_group_id or state == 'validated'"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Contributions" name="contributions">
+                            <field name="contribution_line_ids" readonly="state == 'validated'"
+                                   context="{'default_contribution_start_date': contribution_period_start, 'default_contribution_end_date': contribution_period_end}">
+                                <list no_open="1" editable="bottom">
+                                    <field name="status"/>
+                                    <field name="employee_id" widget="many2one_avatar_employee" readonly="payslip_id"/>
+                                    <field name="mpf_account_number"/>
+                                    <field name="payslip_id" optional="hide" options="{'no_create': True}"/>
+                                    <field name="contribution_end_date" column_invisible="1"/> <!-- required for the daterange fields -->
+                                    <field name="contribution_start_date" string="Period" widget="daterange" options="{'always_range': True, 'end_date_field': 'contribution_end_date'}" readonly="payslip_id" />
+                                    <field name="currency_id" column_invisible="1"/> <!-- required for the monetary fields -->
+                                    <field name="relevant_income" readonly="payslip_id"/>
+                                    <field name="basic_salary" optional="hide" readonly="payslip_id"/>
+                                    <field name="eemc" optional="hide" readonly="payslip_id"/>
+                                    <field name="ermc" optional="hide" readonly="payslip_id"/>
+                                    <field name="eevc" optional="hide" readonly="payslip_id"/>
+                                    <field name="ervc" optional="hide" readonly="payslip_id"/>
+                                    <field name="ervc_2" optional="hide" readonly="payslip_id"/>
+                                    <field name="total_contributions"/>
+                                    <field name="termination_payment_type" optional="show"/>
+                                    <field name="employee_surcharge" optional="hide"/>
+                                    <field name="employer_surcharge" optional="hide"/>
+                                    <button name="action_display_errors" type="object" icon="fa-warning" class="btn-link ms-auto" title="Errors" invisible="not errors"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_hk_empf_contribution_report_recompute_line" model="ir.actions.server">
+        <field name="name">Recompute Contributions</field>
+        <field name="model_id" ref="l10n_hk_hr_payroll_empf.model_l10n_hk_empf_contribution_report"/>
+        <field name="binding_model_id" ref="l10n_hk_hr_payroll_empf.model_l10n_hk_empf_contribution_report"/>
+        <field name="binding_view_types">list,form</field>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.action_recompute_contribution_lines()
+        </field>
+    </record>
+</odoo>

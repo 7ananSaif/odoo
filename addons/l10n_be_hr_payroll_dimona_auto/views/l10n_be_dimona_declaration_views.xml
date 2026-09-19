@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_be_dimona_declaration_view_form" model="ir.ui.view">
+        <field name="name">l10n.be.dimona.declaration.form</field>
+        <field name="model">l10n.be.dimona.declaration</field>
+        <field name="arch" type="xml">
+            <form string="Dimona Declaration">
+                <header>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="employee_id"/>
+                            <field name="version_id"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="declaration_type"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="content" groups="base.group_no_one"/>
+                            <field name="period_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_be_dimona_declaration_view_tree" model="ir.ui.view">
+        <field name="name">l10n.be.dimona.declaration.tree</field>
+        <field name="model">l10n.be.dimona.declaration</field>
+        <field name="arch" type="xml">
+            <list string="Dimona Declarations">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="version_id"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="declaration_type"/>
+                <field name="period_id"/>
+                <field name="state"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_be_dimona_declaration_view_search" model="ir.ui.view">
+        <field name="name">l10n.be.dimona.declaration.search</field>
+        <field name="model">l10n.be.dimona.declaration</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="employee_id"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="l10n_be_dimona_declaration_action" model="ir.actions.act_window">
+        <field name="name">Dimona Declarations</field>
+        <field name="res_model">l10n.be.dimona.declaration</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+
+    <menuitem
+        id="menu_l10n_be_dimona_declaration"
+        name="Dimona Declarations"
+        action="l10n_be_dimona_declaration_action"
+        parent="l10n_be_hr_payroll.menu_reporting_l10n_be"
+        sequence="505"/>
+</odoo>

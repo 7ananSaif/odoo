@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_contract_template_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.template.view.form.inherit.l10_eg_hr_payroll</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+            <group name="salary_info" position="inside">
+                <group string="Allowances" invisible="country_code != 'EG'">
+                    <label for="l10n_eg_housing_allowance" string="Housing Allowance"/>
+                    <div class="o_row" name="l10n_eg_housing_allowance" >
+                        <field name="l10n_eg_housing_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_eg_transportation_allowance" string="Transportation Allowance"/>
+                    <div class="o_row" name="l10n_eg_transportation_allowance">
+                        <field name="l10n_eg_transportation_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_eg_other_allowances" string="Other Allowances"/>
+                    <div class="o_row" name="l10n_eg_other_allowances">
+                        <field name="l10n_eg_other_allowances" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+
+                    <separator string="Annual Leave Provision"/>
+                    <label for="l10n_eg_total_leave_days" string="Number of Leave"/>
+                    <div class="o_row" name="l10n_eg_total_leave_days">
+                        <field name="l10n_eg_total_leave_days" class="o_hr_narrow_field"/>
+                        <span>days</span>
+                    </div>
+
+                    <separator string="Social Insurance Reference"/>
+                    <field name="l10n_eg_social_insurance_reference" class="o_hr_narrow_field"/>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

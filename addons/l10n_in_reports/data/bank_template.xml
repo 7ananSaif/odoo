@@ -1,0 +1,44 @@
+<odoo>
+    <record id="hdfc_bank_selection" model="enet.bank.template">
+        <field name="name">HDFC</field>
+        <field name="image_1920" type="base64" file="l10n_in_reports/static/img/hdfc_logo.png"/>
+        <field name="include_header" eval="False"/>
+        <field name="bank_configuration" eval="[
+            {'field_name': 'payment_method_line_id.code', 'label': 'Transaction Type',
+                'mapping': {
+                    'enet_rtgs': 'R',
+                    'enet_neft': 'N',
+                    'enet_fund_transfer': 'I',
+                    'enet_demand_draft': 'D'
+                }
+            },
+            {'label': 'Beneficiary Code'},
+            {'field_name': 'partner_bank_id.acc_number', 'label': 'Beneficiary Account Number'},
+            {'field_name': 'amount', 'label': 'Amount'},
+            {'field_name': 'partner_id.name', 'label': 'Beneficiary Name'},
+            {'label': 'Drawee Location'},
+            {'label': 'DD Printing Location'},
+            {'label': 'Beneficiary Address 1'},
+            {'label': 'Beneficiary Address 2'},
+            {'label': 'Beneficiary Address 3'},
+            {'label': 'Beneficiary Address 4'},
+            {'label': 'Beneficiary Address 5'},
+            {'label': 'Instruction Reference Number'},
+            {'field_name': 'name', 'label': 'Customer Reference Number'},
+            {'label': 'Payment Details 1'},
+            {'label': 'Payment Details 2'},
+            {'label': 'Payment Details 3'},
+            {'label': 'Payment Details 4'},
+            {'label': 'Payment Details 5'},
+            {'label': 'Payment Details 6'},
+            {'label': 'Payment Details 7'},
+            {'label': 'Cheque Number'},
+            {'field_name': 'date', 'label': 'Chq/Trn Date', 'date_format': '%d/%m/%Y'},
+            {'label': 'MICR Number'},
+            {'field_name': 'partner_bank_id.bank_bic', 'label': 'IFSC Code'},
+            {'field_name': 'partner_bank_id.bank_name', 'label': 'Beneficiary Bank Name'},
+            {'label': 'Beneficiary Bank Branch Name'},
+            {'field_name': 'partner_id.email', 'label': 'Beneficiary Email Id'},
+        ]"/>
+    </record>
+</odoo>

@@ -1,0 +1,38 @@
+<odoo>
+    <data>
+        <record model="ir.rule" id="hr_expense_stripe_card_multi_company_rule">
+            <field name="name">hr.expense.stripe.card.multi.company</field>
+            <field name="model_id" ref="model_hr_expense_stripe_card"/>
+            <field name="global" eval="True"/>
+            <field name="domain_force">[('company_id', 'parent_of', company_ids)]</field>
+        </record>
+
+        <record model="ir.rule" id="hr_expense_stripe_card_expense_admin_rule">
+            <field name="name">hr.expense.stripe.card.expense.admin</field>
+            <field name="model_id" ref="model_hr_expense_stripe_card"/>
+            <field name="groups" eval="[Command.link(ref('hr_expense.group_hr_expense_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="hr_expense_stripe_card_group_user_rule">
+            <field name="name">hr.expense.stripe.card.group.user.rule</field>
+            <field name="model_id" ref="model_hr_expense_stripe_card"/>
+            <field name="groups" eval="[Command.link(ref('base.group_user'))]"/>
+            <field name="domain_force">[('user_id', '=', user.id)]</field>
+        </record>
+
+        <record model="ir.rule" id="hr_expense_stripe_receive_card_wizard_expense_admin_rule">
+            <field name="name">hr.expense.stripe.receive.card.wizard.rule.expense.admin</field>
+            <field name="model_id" ref="model_hr_expense_stripe_card_receive_wizard"/>
+            <field name="groups" eval="[Command.link(ref('hr_expense.group_hr_expense_manager'))]"/>
+            <field name="domain_force">[(1, '=', 1)]</field>
+        </record>
+
+        <record model="ir.rule" id="hr_expense_stripe_receive_card_wizard_user_rule">
+            <field name="name">hr.expense.stripe.receive.card.wizard.rule.user</field>
+            <field name="model_id" ref="model_hr_expense_stripe_card_receive_wizard"/>
+            <field name="groups" eval="[Command.link(ref('base.group_user'))]"/>
+            <field name="domain_force">[('card_id.user_id', '=', user.id)]</field>
+        </record>
+    </data>
+</odoo>

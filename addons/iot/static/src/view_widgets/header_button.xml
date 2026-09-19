@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="iot.HeaderButton">
+        <button type="button"
+                t-att-class="'btn btn-' + props.btn_class"
+                t-att-data-tooltip="props.btn_name"
+                t-att-aria-label="props.btn_name"
+                t-on-click.stop="onClick">
+            <t t-esc='props.btn_name'/>
+        </button>
+    </t>
+
+</templates>

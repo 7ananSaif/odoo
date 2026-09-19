@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="hr_employee_form" model="ir.ui.view">
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <group name="citizenship" position="inside">
+                <field name="l10n_mx_rfc" invisible="country_code != 'MX'"/>
+                <field name="l10n_mx_curp" invisible="country_code != 'MX'"/>
+            </group>
+            <field name="registration_number" position="before">
+                <field name="l10n_mx_regime_type" string="Regime Type" invisible="country_code != 'MX'"/>
+            </field>
+            <field name="resource_calendar_id" position="before">
+                <field name="l10n_mx_shift_type" string="Shift Type" invisible="country_code != 'MX'"/>
+            </field>
+        </field>
+    </record>
+</odoo>

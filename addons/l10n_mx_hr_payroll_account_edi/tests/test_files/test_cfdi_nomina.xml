@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cfdi:Comprobante xmlns:nomina12="http://www.sat.gob.mx/nomina12" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd http://www.sat.gob.mx/nomina12 http://www.sat.gob.mx/sitio_internet/cfd/nomina/nomina12.xsd" Version="4.0" Serie="___ignore___" Folio="___ignore___" Fecha="___ignore___" Sello="___ignore___" SubTotal="5000.00" Descuento="300.00" Moneda="MXN" Total="4700.00" TipoDeComprobante="N" Exportacion="01" MetodoPago="PUE" LugarExpedicion="20000" xmlns:cfdi="http://www.sat.gob.mx/cfd/4" NoCertificado="___ignore___" Certificado="___ignore___">
+    <cfdi:Emisor Rfc="URE180429TM6" Nombre="ESCUELA KEMPER URGATE" RegimenFiscal="601"/>
+    <cfdi:Receptor RegimenFiscalReceptor="605" UsoCFDI="CN01" Rfc="XOJI740919U48" Nombre="INGRID XODAR JIMENEZ" DomicilioFiscalReceptor="76028"/>
+    <cfdi:Conceptos>
+        <cfdi:Concepto ClaveProdServ="84111505" Cantidad="1" ClaveUnidad="ACT" Descripcion="Pago de nómina" ObjetoImp="01" ValorUnitario="5000.00" Importe="5000.00" Descuento="300.00"></cfdi:Concepto>
+    </cfdi:Conceptos>
+    <cfdi:Complemento>
+        <nomina12:Nomina Version="1.2" TipoNomina="O" FechaPago="___ignore___" FechaInicialPago="2024-05-09" FechaFinalPago="2024-05-24" NumDiasPagados="16.000" TotalPercepciones="5000.00" TotalDeducciones="300.00" TotalOtrosPagos="0.00">
+            <nomina12:Emisor RegistroPatronal="B5510768108" RfcPatronOrigen="URE180429TM6"/>
+            <nomina12:Receptor Curp="XEXX010101HNEXXXA4" NumSeguridadSocial="000000" FechaInicioRelLaboral="2015-01-01" Antigüedad="P490W" TipoContrato="01" TipoJornada="01" TipoRegimen="03" NumEmpleado="120" Departamento="Desarrollo" Puesto="Ingeniero de Software" RiesgoPuesto="1" PeriodicidadPago="04" CuentaBancaria="1111111111" Banco="002" SalarioBaseCotApor="346.99" SalarioDiarioIntegrado="333.33" ClaveEntFed="JAL"/>
+            <nomina12:Percepciones TotalSueldos="5000.00" TotalGravado="5000.00" TotalExento="0.00">
+                <nomina12:Percepcion TipoPercepcion="001" Clave="P01" Concepto="Salaries, Wages, Stripes, and Day Labor" ImporteGravado="5000.00" ImporteExento="0.00"/>
+            </nomina12:Percepciones>
+            <nomina12:Deducciones TotalOtrasDeducciones="200.00" TotalImpuestosRetenidos="100.00">
+                <nomina12:Deduccion TipoDeduccion="002" Clave="D02" Concepto="Income Tax" Importe="100.00"/>
+                <nomina12:Deduccion TipoDeduccion="001" Clave="D01" Concepto="Social Security" Importe="200.00"/>
+            </nomina12:Deducciones>
+            <nomina12:OtrosPagos>
+                    <nomina12:OtroPago TipoOtroPago="002" Clave="O02" Concepto="Employment Subsidy (Effectively Delivered to the Worker)" Importe="0.00">
+                        <nomina12:SubsidioAlEmpleo SubsidioCausado="0.00"/>
+                    </nomina12:OtroPago>
+            </nomina12:OtrosPagos>
+        </nomina12:Nomina>
+        <tfd:TimbreFiscalDigital xsi:schemaLocation="http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd" Version="1.1" UUID="___ignore___" FechaTimbrado="___ignore___" RfcProvCertif="___ignore___" SelloCFD="___ignore___" NoCertificadoSAT="___ignore___" SelloSAT="___ignore___" xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"/>
+    </cfdi:Complemento>
+</cfdi:Comprobante>

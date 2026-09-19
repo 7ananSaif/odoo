@@ -1,0 +1,288 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <data noupdate="1">
+        <record id="hr_appraisal_default_template" model="hr.appraisal.template">
+            <field name="description">Default</field>
+            <field name="company_id" ref=""/>
+            <field name="appraisal_employee_feedback_template" type="html">
+                <h2>
+                    <span style="font-weight: bolder;">
+                        My work
+                    </span>
+                </h2>
+                <h3>What are my most important achievements since my last appraisal?</h3>
+                <p>
+                    <em>
+                        Describe something you are proud of—work that had a positive impact on
+                        the company.
+                    </em>
+                </p>
+                <p>
+                    <br/>
+                </p>
+                <h3>
+                  What has been the most challenging aspect of my work this past year,
+                  and why?
+                </h3>
+                <p>
+                    <em>
+                        Did you face any new difficulties or unexpected obstacles?
+                    </em>
+                </p>
+                <p>
+                    <br/>
+                </p>
+                <h3>What do I need to improve my work?</h3>
+                <p>
+                    <em>
+                        How can the company support your needs and objectives to help you 
+                        reach your goals and foster better collaboration?
+                    </em>
+                </p>
+                <p>
+                    <br/>
+                </p>
+                <h2>
+                    <span style="font-weight: bolder;">
+                        My future
+                    </span>
+                </h2>
+                <h3>
+                    What are my short- and long-term goals within the company and for my
+                    career?
+                </h3>
+                <ul>
+                    <li>
+                        <em>Provide a short-term objective (within the next 6 months).</em>
+                    </li>
+                </ul>
+                <p>
+                    <br/>
+                </p>
+                <ul>
+                    <li>
+                        <em>Provide a long-term objective (beyond 6 months).</em>
+                    </li>
+                </ul>
+                <p>
+                    <br/>
+                </p>
+                <h3>Which parts of my job do I enjoy the most? Which do I enjoy the least?</h3>
+                <p>
+                    <em>
+                        Every job has its strong points. In your opinion, which tasks do you 
+                        enjoy the most and which the least?
+                    </em>
+                </p>
+                <p>
+                    <br/>
+                </p>
+                <h2>
+                    <span style="font-weight: bolder;">
+                        My feelings
+                    </span>
+                </h2>
+                <h3>How do I feel about the company?</h3>
+                <table class="table table-bordered o_table w-75">
+                    <tbody>
+                        <tr>
+                            <td class="w-50">
+                                <p>
+                                    <em>Company culture and values</em>
+                                </p>
+                            </td>
+                            <td class="w-25">
+                                <span class="o_stars o_five_stars" id="checkId-1">
+                                    <i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="w-50">
+                                <p>
+                                    <em>Internal Communication</em>
+                                </p>
+                            </td>
+                            <td class="w-25">
+                                <span class="o_stars o_five_stars" id="checkId-2">
+                                    <i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <h3>How do I feel about my own role?</h3>
+                <table class="table table-bordered o_table w-75">
+                    <tbody>
+                        <tr>
+                            <td class="w-50">
+                                <p>
+                                    <em>Job content</em>
+                                </p>
+                            </td>
+                            <td class="w-25">
+                                <span class="o_stars o_five_stars" id="checkId-3">
+                                    <i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="w-50">
+                                <p>
+                                    <em>Work organization</em>
+                                </p>
+                            </td>
+                            <td class="w-25">
+                                <span class="o_stars o_five_stars" id="checkId-4">
+                                    <i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="w-50">
+                                <p>
+                                    <em>Compensation</em>
+                                </p>
+                            </td>
+                            <td class="w-25">
+                                <span class="o_stars o_five_stars" id="checkId-5">
+                                    <i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </field>
+            <field name="appraisal_manager_feedback_template" type="html">
+                <h2>
+                    <span style="font-weight: bolder;">
+                        Feedback
+                    </span>
+                </h2>
+                <h3>
+                    Give one positive achievement that convinced you of the employee's
+                    value.
+                </h3>
+                <p>
+                    <em>
+                        Mention any achievements that demonstrate their strengths in 
+                        handling work-related challenges.
+                    </em>
+                </p>
+                <p>
+                    <br/>
+                </p>
+                <h2>
+                    <span style="font-weight: bolder;">
+                        Evaluation
+                    </span>
+                </h2>
+                <p>
+                    <br/>
+                </p>
+                <table class="table table-bordered o_table w-75">
+                    <tbody>
+                        <tr>
+                            <td class="w-50">
+                                <p>
+                                    <em>Stress Management</em>
+                                </p>
+                            </td>
+                            <td class="w-25">
+                                <span class="o_stars o_five_stars" id="checkId-6">
+                                    <i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="w-50">
+                                <p>
+                                    <em>Time Management</em>
+                                </p>
+                            </td>
+                            <td class="w-25">
+                                <span class="o_stars o_five_stars" id="checkId-7">
+                                    <i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="w-50">
+                                <p>
+                                    <em>Teamwork</em>
+                                </p>
+                            </td>
+                            <td class="w-50">
+                                <span class="o_stars o_five_stars" id="checkId-8">
+                                    <i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="w-50">
+                                <p>
+                                    <em>Autonomy</em>
+                                </p>
+                            </td>
+                            <td class="w-50">
+                                <span class="o_stars o_five_stars" id="checkId-9">
+                                    <i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i>
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="w-50">
+                                <p>
+                                    <em>Proactivity</em>
+                                </p>
+                            </td>
+                            <td class="w-50">
+                                <span class="o_stars o_five_stars" id="checkId-10">
+                                    <i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i><i class="fa fa-star-o" contenteditable="false"></i>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p>
+                    <br/>
+                </p>
+                <h2>
+                    <span style="font-weight: bolder;">
+                        Improvements
+                    </span>
+                </h2>
+                <h3>How could the employee improve?</h3>
+                <p>
+                    <em>
+                        From a manager’s point of view, how could you help them overcome their weaknesses?
+                    </em>
+                </p>
+                <p>
+                    <br/>
+                </p>
+                <h3>Short term (6-months) actions / decisions / objectives</h3>
+                <p>
+                    <em>Do you need a rapid response to address the current situation?</em>
+                </p>
+                <p>
+                    <br/>
+                </p>
+                <h3>
+                    Long term (&gt; 6 months) career discussion: Where does the employee
+                    want to go, and how can you help them reach that goal?
+                </h3>
+                <p>
+                    <em>
+                        How do you see the employee in the future? Does your vision align with 
+                        the employee’s goals?
+                    </em>
+                </p>
+                <p style="margin-bottom: 27px;">
+                    <br/>
+                </p>
+            </field>
+        </record>
+    </data>
+</odoo>

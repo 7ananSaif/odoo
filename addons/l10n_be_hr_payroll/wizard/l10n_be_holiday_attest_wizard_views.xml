@@ -1,0 +1,27 @@
+<odoo>
+    <record id="view_hr_payroll_attest_wizard_form" model="ir.ui.view">
+        <field name="name">l10n.be.holiday.attest.wizard.form</field>
+        <field name="model">l10n.be.holiday.attest.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Holiday Attest">
+                <group>
+                    <field name="months_count"/>
+                    <field name="occupation_rate"/>
+                    <field name="amount"/>
+                    <field name="employee_id" invisible="1"/>
+                    <field name="year" invisible="1"/>
+                    <field name="currency_id" invisible="1"/>
+                </group>
+                <footer>
+                    <button name="action_create_attest_line"
+                            type="object"
+                            string="Create"
+                            class="btn-primary"/>
+                    <button string="Cancel"
+                            special="cancel"
+                            class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

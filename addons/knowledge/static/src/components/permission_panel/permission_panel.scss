@@ -1,0 +1,32 @@
+.popover {
+    .o_knowledge_permission_panel {
+        width: 420px;
+        font-size: var(--body-font-size); // This used to be the font size for the old permission panel
+        max-height: 50vh;
+    }
+}
+
+.o_knowledge_permission_panel {
+    .o_internal_permission,
+    .o_internal_visibility,
+    .o_knowledge_permission_panel_members {
+        .btn {
+            --btn-active-border-color: var(--border-color);
+            --btn-hover-border-color: var(--border-color);
+        }
+    }
+
+    .o_knowledge_permission_panel_members img, .o_knowledge_share_panel_icon {
+        height: 30px;
+        width: 30px;
+        object-fit: cover;
+    }
+    .o_knowledge_permission_panel_members {
+        img.cursor-pointer:hover {
+            filter: brightness(75%);
+        }
+    }
+}
+.o_knowledge_permission_panel_remove_member.focus {
+    color: $danger;
+}

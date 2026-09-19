@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="cap57_employees_long_service_payment_pre_transition" model="hr.salary.rule">
+        <field name="category_id" ref="l10n_hk_hr_payroll.SLSP"/>
+        <field name="name">Long Service Payment - Pre-Transition</field>
+        <field name="code">LONG_SERVICE_PAYMENT_PRE_TRANSITION</field>
+        <field name="sequence">0</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">
+result = payslip._get_years_of_services_per_period()[0] != 0
+        </field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+pre_transition_years, post_transition_years = payslip._get_years_of_services_per_period()
+
+# 5 being the minimum years of services required to be eligible for long service pay.
+if pre_transition_years + post_transition_years &lt; 5:
+    result = 0
+else:
+    salary_base = min(payslip._get_713_gross_at_date(date(2025, 5, 1)), payslip._rule_parameter('l10n_hk_final_payment_threshold'))
+    result = salary_base * 2 / 3 * pre_transition_years
+        </field>
+        <field name="struct_id" ref="l10n_hk_hr_payroll.hr_payroll_structure_cap57_long_service_payment"/>
+        <field name="appears_on_payslip" eval="False"/>
+    </record>
+
+    <record id="cap57_employees_long_service_payment_post_transition" model="hr.salary.rule">
+        <field name="category_id" ref="l10n_hk_hr_payroll.SLSP"/>
+        <field name="name">Long Service Payment - Post-Transition</field>
+        <field name="code">LONG_SERVICE_PAYMENT_POST_TRANSITION</field>
+        <field name="sequence">1</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">
+result = payslip._get_years_of_services_per_period()[1] != 0
+        </field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+pre_transition_years, post_transition_years = payslip._get_years_of_services_per_period()
+
+# 5 being the minimum years of services required to be eligible for long service pay.
+if pre_transition_years + post_transition_years &lt; 5:
+    result = 0
+else:
+    salary_base = min(payslip._get_713_gross_at_date(payslip.date_from), payslip._rule_parameter('l10n_hk_final_payment_threshold'))
+    result = salary_base * 2 / 3 * post_transition_years
+        </field>
+        <field name="struct_id" ref="l10n_hk_hr_payroll.hr_payroll_structure_cap57_long_service_payment"/>
+        <field name="appears_on_payslip" eval="False"/>
+    </record>
+
+    <record id="cap57_employees_long_service_payment" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="name">Long Service Payment</field>
+        <field name="code">LONG_SERVICE_PAYMENT</field>
+        <field name="sequence">2</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = categories['SLSP']</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = min(categories['SLSP'], payslip._rule_parameter('l10n_hk_final_payment_cap'))
+        </field>
+        <field name="struct_id" ref="l10n_hk_hr_payroll.hr_payroll_structure_cap57_long_service_payment"/>
+    </record>
+
+    <record id="cap57_employees_long_service_payment_pre_transition_offset" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Pre-transition Offset</field>
+        <field name="code">LONG_SERVICE_PAYMENT_PRE_TRANSITION_OFFSET</field>
+        <field name="sequence">3</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = payslip.l10n_hk_use_mpf_offsetting and payslip._get_years_of_services_per_period()[0] != 0</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+transition_date = date(2025, 5, 1)
+pre_transition_slips = payslip.employee_id.slip_ids.filtered_domain([
+    ('state', 'in', ['paid', 'validated']),
+    ('struct_id', '=', payslip.env.ref('l10n_hk_hr_payroll.hr_payroll_structure_cap57_employee_salary').id),
+    ('date_to', '&lt;', transition_date),
+])
+values = pre_transition_slips._get_line_values(["ERMC", "ERVC"], compute_sum=True)
+contributions = values["ERVC"]["sum"]["total"] + values["ERMC"]["sum"]["total"]
+result = -min(abs(contributions), result_rules['LONG_SERVICE_PAYMENT_PRE_TRANSITION']['total'])
+        </field>
+        <field name="struct_id" ref="l10n_hk_hr_payroll.hr_payroll_structure_cap57_long_service_payment"/>
+    </record>
+
+    <record id="cap57_employees_long_service_payment_post_transition_offset" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Post-transition Offset</field>
+        <field name="code">LONG_SERVICE_PAYMENT_POST_TRANSITION_OFFSET</field>
+        <field name="sequence">4</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = payslip.l10n_hk_use_mpf_offsetting and payslip._get_years_of_services_per_period()[1] != 0</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+transition_date = date(2025, 5, 1)
+post_transition_slips = payslip.employee_id.slip_ids.filtered_domain([
+    ('state', 'in', ['paid', 'validated']),
+    ('struct_id', '=', payslip.env.ref('l10n_hk_hr_payroll.hr_payroll_structure_cap57_employee_salary').id),
+    ('date_to', '&gt;=', transition_date),
+])
+values = post_transition_slips._get_line_values(["ERVC"], compute_sum=True)
+result = -min(abs(values["ERVC"]["sum"]["total"]), result_rules['LONG_SERVICE_PAYMENT_POST_TRANSITION']['total'])
+        </field>
+        <field name="struct_id" ref="l10n_hk_hr_payroll.hr_payroll_structure_cap57_long_service_payment"/>
+    </record>
+
+    <record id="cap57_employees_long_service_payment_net" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.NET"/>
+        <field name="name">Net</field>
+        <field name="code">NET</field>
+        <field name="sequence">200</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = categories['ALW'] + categories['DED']</field>
+        <field name="struct_id" ref="l10n_hk_hr_payroll.hr_payroll_structure_cap57_long_service_payment"/>
+        <field name="appears_on_employee_cost_dashboard" eval="True"/>
+    </record>
+</odoo>

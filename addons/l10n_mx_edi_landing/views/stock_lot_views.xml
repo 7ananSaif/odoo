@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_production_lot_form" model="ir.ui.view">
+        <field name="name">view.production.lot.form.inherit.l10n.mx.edi.landing</field>
+        <field name="model">stock.lot</field>
+        <field name="inherit_id" ref="stock.view_production_lot_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='location_id']" position="after">
+                <field name="l10n_mx_edi_landed_cost_id" invisible="'MX' not in fiscal_country_codes" options="{'no_quick_create': True, 'no_create_edit': True}"/>
+                <field name="l10n_mx_edi_customs_number" invisible="not l10n_mx_edi_customs_number or 'MX' not in fiscal_country_codes"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

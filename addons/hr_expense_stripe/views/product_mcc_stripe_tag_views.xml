@@ -1,0 +1,83 @@
+<odoo>
+    <record id="view_product_mcc_stripe_tag_form" model="ir.ui.view">
+        <field name="name">product.mcc.stripe.tag.view.form</field>
+        <field name="model">product.mcc.stripe.tag</field>
+        <field name="arch" type="xml">
+            <form string="Stripe Issuing Merchant Category Codes">
+                <sheet>
+                    <group>
+                        <field name="code" readonly="True"/>
+                        <field name="name"/>
+                        <field name="stripe_name" readonly="True" groups="base.group_no_one" string="Stripe Technical Name"/>
+                        <field name="product_id" placeholder="Always refuse transactions"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_product_mcc_stripe_tag_list" model="ir.ui.view">
+        <field name="name">product.mcc.stripe.tag.view.list</field>
+        <field name="model">product.mcc.stripe.tag</field>
+        <field name="arch" type="xml">
+            <list string="Stripe Issuing Merchant Category Codes" multi_edit="True">
+                <field name="code" readonly="True"/>
+                <field name="name" readonly="True"/>
+                <field name="product_id" placeholder="Always refuse transactions"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_product_mcc_stripe_tag_search" model="ir.ui.view">
+        <field name="name" >product.mcc.stripe.tag.view.search</field>
+        <field name="model">product.mcc.stripe.tag</field>
+        <field name="arch" type="xml">
+            <search string="MCCs">
+                <!-- Search -->
+                <field name="name" filter_domain="[('name', 'ilike', self)]" string="Name"/>
+                <field name="code" filter_domain="[('code', 'ilike', self + '%')]" string="Code"/>
+                <field name="product_name" filter_domain="[('product_name', 'ilike', self)]" string="Expense Category to Use"/>
+
+                <!-- Filters -->
+                <filter string="Allowed codes" name="allowed" domain="[('product_id', '!=', False)]"
+                        help="Merchant codes that will be accepted when used by a vendor"/>
+                <filter string="Disallowed codes" name="allowed" domain="[('product_id', '=', False)]"
+                        help="Merchant codes that will always be refused when used by a vendor"/>
+                <separator/>
+                <filter string="Agricultural services" name="agricultural" domain="[('code', '&lt;', '1500')]"/>
+                <filter string="Contracted services" name="contracted"
+                        domain="[('code', '&gt;=', '1500'), ('code', '&lt;', '3000')]"/>
+                <filter string="Transportation services" name="transportation"
+                        domain="[('code', '&gt;=', '4000'), ('code', '&lt;', '4800')]"/>
+                <filter string="Utility services" name="utility"
+                        domain="[('code', '&gt;=', '4800'), ('code', '&lt;', '5000')]"/>
+                <filter string="Retail outlet services" name="retail"
+                        domain="[('code', '&gt;=', '5000'), ('code', '&lt;', '5600')]"/>
+                <filter string="Clothing shops" name="clothing"
+                        domain="[('code', '&gt;=', '5600'), ('code', '&lt;', '5700')]"/>
+                <filter string="Miscellaneous shops" name="misc"
+                        domain="[('code', '&gt;=', '5700'), ('code', '&lt;', '7300')]"/>
+                <filter string="Business services" name="business"
+                        domain="[('code', '&gt;=', '7300'), ('code', '&lt;', '8000')]"/>
+                <filter string="Professional services and membership organisations" name="membership"
+                        domain="[('code', '&gt;=', '8000'), ('code', '&lt;', '9000')]"/>
+                <filter string="Government services" name="government"
+                        domain="[('code', '&gt;=', '9000')]"/>
+                <!-- Group bys -->
+                <group name="group_filters">
+                    <filter string="Expense Category to Use" name="product_id" domain="[]" context="{'group_by': 'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="product_mcc_stripe_tag" model="ir.actions.act_window">
+        <field name="name">Stripe Merchant Category Codes</field>
+        <field name="path">stripe-mcc</field>
+        <field name="res_model">product.mcc.stripe.tag</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem id="menu_product_mcc_stripe_tag" name="MCC" parent="hr_expense.menu_hr_expense_configuration"
+              action="product_mcc_stripe_tag" groups="base.group_no_one" sequence="10"/>
+</odoo>

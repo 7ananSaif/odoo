@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_bank_transaction_receipt_document">
+        <t t-call="web.external_layout">
+            <t t-set="o" t-value="o.with_context(lang=lang)"/>
+            <t t-set="values" t-value="o._get_bank_transaction_receipt_report_values()"/>
+            <t t-set="cfdi" t-value="values.get('cfdi', {})"/>
+            <div class="page">
+                <h3><strong>Payment Receipt: <span t-field="o.name">INV0001</span></strong></h3>
+                <div class="mb-4 mt-3">
+                    <div name="date" class="row">
+                        <div class="col-6" t-if="o.date">
+                            Payment Date: <span t-field="o.date">2023-01-01</span>
+                        </div>
+                    </div>
+                    <div t-if="cfdi and o.l10n_mx_edi_payment_method_id" class="col-6" name="l10n_mx_edi_payment_method">
+                        <strong>Payment Way:</strong>
+                        <span t-out="'%s - %s' % (o.l10n_mx_edi_payment_method_id.code, o.l10n_mx_edi_payment_method_id.name)"/>
+                    </div>
+                    <div class="row">
+                        Customer: <span t-field="o.partner_id">Marc Demo</span>
+                    </div>
+                    <div class="row">
+                        <div class="col-6" t-if="o.amount_total">
+                            Payment Amount: <span t-field="o.amount_total" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}">50 USD</span>
+                         </div>
+                    </div>
+                </div>
+                <t t-call="l10n_mx_edi.report_payment_cfdi"/>
+            </div>
+        </t>
+    </template>
+
+     <record id="action_report_bank_transaction_receipt" model="ir.actions.report">
+        <field name="name">Payment Receipt</field>
+        <field name="model">account.move</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_mx_edi.report_bank_transaction_receipt</field>
+        <field name="report_file">l10n_mx_edi.report_bank_transaction_receipt</field>
+        <field name="binding_type">report</field>
+    </record>
+
+    <template id="report_bank_transaction_receipt">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="lang" t-value="o.partner_id.lang or o.company_id.partner_id.lang"/>
+                <t t-call="l10n_mx_edi.report_bank_transaction_receipt_document" t-lang="lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>

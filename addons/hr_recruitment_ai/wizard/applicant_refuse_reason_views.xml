@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="applicant_get_refuse_reason_view_form_hr_recruitment_ai_inherit" model="ir.ui.view">
+        <field name="name">applicant.get.refuse.reason.form</field>
+        <field name="model">applicant.get.refuse.reason</field>
+        <field name="inherit_id" ref="hr_recruitment.applicant_get_refuse_reason_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//footer//field[@name='template_id']" position="after">
+                <field name="body" widget="mail_composer_chatgpt"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

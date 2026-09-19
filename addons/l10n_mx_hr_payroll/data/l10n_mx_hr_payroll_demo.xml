@@ -1,0 +1,599 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="base.partner_demo_company_mx" model="res.partner" forcecreate="1">
+        <field name="name">INNOVACION VALOR Y DESARROLLO SA SA</field>
+        <field name="vat">IVD920810GU2</field>
+        <field name="street">Av. Francisco I. Madero Ote 313</field>
+        <field name="zip">58000</field>
+        <field name="city">Centro Histórico</field>
+        <field name="state_id" ref="base.state_mx_mich"/>
+        <field name="country_id" ref="base.mx"/>
+        <field name="phone">+52 222 123 4567</field>
+        <field name="email">info@company.mxexample.com</field>
+        <field name="website">www.mxexample.com</field>
+        <field name="is_company" eval="True"/>
+    </record>
+
+    <record id="base.demo_company_mx" model="res.company" forcecreate="1">
+        <field name="name">INNOVACION VALOR Y DESARROLLO SA SA</field>
+        <field name="partner_id" ref="base.partner_demo_company_mx"/>
+        <field name="resource_calendar_id" ref="l10n_mx_hr_payroll.resource_calendar_def_48h"/>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_mx'))]"/>
+    </record>
+
+    <record id="base.user_demo" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_mx'))]"/>
+    </record>
+
+    <record id="mx_hr_department_rd" model="hr.department">
+        <field name="name">R&amp;D MX</field>
+        <field name="company_id" ref="base.demo_company_mx"/>
+    </record>
+
+    <record id="res_partner_mx_work_address" model="res.partner">
+        <field name="name">MX Offices</field>
+        <field name="street">Paseo Ensenada 901</field>
+        <field name="city">Tijuana</field>
+        <field name="zip">22500</field>
+        <field name="state_id" ref="base.state_mx_bc"/>
+        <field name="country_id" ref="base.mx"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+    </record>
+
+    <record id="res_partner_cesar" model="res.partner">
+        <field name="name">Cesar Osbaldo Cruz Solorzano</field>
+        <field name="street">C. Angel "el Zapopan" Romero 339</field>
+        <field name="city">Tlaquepaque</field>
+        <field name="zip">45638</field>
+        <field name="vat">CUSC850516316</field>
+        <field name="country_id" ref="base.mx"/>
+        <field name="state_id" ref="base.state_mx_df"/>
+        <field name="phone">99 1234 5678</field>
+        <field name="company_id" ref="base.demo_company_mx"/>
+    </record>
+    <record id="res_partner_cesar" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_mx_hr_payroll.res_partner_cesar')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_cecilia" model="res.partner">
+        <field name="name">Cecilia Miranda Sanchez</field>
+        <field name="street">Alfonso Caso 102</field>
+        <field name="city">Alvaro Obregón</field>
+        <field name="zip">01010</field>
+        <field name="vat">MISC491214B86</field>
+        <field name="country_id" ref="base.mx"/>
+        <field name="state_id" ref="base.state_mx_df"/>
+        <field name="phone">99 9876 3456</field>
+        <field name="company_id" ref="base.demo_company_mx"/>
+    </record>
+    <record id="res_partner_cecilia" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_xochilt" model="res.partner">
+        <field name="name">Xochilt Casas Chavez</field>
+        <field name="street">C. Ignatio Tellez Campos 687</field>
+        <field name="city">Tlaquepaque</field>
+        <field name="zip">36257</field>
+        <field name="vat">CACX7605011P8</field>
+        <field name="country_id" ref="base.mx"/>
+        <field name="state_id" ref="base.state_mx_jal"/>
+        <field name="phone">99 4567 9876</field>
+        <field name="company_id" ref="base.demo_company_mx"/>
+    </record>
+    <record id="res_partner_xochilt" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_karla" model="res.partner">
+        <field name="name">Karla Fuente Nolasco</field>
+        <field name="street">C. Benjamin Cerda 715</field>
+        <field name="city">Tlaquepaque</field>
+        <field name="zip">01160</field>
+        <field name="vat">FUNK671228PH6</field>
+        <field name="country_id" ref="base.mx"/>
+        <field name="state_id" ref="base.state_mx_jal"/>
+        <field name="phone">99 2345 7654</field>
+        <field name="company_id" ref="base.demo_company_mx"/>
+    </record>
+    <record id="res_partner_karla" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_mx_hr_payroll.res_partner_karla')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_maria" model="res.partner">
+        <field name="name">Maria Olivia Martinez Sagaz</field>
+        <field name="street">Camino al Venado #123</field>
+        <field name="street2">Colonia ISSSTE</field>
+        <field name="city">Culiacán</field>
+        <field name="zip">80290</field>
+        <field name="vat">MASO451221PM4</field>
+        <field name="country_id" ref="base.mx"/>
+        <field name="state_id" ref="base.state_mx_sin"/>
+        <field name="phone">99 2345 7655</field>
+        <field name="company_id" ref="base.demo_company_mx"/>
+    </record>
+    <record id="res_partner_karla" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_mx_hr_payroll.res_partner_karla')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_felix" model="res.partner">
+        <field name="name">Felix Manuel Andrade Ballado</field>
+        <field name="street">De los Ahuehuetes, #108</field>
+        <field name="street2">Arboledas de San Javier</field>
+        <field name="city">Pachuca de Soto</field>
+        <field name="zip">86400</field>
+        <field name="vat">AABF800614HI0</field>
+        <field name="country_id" ref="base.mx"/>
+        <field name="state_id" ref="base.state_mx_hgo"/>
+        <field name="phone">99 2345 7656</field>
+        <field name="company_id" ref="base.demo_company_mx"/>
+    </record>
+    <record id="res_partner_karla" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_mx_hr_payroll.res_partner_karla')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="user_cecilia" model="res.users">
+        <field name="partner_id" ref="l10n_mx_hr_payroll.res_partner_cecilia"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_mx'))]"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="l10n_mx_hr_payroll/static/img/hr_employee_cecilia.jpg"/>
+    </record>
+
+    <record id="user_xochilt" model="res.users">
+        <field name="partner_id" ref="l10n_mx_hr_payroll.res_partner_xochilt"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_mx'))]"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+    </record>
+
+    <record id="user_karla" model="res.users">
+        <field name="partner_id" ref="l10n_mx_hr_payroll.res_partner_karla"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_karla')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_karla')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_mx_hr_payroll.res_partner_karla')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_mx'))]"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+    </record>
+
+    <record id="user_maria" model="res.users">
+        <field name="partner_id" ref="l10n_mx_hr_payroll.res_partner_maria"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_maria')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_maria')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_mx_hr_payroll.res_partner_karla')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_mx'))]"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+    </record>
+
+    <record id="user_felix" model="res.users">
+        <field name="partner_id" ref="l10n_mx_hr_payroll.res_partner_felix"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_felix')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_felix')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_mx_hr_payroll.res_partner_karla')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_mx'))]"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+    </record>
+
+    <record id="mx_res_bank_banorte" model="res.bank">
+        <field name="name">Banorte</field>
+        <field name="bic">MENOMXMTXXX</field>
+        <field name="street">Banorte Street</field>
+        <field name="city">Cancun</field>
+        <field name="zip">77340</field>
+        <field name="state" ref="base.state_mx_q_roo"/>
+        <field name="country" ref="base.mx"/>
+        <field name="phone">99 9911 9239</field>
+    </record>
+    <record id="mx_res_bank_banorte" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_mx_hr_payroll.mx_res_bank_banorte')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="mx_res_bank_azteca" model="res.bank">
+        <field name="name">Banco Azteca</field>
+        <field name="bic">AZTKMXMMXXX</field>
+        <field name="street">Banco Azteca Rd</field>
+        <field name="city">Morelia</field>
+        <field name="zip">58291</field>
+        <field name="state" ref="base.state_mx_mich"/>
+        <field name="country" ref="base.mx"/>
+        <field name="phone">99 9911 2897</field>
+    </record>
+    <record id="mx_res_bank_azteca" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_mx_hr_payroll.mx_res_bank_azteca')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_cesar" model="res.partner.bank">
+        <field name="acc_number">9914439751</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_mx_hr_payroll.mx_res_bank_banorte"/>
+        <field name="partner_id" ref="l10n_mx_hr_payroll.res_partner_cesar"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="currency_id" ref="base.MXN"/>
+    </record>
+
+    <record id="res_partner_bank_account_cecilia" model="res.partner.bank">
+        <field name="acc_number">014279991443975181</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_mx_hr_payroll.mx_res_bank_azteca"/>
+        <field name="partner_id" ref="l10n_mx_hr_payroll.res_partner_cecilia"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="currency_id" ref="base.MXN"/>
+    </record>
+
+    <record id="res_partner_bank_account_xochilt" model="res.partner.bank">
+        <field name="acc_number">014279991443975181</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_mx_hr_payroll.mx_res_bank_banorte"/>
+        <field name="partner_id" ref="l10n_mx_hr_payroll.res_partner_xochilt"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="currency_id" ref="base.MXN"/>
+    </record>
+
+    <record id="res_partner_bank_account_karla" model="res.partner.bank">
+        <field name="acc_number">014279991443975181</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_mx_hr_payroll.mx_res_bank_azteca"/>
+        <field name="partner_id" ref="l10n_mx_hr_payroll.res_partner_karla"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="currency_id" ref="base.MXN"/>
+    </record>
+
+    <record id="res_partner_bank_account_maria" model="res.partner.bank">
+        <field name="acc_number">802900850946113040</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_mx_hr_payroll.mx_res_bank_banorte"/>
+        <field name="partner_id" ref="l10n_mx_hr_payroll.res_partner_maria"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="currency_id" ref="base.MXN"/>
+    </record>
+
+    <record id="res_partner_bank_account_felix" model="res.partner.bank">
+        <field name="acc_number">072580012345678901</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_mx_hr_payroll.mx_res_bank_banorte"/>
+        <field name="partner_id" ref="l10n_mx_hr_payroll.res_partner_felix"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="currency_id" ref="base.MXN"/>
+    </record>
+
+    <record id="base.hr_employee_cesar" model="hr.employee" forcecreate="1">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cesar')).name"/>
+        <field name="image_1920" type="base64" file="l10n_mx_hr_payroll/static/img/hr_employee_cesar.jpg"/>
+        <field name="work_phone">99 9900 0001</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cesar')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="work_contact_id" ref="l10n_mx_hr_payroll.res_partner_cesar"/>
+        <field name="address_id" ref="l10n_mx_hr_payroll.res_partner_mx_work_address"/>
+        <field name="company_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cesar')).company_id"/>
+        <field name="tz">America/Mexico_City</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cesar')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cesar')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cesar')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cesar')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cesar')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cesar')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cesar')).phone"/>
+        <field name="distance_home_work">4</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cesar')).country_id"/>
+        <field name="identification_id">9999820710G01234Z9</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1982, 7, 10).date()"/>
+        <field name="place_of_birth">Cancun</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cesar')).country_id"/>
+        <field name="emergency_contact">Alejandro Solorzano</field>
+        <field name="emergency_phone">99 9123 0924</field>
+        <field name="certificate">bachelor</field>
+        <field name="study_field">Computer Science</field>
+        <field name="study_school">Universidad Nacional Autónoma de México</field>
+        <field name="marital">single</field>
+        <field name="ssnid">20008509461</field>
+        <field name="registration_number">001</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_mx_hr_payroll.res_partner_bank_account_cesar'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_mx_hr_payroll.mx_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_mx_hr_payroll.l10n_mx_employee"/>
+        <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+        <field name="wage">50000</field>
+        <field name="wage_type">monthly</field>
+        <field name="schedule_pay">monthly</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-5, month=1, day=1))"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-5, month=1, day=1))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_mx').id)], limit=1)"/>
+        <field name="work_entry_source">calendar</field>
+        <field name="l10n_mx_holiday_bonus_rate">25</field>
+    </record>
+
+    <record id="base.hr_employee_cecilia" model="hr.employee" forcecreate="1">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).name"/>
+        <field name="image_1920" type="base64" file="l10n_mx_hr_payroll/static/img/hr_employee_cecilia.jpg"/>
+        <field name="work_phone">99 9900 0002</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="address_id" ref="l10n_mx_hr_payroll.res_partner_mx_work_address"/>
+        <field name="parent_id" ref="base.hr_employee_cesar"/>
+        <field name="user_id" ref="l10n_mx_hr_payroll.user_cecilia"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="tz">America/Mexico_City</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).phone"/>
+        <field name="distance_home_work">87</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).country_id"/>
+        <field name="identification_id">9999911205G01234Z9</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1991, 12, 5).date()"/>
+        <field name="place_of_birth">Mexico</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_cecilia')).country_id"/>
+        <field name="emergency_contact">Carlos Sanchez</field>
+        <field name="emergency_phone">99 9798 2173</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Business Administration</field>
+        <field name="study_school">Instituto Tecnológico Autónomo de México</field>
+        <field name="marital">single</field>
+        <field name="ssnid">20804909461</field>
+        <field name="registration_number">002</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_mx_hr_payroll.res_partner_bank_account_cecilia'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_mx_hr_payroll.mx_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_mx_hr_payroll.l10n_mx_employee"/>
+        <field name="contract_type_id" ref="hr.contract_type_temporary"/>
+        <field name="wage">25000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-1))"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-1))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_mx').id)], limit=1)"/>
+        <field name="work_entry_source">calendar</field>
+        <field name="l10n_mx_holiday_bonus_rate">25</field>
+        <field name="schedule_pay">bi-weekly</field>
+        <field name="l10n_mx_payment_period_vouchers">in_period</field>
+        <field name="l10n_mx_meal_voucher_amount">3000</field>
+        <field name="l10n_mx_transport_amount">2000</field>
+        <field name="l10n_mx_gasoline_amount">1000</field>
+        <field name="l10n_mx_savings_fund">4000</field>
+        <field name="l10n_mx_holiday_bonus_rate">25</field>
+    </record>
+
+    <record id="base.hr_employee_xochilt" model="hr.employee" forcecreate="1">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).name"/>
+        <field name="job_title">Software Developer</field>
+        <field name="image_1920" type="base64" file="l10n_mx_hr_payroll/static/img/hr_employee_xochilt.jpg"/>
+        <field name="work_phone">99 9900 0003</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="address_id" ref="l10n_mx_hr_payroll.res_partner_mx_work_address"/>
+        <field name="parent_id" ref="base.hr_employee_cesar"/>
+        <field name="user_id" ref="l10n_mx_hr_payroll.user_xochilt"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="tz">America/Mexico_City</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).phone"/>
+        <field name="distance_home_work">87</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).country_id"/>
+        <field name="identification_id">9999911205G01234Z9</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1976, 5, 1).date()"/>
+        <field name="place_of_birth">Peru</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_xochilt')).country_id"/>
+        <field name="emergency_contact">Ana Sofía Chavez</field>
+        <field name="emergency_phone">55 6789 1234</field>
+        <field name="certificate">bachelor</field>
+        <field name="study_field">Industrial Design</field>
+        <field name="study_school">Universidad Nacional Autónoma de México</field>
+        <field name="marital">single</field>
+        <field name="ssnid">20997609461</field>
+        <field name="registration_number">003</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_mx_hr_payroll.res_partner_bank_account_xochilt'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_mx_hr_payroll.mx_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_mx_hr_payroll.l10n_mx_employee"/>
+        <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+        <field name="wage">75000</field>
+        <field name="wage_type">monthly</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-7, month=1, day=1))"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-7, month=1, day=1))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_mx').id)], limit=1)"/>
+        <field name="work_entry_source">calendar</field>
+        <field name="schedule_pay">bi-weekly</field>
+        <field name="l10n_mx_holiday_bonus_rate">25</field>
+    </record>
+
+    <record id="base.hr_employee_karla" model="hr.employee" forcecreate="1">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_karla')).name"/>
+        <field name="image_1920" type="base64" file="l10n_mx_hr_payroll/static/img/hr_employee_karla.jpg"/>
+        <field name="work_phone">99 9900 0004</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_karla')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="address_id" ref="l10n_mx_hr_payroll.res_partner_mx_work_address"/>
+        <field name="parent_id" ref="base.hr_employee_cesar"/>
+        <field name="user_id" ref="l10n_mx_hr_payroll.user_karla"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="tz">America/Mexico_City</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_karla')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_karla')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_karla')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_karla')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_karla')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_karla')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_karla')).phone"/>
+        <field name="distance_home_work">87</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_karla')).country_id"/>
+        <field name="identification_id">98481986115</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1967, 12, 28).date()"/>
+        <field name="place_of_birth">Mexico</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_karla')).country_id"/>
+        <field name="emergency_contact">Luis Nolasco</field>
+        <field name="emergency_phone">99 4567 9876</field>
+        <field name="certificate">doctor</field>
+        <field name="study_field">Computer Science</field>
+        <field name="study_school">Universidad de Guadalajara</field>
+        <field name="marital">single</field>
+        <field name="ssnid">20926709461</field>
+        <field name="registration_number">004</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_mx_hr_payroll.res_partner_bank_account_karla'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_mx_hr_payroll.mx_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_mx_hr_payroll.l10n_mx_employee"/>
+        <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+        <field name="wage">30000</field>
+        <field name="wage_type">monthly</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_mx').id)], limit=1)"/>
+        <field name="work_entry_source">calendar</field>
+        <field name="schedule_pay">bi-weekly</field>
+        <field name="l10n_mx_holiday_bonus_rate">25</field>
+    </record>
+
+    <record id="base.hr_employee_maria" model="hr.employee" forcecreate="1">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_maria')).name"/>
+        <field name="image_1920" type="base64" file="l10n_mx_hr_payroll/static/img/hr_employee_maria.jpg"/>
+        <field name="work_phone">99 9900 0005</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_maria')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="address_id" ref="l10n_mx_hr_payroll.res_partner_mx_work_address"/>
+        <field name="parent_id" ref="base.hr_employee_cesar"/>
+        <field name="user_id" ref="l10n_mx_hr_payroll.user_maria"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="tz">America/Mexico_City</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_maria')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_maria')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_maria')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_maria')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_maria')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_maria')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_maria')).phone"/>
+        <field name="distance_home_work">87</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_maria')).country_id"/>
+        <field name="identification_id">98481986116</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(2000, 12, 28).date()"/>
+        <field name="place_of_birth">Mexico</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_maria')).country_id"/>
+        <field name="emergency_contact">Ramón Pérez</field>
+        <field name="emergency_phone">99 9900 1005</field>
+        <field name="certificate">graduate</field>
+        <field name="study_field">Computer Science</field>
+        <field name="study_school">Universidad Nacional Autónoma de México</field>
+        <field name="marital">single</field>
+        <field name="ssnid">12218029094</field>
+        <field name="registration_number">005</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_mx_hr_payroll.res_partner_bank_account_maria'))]"/>
+        <field name="job_id" ref="hr.job_trainee"/>
+        <field name="department_id" ref="l10n_mx_hr_payroll.mx_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_mx_hr_payroll.l10n_mx_employee"/>
+        <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+        <field name="wage">8364</field>
+        <field name="wage_type">monthly</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="contract_date_start" eval="datetime(2021, 6, 28).date()"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_mx').id)], limit=1)"/>
+        <field name="work_entry_source">calendar</field>
+        <field name="schedule_pay">monthly</field>
+        <field name="l10n_mx_holiday_bonus_rate">25</field>
+    </record>
+
+    <record id="base.hr_employee_felix" model="hr.employee" forcecreate="1">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_felix')).name"/>
+        <field name="image_1920" type="base64" file="l10n_mx_hr_payroll/static/img/hr_employee_felix.jpg"/>
+        <field name="work_phone">99 9900 0006</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_felix')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="address_id" ref="l10n_mx_hr_payroll.res_partner_mx_work_address"/>
+        <field name="parent_id" ref="base.hr_employee_cesar"/>
+        <field name="user_id" ref="l10n_mx_hr_payroll.user_felix"/>
+        <field name="company_id" ref="base.demo_company_mx"/>
+        <field name="tz">America/Mexico_City</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_felix')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_felix')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_felix')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_felix')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_felix')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_felix')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_felix')).phone"/>
+        <field name="distance_home_work">87</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_felix')).country_id"/>
+        <field name="identification_id">98481986117</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1967, 12, 28).date()"/>
+        <field name="place_of_birth">Mexico</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_mx_hr_payroll.res_partner_felix')).country_id"/>
+        <field name="emergency_contact">Juan Garrindo</field>
+        <field name="emergency_phone">22 2574 4938</field>
+        <field name="certificate">graduate</field>
+        <field name="study_field">Computer Science</field>
+        <field name="study_school">Universidad de Guadalajara</field>
+        <field name="marital">married</field>
+        <field name="ssnid">45908012345</field>
+        <field name="registration_number">006</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_mx_hr_payroll.res_partner_bank_account_felix'))]"/>
+        <field name="job_id" ref="hr.job_trainee"/>
+        <field name="department_id" ref="l10n_mx_hr_payroll.mx_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_mx_hr_payroll.l10n_mx_employee"/>
+        <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+        <field name="wage">10170</field>
+        <field name="wage_type">monthly</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="contract_date_start" eval="datetime(2022, 7, 4).date()"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_mx').id)], limit=1)"/>
+        <field name="work_entry_source">calendar</field>
+        <field name="schedule_pay">monthly</field>
+        <field name="l10n_mx_holiday_bonus_rate">25</field>
+    </record>
+
+    <record id="hr_infonavit_discount" model="l10n.mx.hr.infonavit">
+        <field name="version_id" model="hr.version" search="[('employee_id', '=', ref('base.hr_employee_cecilia'))]"/>
+        <field name="monthly_insurance">50</field>
+        <field name="extra_fixed_monthly_contribution">100</field>
+        <field name="infonavit_type">discount_factor</field>
+        <field name="discount_factor">2</field>
+    </record>
+
+    <record id="hr_infonavit_fixed_monetary_fee" model="l10n.mx.hr.infonavit">
+        <field name="version_id" model="hr.version" search="[('employee_id', '=', ref('base.hr_employee_cecilia'))]"/>
+        <field name="monthly_insurance">50</field>
+        <field name="extra_fixed_monthly_contribution">100</field>
+        <field name="infonavit_type">fixed_monetary_fee</field>
+        <field name="fixed_monetary_fee">2000</field>
+    </record>
+
+    <record id="hr_infonavit_percentage" model="l10n.mx.hr.infonavit">
+        <field name="version_id" model="hr.version" search="[('employee_id', '=', ref('base.hr_employee_cecilia'))]"/>
+        <field name="monthly_insurance">50</field>
+        <field name="extra_fixed_monthly_contribution">100</field>
+        <field name="infonavit_type">percentage</field>
+        <field name="percentage">20</field>
+    </record>
+
+    <record id="hr_fonacot_1000" model="l10n.mx.hr.fonacot">
+        <field name="version_id" model="hr.version" search="[('employee_id', '=', ref('base.hr_employee_cecilia'))]"/>
+        <field name="extra_fixed_monthly_contribution">50</field>
+        <field name="monthly_import">1000</field>
+    </record>
+
+    <record id="hr_fonacot_200" model="l10n.mx.hr.fonacot">
+        <field name="version_id" model="hr.version" search="[('employee_id', '=', ref('base.hr_employee_cecilia'))]"/>
+        <field name="extra_fixed_monthly_contribution">50</field>
+        <field name="monthly_import">200</field>
+    </record>
+</odoo>

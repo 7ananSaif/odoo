@@ -1,0 +1,31 @@
+@property --o-hr-referral-progressbar-progress {
+    syntax: "<percentage>";
+    inherits: true;
+    initial-value: 0%;
+}
+
+@keyframes o_hr_referral_progressbar_animation {
+    from {
+        --o-hr-referral-progressbar-progress: 0%;
+    }
+}
+
+.o_hr_referral_progressbar {
+    $size: 130px;
+    $borderWidth: 7px;
+    $animationTime: 3s;
+    $progressbarBackgroundColor: #eee;
+    $progressbarFillColor: #00ffff;
+
+    height: $size;
+    width: $size;
+    background-image: conic-gradient(
+            $progressbarFillColor var(--o-hr-referral-progressbar-progress),
+            $progressbarBackgroundColor var(--o-hr-referral-progressbar-progress)
+    );
+    animation: o_hr_referral_progressbar_animation $animationTime linear;
+
+    > * {
+        margin: #{$borderWidth};
+    }
+}

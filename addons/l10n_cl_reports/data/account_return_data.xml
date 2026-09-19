@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Not generated and to be removed in 19.1, as it serves the same purpose as the F29 Proposal Return -->
+        <record id="cl_tax_return_type" model="account.return.type">
+            <field name="name">Tax</field>
+            <field name="report_id" ref="l10n_cl.tax_report"/>
+            <field name="country_id" ref="base.cl" />
+            <field name="auto_generate" eval="False"/>
+        </record>
+
+        <record id="cl_f29_tax_return_type" model="account.return.type">
+            <field name="name">F29 Proposal Return (CL)</field>
+            <field name="report_id" ref="l10n_cl_reports.account_financial_report_f29"/>
+            <field name="country_id" ref="base.cl" />
+        </record>
+    </data>
+</odoo>

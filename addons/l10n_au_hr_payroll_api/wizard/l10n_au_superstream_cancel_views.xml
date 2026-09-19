@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="l10n_au_superstream_cancel_view_form" model="ir.ui.view">
+        <field name="name">l10n_au.superstream.cancel.view.form</field>
+        <field name="model">l10n_au.superstream.cancel</field>
+        <field name="arch" type="xml">
+            <form string="">
+                <!-- <header> -->
+                    <div>
+                        <span class="text-bold text-warning">
+                            Before cancelling your super payment, please ask a person with access to your bank records to
+                            check the bank statements. If the direct debit was made, select the first option below. This
+                            will create a refund payment in Odoo to be reconciled with the super refund. If the transaction
+                            hasn't happened yet, select the second option. This will cancel the original Odoo payment and
+                            you won't have to reconcile it.
+                        </span>
+                    </div>
+                <!-- </header> -->
+                <sheet>
+                    <group>
+                        <field name="l10n_au_cancel_type" widget="radio"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button string="Cancel Payment" name="action_cancel" type="object" class="btn-primary"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

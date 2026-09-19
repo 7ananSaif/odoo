@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<odoo>
+    <template id="report_payslip_in_alt" inherit_id="hr_payroll.report_payslip" primary="True">
+        <td id="employee_infos" position="replace">
+            <td id="employee_infos">
+                <div id="employee_name">
+                    <strong class="me-2">Name:</strong>
+                    <span t-field="o.employee_id.legal_name"/>
+                </div>
+                <div id="employee_code">
+                    <strong class="me-2">Code:</strong>
+                    <span t-field="o.employee_id.registration_number"/>
+                </div>
+                <div id="employee_designation">
+                    <strong class="me-2">Designation:</strong>
+                    <span t-field="o.employee_id.job_title"/>
+                </div>
+                <div id="contract_start">
+                    <strong class="me-2">Date Of Joining:</strong>
+                    <span t-out="o.employee_id._get_first_version_date()" t-options="{'widget': 'date'}"/>
+                </div>
+                <div id="employee_location">
+                    <strong class="me-2">Location:</strong>
+                    <span t-field="o.company_id.city"/>
+                </div>
+                <div id="employee_pan">
+                    <strong class="me-2">PAN:</strong>
+                    <span t-field="o.employee_id.l10n_in_pan"/>
+                </div>
+                <div id="employee_uan">
+                    <strong class="me-2">UAN:</strong>
+                    <span t-field="o.employee_id.l10n_in_uan"/>
+                </div>
+                <div id="employee_esic" t-if="o.employee_id.l10n_in_esic_number">
+                    <strong class="me-2">ESIC:</strong>
+                    <span t-field="o.employee_id.l10n_in_esic_number"/>
+                </div>
+                <div id="employee_bank_account">
+                    <strong class="me-2">Bank Account No:</strong>
+                    <span t-field="o.employee_id.primary_bank_account_id.acc_number"/>
+                </div>
+            </td>
+        </td>
+        <td id="other_infos" position="replace">
+            <td id="other_infos">
+                <div id="pay_period">
+                    <strong class="me-2">Pay Period:</strong>
+                    <span t-if="o.date_from &lt; o.employee_id.contract_date_start" t-field="o.employee_id.contract_date_start"/>
+                    <span t-else="" t-field="o.date_from"/>
+                    -
+                    <span t-if="o.employee_id.contract_date_end and o.date_to &gt; o.employee_id.contract_date_end" t-field="o.employee_id.contract_date_end"/>
+                    <span t-else="" t-field="o.date_to"/>
+                </div>
+                <div id="computed_on">
+                    <strong class="me-2">Pay Date:</strong>
+                    <span t-field="o.compute_date"/>
+                </div>
+                <div id="working_schedule">
+                    <strong class="me-2">Working Schedule:</strong>
+                    <t t-if="o.wage_type == 'monthly'">
+                        <span t-out="int(o._get_l10n_in_company_working_time())"/> Days
+                    </t>
+                    <t t-else="">
+                        <span t-out="o._get_l10n_in_company_working_time(return_hours=True)"/> Hours
+                    </t>
+                </div>
+            </td>
+        </td>
+        <th id="line_header_amount" position="replace"/>
+        <th id="line_header_quantity" position="replace"/>
+        <th id="line_header_rate" position="replace"/>
+        <td id="payslip_line_amount" position="replace"/>
+        <td id="payslip_line_quantity" position="replace"/>
+        <td id="payslip_line_rate" position="replace"/>
+    </template>
+
+    <template id="report_payslip_in_lang">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="o" t-value="o.with_context(lang=o.employee_id.lang or o.env.lang)"/>
+                <t t-call="l10n_in_hr_payroll.report_payslip_in_alt" t-lang="o.env.lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>

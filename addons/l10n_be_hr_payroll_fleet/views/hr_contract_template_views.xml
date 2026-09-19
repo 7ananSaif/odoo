@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_contract_template_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.template.view.form.inherit.l10_be_hr_payroll_fleet</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+            <label for="transport_mode_car" position="attributes">
+                <attribute name="groups">fleet.fleet_group_manager</attribute>
+                <attribute name="string">Catalog Company Car</attribute>
+            </label>
+            <div name="transport_mode_car" position="attributes">
+                <attribute name="class">o_checkbox_optional_field</attribute>
+                <attribute name="groups">fleet.fleet_group_manager</attribute>
+            </div>
+            <field name="transport_mode_car" position="after">
+                <field name="car_id" invisible="not transport_mode_car"/>
+            </field>
+            <label for='fuel_card' position="before">
+                <label for="new_car" string="New Company Car"
+                    groups="fleet.fleet_group_manager"/>
+                <div name="new_car_model_id_div"
+                    class="o_checkbox_optional_field"
+                    groups="fleet.fleet_group_manager">
+                    <field name="new_car"/>
+                    <field name="new_car_model_id" invisible="not new_car"/>
+                </div>
+                <field name="ordered_car_id" invisible="not ordered_car_id"/>
+            </label>
+            <xpath expr="//label[@for='fuel_card']" position="attributes">
+                <attribute name="invisible">not transport_mode_car and not new_car</attribute>
+            </xpath>
+            <xpath expr="//div[@name='fuel_card_div']" position="attributes">
+                <attribute name="invisible">not transport_mode_car and not new_car</attribute>
+            </xpath>
+            <xpath expr="//div[@name='fuel_card_div']" position="inside">
+                <span invisible="not fuel_type" groups="fleet.fleet_group_manager">(Fuel Type: <field name="fuel_type" class="oe_inline" readonly="1"/>)</span>
+            </xpath>
+            <field name="car_atn" position="attributes">
+                <attribute name="invisible">not transport_mode_car and not new_car</attribute>
+            </field>
+            <field name="car_atn" position="after">
+                <label for="transport_mode_bike" string="Catalog Company Bike"
+                    groups="fleet.fleet_group_manager"/>
+                <div name="bike_id_div"
+                    class="o_checkbox_optional_field"
+                    groups="fleet.fleet_group_manager">
+                    <field name="transport_mode_bike"/>
+                    <field name="bike_id" invisible="not transport_mode_bike" required="transport_mode_bike"/>
+                </div>
+                <label for="new_bike" string="New Company Bike"
+                    groups="fleet.fleet_group_manager"/>
+                <div name="new_bike_model_id_div"
+                    class="o_checkbox_optional_field"
+                    groups="fleet.fleet_group_manager">
+                    <field name="new_bike"/>
+                    <field name="new_bike_model_id" invisible="not new_bike" required="new_bike"/>
+                </div>
+            </field>
+        </field>
+    </record>
+</odoo>

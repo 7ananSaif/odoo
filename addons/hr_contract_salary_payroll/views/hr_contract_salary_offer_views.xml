@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_contract_salary_offer_view_form_inherit" model="ir.ui.view">
+        <field name="name">hr.contract.salary.offer.view.form.inherit.hr.contract.salary.payroll</field>
+        <field name="model">hr.contract.salary.offer</field>
+        <field name="inherit_id" ref="hr_contract_salary.hr_contract_salary_offer_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='final_yearly_costs']" position="replace">
+                <label class="me-1" for="monthly_wage" string="Salary" invisible="budget_type == 'yearly_employer'"/>
+                <label class="me-1" for="final_yearly_costs" string="Salary" invisible="budget_type == 'monthly_gross'"/>
+                <div class="o_row">
+                    <field class="o_hr_narrow_field" name="monthly_wage" nolabel="1" invisible="budget_type == 'yearly_employer'" readonly="state in ['cancelled', 'full_signed']"/>
+                    <field class="o_hr_narrow_field" name="final_yearly_costs" nolabel="1" invisible="budget_type == 'monthly_gross'" readonly="state in ['cancelled', 'full_signed']"/>
+                    <field name="budget_type" required="1"/>
+                </div>
+            </xpath>
+            <xpath expr="//group[@name='group_offer']" position="after">
+                <group name="salary_simulation_group">
+                    <div class="d-flex justify-content-center">
+                        <div class="w-75">
+                            <div class="border-bottom" colspan="2">
+                                <h3>Salary Simulation Preview</h3>
+                            </div>
+                            <div class="border rounded-3 mt-2 text-bg-secondary bg-opacity-25" colspan="2">
+                                <div class="d-grid gap-1 p-2" style="grid-template-columns: 1fr auto auto auto;">
+                                    <div class="fw-bold">Gross <span invisible="is_full_time">(Part Time)</span></div>
+                                    <div>
+                                        <field name="gross_wage" widget="monetary" readonly="1" options="{'currency_field': 'currency_id'}" class="justify-content-end"/>
+                                    </div>
+                                    <div>/</div>
+                                    <div>month</div>
+                                    <div class="border-top" style="grid-column: span 4;"/>
+                                    <div class="fw-bold">Net</div>
+                                    <div>
+                                        <field name="net_wage" widget="monetary" options="{'currency_field': 'currency_id'}" class="justify-content-end"/>
+                                    </div>
+                                    <div>/</div>
+                                    <div>month</div>
+                                    <div class="border-top" style="grid-column: span 4;"/>
+                                    <div class="fw-bold">Benefits</div>
+                                    <div>
+                                        <field name="monthly_benefits" widget="monetary" options="{'currency_field': 'currency_id'}" class="justify-content-end"/>
+                                    </div>
+                                    <div>/</div>
+                                    <div>month</div>
+                                    <div/>
+                                    <div>
+                                        <field name="yearly_benefits" widget="monetary" options="{'currency_field': 'currency_id'}" class="justify-content-end"/>
+                                    </div>
+                                    <div>/</div>
+                                    <div>year</div>
+                                    <div class="border-top" style="grid-column: span 4;"/>
+                                    <div class="fw-bold">Company cost</div>
+                                    <div>
+                                        <field name="monthly_employer_cost" widget="monetary" options="{'currency_field': 'currency_id'}" class="justify-content-end"/>
+                                    </div>
+                                    <div>/</div>
+                                    <div>month</div>
+                                    <div/>
+                                    <div>
+                                        <field name="yearly_employer_cost" widget="monetary" readonly="1" options="{'currency_field': 'currency_id'}" class="justify-content-end"/>
+                                    </div>
+                                    <div>/</div>
+                                    <div>year</div>
+                                </div>
+                            </div>
+                            <div/>
+                            <div class="alert alert-info mt-2" colspan="2" role="alert" invisible="not context.get('is_hr_payroll', True) or applicant_id">
+                                Please note that this information may be inaccurate and should be used for reference only. The amounts are calculated based on a full time permanent contract, and benefits are computed from the selected employee and/or the selected contract template
+                            </div>
+                            <div class="alert alert-info mt-2" colspan="2" role="alert" invisible="context.get('is_hr_payroll', False) or employee_id">
+                                Please note that this information may be inaccurate and should be used for reference only. The amounts are calculated based on a full time permanent contract, and benefits are computed from the selected contract template
+                            </div>
+                        </div>
+                    </div>
+                </group>
+            </xpath>
+            <xpath expr="//group[@name='group_offer_to']" position="after">
+                <group/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_contract_salary_offer_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.salary.offer.view.form.salary.calculator</field>
+        <field name="model">hr.contract.salary.offer</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <form string="Gross-Net Salary Calculator" js_class="salary_calculator_form_view">
+                <field name="currency_id" invisible="1"/><!-- for monetary widget -->
+                <field name="is_simulation_offer" invisible="1"/><!-- to have the correct default before saving -->
+                <div class="row">
+                    <div class="col-md-7 align-content-center">
+                        <group>
+                            <label class="me-1" for="monthly_wage" string="Salary" invisible="budget_type == 'yearly_employer'"/>
+                            <label class="me-1" for="final_yearly_costs" string="Salary" invisible="budget_type == 'monthly_gross'"/>
+                            <div class="o_row">
+                                <field class="o_hr_narrow_field" name="monthly_wage" nolabel="1" invisible="budget_type == 'yearly_employer'"/>
+                                <field class="o_hr_narrow_field" name="final_yearly_costs" nolabel="1" invisible="budget_type == 'monthly_gross'"/>
+                                <field name="budget_type" nolabel="1" required="1"/>
+                            </div>
+                            <field name="structure_id" required="1" options="{'no_open': True}"/>
+                            <field name="resource_calendar_id" placeholder="Company's Working Schedule"/>
+                            <label for="simulation_employee_id" string="Employee"/>
+                            <field name="simulation_employee_id" placeholder="Optional" nolabel="1"/>
+                        </group>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="border rounded-3 text-bg-secondary bg-opacity-25">
+                            <div class="d-grid gap-1 p-2" style="grid-template-columns: 1fr auto auto auto;">
+                                <div class="fw-bold">Gross <span invisible="is_full_time">(Part Time)</span></div>
+                                <div class="text-end">
+                                    <field name="gross_wage" widget="monetary" readonly="1" options="{'currency_field': 'currency_id'}"/>
+                                </div>
+                                <div>/</div>
+                                <div>month</div>
+                                <div class="border-top" style="grid-column: span 4;"/>
+                                <div class="fw-bold">Net</div>
+                                <div class="text-end">
+                                    <field name="net_wage" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </div>
+                                <div>/</div>
+                                <div>month</div>
+                                <div class="border-top" style="grid-column: span 4;"/>
+                                <div class="fw-bold">Benefits</div>
+                                <div class="text-end">
+                                    <field name="monthly_benefits" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </div>
+                                <div>/</div>
+                                <div>month</div>
+                                <div/>
+                                <div class="text-end">
+                                    <field name="yearly_benefits" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </div>
+                                <div>/</div>
+                                <div>year</div>
+                                <div class="border-top" style="grid-column: span 4;"/>
+                                <div class="fw-bold">Company cost</div>
+                                <div class="text-end">
+                                    <field name="monthly_employer_cost" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                                </div>
+                                <div>/</div>
+                                <div>month</div>
+                                <div/>
+                                <div class="text-end">
+                                    <field name="yearly_employer_cost" widget="monetary" readonly="1" options="{'currency_field': 'currency_id'}"/>
+                                </div>
+                                <div>/</div>
+                                <div>year</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <footer>
+                    <div class="d-flex flex-column flex-sm-row gap-2 w-100">
+                        <div class="d-flex w-100 w-sm-auto gap-2">
+                            <button string="Configure Benefits" name="action_open_salary_configurator" type="object"
+                                class="btn-primary w-50 w-sm-auto"/>
+                            <field name="url" string="Copy Link" widget="CopyClipboardButton"
+                                class="w-50 w-sm-auto" options="{'btn_class': 'primary w-100'}"/>
+                        </div>
+                        <button special="cancel" string="Close" type="object" class="btn-secondary w-100 w-sm-auto"/>
+                    </div>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_hr_salary_simulator" model="ir.actions.act_window">
+        <field name="name">Gross-Net Salary Calculator</field>
+        <field name="res_model">hr.contract.salary.offer</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" eval="ref('hr_contract_salary_offer_view_form')"/>
+        <field name="context">{'default_is_simulation_offer': True}</field>
+    </record>
+</odoo>

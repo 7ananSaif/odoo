@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_contract_template_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.template.view.form.inherit.l10_au_hr_payroll</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+            <div name="wage" position="after">
+                <label for="l10n_au_yearly_wage" invisible="country_code != 'AU'"/>
+                <div class="o_row" invisible="country_code != 'AU'">
+                    <field name="l10n_au_yearly_wage" class="o_hr_narrow_field"/>
+                    <span>/ year</span>
+                </div>
+            </div>
+            <div name="hourly_wage" position="after">
+                <field name="l10n_au_casual_loading"
+                    class="o_hr_percentage_narrow_field" widget="percentage"
+                    invisible="country_code != 'AU' or wage_type == 'monthly'"/>
+            </div>
+            <group name="salary_info" position="inside">
+                <group name="l10n_au_general" string="General" invisible="country_code != 'AU'">
+                    <field name="l10n_au_pay_day"/>
+                    <field name="l10n_au_cessation_type_code" invisible="not date_end"/>
+
+                    <separator string="Leave Loading / Workplace Giving"/>
+                    <label for="l10n_au_eligible_for_leave_loading"/>
+                    <div class="o_row">
+                        <field name="l10n_au_eligible_for_leave_loading"/>
+                        <field name="l10n_au_leave_loading" class="o_hr_narrow_field" invisible="not l10n_au_eligible_for_leave_loading"/>
+                    </div>
+                    <field name="l10n_au_leave_loading_leave_types" invisible="not l10n_au_eligible_for_leave_loading or l10n_au_leave_loading != 'once'">
+                        <list editable="bottom">
+                            <field name="display_name"/>
+                            <field name="work_entry_type_id"/>
+                        </list>
+                    </field>
+                    <label for="l10n_au_leave_loading_rate" invisible="not l10n_au_eligible_for_leave_loading or not l10n_au_leave_loading"/>
+                    <div class="o_row" invisible="not l10n_au_eligible_for_leave_loading or not l10n_au_leave_loading">
+                        <field name="l10n_au_leave_loading_rate" class="o_hr_percentage_narrow_field" widget="percentage"/>
+                    </div>
+                    <field name="l10n_au_workplace_giving" class="o_hr_narrow_field" widget="monetary"/>
+                    <field name="l10n_au_workplace_giving_employer" class="o_hr_narrow_field" widget="monetary"/>
+
+                    <separator string="Super Contributions"/>
+                    <label for="l10n_au_extra_negotiated_super"/>
+                    <div class="o_row">
+                        <field name="l10n_au_extra_negotiated_super" class="o_hr_percentage_narrow_field" widget="percentage"/>
+                    </div>
+                    <label for="l10n_au_extra_compulsory_super"/>
+                    <div class="o_row">
+                        <field name="l10n_au_extra_compulsory_super" class="o_hr_percentage_narrow_field" widget="percentage"/>
+                    </div>
+
+                    <separator string="Salary Sacrifice"/>
+                    <field name="l10n_au_salary_sacrifice_superannuation" widget="monetary"/>
+                    <field name="l10n_au_salary_sacrifice_other" widget="monetary"/>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_ke_tax_deduction_card_view_form" model="ir.ui.view">
+        <field name="name">l10n_ke.tax.deduction.card.form</field>
+        <field name="model">l10n_ke.tax.deduction.card</field>
+        <field name="inherit_id" ref="hr_payroll.hr_payroll_declaration_mixin_view_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <form position="attributes">
+                <attribute name="string">Tax Deduction Card</attribute>
+            </form>
+            <field name="year" position="after">
+                <field name="name"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="l10n_ke_tax_deduction_card_action" model="ir.actions.act_window">
+        <field name="name">Tax Deduction Card</field>
+        <field name="res_model">l10n_ke.tax.deduction.card</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+
+    <record id="action_report_tax_deduction_card" model="ir.actions.report">
+        <field name="name">Tax Deduction Card</field>
+        <field name="model">hr.employee</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_ke_hr_payroll.report_tax_deduction_card</field>
+        <field name="report_file">l10n_ke_hr_payroll.report_tax_deduction_card</field>
+        <field name="paperformat_id" ref="l10n_ke_hr_payroll.paperformat_ke_tax_deduction_card"/>
+        <field name="print_report_name">(object._get_report_base_filename())</field>
+        <field name="binding_model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="l10n_be_account_audit_account_balances_search_view_inherit" model="ir.ui.view">
+            <field name="name">account.audit.account.balances.search</field>
+            <field name="model">account.account</field>
+            <field name="inherit_id" ref="account_reports.account_audit_account_balances_search_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//search" position="inside">
+                    <filter string="Audit Accounts (BE)"
+                            name="l10n_be_audit_accounts"
+                            invisible="not (
+                                context.get('l10n_be_audit_acc_1')
+                                or context.get('l10n_be_audit_acc_2')
+                                or context.get('l10n_be_audit_acc_3')
+                                or context.get('l10n_be_audit_acc_4')
+                                or context.get('l10n_be_audit_acc_5')
+                                or context.get('l10n_be_audit_acc_6')
+                            )"
+                            domain="[
+                                '|', '|', '|', '|', '|',
+                                ('code', '=ilike', context.get('l10n_be_audit_acc_1')),
+                                ('code', '=ilike', context.get('l10n_be_audit_acc_2')),
+                                ('code', '=ilike', context.get('l10n_be_audit_acc_3')),
+                                ('code', '=ilike', context.get('l10n_be_audit_acc_4')),
+                                ('code', '=ilike', context.get('l10n_be_audit_acc_5')),
+                                ('code', '=ilike', context.get('l10n_be_audit_acc_6'))
+                            ]"
+                    />
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

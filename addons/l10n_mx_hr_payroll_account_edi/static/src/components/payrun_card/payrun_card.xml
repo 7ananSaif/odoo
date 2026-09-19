@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<templates>
+    <t t-name="l10n_mx_hr_payroll_account_edi.PayRunCard" t-inherit="hr_payroll.PayRunCard" t-inherit-mode="extension">
+        <t t-set-slot="revert" position="before">
+            <t t-set-slot="generate_cfdi_primary" isVisible="payrun.l10n_mx_cfdi_primary">
+                <ViewButton className="'btn btn-primary'"
+                            clickParams="{type: 'object', name: 'action_generate_cfdi'}"
+                            record="props.record"
+                            string.translate="Generate CFDI"/>
+            </t>
+            <t t-set-slot="generate_cfdi_secondary" isVisible="payrun.l10n_mx_cfdi_secondary">
+                <ViewButton className="'btn btn-secondary'"
+                            clickParams="{type: 'object', name: 'action_generate_cfdi'}"
+                            record="props.record"
+                            string.translate="Generate CFDI"/>
+            </t>
+        </t>
+    </t>
+</templates>

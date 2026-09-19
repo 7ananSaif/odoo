@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sign_template_tree_custom" model="ir.ui.view">
+        <field name="name">sign.template.list.custom</field>
+        <field name="model">sign.template</field>
+        <field name="inherit_id" ref="sign.sign_template_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="action"></attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

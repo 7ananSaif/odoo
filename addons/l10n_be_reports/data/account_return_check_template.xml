@@ -1,0 +1,831 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Equity -->
+        <record id="account_return_check_template_be_equity_capital_notary_fees_allocation_to_legal_reserve" model="account.return.check.template">
+            <field name="name">Allocation to Legal Reserve</field>
+            <field name="description">Should you allocate an amount to the legal reserve?
+
+Belgian law requires companies to allocate part of their profits to the legal reserve until it reaches a certain amount. This check verifies whether this obligation has been fulfilled.</field>
+            <field name="type">check</field>
+            <field name="cycle">equity</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_equity_capital_notary_fees_allocation_to_legal_reserve</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '69%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_equity_capital_notary_fees_capitalization" model="account.return.check.template">
+            <field name="name">Formation Expenses and Capital Entry</field>
+            <field name="description">Are the capital and formation expenses, like notary fees, recorded correctly?
+
+Formation expenses, such as notary fees, must be recorded as an asset on the balance sheet and amortized over time. Capital, however, represents owner's equity and should be recorded on the liability side.</field>
+            <field name="type">check</field>
+            <field name="cycle">equity</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_equity_capital_notary_fees_capitalization</field>
+        </record>
+
+        <record id="account_return_check_template_be_equity_capital_notary_fees_dividend_for_wh_tax_refund" model="account.return.check.template">
+            <field name="name">Dividend for Withholding Tax Refund</field>
+            <field name="description">Should you distribute a dividend of at least €833 to get a €249.90 withholding tax refund on your personal income tax?
+
+In Belgium, it is possible to recover part of the withholding tax (tax on dividends). This check is a reminder to optimize your tax situation by distributing dividends.</field>
+            <field name="type">check</field>
+            <field name="cycle">equity</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_equity_capital_notary_fees_dividend_for_wh_tax_refund</field>
+        </record>
+
+        <record id="account_return_check_template_be_equity_capital_notary_fees_provision_for_liquidation_reserve" model="account.return.check.template">
+            <field name="name">Provision for Liquidation Reserve</field>
+            <field name="description">Should you set aside a liquidation reserve from the profit?
+
+A liquidation reserve is a portion of the profit set aside to be taxed at a reduced rate in the event of future liquidation. It is an attractive tax option worth considering.</field>
+            <field name="type">check</field>
+            <field name="cycle">equity</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_equity_capital_notary_fees_provision_for_liquidation_reserve</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '69%'}</field>
+        </record>
+
+        <!-- Fixed assets -->
+        <record id="account_return_check_template_be_fixed_assets_asset_disposal" model="account.return.check.template">
+            <field name="name">Asset Disposal</field>
+            <field name="description">Are there any investments that need to be removed because they no longer exist or are obsolete?
+
+If an asset is no longer used or is out of service, it must be removed from the company's assets. This check is used to identify these assets and record them correctly.</field>
+            <field name="type">check</field>
+            <field name="cycle">fixed_assets</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_fixed_assets_asset_disposal</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{
+                'search_default_l10n_be_audit_accounts': 1,
+                'l10n_be_audit_acc_1': '20%',
+                'l10n_be_audit_acc_2': '21%',
+                'l10n_be_audit_acc_3': '22%',
+                'l10n_be_audit_acc_4': '23%',
+                'l10n_be_audit_acc_5': '24%',
+                'l10n_be_audit_acc_6': '25%'
+            }</field>
+        </record>
+
+        <record id="account_return_check_template_be_fixed_assets_depreciation_rate" model="account.return.check.template">
+            <field name="name">Depreciation Rates</field>
+            <field name="description">Are the depreciation rates and rules in line with tax requirements?
+
+Depreciation is the allocation of the cost of an asset over several years. It is important that the depreciation period used complies with Belgian tax rules so that it is not rejected in the event of an audit.</field>
+            <field name="type">check</field>
+            <field name="cycle">fixed_assets</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_fixed_assets_depreciation_rate</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{
+                'search_default_l10n_be_audit_accounts': 1,
+                'l10n_be_audit_acc_1': '20%',
+                'l10n_be_audit_acc_2': '21%',
+                'l10n_be_audit_acc_3': '22%',
+                'l10n_be_audit_acc_4': '23%',
+                'l10n_be_audit_acc_5': '24%',
+                'l10n_be_audit_acc_6': '25%'
+            }</field>
+        </record>
+
+        <record id="account_return_check_template_be_fixed_assets_depreciation_recording_completeness" model="account.return.check.template">
+            <field name="name">Depreciation Entries Completeness</field>
+            <field name="description">Have you recorded depreciations up to the end of the period?
+
+You must ensure that depreciation of assets has been calculated and recorded up to the balance sheet date.</field>
+            <field name="type">check</field>
+            <field name="cycle">fixed_assets</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_fixed_assets_depreciation_recording_completeness</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{
+                'search_default_l10n_be_audit_accounts': 1,
+                'l10n_be_audit_acc_1': '20%',
+                'l10n_be_audit_acc_2': '21%',
+                'l10n_be_audit_acc_3': '22%',
+                'l10n_be_audit_acc_4': '23%',
+                'l10n_be_audit_acc_5': '24%',
+                'l10n_be_audit_acc_6': '25%'
+            }</field>
+        </record>
+
+        <record id="account_return_check_template_be_fixed_assets_depreciaton_schedule_against_trial_balance" model="account.return.check.template">
+            <field name="name">Depreciation Schedule ↔ Trial Balance</field>
+            <field name="description">Have you checked the investment table against the trial balance?
+
+The list of investments must match the totals of the asset accounts in the trial balance. This check ensures that there are no omissions.</field>
+            <field name="type">check</field>
+            <field name="cycle">fixed_assets</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_fixed_assets_depreciaton_schedule_against_trial_balance</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{
+                'search_default_l10n_be_audit_accounts': 1,
+                'l10n_be_audit_acc_1': '20%',
+                'l10n_be_audit_acc_2': '21%',
+                'l10n_be_audit_acc_3': '22%',
+                'l10n_be_audit_acc_4': '23%',
+                'l10n_be_audit_acc_5': '24%',
+                'l10n_be_audit_acc_6': '25%'
+            }</field>
+        </record>
+
+        <record id="account_return_check_template_be_fixed_assets_investments" model="account.return.check.template">
+            <field name="name">Investments</field>
+            <field name="description">Did you correctly create every investment in Odoo?
+
+Every durable asset purchased by the company (machinery, furniture, etc.) must be recorded as an investment. This check verifies that these assets are being tracked correctly for depreciation purposes.</field>
+            <field name="type">check</field>
+            <field name="cycle">fixed_assets</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_fixed_assets_investments</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{
+                'search_default_l10n_be_audit_accounts': 1,
+                'l10n_be_audit_acc_1': '20%',
+                'l10n_be_audit_acc_2': '21%',
+                'l10n_be_audit_acc_3': '22%',
+                'l10n_be_audit_acc_4': '23%',
+                'l10n_be_audit_acc_5': '24%',
+                'l10n_be_audit_acc_6': '25%'
+            }</field>
+        </record>
+
+        <record id="account_return_check_template_be_fixed_assets_vehicles" model="account.return.check.template">
+            <field name="name">Vehicles</field>
+            <field name="description">Do you have a complete file for each vehicle (motorbike/car/commercial vehicle)?
+
+Vehicle expenses are subject to specific deductibility rules in Belgium. A complete file is necessary to correctly calculate depreciation and deductible expenses based on CO₂ emissions.</field>
+            <field name="type">check</field>
+            <field name="cycle">fixed_assets</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_fixed_assets_vehicles</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{
+                'search_default_l10n_be_audit_accounts': 1,
+                'l10n_be_audit_acc_1': '20%',
+                'l10n_be_audit_acc_2': '21%',
+                'l10n_be_audit_acc_3': '22%',
+                'l10n_be_audit_acc_4': '23%',
+                'l10n_be_audit_acc_5': '24%',
+                'l10n_be_audit_acc_6': '25%'
+            }</field>
+        </record>
+
+        <!-- Inventory -->
+        <record id="account_return_check_template_be_inventory_recording" model="account.return.check.template">
+            <field name="name">Inventory Recording</field>
+            <field name="description">Has the inventory been recorded?
+
+Inventory (stock of goods) is an important asset that must be valued and recorded at the end of the fiscal year to determine the company's exact results.</field>
+            <field name="type">check</field>
+            <field name="cycle">inventory</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_inventory_recording</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '3%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_inventory_margin" model="account.return.check.template">
+            <field name="name">Inventory Margin</field>
+            <field name="description">If you have purchased goods, have you checked whether an inventory has been carried out to calculate the margin?
+
+This check ensures that the stock of goods has been correctly valued in order to calculate the gross margin and the cost of goods sold.</field>
+            <field name="type">check</field>
+            <field name="cycle">inventory</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_inventory_marging</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '60%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_inventory_value_reduction_on_old_stock" model="account.return.check.template">
+            <field name="name">Write-Downs on Old Stock</field>
+            <field name="description">Are there any inventory write-downs to be recorded (old stock)?
+
+If goods in stock have lost value (are obsolete or damaged), this must be reflected in the accounts by means of a write-down, which is often tax deductible.</field>
+            <field name="type">check</field>
+            <field name="cycle">inventory</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_inventory_value_reduction_on_old_stock</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '3%'}</field>
+        </record>
+
+        <!-- Operating Expenses -->
+        <record id="account_return_check_template_be_oe_provision_balance" model="account.return.check.template">
+            <field name="name">Provision Balance</field>
+            <field name="description">Have you checked that the balance of provisions is correct and that the uses of the account are justified?
+
+This check is used to verify that all of the company's provisions are correctly justified and calculated, and that they correspond to actual risks or expenses.</field>
+            <field name="type">check</field>
+            <field name="cycle">operating_expenses</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_oe_provision_balance</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '456%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_oe_year_end_expense_accruals" model="account.return.check.template">
+            <field name="name">Year-End Expense Accruals</field>
+            <field name="description">Are there any expenses to be included in the fiscal year (expenses paid in the next fiscal year)?
+
+You need to check if the company has paid for expenses (e.g. an annual insurance policy) that concern the next fiscal year. These expenses must be allocated correctly.</field>
+            <field name="type">check</field>
+            <field name="cycle">operating_expenses</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_oe_year_end_expense_accruals</field>
+        </record>
+
+        <!-- Others -->
+        <record id="account_return_check_template_be_other_long_term_liabilities_reclassification" model="account.return.check.template">
+            <field name="name">Reclassification of Liabilities</field>
+            <field name="description">Have you reclassified the long term liabilities accounts to short term liabilities?
+
+This check verifies that long-term liabilities due within the year are moved to short-term liabilities.</field>
+            <field name="type">check</field>
+            <field name="cycle">other</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_other_long_term_liabilities_reclassification</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '17%', 'l10n_be_audit_acc_2': '42%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_other_prorating_expenses_income" model="account.return.check.template">
+            <field name="name">Prorated Income and Expenses</field>
+            <field name="description">Have you calculated the prorated expenses/income?
+
+This check ensures that revenues and expenses are allocated to the correct fiscal year, in line with the accrual principle. In Belgium, prorating is required to present an accurate picture of the company's financial position and results at year-end.</field>
+            <field name="type">check</field>
+            <field name="cycle">other</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_other_prorating_expenses_income</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '490000', 'l10n_be_audit_acc_2': '491000'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_other_turnover_against_vat_concordance" model="account.return.check.template">
+            <field name="name">Sales ↔ VAT Reconciliation</field>
+            <field name="description">Have you matched your sales figures with your VAT figures?
+
+You must ensure that the sales figures declared to the VAT authorities are the same as those recorded in the company's books.</field>
+            <field name="type">check</field>
+            <field name="cycle">other</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_other_turnover_against_vat_concordance</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '70%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_other_verify_next_year_allocations" model="account.return.check.template">
+            <field name="name">Next Year Allocations Verification</field>
+            <field name="description">Did you check with the next fiscal year whether all amounts were correctly allocated?
+
+This is a check to ensure that expenses and income for one fiscal year have not been mistakenly transferred to the next fiscal year, or vice versa.</field>
+            <field name="type">check</field>
+            <field name="cycle">other</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_other_verify_next_year_allocations</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '490000', 'l10n_be_audit_acc_2': '491000'}</field>
+        </record>
+
+        <!-- Payroll -->
+        <record id="account_return_check_template_be_payroll_13_month" model="account.return.check.template">
+            <field name="name">Provision for 13th Month Salary</field>
+            <field name="description">Have you set aside provisions for the 13th month, if applicable?
+
+If the 13th month is mandatory, provisions must be set aside at the end of the fiscal year to accurately reflect the year's expenses.</field>
+            <field name="type">check</field>
+            <field name="cycle">payroll</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_payroll_13_month</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '62%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_payroll_28120" model="account.return.check.template">
+            <field name="name">Salary Reconciliation with Form 281.20</field>
+            <field name="description">Do the salaries match and correspond to tax form 281.20?
+
+Tax form 281.20 summarizes the remuneration of directors. This check ensures that the salaries recorded correspond to those declared to the tax authorities.</field>
+            <field name="type">check</field>
+            <field name="cycle">payroll</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_payroll_28120</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '618%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_payroll_benefit_in_kind" model="account.return.check.template">
+            <field name="name">Director's BIK: Current Account</field>
+            <field name="description">Have you checked whether there is any benefit in kind (BIK) to be calculated and whether the transactions in the current account have been justified?
+
+BIK is a benefit granted by the company to its director (company car, cell phone, etc.) which is taxable. It is important to ensure that all benefits are properly declared and that the director's current account is justified.</field>
+            <field name="type">check</field>
+            <field name="cycle">payroll</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_payroll_benefit_in_kind</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '416%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_payroll_director_benefit_in_kind" model="account.return.check.template">
+            <field name="name">Director's BIK: Recording</field>
+            <field name="description">Are all benefits in kind (BIK) accounted for for the director (cell phone, internet, PC, car, etc.)?
+
+As with the previous check, this is to ensure that all benefits in kind for the director are properly accounted for and declared.</field>
+            <field name="type">check</field>
+            <field name="cycle">payroll</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_payroll_director_benefit_in_kind</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '618%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_payroll_director_meal_vouchers" model="account.return.check.template">
+            <field name="name">Director's Meal Vouchers: Recording</field>
+            <field name="description">Have you recorded the portion of meal vouchers payable by the director?
+
+The company and the employee (or director) share the cost of meal vouchers. You must ensure that the allocation and recording are correct for tax purposes.</field>
+            <field name="type">check</field>
+            <field name="cycle">payroll</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_payroll_director_meal_vouchers</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '618%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_payroll_" model="account.return.check.template">
+            <field name="name">Provision for Holiday Pay</field>
+            <field name="description">Have you set aside provisions for holiday pay for hourly and salaried employees?
+
+Holiday pay is an expense for the company. The amount must be set aside at the end of the fiscal year to anticipate payments for the next year.</field>
+            <field name="type">check</field>
+            <field name="cycle">payroll</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_payroll_</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '62%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_payroll_individual_pension_commitment" model="account.return.check.template">
+            <field name="name">IPS Premium Deductibility</field>
+            <field name="description">If there is an IPS, is the amount paid tax deductible and related to the director's salary?
+
+An IPS (Individual Pension Scheme) is a life insurance policy for directors. It is important to ensure that the premiums paid are tax deductible, which depends on the director's salary.</field>
+            <field name="type">check</field>
+            <field name="cycle">payroll</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_payroll_individual_pension_commitment</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '618%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_payroll_personnel_acc_reclasification_2" model="account.return.check.template">
+            <field name="name">Reclassification of Social and Tax Debts</field>
+            <field name="description">Have you reclassified accounts 453 and 454, which would be included in current liabilities?
+
+Tax and social security liabilities must be reclassified as current liabilities if they are due within the year, which is crucial for balance sheet analysis.</field>
+            <field name="type">check</field>
+            <field name="cycle">payroll</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_payroll_personnel_acc_reclasification_2</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{
+                'search_default_l10n_be_audit_accounts': 1,
+                'l10n_be_audit_acc_1': '453%',
+                'l10n_be_audit_acc_2': '454%',
+                'l10n_be_audit_acc_3': '455%',
+            }</field>
+        </record>
+
+        <record id="account_return_check_template_be_payroll_personnel_acc_reco_1" model="account.return.check.template">
+            <field name="name">Salary and Social Debts Accounts Reconciliation</field>
+            <field name="description">Have you reconciled accounts 453, 454, and 455 to ensure that the accounts are settled or correctly justified?
+
+Confirm that all advances, down payments, salaries, and social charges have been properly recorded, settled, or justified (e.g. salary deductions, reimbursements, social security liabilities).</field>
+            <field name="type">check</field>
+            <field name="cycle">payroll</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_payroll_personnel_acc_reco_1</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{
+                'search_default_l10n_be_audit_accounts': 1,
+                'l10n_be_audit_acc_1': '453%',
+                'l10n_be_audit_acc_2': '454%',
+                'l10n_be_audit_acc_3': '455%',
+            }</field>
+        </record>
+
+        <record id="account_return_check_template_be_payroll_rent_classification" model="account.return.check.template">
+            <field name="name">Rent Reclassification to Remuneration</field>
+            <field name="description">Is there any rent in this account that could be reclassified as remuneration for the excess portion?
+
+If a director rents property to their company, part of the rent may be considered taxable remuneration if it exceeds a certain amount. This check verifies whether this rule is being followed.</field>
+            <field name="type">check</field>
+            <field name="cycle">payroll</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_payroll_rent_classification</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '610%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_payroll_social_secretariat_concordance" model="account.return.check.template">
+            <field name="name">Salary ↔ Payroll Office Reconciliation</field>
+            <field name="description">Are your salaries identical to those reported by the payroll office?
+
+It is essential that the salaries recorded match the declarations made by the payroll office. This helps to avoid errors and the risk of audits by the National Social Security Office (NSSO) or the tax authorities.</field>
+            <field name="type">check</field>
+            <field name="cycle">payroll</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_payroll_social_secretariat_concordance</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '62%'}</field>
+        </record>
+
+        <!-- Regulatory compliance  -->
+        <record id="account_return_check_template_be_rc_270mh_form" model="account.return.check.template">
+            <field name="name">Rent Declaration (Form 270 MLH)</field>
+            <field name="description">Have you prepared form 270 MLH for rents paid (including those paid by the director) and checked if reclassification is needed?
+
+This check is crucial for the tax return, as it allows to verify whether part of the rent paid to the director should be reclassified as taxable income.</field>
+            <field name="type">check</field>
+            <field name="cycle">regulatory_compliance</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_rc_270mh_form</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '610%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_rc_capital_grant" model="account.return.check.template">
+            <field name="name">Investment Grant Justification</field>
+            <field name="description">Is the investment grant justified and have you used the account according to the legislation in force?
+
+Grants received are financial aid. Their justification must be checked and they must be recorded in the correct account to comply with legal and fiscal obligations.</field>
+            <field name="type">check</field>
+            <field name="cycle">regulatory_compliance</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_rc_capital_grant</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '15%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_rc_correct_rec_of_financial_prod" model="account.return.check.template">
+            <field name="name">Financial Income Recording</field>
+            <field name="description">If financial income exists, have you recorded it correctly?
+
+Once financial income has been identified, you must ensure that it is recorded in the correct accounts in order to comply with accounting and tax standards.</field>
+            <field name="type">check</field>
+            <field name="cycle">regulatory_compliance</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_rc_correct_rec_of_financial_prod</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '75%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_rc_financial_prod_with_sp_tax_regime" model="account.return.check.template">
+            <field name="name">Financial Income with Special Tax Regime</field>
+            <field name="description">Is there any financial income that benefits from a specific tax regime?
+
+This could include capital gains on shares or dividends. Some types of income benefit from special tax treatment, which should be checked in order to optimize your tax return.</field>
+            <field name="type">check</field>
+            <field name="cycle">regulatory_compliance</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_rc_financial_prod_with_sp_tax_regime</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '75%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_rc_investment_deduction" model="account.return.check.template">
+            <field name="name">Investment Deduction</field>
+            <field name="description">Are certain assets eligible for the investment deduction?
+
+The investment deduction allows for a tax reduction for new purchases. It is necessary to verify that only eligible assets are included in this calculation.</field>
+            <field name="type">check</field>
+            <field name="cycle">regulatory_compliance</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_rc_investment_deduction</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{
+                'search_default_l10n_be_audit_accounts': 1,
+                'l10n_be_audit_acc_1': '20%',
+                'l10n_be_audit_acc_2': '21%',
+                'l10n_be_audit_acc_3': '22%',
+                'l10n_be_audit_acc_4': '23%',
+                'l10n_be_audit_acc_5': '24%',
+                'l10n_be_audit_acc_6': '25%'
+            }</field>
+        </record>
+
+        <record id="account_return_check_template_be_rc_memo" model="account.return.check.template">
+            <field name="name">Personal Income Tax Information</field>
+            <field name="description">Do you have all the information for your personal income tax declaration?
+
+Make sure you have your essential personal information (family situation, income, etc.) complete and up to date to ensure an accurate personal tax declaration.</field>
+            <field name="type">file</field>
+            <field name="cycle">regulatory_compliance</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_rc_memo</field>
+        </record>
+
+        <record id="account_return_check_template_be_rc_statutory_changes_review" model="account.return.check.template">
+            <field name="name">Statutory Changes Review</field>
+            <field name="description">Have you posted the entries related to the amendment of the articles of association to ensure that the accounts are up to date?
+
+If the company has amended its articles of association (change of purpose, name, etc.), it is crucial that these changes are reflected in the company's accounts and legal documentation.</field>
+            <field name="type">check</field>
+            <field name="cycle">regulatory_compliance</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_rc_statutory_changes_review</field>
+            <field name="action_id" ref="account.action_move_journal_line"/>
+            <field name="additional_action_domain">[('date', '&gt;=', return_start_date), ('date', '&lt;=', return_end_date)]</field>
+        </record>
+
+        <record id="account_return_check_template_be_rc_vat_franchise" model="account.return.check.template">
+            <field name="name">VAT Exemption Compliance</field>
+            <field name="description">Are you VAT exempt? If so, has VAT been applied to any of your invoices?
+VAT exemption is a simplified regime. You must ensure that you do not charge VAT and comply with the turnover limits to avoid committing an offense.</field>
+            <field name="type">check</field>
+            <field name="cycle">regulatory_compliance</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_rc_vat_franchise</field>
+        </record>
+
+        <record id="account_return_check_template_be_rc_vat_rules" model="account.return.check.template">
+            <field name="name">VAT Rule Compliance</field>
+            <field name="description">Have you checked the accounting to ensure that VAT rules are being applied correctly?
+
+This involves verifying that VAT rules (rates, deductibility, etc.) are being applied correctly to all transactions. Errors can lead to tax adjustments.</field>
+            <field name="type">check</field>
+            <field name="cycle">regulatory_compliance</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_rc_vat_rules</field>
+        </record>
+
+        <!-- Sales -->
+        <record id="account_return_check_template_be_sales_bad_debts" model="account.return.check.template">
+            <field name="name">Doubtful Debtors</field>
+            <field name="description">Are there any doubtful debtors to record and provision for?
+
+A debtor is "doubtful" if there is reason to believe that they will not pay. This situation must be recorded in the accounts to reflect the financial reality of the business.</field>
+            <field name="type">check</field>
+            <field name="cycle">sales</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_sales_bad_debts</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '400000'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_sales_bad_debts_provision" model="account.return.check.template">
+            <field name="name">Review of Provisions for Doubtful Debtors</field>
+            <field name="description">Have you reviewed doubtful amounts receivable? Has an appropriate provision for doubtful amounts been established or reversed?
+
+This ensures that overdue or risky client balances are evaluated regularly, and that provisions for potential losses are accurately reflected in the accounts based on updated payment status.</field>
+            <field name="type">check</field>
+            <field name="cycle">sales</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_sales_bad_debts_provision</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '407%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_sales_customers_balance" model="account.return.check.template">
+            <field name="name">Customers' Balance</field>
+            <field name="description">Have you checked open customer accounts (abnormal balances, pending payments, etc.)?
+
+This is to ensure that the money owed to the company by customers is correctly recorded and tracked. Abnormal balances may indicate a billing or collection issue.</field>
+            <field name="type">check</field>
+            <field name="cycle">sales</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_sales_customers_balance</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '400000'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_sales_products_to_be_received" model="account.return.check.template">
+            <field name="name">Accrued Revenue (Uninvoiced Income)</field>
+            <field name="description">Is there any income to be recognized for the fiscal year (income still to be invoiced)?
+
+This check verifies whether the company has provided a service or sold goods before the end of the fiscal year but has not yet sent the invoice. The income must be recognized for the current fiscal year.</field>
+            <field name="type">check</field>
+            <field name="cycle">sales</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_sales_products_to_be_received</field>
+        </record>
+
+        <record id="account_return_check_template_be_sales_purchase_sales_margin_consistency" model="account.return.check.template">
+            <field name="name">Gross Margin Consistency</field>
+            <field name="description">Have you checked the margin on purchases compared to sales? Is it consistent?
+
+This check ensures that the company's margin rate is realistic and consistent with the industry, which can avoid questions in the event of an audit.</field>
+            <field name="type">check</field>
+            <field name="cycle">sales</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_sales_purchase_sales_margin_consistency</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '3%'}</field>
+        </record>
+
+        <!-- Government -->
+        <record id="account_return_check_template_be_state_adv_tax_payment_rollover" model="account.return.check.template">
+            <field name="name">Advance Tax Payment Deferral</field>
+            <field name="description">Have you considered deferring your advance tax payments (no later than the last quarter)?
+
+Advance tax payments allow you to reduce or avoid tax surcharges. This check reminds you to verify that you have made your advance payments and to ensure that they have been correctly taken into account.</field>
+            <field name="type">check</field>
+            <field name="cycle">state</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_state_adv_tax_payment_rollover</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '670%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_state_adv_tax_payments_matching_with_certificate" model="account.return.check.template">
+            <field name="name">Advance Tax Payment Reconciliation</field>
+            <field name="description">Have you checked your advance tax payments against the annual statement from the FPS Finance?
+
+The tax authorities send out a statement of advance tax payments. This check ensures that the amounts recorded match those declared by the authorities.</field>
+            <field name="type">check</field>
+            <field name="cycle">state</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_state_adv_tax_payments_matching_with_certificate</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '670%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_state_copyrights" model="account.return.check.template">
+            <field name="name">Copyrights</field>
+            <field name="description">If you have claimed copyright royalties, have you checked all your declarations and deductibility?
+
+Copyright income is subject to a specific tax regime. It is essential to ensure that this income is correctly declared and that deductibility is properly applied.</field>
+            <field name="type">check</field>
+            <field name="cycle">state</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_state_copyrights</field>
+        </record>
+
+        <record id="account_return_check_template_be_state_provison_for_corporate_tax" model="account.return.check.template">
+            <field name="name">Provision for Corporate Tax</field>
+            <field name="description">Have you accrued for the corporate tax?
+
+At the end of the fiscal year, you must estimate the taxes that the company will have to pay on its profits and set aside provisions to accurately reflect its financial situation.</field>
+            <field name="type">check</field>
+            <field name="cycle">state</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_state_provison_for_corporate_tax</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '69%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_state_vat_acc_reco_with_administration" model="account.return.check.template">
+            <field name="name">VAT Current Account Reconciliation</field>
+            <field name="description">Have you checked the VAT current account against the latest account statement and accounting records?
+
+The VAT account must match the payments and refunds made to the tax authorities. This check ensures that there are no discrepancies and allows you to verify your tax returns.</field>
+            <field name="type">check</field>
+            <field name="cycle">state</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_state_vat_acc_reco_with_administration</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '411%', 'l10n_be_audit_acc_2': '451%'}</field>
+        </record>
+
+        <!-- Treasury and financing  -->
+        <record id="account_return_check_template_be_tf_bank_balance_reco_with_stmt" model="account.return.check.template">
+            <field name="name">Year-End Bank Reconciliation</field>
+            <field name="description">Have you checked the end-of-period bank balances against the account statements and the accounting records?
+
+It is essential that the balance of the bank accounts in the accounting records corresponds exactly to the balance of the account statements on the closing date.</field>
+            <field name="type">check</field>
+            <field name="cycle">treasury_financing</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_tf_bank_balance_reco_with_stmt</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '55%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_tf_curr_exch_gap_justification" model="account.return.check.template">
+            <field name="name">Currency Discrepancy Justification</field>
+            <field name="description">Theoretically, it is rare to encounter a currency discrepancy. Shouldn't it be justified?
+
+If a currency discrepancy arises, it must be justified in order to be accounted for correctly.</field>
+            <field name="type">check</field>
+            <field name="cycle">treasury_financing</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_tf_curr_exch_gap_justification</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '655%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_tf_dividends_received" model="account.return.check.template">
+            <field name="name">Intercompany Interest Income</field>
+            <field name="description">Did the company receive interest from an affiliated company (verification of market rate)?
+
+If the company lends money to another affiliated company, it must charge market-rate interest in order to avoid a tax adjustment.</field>
+            <field name="type">check</field>
+            <field name="cycle">treasury_financing</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_tf_dividends_received</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '416%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_tf_final_cash_transaction_balance" model="account.return.check.template">
+            <field name="name">Final Cash Reconciliation</field>
+            <field name="description">Have you recorded the latest cash transactions? Is the balance correct?
+
+You must ensure that all cash transactions have been recorded up to the closing date and that the cash balance is correct.</field>
+            <field name="type">check</field>
+            <field name="cycle">treasury_financing</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_tf_final_cash_transaction_balance</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '57%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_tf_foreign_curr_acc_revaluation" model="account.return.check.template">
+            <field name="name">Foreign Currency Revaluation at Closing</field>
+            <field name="description">Are there any foreign currency accounts that need to be revalued at the end of the fiscal year?
+
+If the company has foreign currency accounts, the amounts must be adjusted to reflect the exchange rate at the end of the fiscal year.</field>
+            <field name="type">check</field>
+            <field name="cycle">treasury_financing</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_tf_foreign_curr_acc_revaluation</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '55%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_tf_int_director_current_acc" model="account.return.check.template">
+            <field name="name">Interest on Director's Current Account</field>
+            <field name="description">Has the company paid interest on the director's current account (verification of the market rate)?
+
+If a director has lent money to their company (account 489), they can receive interest. It is important to check that the interest rate is not too high, otherwise it could be reclassified for tax purposes.</field>
+            <field name="type">check</field>
+            <field name="cycle">treasury_financing</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_tf_int_director_current_acc</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '489%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_tf_int_related_company_loans" model="account.return.check.template">
+            <field name="name">Intercompany Interest Expense</field>
+            <field name="description">Did the company pay interest to an affiliated company (verification of market rate)?
+
+This check is similar to the previous one, but concerns loans between affiliated companies. It is necessary to ensure that the interest rates comply with market rates to avoid tax issues.</field>
+            <field name="type">check</field>
+            <field name="cycle">treasury_financing</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_tf_int_related_company_loans</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '489%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_tf_ltst_liabilities_related_interest" model="account.return.check.template">
+            <field name="name">Liability Classification and Interest</field>
+            <field name="description">Have you checked the short-term and long-term accounts and the interest recorded with the liabilities?
+
+This check ensures that liabilities and associated interest are correctly recorded and classified as short-term or long-term.</field>
+            <field name="type">check</field>
+            <field name="cycle">treasury_financing</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_tf_ltst_liabilities_related_interest</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '17%', 'l10n_be_audit_acc_2': '42%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_tf_neg_bank_balance_transfer_liability" model="account.return.check.template">
+            <field name="name">Negative Bank Balance Reclassification</field>
+            <field name="description">Is there a negative bank account balance that should be transferred at closing?
+
+A negative bank balance may indicate an overdraft. You must ensure that this balance is correctly recorded as a debt on the closing date.</field>
+            <field name="type">check</field>
+            <field name="cycle">treasury_financing</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_tf_neg_bank_balance_transfer_liability</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '55%'}</field>
+        </record>
+
+        <record id="account_return_check_template_be_tf_suspense_account" model="account.return.check.template">
+            <field name="name">Suspense Account</field>
+            <field name="description">Is the suspense account empty?
+
+This temporary account should only hold amounts pending clarification. Ensure it's empty or that any balances are justified and promptly reclassified to the correct account.</field>
+            <field name="type">check</field>
+            <field name="cycle">treasury_financing</field>
+            <field name="return_type" ref="l10n_be_reports.l10n_be_audit_return_type"/>
+            <field name="code">_account_return_check_template_be_tf_suspense_account</field>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="additional_action_context">{'search_default_l10n_be_audit_accounts': 1, 'l10n_be_audit_acc_1': '499%'}</field>
+        </record>
+
+    </data>
+</odoo>

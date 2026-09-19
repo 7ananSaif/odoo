@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="hr_contract_template_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.template.view.form.inherit.l10_mx_hr_payroll</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr_payroll.hr_contract_template_view_form"/>
+        <field name="arch" type="xml">
+            <group name="salary_info" position="inside">
+                <group string="Options" invisible="country_code != 'MX'">
+                    <label for="l10n_mx_holiday_bonus_rate" string="Holiday Bonus Rate"/>
+                    <div class="o_row">
+                        <field name="l10n_mx_holiday_bonus_rate" class="o_hr_narrow_field"/>
+                        <span>%</span>
+                    </div>
+                    <field name="l10n_mx_savings_fund" string="Savings Fund"/>
+
+                    <separator string="Vouchers"/>
+                    <field name="l10n_mx_payment_period_vouchers" string="Payment Period"/>
+                    <field name="l10n_mx_meal_voucher_amount" string="Meal Vouchers"/>
+                    <field name="l10n_mx_transport_amount" string="Transport Vouchers"/>
+                    <field name="l10n_mx_gasoline_amount" string="Gasoline Vouchers"/>
+                </group>
+            </group>
+
+            <page name="information" position="after">
+                <page string="Infonavit / Fonacot" name="other" invisible="country_code != 'MX'">
+                    <separator string="Infonavit"/>
+                    <field name="l10n_mx_infonavit" nolabel="1" force_save="1" string="an Infonavit Credit">
+                        <list default_order="infonavit_type" decoration-muted="status == 'closed'">
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="status"/>
+                            <field name="monthly_insurance" sum="Total Monthly Insurance"/>
+                            <field name="extra_fixed_monthly_contribution" string="Extra Monthly Contribution" sum="Total Extra Monthly Contribution"/>
+                            <field name="infonavit_type"/>
+                            <field name="discount_factor" invisible="infonavit_type != 'discount_factor'"/>
+                            <field name="fixed_monetary_fee" invisible="infonavit_type != 'fixed_monetary_fee'" sum="Total Fixed Monetary Fee"/>
+                            <field name="percentage" invisible="infonavit_type != 'percentage'"/>
+                        </list>
+                    </field>
+                    <separator string="Fonacot"/>
+                    <field name="l10n_mx_fonacot" nolabel="1" force_save="1">
+                        <list editable="bottom" decoration-muted="status == 'closed'">
+                            <field name="currency_id" column_invisible="1"/>
+                            <field name="status"/>
+                            <field name="extra_fixed_monthly_contribution" string="Extra Monthly Contribution" sum="Total Extra Monthly Contribution"/>
+                            <field name="monthly_import" sum="Total Monthly Import"/>
+                        </list>
+                    </field>
+                </page>
+            </page>
+
+        </field>
+    </record>
+</odoo>

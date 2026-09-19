@@ -1,0 +1,60 @@
+<odoo>
+    <data>
+        <record id="hr_expense_view_form_inherits_stripe" model="ir.ui.view">
+            <field name="inherit_id" ref="hr_expense.hr_expense_view_form"/>
+            <field name="name">hr.expense.form.inherit.stripe</field>
+            <field name="model">hr.expense</field>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_submit' and hasclass('oe_highlight')]" position="attributes">
+                    <attribute name="invisible" add="(not stripe_transaction_id and stripe_authorization_id)" separator="or"/>
+                </xpath>
+                <xpath expr="//button[@name='action_submit' and not(hasclass('oe_highlight'))]" position="attributes">
+                    <attribute name="invisible" add="(not stripe_transaction_id and stripe_authorization_id)" separator="or"/>
+                </xpath>
+                <xpath expr="//button[@name='action_split_wizard' and @groups='!hr_expense.group_hr_expense_team_approver,!account.group_account_invoice']" position="attributes">
+                    <attribute name="invisible" add="(not stripe_transaction_id and stripe_authorization_id)" separator="or"/>
+                </xpath>
+                <xpath expr="//button[@name='action_split_wizard' and @groups='hr_expense.group_hr_expense_team_approver,account.group_account_invoice']" position="attributes">
+                    <attribute name="invisible" add="(not stripe_transaction_id and stripe_authorization_id)" separator="or"/>
+                </xpath>
+                <xpath expr="//div[@name='button_box']" position="inside">
+                    <button name="action_open_stripe_card" type="object" class="oe_stat_button" icon="fa-credit-card-alt"
+                            invisible="not is_card_expense">
+                        <span class="ps-2">Cards</span>
+                    </button>
+                </xpath>
+                <xpath expr="//sheet" position="inside">
+                    <widget name="web_ribbon" title="Reserved" bg_color="text-bg-warning" invisible="state != 'draft' or stripe_transaction_id or not stripe_authorization_id"/>
+                </xpath>
+                <xpath expr="//field[@name='payment_mode']" position="attributes">
+                    <attribute name="readonly" add="is_card_expense" separator="or"/>
+                </xpath>
+                <xpath expr="//field[@name='company_id']" position="attributes">
+                    <attribute name="readonly" add="is_card_expense" separator="or"/>
+                </xpath>
+
+                <xpath expr="//field[@name='employee_id' and @groups='hr.group_hr_user']" position="attributes">
+                    <attribute name="readonly" add="is_card_expense" separator="or"/>
+                </xpath>
+                <xpath expr="//field[@name='employee_id' and @groups='!hr.group_hr_user']" position="attributes">
+                    <attribute name="readonly" add="is_card_expense" separator="or"/>
+                </xpath>
+                <xpath expr="//field[@name='total_amount' and @widget='monetary']" position="attributes">
+                    <attribute name="readonly" add="is_card_expense" separator="or"/>
+                </xpath>
+                <xpath expr="//field[@name='total_amount_currency']" position="attributes">
+                    <attribute name="readonly" add="is_card_expense" separator="or"/>
+                </xpath>
+                <xpath expr="//field[@name='currency_id' and @groups='base.group_multi_currency']" position="attributes">
+                    <attribute name="readonly" add="is_card_expense" separator="or"/>
+                </xpath>
+                <xpath expr="//field[@name='date']" position="attributes">
+                    <attribute name="readonly" add="is_card_expense" separator="or"/>
+                </xpath>
+                <xpath expr="//field[@name='payment_method_line_id']" position="attributes">
+                    <attribute name="readonly" add="is_card_expense" separator="or"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

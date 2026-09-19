@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="hr_payroll.PayrunKanbanRenderer" t-inherit="web.KanbanRenderer" t-inherit-mode="primary">
+        <xpath expr="//div[@t-ref='root']" position="attributes">
+            <attribute name="class">o_payrun_kanban</attribute>
+        </xpath>
+    </t>
+
+    <t t-name="hr_payroll.PayrunKanbanHeader" t-inherit="web.KanbanHeader" t-inherit-mode="primary">
+        <xpath expr="//button[hasclass('o_column_unfold')]" position="replace">
+        </xpath>
+        <xpath expr="//div[hasclass('o_column_title')][2]" position="attributes">
+            <attribute name="class" remove="text-900" add="fw-medium py-2 cursor-pointer" separator=" "/>
+            <attribute name="t-on-click.stop">group.toggle.bind(group)</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('o_column_title')][2]/*[1]" position="before">
+            <span class="align-self-center fa-caret-down fa fa-fw"/>
+        </xpath>
+        <xpath expr="//div[hasclass('o_column_title')][1]" position="attributes">
+            <attribute name="class" remove="lh-1 pt-1" add="fw-medium cursor-pointer" separator=" "/>
+            <attribute name="t-on-click.stop">group.toggle.bind(group)</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('o_column_title')][1]/*[1]" position="before">
+            <span class="align-self-center fa-caret-right fa fa-fw"/>
+        </xpath>
+        <xpath expr="//t[@t-esc='group.displayName']" position="replace">
+            <span class="text-truncate" t-esc="group.displayName"/>
+        </xpath>
+        <xpath expr="//div[@t-ref='root']" position="attributes">
+            <attribute name="class" remove="position-sticky" separator=" "/>
+        </xpath>
+    </t>
+
+    <t t-name="hr_payroll.PayrunKanbanRecordMenu">
+        <div t-if="showMenu" class="w-auto ms-auto">
+            <t t-call="{{ this.templates[this.constructor.KANBAN_MENU_ATTRIBUTE] }}" t-call-context="renderingContext"/>
+        </div>
+    </t>
+</templates>
