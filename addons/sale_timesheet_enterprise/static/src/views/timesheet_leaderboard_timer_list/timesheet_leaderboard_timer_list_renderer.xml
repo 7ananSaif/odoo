@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="sale_timesheet_enterprise.TimesheetLeaderboardTimerListRenderer" t-inherit="timesheet_grid.TimesheetTimerListRenderer" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('pinned_header')]" position="attributes">
+            <attribute name="t-if" add="or timesheetLeaderboardService.showIndicators" separator=" "/>
+        </xpath>
+        <xpath expr="//div[hasclass('pinned_header')]" position="inside">
+            <div t-if="timesheetLeaderboardService.showIndicators and !timesheetTimerHook.timerState.isRunning" class="position-relative w-100 pe-3 py-2 py-sm-1 d-flex justify-content-end">
+                <TimesheetLeaderboard/>
+            </div>
+        </xpath>
+        <xpath expr="//div[hasclass('pinned_header')]/div" position="attributes">
+            <attribute name="t-if">timesheetTimerHook.showTimer</attribute>
+        </xpath>
+        <xpath expr="//div[hasclass('o_list_renderer')]" position="attributes">
+            <attribute name="t-attf-class" add="{{ env.isSmall ? '' : 'overflow-visible' }}" separator=" "/>
+        </xpath>
+    </t>
+
+</templates>

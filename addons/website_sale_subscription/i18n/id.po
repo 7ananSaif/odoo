@@ -1,0 +1,119 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * website_sale_subscription
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Abe Manyo (abem)" <abem@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:49+0000\n"
+"PO-Revision-Date: 2025-10-16 09:07+0000\n"
+"Last-Translator: \"Abe Manyo (abem)\" <abem@odoo.com>\n"
+"Language-Team: Indonesian <https://translate.odoo.com/projects/odoo-19/"
+"website_sale_subscription/id/>\n"
+"Language: id\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: website_sale_subscription
+#: model_terms:ir.ui.view,arch_db:website_sale_subscription.subscription_one_time_sale
+msgid "<span>Buy Once</span>"
+msgstr "<span>Beli Sekali<span>"
+
+#. module: website_sale_subscription
+#: model_terms:ir.ui.view,arch_db:website_sale_subscription.sale_subscription_product_price
+#: model_terms:ir.ui.view,arch_db:website_sale_subscription.subscription_one_time_sale
+msgid "Deliver Every"
+msgstr "Kirim Setiap"
+
+#. module: website_sale_subscription
+#: model:ir.model.fields,field_description:website_sale_subscription.field_product_product__display_name
+#: model:ir.model.fields,field_description:website_sale_subscription.field_product_template__display_name
+#: model:ir.model.fields,field_description:website_sale_subscription.field_sale_order__display_name
+#: model:ir.model.fields,field_description:website_sale_subscription.field_sale_order_line__display_name
+msgid "Display Name"
+msgstr "Nama Tampilan"
+
+#. module: website_sale_subscription
+#: model:ir.model.fields,field_description:website_sale_subscription.field_product_product__id
+#: model:ir.model.fields,field_description:website_sale_subscription.field_product_template__id
+#: model:ir.model.fields,field_description:website_sale_subscription.field_sale_order__id
+#: model:ir.model.fields,field_description:website_sale_subscription.field_sale_order_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: website_sale_subscription
+#. odoo-python
+#: code:addons/website_sale_subscription/models/sale_order.py:0
+msgid "No suitable subscription pricing found for this product."
+msgstr "Tidak ada harga langganan yang sesuai yang ditemukan untuk produk ini."
+
+#. module: website_sale_subscription
+#: model:ir.model,name:website_sale_subscription.model_product_template
+msgid "Product"
+msgstr "Produk"
+
+#. module: website_sale_subscription
+#: model:ir.model,name:website_sale_subscription.model_product_product
+msgid "Product Variant"
+msgstr "Varian Produk"
+
+#. module: website_sale_subscription
+#: model:ir.model,name:website_sale_subscription.model_sale_order
+msgid "Sales Order"
+msgstr "Order Penjualan"
+
+#. module: website_sale_subscription
+#: model:ir.model,name:website_sale_subscription.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Baris Pesanan Penjualan"
+
+#. module: website_sale_subscription
+#: model_terms:ir.ui.view,arch_db:website_sale_subscription.product_template_message
+msgid ""
+"This subscription is not compatible with the one already in your cart.\n"
+"                Please order them separately or empty your cart."
+msgstr ""
+"Langganan ini tidak kompatibel dengan yang sudah ada di keranjang Anda.\n"
+"                Silakan pesan mereka secara terpisah atau kosongkan "
+"keranjang Anda."
+
+#. module: website_sale_subscription
+#. odoo-python
+#: code:addons/website_sale_subscription/models/product_template.py:0
+msgid ""
+"You cannot have an optional product that has a no common pricing's plan."
+msgstr ""
+"Anda tidak dapat memiliki produk opsional yang tidak memiliki rencana harga "
+"umum."
+
+#. module: website_sale_subscription
+#. odoo-python
+#: code:addons/website_sale_subscription/models/sale_order.py:0
+msgid "You cannot mix different subscription plans in the same order."
+msgstr ""
+"Anda tidak dapat menggabungkan rencana langganan yang berbeda di pesanan "
+"yang sama."
+
+#. module: website_sale_subscription
+#. odoo-python
+#: code:addons/website_sale_subscription/models/product_template.py:0
+msgid "month"
+msgstr "bulan"
+
+#. module: website_sale_subscription
+#. odoo-python
+#: code:addons/website_sale_subscription/models/product_template.py:0
+msgid "week"
+msgstr "minggu"
+
+#. module: website_sale_subscription
+#. odoo-python
+#: code:addons/website_sale_subscription/models/product_template.py:0
+msgid "year"
+msgstr "tahun"

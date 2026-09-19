@@ -1,0 +1,402 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * website_helpdesk_livechat
+#
+# Translators:
+# Veikko Väätäjä <veikko.vaataja@gmail.com>, 2022
+# Tuomo Aura <tuomo.aura@web-veistamo.fi>, 2022
+# Kari Lindgren <kari.lindgren@emsystems.fi>, 2022
+# Martin Trigaux, 2022
+# Jarmo Kortetjärvi <jarmo.kortetjarvi@gmail.com>, 2022
+# Ossi Mantylahti <ossi.mantylahti@obs-solutions.fi>, 2023
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Saara Hakanen <sahak@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-11-21 14:07+0000\n"
+"Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"website_helpdesk_livechat/fi/>\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/chatbot_script_step.py:0
+msgid "%(name)s's Ticket"
+msgstr "%(name)s:n tukipyyntö"
+
+#. module: website_helpdesk_livechat
+#: model_terms:ir.ui.view,arch_db:website_helpdesk_livechat.helpdesk_tiket_view_form_inherit_website_helpdesk_livechat
+msgid "<span class=\"o_stat_text\">View chat</span>"
+msgstr "<span class=\"o_stat_text\">Näytä chatti</span>"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_done
+msgid "Alright, we should have everything we need"
+msgstr "Ok, meillä pitäisi olla kaikki, mitä tarvitsemme"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/chatbot_script.py:0
+msgid ""
+"An \"Email\" step type must exist before the \"Create Ticket\" step for a "
+"ticket to be created."
+msgstr ""
+"Sähköpostiaskeltyypin on oltava olemassa ennen Luo tukipyyntö-vaihetta, "
+"jotta tukipyyntö voidaan luoda."
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_technical_serial_misc
+msgid "Anything else to add?"
+msgstr "Onko muuta lisättävää?"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_chatbot_script
+msgid "Chatbot Script"
+msgstr "Chatbotin komentosarja"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_chatbot_script_step
+msgid "Chatbot Script Step"
+msgstr "Chatbotin-käsikirjoituksen vaihe"
+
+#. module: website_helpdesk_livechat
+#: model:ir.ui.menu,name:website_helpdesk_livechat.chatbot_config
+msgid "Chatbots"
+msgstr "Chatbotit"
+
+#. module: website_helpdesk_livechat
+#: model_terms:ir.ui.view,arch_db:website_helpdesk_livechat.helpdesk_team_view_form_inherit_website_helpdesk_livechat
+msgid "Configure Chatbots"
+msgstr "Määritä Chatbotteja"
+
+#. module: website_helpdesk_livechat
+#: model_terms:ir.ui.view,arch_db:website_helpdesk_livechat.helpdesk_team_view_form_inherit_website_helpdesk_livechat
+msgid "Configure Live Chat Channel"
+msgstr "Livechat-kanavan määrittäminen"
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/thread_actions.js:0
+#: model:ir.model.fields.selection,name:website_helpdesk_livechat.selection__chatbot_script_step__step_type__create_ticket
+msgid "Create Ticket"
+msgstr "Luo tukipyyntö"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,website_form_label:website_helpdesk_livechat.model_helpdesk_ticket
+msgid "Create a Ticket"
+msgstr "Luo tukipyyntö"
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/web/store_service_patch.js:0
+msgid "Create a new helpdesk ticket (/ticket ticket title)"
+msgstr "Luo uusi asiakastukipyyntö (/ticket tukipyynnön otsikko)"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid ""
+"Create a new helpdesk ticket with: %(pre_start)s%(ticket_command)s %"
+"(i_start)sticket title%(i_end)s%(pre_end)s"
+msgstr ""
+"Luo uusi tukipyyntö: %(pre_start)s%(ticket_command)s %(i_start)stukipyynnön "
+"otsikko%(i_end)s%(pre_end)s"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid "Created a new ticket: %s"
+msgstr "Luotu uusi tukipyyntö: %s"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_discuss_channel
+msgid "Discussion Channel"
+msgstr "Keskustelukanava"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script_step__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_team__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_ticket__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_im_livechat_report_channel__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_res_users__display_name
+msgid "Display Name"
+msgstr "Näyttönimi"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_dispatch
+msgid "First, what is the nature of your issue?"
+msgstr "Ensinnäkin, mitä ongelmasi koskee?"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_yes
+msgid "Great, that will make our lives easier."
+msgstr "Hienoa, se helpottaa elämäämme."
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_discuss_channel__has_helpdesk_ticket
+msgid "Has Helpdesk Ticket"
+msgstr "Luo Asiakaspalvelun tukipyyntö"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script,title:website_helpdesk_livechat.chatbot_script_helpdesk_bot
+msgid "Helpdesk Bot"
+msgstr "Asiakaspalvelun botti"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_helpdesk_team
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script_step__helpdesk_team_id
+msgid "Helpdesk Team"
+msgstr "Asiakaspalvelutiimi"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_helpdesk_ticket
+msgid "Helpdesk Ticket"
+msgstr "Asiakaspalvelun tukipyyntö"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_welcome
+msgid "Here we go, help is on the way!"
+msgstr "No niin, apua on tulossa!"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script.answer,name:website_helpdesk_livechat.chatbot_script_helpdesk_step_dispatch_answer_technical
+msgid "I have a technical issue"
+msgstr "Minulla on tekninen ongelma"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script.answer,name:website_helpdesk_livechat.chatbot_script_helpdesk_step_dispatch_answer_administrative
+msgid "I have an administrative question"
+msgstr "Minulla on hallinnollinen kysymys"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script_step__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_discuss_channel__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_team__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_ticket__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_im_livechat_report_channel__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_res_users__id
+msgid "ID"
+msgstr "Tunnus"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_no
+msgid "It's OK, we can also find your contract by other means."
+msgstr "Ei se mitään, löydämme sopimuksesi myös muilla keinoin."
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_email
+msgid "Just a last thing, can we please have your email address?"
+msgstr "Vielä viimeinen asia, voisimmeko saada sähköpostiosoitteesi?"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_team__use_website_helpdesk_livechat
+msgid "Live Chat"
+msgstr "Livechat"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_ticket__origin_channel_id
+msgid "Live chat from which the ticket was created"
+msgstr "Livechat, josta tukipyyntö luotiin"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_im_livechat_report_channel
+msgid "Livechat Support Channel Report"
+msgstr "Livechat-tukikanavan raportti"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid "Load More"
+msgstr "Lataa lisää"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script.answer,name:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_answer_no
+msgid "No"
+msgstr "Ei"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid ""
+"No tickets found for %(b_start)s%(keywords)s%(b_end)s.%(br)sMake sure you "
+"are using the right format: %(pre_start)s%(search_tickets_command)s %"
+"(i_start)skeywords%(i_end)s%(pre_end)s"
+msgstr ""
+"Tukipyyntöjä %(b_start)s%(keywords)s%(b_end)s ei löytynyt. Varmista, että "
+"käytät oikeaa formaattia: %(pre_start)s%(search_tickets_command)s%"
+"(i_start)savainsanat%(i_end)s%(pre_end)s"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_ticket
+msgid ""
+"OK, I just created a ticket for you. You should receive an email "
+"confirmation very soon."
+msgstr ""
+"Okei, loin juuri tukipyynnön sinulle. Sinun pitäisi saada vahvistus "
+"sähköpostitse pian."
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
+msgid "Open tickets"
+msgstr "Avoimet tukipyynnöt"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_technical_serial
+msgid "Please write below the serial number of your equipment."
+msgstr "Kirjoita alle laitteesi sarjanumero."
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_input
+msgid "Please write below your customer reference."
+msgstr "Kirjoita alle asiakasviitteesi."
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/web/store_service_patch.js:0
+msgid "Search helpdesk tickets (/search_tickets keyword)"
+msgstr "Etsi asiakastukipyyntöjä (/search_tickets avainsana)"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid ""
+"Search helpdesk tickets by typing: %(pre_start)s%(search_tickets_command)s %"
+"(i_start)skeywords%(i_end)s%(pre_end)s"
+msgstr ""
+"Etsi asiakastukipyyntöjä kirjoittamalla: %(pre_start)s%"
+"(search_tickets_command)s%(i_start)savainsanat%(i_end)s%(pre_end)s"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid "Something is missing or wrong in command"
+msgstr "Jotain puuttuu tai komennossa on vikaa"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid "Something is missing or wrong in the command"
+msgstr "Jotain puuttuu tai komennossa on jotakin vikana"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script_step__step_type
+msgid "Step Type"
+msgstr "Vaiheen tyyppi"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_technical_serial_thanks
+msgid "Thank you, that will help our engineers see what went wrong."
+msgstr "Kiitos, se auttaa insinöörejämme näkemään, mikä meni pieleen."
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,help:website_helpdesk_livechat.field_discuss_channel__ticket_ids
+msgid "The channel becomes accessible to helpdesk users when tickets are set."
+msgstr "Kanava tulee saataville tukihenkilöille, kun tukipyynnöt asetetaan."
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_discuss_channel__ticket_ids
+#: model_terms:ir.ui.view,arch_db:website_helpdesk_livechat.chatbot_script_view_form
+msgid "Tickets"
+msgstr "Tukipyynnöt"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_im_livechat_report_channel__tickets_created
+msgid "Tickets created"
+msgstr "Tukipyyntöjä luotu"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid ""
+"Tickets search results for %(b_start)s%(keywords)s%(b_end)s: %(br)s%"
+"(tickets)s"
+msgstr ""
+"Asiakastukipyyntöjen tulokset haulle %(b_start)s%(keywords)s%(b_end)s: %"
+"(br)s%(tickets)s"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref
+msgid ""
+"To start with, do you have a customer reference?\n"
+"They are written on each invoice you received, next to your name."
+msgstr ""
+"Ensinnäkin, onko sinulla asiakasviitettä?\n"
+"Ne on kirjoitettu jokaiseen saamaasi laskuun nimesi viereen."
+
+#. module: website_helpdesk_livechat
+#: model:res.groups,name:website_helpdesk_livechat.group_use_website_helpdesk_livechat
+msgid "Use Live Chat"
+msgstr "Käytä Livechattia"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_res_users
+msgid "User"
+msgstr "Käyttäjä"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_issue
+msgid "We're all set. Now, what is your issue?"
+msgstr "Kaikki on valmista. Mikä on ongelmasi?"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script.answer,name:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_answer_yes
+msgid "Yes"
+msgstr "Kyllä"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/helpdesk_ticket.py:0
+msgid "You cannot create tickets linked to channels you don't have access to."
+msgstr "Et voi luoda tukipyyntöjä kanaviin, joihin sinulla ei ole pääsyä."
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/helpdesk_ticket.py:0
+msgid ""
+"You cannot update a ticket and link it to a channel you don't have access to."
+msgstr ""
+"Et voi päivittää tukipyyntöä ja liittää sitä kanavaan, johon sinulla ei ole "
+"pääsyä."
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/thread_actions.js:0
+msgid "e.g. Product arrived damaged"
+msgstr "esim. Tuote saapui vahingoittuneena"
+
+#~ msgid "Canned Responses"
+#~ msgstr "Tallennetut vastaukset"
+
+#~ msgid "Canned Responses Search"
+#~ msgstr "Valmiiden vastausten haku"
+
+#~ msgid "Generated Ticket Count"
+#~ msgstr "Luotujen tukipyyntöjen määrä"
+
+#~ msgid "No canned reponses found. Let's create one!"
+#~ msgstr "Ei löydetty purkitettuja vastauksia. Luodaan sellainen!"
+
+#~ msgid ""
+#~ "With canned responses, you can type <i>:shortcuts</i> to insert "
+#~ "prewritten responses into your messages. These shortcuts are replaced "
+#~ "directly in your messages so that you can still make changes before "
+#~ "sending them."
+#~ msgstr ""
+#~ "Purkitettujen vastausten avulla voit kirjoittaa <i>:pikanäppäimet</i> "
+#~ "lisätä valmiiksi kirjoitettuja vastauksia viesteihisi. Nämä pikanäppäimet "
+#~ "korvataan suoraan viesteissäsi, joten voit vielä tehdä muutoksia ennen "
+#~ "niiden lähettämistä."

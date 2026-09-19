@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="website_sale_renting.RentalSearchOption">
+    <BuilderRow label.translate="Timing">
+        <BuilderSelect action="'setRentalSearchTiming'" preview="false">
+            <BuilderSelectItem actionParam="'day'">Day</BuilderSelectItem>
+            <BuilderSelectItem actionParam="'hour'">Hour</BuilderSelectItem>
+        </BuilderSelect>
+    </BuilderRow>
+    <BuilderRow label.translate="Attribute Filter">
+        <BuilderMany2One action="'setRentalSearchProductAttribute'" model="'product.attribute'"/>
+    </BuilderRow>
+</t>
+
+</templates>

@@ -1,0 +1,128 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * sale_renting_planning
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Fernanda Alvarez (mfar)" <mfar@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:47+0000\n"
+"PO-Revision-Date: 2025-10-08 02:40+0000\n"
+"Last-Translator: \"Fernanda Alvarez (mfar)\" <mfar@odoo.com>\n"
+"Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
+"odoo-19/sale_renting_planning/es_419/>\n"
+"Language: es_419\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: sale_renting_planning
+#: model:ir.model.fields,help:sale_renting_planning.field_planning_role__sync_shift_rental
+#: model:ir.model.fields,help:sale_renting_planning.field_planning_slot__role_sync_shift_rental
+msgid ""
+"- Create rental orders for your shifts.\n"
+"- Orders for products linked to this role can’t be confirmed if no resources "
+"are available to handle the shifts.\n"
+"- On the website, users can’t select dates when no resources are available.\n"
+"- The order's rental period and the shift dates are synchronized."
+msgstr ""
+"- Crear órdenes de renta para tus turnos.\n"
+"- Las órdenes para productos vinculados a este rol no se pueden confirmar si "
+"no hay recursos disponibles para gestionar los turnos.\n"
+"- En el sitio web los usurios no pueden seleccionar fechas en las que no "
+"haya recursos disponibles.\n"
+"- El periodo de alquiler de la orden y las fechas de turno se sincronizarán."
+
+#. module: sale_renting_planning
+#: model_terms:ir.ui.view,arch_db:sale_renting_planning.planning_view_form_in_gantt_inherit
+msgid "Add to Last Order"
+msgstr "Agregar a la última órden"
+
+#. module: sale_renting_planning
+#: model:ir.model.fields,field_description:sale_renting_planning.field_planning_role__display_name
+#: model:ir.model.fields,field_description:sale_renting_planning.field_planning_slot__display_name
+#: model:ir.model.fields,field_description:sale_renting_planning.field_sale_order__display_name
+#: model:ir.model.fields,field_description:sale_renting_planning.field_sale_order_line__display_name
+msgid "Display Name"
+msgstr "Nombre en pantalla"
+
+#. module: sale_renting_planning
+#: model:ir.model.fields,field_description:sale_renting_planning.field_planning_role__id
+#: model:ir.model.fields,field_description:sale_renting_planning.field_planning_slot__id
+#: model:ir.model.fields,field_description:sale_renting_planning.field_sale_order__id
+#: model:ir.model.fields,field_description:sale_renting_planning.field_sale_order_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: sale_renting_planning
+#: model_terms:ir.ui.view,arch_db:sale_renting_planning.planning_view_form_in_gantt_inherit
+msgid "New Order"
+msgstr "Nueva orden"
+
+#. module: sale_renting_planning
+#. odoo-python
+#: code:addons/sale_renting_planning/models/planning_slot.py:0
+msgid "No Rental Order is found."
+msgstr "No se encontró ninguna orden de alquiler."
+
+#. module: sale_renting_planning
+#. odoo-python
+#: code:addons/sale_renting_planning/models/planning_slot.py:0
+msgid "No resources are available for the shifts in: %s."
+msgstr "No hay recursos disponibles para los turnos en %s."
+
+#. module: sale_renting_planning
+#: model:ir.model,name:sale_renting_planning.model_planning_role
+msgid "Planning Role"
+msgstr "Función de planeación"
+
+#. module: sale_renting_planning
+#: model:ir.model,name:sale_renting_planning.model_planning_slot
+msgid "Planning Shift"
+msgstr "Planear turnos"
+
+#. module: sale_renting_planning
+#: model:ir.model,name:sale_renting_planning.model_sale_order
+msgid "Sales Order"
+msgstr "Orden de venta"
+
+#. module: sale_renting_planning
+#: model:ir.model,name:sale_renting_planning.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Línea de la orden de venta"
+
+#. module: sale_renting_planning
+#. odoo-python
+#: code:addons/sale_renting_planning/models/planning_slot.py:0
+msgid "Shift added to last order"
+msgstr "Turno agregado a la última orden"
+
+#. module: sale_renting_planning
+#: model:ir.model.fields,field_description:sale_renting_planning.field_planning_role__sync_shift_rental
+#: model:ir.model.fields,field_description:sale_renting_planning.field_planning_slot__role_sync_shift_rental
+msgid "Sync Shifts and Rental Orders"
+msgstr "Sincronizar turnos y órdenes de alquiler"
+
+#. module: sale_renting_planning
+#. odoo-python
+#: code:addons/sale_renting_planning/models/sale_order_line.py:0
+msgid ""
+"This Sales Order can't be confirmed. No enough resources are available for "
+"the shifts in: %(product_name)s."
+msgstr ""
+"Esta orden de ventas no se puede confirmar. No hay recursos suficientes "
+"disponibles para los turnos en: %(product_name)s."
+
+#. module: sale_renting_planning
+#. odoo-python
+#: code:addons/sale_renting_planning/models/sale_order_line.py:0
+msgid ""
+"This Sales Order can't be confirmed. No resources are available for the "
+"shifts in: %(problematic_services)s."
+msgstr ""
+"No se puede confirmar esta orden de ventas. No hay recursos disponibles para "
+"los turnos en: %(problematic_services)s."

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="sale_order_line_search_schedule" model="ir.ui.view">
+        <field name="name">sale.order.line.search.schedule.inherit.stock</field>
+        <field name="model">sale.order.line</field>
+        <field name="inherit_id" ref="sale_renting.sale_order_line_search_schedule"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="reserved_lot_ids" groups="sale_stock_renting.group_rental_stock_picking"/>
+            </field>
+            <filter name="groupby_product" position="after">
+                <filter
+                    name="groupby_reserved_lot"
+                    string="Serial Number"
+                    context="{'group_by': 'reserved_lot_ids'}"
+                    groups="sale_stock_renting.group_rental_stock_picking"
+                />
+            </filter>
+        </field>
+    </record>
+
+    <record id="sale_order_line_form_schedule" model="ir.ui.view">
+        <field name="name">sale.order.line.form.schedule.inherit.stock</field>
+        <field name="model">sale.order.line</field>
+        <field name="inherit_id" ref="sale_renting.sale_order_line_form_schedule"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="reserved_lot_ids" invisible="tracking == 'none'" widget="many2many_tags"/>
+            </field>
+            <field name="company_id" position="before">
+                <field name="warehouse_id" groups="stock.group_stock_multi_warehouses"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="sale_renting.action_rental_order_schedule" model="ir.actions.act_window">
+        <field name="context">{
+            'in_rental_app': 1,
+            'in_rental_schedule': 1,
+            'search_default_confirmed': 1,
+            'search_default_groupby_product': 1,
+            'search_default_groupby_reserved_lot': 2,
+            'convert_default_order_line_values': 1,
+            'sale_renting_short_display_name': 1,
+        }</field>
+    </record>
+
+    <record id="sale_order_line_form_lot_allocation" model="ir.ui.view">
+        <field name="name">sale.order.line.form.lot.allocation</field>
+        <field name="model">sale.order.line</field>
+        <field name="priority">999</field>
+        <field name="arch" type="xml">
+            <form name="Allocation">
+                <field
+                    name="reserved_lot_ids"
+                    mode="list,kanban"
+                    context="{'kanban_view_ref': 'sale_stock_renting.stock_lot_kanban_allocation'}"
+                >
+                    <list>
+                        <field name="name"/>
+                        <field name="ref"/>
+                        <field name="product_id"/>
+                        <control>
+                            <button
+                                string="Auto assign"
+                                name="action_auto_assign_lots"
+                                type="object"
+                                class="px-4 btn-link"
+                                context="{'order_line_id': parent.id}"
+                            />
+                            <create name="add_line" string="Add a line"/>
+                        </control>
+                    </list>
+                </field>
+            </form>
+        </field>
+    </record>
+
+</odoo>

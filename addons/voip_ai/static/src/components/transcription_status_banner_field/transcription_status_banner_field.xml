@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<templates>
+    <t t-name="voip_ai.TranscriptionStatusBannerField">
+        <div t-if="banner" t-att-class="'alert text-center ' + banner.class" role="alert">
+            <t t-esc="banner.text"/>
+        </div>
+    </t>
+</templates>

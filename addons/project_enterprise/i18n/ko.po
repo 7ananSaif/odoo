@@ -1,0 +1,375 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * project_enterprise
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:46+0000\n"
+"PO-Revision-Date: 2025-10-28 02:41+0000\n"
+"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"project_enterprise/ko/>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid "%(partner)s has %(amount)s tasks at the same time."
+msgstr "%(partner)s가 %(amount)s 작업을 동시에 진행 중입니다."
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form
+msgid ""
+"<i class=\"fa fa-exclamation-circle me-2\" role=\"img\" title=\"Dependency "
+"warning\"/>"
+msgstr ""
+"<i class=\"fa fa-exclamation-circle me-2\" role=\"img\" title=\"종속성 경고"
+"\"/>"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form
+msgid ""
+"<i class=\"fa fa-random me-2\" role=\"img\" title=\"Planning overlap\"/>"
+msgstr "<i class=\"fa fa-random me-2\" role=\"img\" title=\"중복된 일정\"/>"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.portal_my_task
+msgid "<strong>Deadline:</strong>"
+msgstr "<strong>마감일 :</strong>"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.portal_my_task
+msgid "<strong>Planned Date:</strong>"
+msgstr "<strong>예정 날짜:</strong>"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__allocated_hours
+msgid "Allocated Time"
+msgstr "할당된 시간"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__user_ids
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view_no_title
+msgid "Assignees"
+msgstr "담당자"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/view_dialogs/select_auto_plan_create_dialog.xml:0
+msgid "Auto Plan"
+msgstr "자동 계획"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form
+msgid "Check it out <i class=\"oi oi-chevron-right ms-2\"/>"
+msgstr "자세히 알아보기 <i class=\"oi oi-chevron-right ms-2\"/>"
+
+#. module: project_enterprise
+#: model:ir.model,website_form_label:project_enterprise.model_project_task
+msgid "Create a Task"
+msgstr "작업 만들기"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__partner_id
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view_no_title
+msgid "Customer"
+msgstr "고객"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+msgid "Date"
+msgstr "날짜"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_sharing_project_task_view_form_inherited_in_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form_in_gantt
+msgid "Discard"
+msgstr "취소"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_project__display_name
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__display_name
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task_recurrence__display_name
+#: model:ir.model.fields,field_description:project_enterprise.field_report_project_task_user__display_name
+#: model:ir.model.fields,field_description:project_enterprise.field_res_users__display_name
+msgid "Display Name"
+msgstr "표시명"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Failed to undo reschedule"
+msgstr "일정 변경을 취소하지 못했습니다."
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_project__id
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__id
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task_recurrence__id
+#: model:ir.model.fields,field_description:project_enterprise.field_report_project_task_user__id
+#: model:ir.model.fields,field_description:project_enterprise.field_res_users__id
+msgid "ID"
+msgstr "ID"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view_no_title
+msgid "Milestone"
+msgstr "마일스톤"
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"One parameter is missing to use this method. You should give a start and end "
+"dates."
+msgstr ""
+"이 방법을 사용하기 위한 매개변수 하나가 누락되었습니다. 시작일과 종료일을 지"
+"정해야 합니다."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/controllers/portal.py:0
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_sharing_project_task_view_form_inherited
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form
+msgid "Planned Date"
+msgstr "계획일"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__planned_date_start
+msgid "Planned Date Start"
+msgstr "예정 날짜 시작"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_project_view_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_gantt_inherited_project_sharing_task
+msgid "Planning"
+msgstr "일정 관리"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_project_project
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__project_id
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+msgid "Project"
+msgstr "프로젝트"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/project_task_common/milestones_popover.xml:0
+msgid "Project due"
+msgstr "프로젝트 마감일"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/project_task_common/milestones_popover.xml:0
+msgid "Project start"
+msgstr "프로젝트 시작"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_sharing_project_task_view_form_inherited_in_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form_in_gantt
+msgid "Save"
+msgstr "저장"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid ""
+"Some tasks have been successfully scheduled for the upcoming periods. Some "
+"warnings were generated. Please review them for details."
+msgstr ""
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid "Some tasks were planned after their initial deadline."
+msgstr "일부 작업은 원래 마감일 이후에 계획되었습니다."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"Some tasks were scheduled concurrently, resulting in a conflict due to the "
+"limited availability of the assignees. The planned dates for these tasks may "
+"not align with their allocated hours."
+msgstr ""
+"일부 작업이 동시에 예약되어 담당자의 일정이 맞지 않아 충돌이 발생했습니다. 따"
+"라서 이러한 작업의 예정된 날짜가 배정된 시간과 일치하지 않을 수 있습니다."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"Some tasks weren't planned because the closest available starting date was "
+"too far ahead in the future"
+msgstr ""
+"가장 가까운 시작 가능 날짜가 너무 먼 미래의 날짜인 관계로, 일부 작업 계획이 "
+"되지 않았습니다."
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__planned_date_begin
+#: model:ir.model.fields,field_description:project_enterprise.field_report_project_task_user__planned_date_begin
+msgid "Start date"
+msgstr "시작일"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_project_task
+msgid "Task"
+msgstr "작업"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_project_task_recurrence
+msgid "Task Recurrence"
+msgstr "반복되는 작업"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task could not be removed"
+msgstr "작업을 제거할 수 없음"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task duplicated"
+msgstr "중복 작업"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task removed"
+msgstr "제거 작업"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task reschedule undone"
+msgstr "작업 일정 변경 취소"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task rescheduled"
+msgstr "작업 일정 변경"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_report_project_task_user
+msgid "Tasks Analysis"
+msgstr "작업 분석"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Tasks have been successfully scheduled for the upcoming periods."
+msgstr "다음 기간에 작업이 성공적으로 예약되었습니다."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_search_conflict_task_project_enterprise
+msgid "Tasks in Conflict"
+msgstr "충돌하는 작업"
+
+#. module: project_enterprise
+#: model:ir.model.constraint,message:project_enterprise.constraint_project_task_planned_dates_check
+msgid "The planned start date must be before the planned end date."
+msgstr "시작 예정일은 종료 예정일 이전이어야 합니다."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"The tasks could not be rescheduled due to the assignees' lack of "
+"availability at this time."
+msgstr "현재 담당자가 부재중이므로 작업 일정을 변경할 수 없습니다."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid "This Progress Bar is not implemented."
+msgstr "이 진행률 표시줄이 구현되지 않았습니다."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"This task cannot be planned before the following tasks on which it depends: %"
+"(task_list)s"
+msgstr "이 작업은 다음 작업보다 먼저 계획할 수 없습니다: %(task_list)s"
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"This user isn't expected to have any tasks assigned during this period "
+"because they don't have any running contract."
+msgstr ""
+"해당 사용자와 진행 중인 계약이 없기 때문에 이 기간 동안 작업 배정이 되지 않습"
+"니다."
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.res_config_settings_view_form
+msgid "Timesheets"
+msgstr "작업 기록"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_sharing_project_task_view_form_inherited_in_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form_in_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_gantt_inherited_project_sharing_task
+msgid "Unschedule"
+msgstr "일정 취소"
+
+#. module: project_enterprise
+#: model:ir.model.fields,help:project_enterprise.field_project_task__display_name
+msgid ""
+"Use these keywords in the title to set new tasks:\n"
+"\n"
+"        30h Allocate 30 hours to the task\n"
+"        #tags Set tags on the task\n"
+"        @user Assign the task to a user\n"
+"        ! Set the task a medium priority\n"
+"        !! Set the task a high priority\n"
+"        !!! Set the task a urgent priority\n"
+"\n"
+"        Make sure to use the right format and order e.g. Improve the "
+"configuration screen 5h #feature #v16 @Mitchell !"
+msgstr ""
+"작업 제목에 다음 키워드를 사용하여 새 작업을 설정하세요:\n"
+"\n"
+"        30h 작업에 30시간 할당\n"
+"        #tags 작업에 태그 설정\n"
+"        @user 작업을 사용자에게 할당\n"
+"        !! 작업 우선순위를 중간으로 설정\n"
+"        !! 작업 우선순위를 높음으로 설정\n"
+"        !!! 작업의 우선순위를 긴급으로 설정\n"
+"\n"
+"        형식과 순서가 알맞게 지정되어 있는지 확인하세요. 예: 환경설정 화면 개"
+"선 5h #feature #v16 @Mitchell !"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_res_users
+msgid "User"
+msgstr "사용자"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_project_view_gantt
+msgid "View Tasks"
+msgstr "작업 보기"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/project_task_map/project_task_map_renderer.xml:0
+msgid "View customer locations for your tasks"
+msgstr "작업에 대한 고객 위치 표시"

@@ -1,0 +1,10 @@
+.o_barcode_client_action .o_form_view {
+    @include media-breakpoint-down(sm) {
+        .o_form_nosheet {
+            padding-top: 8px;
+        }
+        .o_field_x2many_kanban.o_kanban_mobile .o_kanban_record {
+            border: $border-width solid $border-color;
+        }
+    }
+}

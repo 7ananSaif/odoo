@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="hr.employee_fpi" model="hr.employee">
+            <field name="planning_role_ids" eval="[(4, ref('planning_role_consultant'))]"/>
+        </record>
+        <record id="hr.employee_hne" model="hr.employee">
+            <field name="default_planning_role_id" ref="planning_role_consultant"/>
+            <field name="planning_role_ids" eval="[(4, ref('planning_role_consultant'))]"/>
+        </record>
+
+        <record id="hr.employee_han" model="hr.employee">
+            <field name="planning_role_ids" eval="[(4, ref('planning_role_junior_architect'))]"/>
+        </record>
+        <record id="hr.employee_jve" model="hr.employee">
+            <field name="default_planning_role_id" ref="planning_role_junior_architect"/>
+            <field name="planning_role_ids" eval="[(4, ref('planning_role_junior_architect'))]"/>
+        </record>
+
+        <record id="hr.employee_fme" model="hr.employee">
+            <field name="planning_role_ids" eval="[(4, ref('planning_role_senior_architect'))]"/>
+        </record>
+        <record id="hr.employee_al" model="hr.employee">
+            <field name="default_planning_role_id" ref="planning_role_senior_architect"/>
+            <field name="planning_role_ids" eval="[(4, ref('planning_role_senior_architect'))]"/>
+        </record>
+    </data>
+</odoo>

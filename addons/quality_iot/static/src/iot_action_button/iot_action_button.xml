@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="quality_iot.iotActionButton">
+        <button class="btn btn-primary"
+                barcode_trigger="measure"
+                t-on-click="onClick"
+                t-esc="props.btn_name"/>
+    </t>
+</templates>

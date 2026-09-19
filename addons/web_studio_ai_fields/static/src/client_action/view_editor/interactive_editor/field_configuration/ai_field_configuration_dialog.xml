@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+
+<t t-name="web_studio_ai_fields.AiFieldConfigurationDialog">
+    <Dialog size="'md'" title.translate="Add an AI Field" contentClass="'o_web_studio_ai_field_configuration_dialog'">
+        <h5>Field Type</h5>
+        <SelectMenu choices="choices" value="state.fieldType" onSelect="(val) => this.state.fieldType = val" required="true" autoSort="false">
+            <div t-attf-class="position-relative o_web_studio_icon_container o_web_studio_ai_field_select_menu_toggler o_web_studio_field_#{selectedField.icon or selectedField.type}" t-out="selectedField.label"/>
+            <t t-set-slot="choice" t-slot-scope="choice">
+                <div t-attf-class="position-relative o_web_studio_icon_container o_web_studio_ai_field_select_menu_item o_web_studio_field_#{choice.data.icon or choice.data.type}" t-out="choice.data.label"/>
+            </t>
+        </SelectMenu>
+        <t t-if="state.fieldType === 'selection'">
+            <h5 class="mt-3">
+                Selection Values
+            </h5>
+            <div class="d-flex mb-2">
+                <div class="badge rounded-pill text-bg-info me-1" t-foreach="state.selection" t-as="selection" t-key="selection[0]" t-out="selection[1]"/>
+            </div>
+            <button class="btn btn-secondary" t-on-click="editSelection">
+                <t t-if="state.selection.length">
+                    Edit Values
+                </t>
+                <t t-else="">
+                    Add Values
+                </t>
+            </button>
+        </t>
+        <t t-if="['m2o', 'm2m'].includes(state.fieldType)">
+            <h5 class="mt-3">
+                Relation
+            </h5>
+            <div t-att-class="{'o_field_invalid': state.showMissingRelationWarning}">
+                <RecordSelector t-props="relationSelectorProps"/>
+            </div>
+        </t>
+        <div t-if="!['char', 'text', 'html'].includes(state.fieldType)" class="alert alert-info mt-3">
+            <t t-out="selectedField.label"/> fields won't update automatically - Click the
+            <img src="/ai/static/description/icon.png" width="20" alt="ai icon" class="rounded"/>
+            button to run your prompt.
+        </div>
+        <h5 class="mt-3">
+            Prompt
+        </h5>
+        <AiPrompt
+            prompt="state.prompt || ''"
+            comodel="relation"
+            model="props.propertiesModel"
+            updatePrompt.bind="(prompt) => this.state.prompt = prompt"
+            placeholder.translate="Write a prompt, use '/field' to insert dynamic values"
+            />
+        <t t-set-slot="footer">
+            <button t-attf-class="btn btn-primary" t-on-click="onConfirm">Add Field</button>
+            <button class="btn btn-secondary" t-on-click.stop="props.close">Discard</button>
+        </t>
+    </Dialog>
+</t>
+
+</templates>

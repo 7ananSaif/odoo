@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="product_pricelist_item_view_search_inherit" model="ir.ui.view">
+        <field name="name">product.pricelist.item.search.remove_active_filter</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_view_search"/>
+        <field name="arch" type="xml">
+            <filter name="visible" position="after">
+                <separator/>
+                <filter name="recurring" string="Recurring" domain="[('plan_id', '!=', False)]"/>
+            </filter>
+        </field>
+    </record>
+
+    <!-- forbid recurring products on standard pricelist rules -->
+    <record id="product_pricelist_item_form_view" model="ir.ui.view">
+        <field name="name">sale.subscription.product.pricelist.item.form</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_form_view"/>
+        <field name="arch" type="xml">
+            <field name="product_tmpl_id" position="attributes">
+                <attribute name="domain">[('recurring_invoice', '=', False)]</attribute>
+            </field>
+        </field>
+    </record>
+
+    <!-- Product pricelist edition -> enforce plan & recurring for recurring rules -->
+    <record id="product_pricelist_item_form_view_recurring" model="ir.ui.view">
+        <field name="name">sale.subscription.product.pricelist.item.form</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_form_view"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="product_tmpl_id" position="attributes">
+                <attribute name="domain">[('recurring_invoice', '=', True)]</attribute>
+            </field>
+            <field name="min_quantity" position="before">
+                <field name="plan_id" required="1"/>
+            </field>
+        </field>
+    </record>
+
+    <!-- Product template edition -> require plan -->
+    <record id="product_pricelist_item_sale_subscription_view" model="ir.ui.view">
+        <field name="name">product.pricelist.item.sale.subscription.form.inherit</field>
+        <field name="model">product.pricelist.item</field>
+        <field name="inherit_id" ref="product.product_pricelist_item_product_template_form_view"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="pricelist_id" position="after">
+                <field name="plan_id" required="1"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

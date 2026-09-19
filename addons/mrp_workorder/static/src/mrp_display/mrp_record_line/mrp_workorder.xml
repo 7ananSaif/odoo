@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="mrp_workorder.WorkOrder">
+        <li class="o_mrp_record_line list-group-item d-flex align-items-center cursor-pointer"
+            t-att-class="{'o_active': active, 'disabled': !props.clickable}" t-on-click="onClick">
+            <div class="d-flex align-items-center gap-2 w-100">
+                <span t-if="!isComplete" t-out="workcenter.display_name" class="o_tag badge rounded flex-shrink-0"
+                      t-attf-class="o_tag_color_{{workcenter.id % 11}}"/>
+                <span class="o_mrp_operation_name text-truncate" t-out="props.record.data.name"/>
+            </div>
+            <div class="justify-content-end w-20" t-att-class="isEmployeeAssigned and !isComplete? 'btn btn-primary':''">
+                <i class="ms-auto" t-att-class="isComplete ? 'text-muted fa fa-check' : 'oi oi-chevron-right'" role="img"/>
+            </div>
+        </li>
+    </t>
+</templates>

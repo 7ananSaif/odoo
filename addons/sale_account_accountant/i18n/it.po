@@ -1,0 +1,168 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * sale_account_accountant
+#
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:47+0000\n"
+"PO-Revision-Date: 2025-11-10 14:28+0000\n"
+"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"sale_account_accountant/it/>\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "Company"
+msgstr "Azienda"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_list
+msgid "Create Accrual Entries"
+msgstr "Crea registrazioni per competenza"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "Customer"
+msgstr "Cliente"
+
+#. module: sale_account_accountant
+#: model:ir.model.fields,field_description:sale_account_accountant.field_sale_order_line__deferred_revenue
+msgid "Deferred Revenue"
+msgstr "Risconto passivo"
+
+#. module: sale_account_accountant
+#: model:ir.model.fields,field_description:sale_account_accountant.field_sale_order_line__display_name
+msgid "Display Name"
+msgstr "Nome visualizzato"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "Display only goods lines"
+msgstr "Mostra solo righe positive"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "Display only lines for product invoiced on delivered quantities"
+msgstr ""
+"Mostra solo righe per prodotti fatturati in base alle quantità consegnate"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "Display only lines for product invoiced on ordered quantities"
+msgstr ""
+"Mostra solo righe per prodotti fatturati in base alle quantità ordinate"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "Display only service lines"
+msgstr "Mostra solo righe servizio"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "For the Last 365 Days"
+msgstr "Per gli ultimi 365 giorni"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "Goods"
+msgstr "Beni"
+
+#. module: sale_account_accountant
+#: model:ir.model.fields,field_description:sale_account_accountant.field_sale_order_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "Invoice on Delivered"
+msgstr "Fattura alla consegna"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "Invoice on Ordered"
+msgstr "Fattura su ordine"
+
+#. module: sale_account_accountant
+#: model:ir.model.fields,field_description:sale_account_accountant.field_sale_order_line__invoice_to_be_issued
+msgid "Invoice to be Issued"
+msgstr "Fattura da emettere"
+
+#. module: sale_account_accountant
+#: model:ir.actions.act_window,name:sale_account_accountant.sale_order_line_accrual_deferred_revenues_action
+#: model:ir.ui.menu,name:sale_account_accountant.menu_sale_order_line_accrual_deferred_revenues_action
+msgid "Invoiced Not Delivered"
+msgstr "Fatturato Non consegnato"
+
+#. module: sale_account_accountant
+#: model:ir.actions.act_window,name:sale_account_accountant.sale_order_line_accrual_to_bill_action
+#: model:ir.ui.menu,name:sale_account_accountant.menu_sale_order_line_accrual_to_bill_action
+msgid "Invoices To Be Issued"
+msgstr "Fatture da emettere"
+
+#. module: sale_account_accountant
+#: model:ir.model.fields,field_description:sale_account_accountant.field_sale_order_line__product_invoice_policy
+msgid "Invoicing Policy"
+msgstr "Politica di fatturazione"
+
+#. module: sale_account_accountant
+#. odoo-python
+#: code:addons/sale_account_accountant/models/sale_order_line.py:0
+msgid "Only a check to True is supported"
+msgstr "È supportato solo il valore True"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "Order Reference"
+msgstr "Riferimento ordine"
+
+#. module: sale_account_accountant
+#: model:ir.model.fields,help:sale_account_accountant.field_sale_order_line__product_invoice_policy
+msgid ""
+"Ordered Quantity: Invoice quantities ordered by the customer.\n"
+"Delivered Quantity: Invoice quantities delivered to the customer."
+msgstr ""
+"Quantità ordinate: fattura le quantità ordinate dal cliente.\n"
+"Quantità consegnate: fattura le quantità consegnate al cliente."
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "Product Category"
+msgstr "Categoria prodotto"
+
+#. module: sale_account_accountant
+#. odoo-javascript
+#: code:addons/sale_account_accountant/static/src/components/bank_reconciliation/button_list/button_list.js:0
+#: model:ir.ui.menu,name:sale_account_accountant.sale_accountant_accrual_menu
+msgid "Sales"
+msgstr "Vendite"
+
+#. module: sale_account_accountant
+#: model:ir.model,name:sale_account_accountant.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Riga ordine di vendita"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_list
+msgid "Sales Order Lines"
+msgstr "Righe ordine di vendita"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "Sales Order Lines processed during last 365 days"
+msgstr "Righe ordine di vendita elaborate durante gli ultimi 365 giorni"
+
+#. module: sale_account_accountant
+#: model_terms:ir.ui.view,arch_db:sale_account_accountant.sale_order_line_view_search
+msgid "Service"
+msgstr "Servizi"

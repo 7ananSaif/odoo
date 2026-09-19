@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_gantt.GanttRenderer.Pill" t-inherit="web_gantt.GanttRenderer.Pill" t-inherit-mode="primary">
+        <xpath expr='//span[@class="o_gantt_pill_title text-truncate mx-1"]' position="attributes">
+            <attribute name="t-esc">
+                " " + pill.displayName + " " + pill.record.waiting_list_capacity + "p"
+            </attribute>
+        </xpath>
+    </t>
+    <t t-name="pos_gantt.GanttRenderer.RowHeader" t-inherit="web_gantt.GanttRenderer.RowHeader" t-inherit-mode="primary">
+        <xpath expr='//t[@t-esc="row.name"]' position="replace">
+            <t t-if="row.resId">
+                <t t-esc="row.name"/>
+            </t>
+            <t t-else="">
+                <span>Unassigned</span>
+            </t>
+        </xpath>
+    </t>
+</templates>

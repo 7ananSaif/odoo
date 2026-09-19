@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip.ContactInfo">
+    <div class="o-voip-ContactInfo w-100 d-flex flex-column align-items-center gap-2" t-att-class="props.extraClass">
+        <img class="o_avatar rounded-2 object-fit-contain" t-att-class="{ 'o-voip-avatar-bg': avatarUrl !== '/base/static/img/avatar_grey.png' }" t-att-src="avatarUrl" t-att-alt="avatarAlt" aria-hidden="true"/>
+        <div class="w-100 text-center">
+            <p class="mb-0 fs-4 fw-bold text-truncate" t-esc="contactName"/>
+            <p t-if="contactInfo" class="mb-0 opacity-75 text-truncate" t-esc="contactInfo"/>
+        </div>
+    </div>
+</t>
+</templates>

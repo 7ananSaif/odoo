@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="sdd_mandate_form" inherit_id="account_sepa_direct_debit.sdd_mandate_form">
+        <p name="mandate_description" position="replace">
+            <t t-if="not o.is_online_payment">$0</t>
+            <p t-else="" class="mb-4 avoid-page-break-inside small">
+                By completing the initial bank transfer with the specified amount and label, you
+                authorize (A) <span t-out="o.company_id.name">Odoo PVT LTD</span> to send
+                instructions to your bank to debit your account and (B) your bank to debit your
+                account in accordance with the instructions from <span t-out="o.company_id.name">
+                Odoo PVT LTD</span>. As part of your rights, you are entitled to a refund from your
+                bank under the terms and conditions of your agreement with your bank. Your rights
+                are explained in a statement that you can obtain from your bank. A refund must be
+                claimed within 8 weeks starting from the date on which your account was debited.
+            </p>
+        </p>
+        <div name="mandate_container" position="after">
+            <t t-set="transaction" t-value="o._get_source_transaction()"/>
+            <div t-if="transaction" class="avoid-page-break-inside">
+                <h5 class="mb-2">Bank Statement</h5>
+                <div id="bank_statement" class="row">
+                    <div class="col-6">
+                        <p class="mb-2">
+                            <strong>Amount: </strong>
+                            <span
+                                t-out="transaction.amount"
+                                t-options="{
+                                    'widget': 'monetary',
+                                    'display_currency': transaction.currency_id
+                                }"
+                            />
+                        </p>
+                        <p class="mb-2">
+                            <strong>Date: </strong>
+                            <span
+                                t-out="transaction.last_state_change"
+                                t-options="{'widget': 'date'}"
+                            />
+                        </p>
+                    </div>
+                    <div class="col-6">
+                        <p class="mb-2">
+                            <strong>Label: </strong>
+                            <span t-out="transaction.reference"/>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</odoo>

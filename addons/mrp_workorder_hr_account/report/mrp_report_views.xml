@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mrp_report_form_view" model="ir.ui.view">
+        <field name="name">mrp.report.form.inherit.hr</field>
+        <field name="model">mrp.report</field>
+        <field name="inherit_id" ref="mrp_account_enterprise.mrp_report_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='unit_operation_cost']" position="after">
+                <field name="unit_employee_cost" groups="mrp.group_mrp_routings"/>
+            </xpath>
+            <xpath expr="//field[@name='operation_cost']" position="after">
+                <field name="employee_cost" groups="mrp.group_mrp_routings"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="mrp_report_pivot_view" model="ir.ui.view">
+        <field name="name">mrp.report.pivot.inherit.hr</field>
+        <field name="model">mrp.report</field>
+        <field name="inherit_id" ref="mrp_account_enterprise.mrp_report_pivot_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='unit_operation_cost']" position="after">
+                <field name="unit_employee_cost" type="measure" string="Average Employee Cost / Unit" groups="mrp.group_mrp_routings"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

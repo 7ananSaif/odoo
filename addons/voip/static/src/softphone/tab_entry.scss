@@ -1,0 +1,12 @@
+.o-voip-TabEntry {
+    --voip__countryFlag-width: 1em;
+
+    details[open], summary:hover {
+        background: var(--voipCalling__tabEntry-background-color--hover, #{$gray-100});
+    }
+
+    summary:focus-visible {
+        outline-offset: $btn-focus-width * -1;
+        outline: $btn-focus-width solid rgba($primary, .5);
+    }
+}

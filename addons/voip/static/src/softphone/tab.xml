@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip.Tab">
+    <div class="o-voip-Tab d-flex flex-column w-100 h-100" t-att-class="props.extraClass">
+        <t t-slot="top"/>
+        <div t-if="props.itemsBySection.size > 0" class="overflow-auto">
+            <t t-foreach="[...props.itemsBySection]" t-as="mapping" t-key="mapping[0]">
+                <t t-set="sectionName" t-value="mapping[0]"/>
+                <t t-set="items" t-value="mapping[1]"/>
+                <t t-set="sectionClass" t-value="props.getSectionStyle?.(items[0])"/>
+                <section class="pt-3">
+                    <h2 class="position-sticky top-0 px-3 py-2 m-0 border-bottom bg-view fs-6 z-1" t-att-class="sectionClass">
+                        <i t-if="props.sectionIcon" class="me-1" t-att-class="props.sectionIcon" aria-hidden="true"/>
+                        <t t-esc="sectionName"/>
+                    </h2>
+                    <t t-foreach="items" t-as="item" t-key="item.id">
+                        <t t-slot="entry" item="item" section="sectionName"/>
+                        <!-- dummy node, used to hold a t-ref to the end of tab -->
+                        <span t-if="mapping_last and item_last" t-ref="end-of-tab"/>
+                    </t>
+                </section>
+            </t>
+        </div>
+        <div t-elif="!props.state.searchInputValue.trim()" class="d-flex justify-content-center align-items-center flex-grow-1 p-3 fs-4 text-center">
+            <p t-esc="props.noEntriesMessage"/>
+        </div>
+        <t t-else="" t-slot="no-search-results">
+            No search results 💔
+        </t>
+    </div>
+</t>
+</templates>

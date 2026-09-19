@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="mail_alias_todo" model="mail.alias">
+        <field name="alias_name">to-do</field>
+        <field name="alias_model_id" ref="project.model_project_task"/>
+        <field name="alias_contact">employees</field>
+        <field name="alias_defaults">{'project_id': False}</field>
+    </record>
+</odoo>

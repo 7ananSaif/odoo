@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<odoo>
+    <data noupdate="1">
+        <record id="whatsapp_template_payment_reminder" model="whatsapp.template" forcecreate="0">
+            <field name="name">Payment Reminder</field>
+            <field name="template_name">payment_reminder</field>
+            <field name="lang_code">en</field>
+            <field name="template_type">utility</field>
+            <field name="phone_field">phone</field>
+            <field name="footer_text">Write 'stop' to stop receiving messages</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="body">Hello {{1}},
+
+Just a quick note - your account shows a balance of *{{2}}{{3}}*.
+Please settle it within the next 8 days.
+
+If you've already made the payment, feel free to ignore this message.
+For any questions, our accounting team is here to help.
+
+Thanks for your cooperation!
+
+Best,
+{{4}}
+            </field>
+            <field name="variable_ids"
+                eval="[
+                    (5, 0, 0),
+                    (0, 0, {
+                        'name': '{{1}}',
+                        'demo_value': 'Joel',
+                        'line_type': 'body',
+                        'field_type': 'field',
+                        'field_name': 'name',
+                    }),
+                    (0, 0, {
+                        'name': '{{2}}',
+                        'demo_value': '$',
+                        'line_type': 'body',
+                        'field_type': 'field',
+                        'field_name': 'currency_id.symbol',
+                    }),
+                    (0, 0, {
+                        'name': '{{3}}',
+                        'demo_value': '6049',
+                        'line_type': 'body',
+                        'field_type': 'field',
+                        'field_name': 'total_overdue',
+                    }),
+                    (0, 0, {
+                        'name': '{{4}}',
+                        'demo_value': 'Mitchell Admin',
+                        'line_type': 'body',
+                        'field_type': 'user_name',
+                    }),
+                ]"/>
+            <field name="button_ids"
+                model="whatsapp.template.button"
+                eval="[
+                    (5, 0, 0),
+                    (0, 0, {
+                        'name': 'Pay now',
+                        'button_type': 'url',
+                        'website_url': '/my/invoices/overdue',
+                    })
+                ]"/>
+        </record>
+    </data>
+</odoo>

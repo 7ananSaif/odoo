@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_view_form_inherit_project_forecast" model="ir.ui.view">
+        <field name="name">project.view.form.inherit.project.forecast</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="priority">32</field>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='group_time_managment']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_embedded_action_planning" model="ir.embedded.actions">
+        <field name="parent_res_model">project.project</field>
+        <field name="sequence">30</field>
+        <field name="parent_action_id" ref="project.act_project_project_2_project_task_all"/>
+        <field name="action_id" ref="project_forecast.planning_action_schedule_project"/>
+        <field name="groups_ids" eval="[(4, ref('planning.group_planning_user'))]" />
+    </record>
+
+    <record id="project_embedded_action_planning_dashboard" model="ir.embedded.actions">
+        <field name="parent_res_model">project.project</field>
+        <field name="sequence">30</field>
+        <field name="parent_action_id" ref="project.project_update_all_action"/>
+        <field name="action_id" ref="project_forecast.planning_action_schedule_project"/>
+        <field name="groups_ids" eval="[(4, ref('planning.group_planning_user'))]"/>
+    </record>
+</odoo>

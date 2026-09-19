@@ -1,0 +1,369 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * pos_settle_due
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:42+0000\n"
+"PO-Revision-Date: 2025-09-16 12:14+0000\n"
+"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"pos_settle_due/ko/>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "(with cart:"
+msgstr "(장바구니:"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_account_bank_statement_line__pos_amount_unsettled
+#: model:ir.model.fields,field_description:pos_settle_due.field_account_move__pos_amount_unsettled
+msgid "Amount To Pay In POS"
+msgstr "POS에서 결제할 금액"
+
+#. module: pos_settle_due
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.customer_due_pos_order_list_view
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.due_account_move_list_view
+msgid "Amount total"
+msgstr "총액"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__commercial_partner_id
+msgid "Commercial Entity"
+msgstr "상업 항목"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_res_company
+msgid "Companies"
+msgstr "회사"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_res_partner
+msgid "Contact"
+msgstr "연락처"
+
+#. module: pos_settle_due
+#: model:ir.model,website_form_label:pos_settle_due.model_res_partner
+msgid "Create a Customer"
+msgstr "고객 만들기"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_list.xml:0
+msgid "Credit limit reached!"
+msgstr "신용 한도에 도달했습니다!"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Credit limit:"
+msgstr "신용 한도"
+
+#. module: pos_settle_due
+#: model:product.template,name:pos_settle_due.product_product_deposit_product_template
+msgid "Deposit"
+msgstr "선결제 금액"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_config__deposit_product_id
+msgid "Deposit Product"
+msgstr "보증금 제품"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Deposit money"
+msgstr "입금"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Deposited:"
+msgstr "입금:"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_account_move__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_ir_ui_view__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_config__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order_line__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_session__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_company__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_partner__display_name
+msgid "Display Name"
+msgstr "표시명"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Do you want to deposit %s to %s?"
+msgstr "%s 만큼 %s로 입금하시겠습니까?"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid ""
+"Do you want to deposit money to a specific customer? If so, first select him/"
+"her."
+msgstr "특정 고객에게 금액을 입금할까요? 입금하려면 먼저 고객을 선택하세요."
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__customer_due_total
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.due_account_move_list_view
+msgid "Due"
+msgstr "결제 금액"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Empty Order"
+msgstr "빈 주문"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Empty orders cannot be invoiced."
+msgstr "내용이 없는 주문서는 수정할 수 없습니다."
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Error"
+msgstr "오류"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_account_move__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_ir_ui_view__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_config__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order_line__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_session__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_company__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_partner__id
+msgid "ID"
+msgstr "ID"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__init_customer_due_total
+msgid "Initial due (before any settlement)"
+msgstr "1차 만기(정산 전)"
+
+#. module: pos_settle_due
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.due_account_move_list_view
+msgid "Invoice Date"
+msgstr "청구 날짜"
+
+#. module: pos_settle_due
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.due_account_move_list_view
+msgid "Invoices"
+msgstr "청구서"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_account_move
+msgid "Journal Entry"
+msgstr "전표 입력"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__settled_orders_count
+msgid "Number of settled orders"
+msgstr "정산된 주문 수"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_account_bank_statement_line__pos_order_line_ids
+#: model:ir.model.fields,field_description:pos_settle_due.field_account_move__pos_order_line_ids
+msgid "Order lines settling the invoice"
+msgstr "주문 내역에서 청구서 정산"
+
+#. module: pos_settle_due
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.customer_due_pos_order_list_view
+msgid "POS Orders"
+msgstr "점포판매시스템 주문"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_pos_config
+msgid "Point of Sale Configuration"
+msgstr "POS 환경 설정"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_pos_order_line
+msgid "Point of Sale Order Lines"
+msgstr "점포판매시스템 주문 명세"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_pos_order
+msgid "Point of Sale Orders"
+msgstr "점포판매시스템 주문"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_pos_session
+msgid "Point of Sale Session"
+msgstr "점포판매시스템 기간"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/services/pos_store.js:0
+msgid "Select the payment method to deposit money"
+msgstr "납부할 결제 수단을 선택하세요."
+
+#. module: pos_settle_due
+#: model:product.template,name:pos_settle_due.product_product_settle_product_template
+msgid "Settle Due"
+msgstr "결제 기한"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_config__settle_due_product_id
+msgid "Settle Due Product"
+msgstr "미결제 품목 정산"
+
+#. module: pos_settle_due
+#: model:product.template,name:pos_settle_due.product_product_settle_invoice_product_template
+msgid "Settle Invoice"
+msgstr "청구서 정산"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_config__settle_invoice_product_id
+msgid "Settle Invoice Product"
+msgstr "청구서 품목 정산"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Settle due amount"
+msgstr "미결제 금액 정산"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Settle due orderlines"
+msgstr "미납 주문 내역 정산"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Settle invoices"
+msgstr "청구서 정산"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Settle orders"
+msgstr "주문서 정산"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order_line__settled_invoice_id
+msgid "Settled Invoice"
+msgstr "정산된 청구서"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order_line__settled_order_id
+msgid "Settled Order"
+msgstr "정산된 주문서"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__settled_order_line_ids
+msgid "Settled Order Lines"
+msgstr "주문 내역 정산"
+
+#. module: pos_settle_due
+#. odoo-python
+#: code:addons/pos_settle_due/models/pos_order.py:0
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.pos_order_form_inherit_pos_settle_due
+msgid "Settled Orders"
+msgstr "정산된 주문서"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_partner__pos_orders_amount_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_users__pos_orders_amount_due
+msgid "Sum of customers PoS orders's due amount"
+msgstr "디스플레이를 여는 중 오류가 발생했습니다."
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_partner__invoices_amount_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_users__invoices_amount_due
+msgid "Sum of customers's invoice due amount"
+msgstr "고객 청구서 미납 금액 합계"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "The order is empty"
+msgstr "주문 내역이 없습니다."
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid ""
+"The selected customer is not in the list of partners of the ongoing settling "
+"orderlines."
+msgstr ""
+"선택한 고객을 진행 중인 미납 주문 정산 내역의 파트너 목록에서 찾을 수 없습니"
+"다."
+
+#. module: pos_settle_due
+#: model:ir.model.fields,help:pos_settle_due.field_pos_config__settle_due_product_id
+msgid "This product is used as to settle due of customer account."
+msgstr "이 품목은 고객 계정의 미납 정산에 사용됩니다."
+
+#. module: pos_settle_due
+#: model:ir.model.fields,help:pos_settle_due.field_pos_config__settle_invoice_product_id
+msgid "This product is used as to settle invoices of customer."
+msgstr "이 제품은 고객 청구서를 정산할 때 활용됩니다."
+
+#. module: pos_settle_due
+#: model:ir.model.fields,help:pos_settle_due.field_pos_config__deposit_product_id
+msgid "This product is used to deposit money on customer account."
+msgstr "이 품목은 고객 계좌에 입금하는 데 사용됩니다."
+
+#. module: pos_settle_due
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.customer_due_pos_order_list_view
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.due_account_move_list_view
+msgid "Total due"
+msgstr "총 미결제 금액"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Total due:"
+msgstr "총 미결제 금액:"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_ir_ui_view
+msgid "View"
+msgstr "화면"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Yes"
+msgstr "예"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "You can not deposit zero amount."
+msgstr "금액이 0인 경우 입금할 수 없습니다."
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "You cannot refund a deposit/settling order."
+msgstr "입금/정산 주문은 환불할 수 없습니다."
+
+#. module: pos_settle_due
+#. odoo-python
+#: code:addons/pos_settle_due/models/pos_order.py:0
+msgid "id"
+msgstr "id"
+
+#~ msgid "One of the selected orders is already being settled."
+#~ msgstr "선택한 주문 중에서 한 건이 이미 정산 중입니다."

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <menuitem
+            id="menu_timesheet_grid_validate"
+            name="To Validate"
+            parent="hr_timesheet.timesheet_menu_root"
+            groups="hr_timesheet.group_hr_timesheet_approver"
+            sequence="10"
+        />
+        <menuitem
+            id="menu_timesheet_grid_validate_previous_week"
+            name="Last Period"
+            parent="menu_timesheet_grid_validate"
+            action="timesheet_grid_to_validate_action"
+        />
+        <menuitem
+            id="menu_timesheet_grid_validate_all_timesheets"
+            name="All Timesheets"
+            parent="menu_timesheet_grid_validate"
+            action="timesheet_grid_to_validate_all_timesheets_action"
+        />
+    </data>
+</odoo>

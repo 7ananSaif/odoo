@@ -1,0 +1,529 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * website_generator
+#
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:48+0000\n"
+"PO-Revision-Date: 2025-12-15 10:39+0000\n"
+"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"website_generator/it/>\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: website_generator
+#: model:mail.template,body_html:website_generator.email_template_website_scrapped
+msgid ""
+"<div>\n"
+"            <p><b>Great news!</b> Your website conversion is complete and "
+"your new integrated Odoo website is now live.</p>\n"
+"            <p>Check out your new website here: <a t-att-"
+"href=\"ctx.get('website_url')\"><t t-out=\"ctx.get('website_url')\"/></a></"
+"p>\n"
+"            <p>Thank you for choosing Odoo for your web integration!</p>\n"
+"            <p>Best regards,</p>\n"
+"            <br/>\n"
+"            <p>Odoo - The best open source website builder.</p>\n"
+"            </div>\n"
+"            "
+msgstr ""
+"<div>\n"
+"            <p><b>Buone notizie!</b> La conversione del tuo sito web è stata "
+"completata e il tuo nuovo sito web Odoo è online.</p>\n"
+"            <p>Dai un'occhiata al nuovo sito qui: <a t-att-"
+"href=\"ctx.get('website_url')\"><t t-out=\"ctx.get('website_url')\"/></a></"
+"p>\n"
+"            <p>Grazie per aver scelto Odoo!</p>\n"
+"            <p>Saluti,</p>\n"
+"            <br/>\n"
+"            <p>Odoo - Il migliore creatore di siti web open source.</p>\n"
+"            </div>\n"
+"            "
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__additional_urls
+msgid "Additional URLs"
+msgstr "Url aggiuntivi"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "An error occurred"
+msgstr "Si è verificato un errore"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Attachment not found"
+msgstr "Allegato non trovato"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Banned url"
+msgstr "Url vietato"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid ""
+"By clicking \"Import my website\", you confirm that you are the owner of the "
+"website and all associated components (such as images and other content), "
+"and you take full responsibility for their use and any potential legal "
+"implications."
+msgstr ""
+"Facendo clic su \"Importa il mio sito web\", confermi di essere il "
+"proprietario del sito web e di tutti i componenti associati (come immagini e "
+"altri contenuti) e di assumerti l'intera responsabilità dell'uso e di "
+"qualsiasi implicazione legale."
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Could not fetch result, invalid output uuid or result expired"
+msgstr ""
+"Impossibile recuperare il risultato, output uuid non valido o risultato "
+"scaduto"
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__create_uid
+msgid "Created by"
+msgstr "Creato da"
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__create_date
+msgid "Created on"
+msgstr "Creato il"
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_ir_http__display_name
+#: model:ir.model.fields,field_description:website_generator.field_website__display_name
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__display_name
+#: model:ir.model.fields,field_description:website_generator.field_website_page__display_name
+msgid "Display Name"
+msgstr "Nome visualizzato"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Done, website generated"
+msgstr "Fatto, sito web creato"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.js:0
+msgid "Error"
+msgstr "Errore"
+
+#. module: website_generator
+#: model:ir.model,name:website_generator.model_ir_http
+msgid "HTTP Routing"
+msgstr "Instradamento HTTP"
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_ir_http__id
+#: model:ir.model.fields,field_description:website_generator.field_website__id
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__id
+#: model:ir.model.fields,field_description:website_generator.field_website_page__id
+msgid "ID"
+msgstr "ID"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "If you require more, you can contact us at"
+msgstr "Se hai bisogno di più pagine, contattaci all'indirizzo"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "Import Products"
+msgstr "Importa prodotti"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "Import my website"
+msgstr "Importa il mio sito web"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "Import your"
+msgstr "Importa il tuo"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/builder/imported_footer_template_choice.xml:0
+msgid "Imported"
+msgstr "Importato"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/builder/imported_footer_plugin.js:0
+msgid "Imported Footer"
+msgstr "Piè di pagina importato"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/generator_wait/generator.js:0
+msgid "Importing your website."
+msgstr "Importazione sito web in corso."
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Invalid dbuuid"
+msgstr "Dbuuid non valido"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Invalid import products"
+msgstr "Importazione prodotti non valida"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Invalid token"
+msgstr "Token non valido"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Invalid url"
+msgstr "Url non valido"
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__write_uid
+msgid "Last Updated by"
+msgstr "Ultimo aggiornamento di"
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__write_date
+msgid "Last Updated on"
+msgstr "Ultimo aggiornamento il"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "Loading..."
+msgstr "Caricamento in corso..."
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__notified
+msgid "Notified"
+msgstr "Notificato"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Number of allowed requests exhausted"
+msgstr "Numero di richieste permesse esaurito"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Number of concurrent requests exceeded"
+msgstr "Numero di richieste simultanee superato"
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__page_count
+msgid "Number of pages"
+msgstr "Numero di pagine"
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__uuid
+msgid "Output UUID generated from Website Scraper Server"
+msgstr "Output UUID generato dal server di scraping del sito web"
+
+#. module: website_generator
+#: model:ir.model,name:website_generator.model_website_page
+msgid "Page"
+msgstr "Pagina"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "Pages"
+msgstr "Pagine"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Processing"
+msgstr "In elaborazione"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "Products"
+msgstr "Prodotti"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Request is still processing, result not available yet"
+msgstr ""
+"La richiesta è ancora in fase di elaborazione, i risultati non sono "
+"disponibili"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Server is currently under maintenance. Please retry later"
+msgstr "Server attualmente in manutenzione. Riprova più tardi"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/generator_wait/generator.xml:0
+msgid "Something went wrong"
+msgstr "Qualcosa è andato storto"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.js:0
+msgid "Something went wrong while importing your website."
+msgstr "Qualcosa è andato storto durante l'importazione del sito web."
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__status
+msgid "Status"
+msgstr "Stato"
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__status_message
+msgid "Status Message"
+msgstr "Messaggio di stato"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Success"
+msgstr "Successo"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "The URL is not reachable."
+msgstr "L'URL non è raggiungibile."
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "The URL is reachable."
+msgstr "L'URL è raggiungibile."
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/systray_items/generator_request.js:0
+msgid "The import of your website has started!"
+msgstr "L'importazione del sito web è iniziata!"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "The maximum number of pages is 200 by default."
+msgstr "Il numero massimo di pagine è 200 per impostazione predefinita."
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.js:0
+msgid "The provided URL is not allowed"
+msgstr "L'URL fornito non è consentito"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.js:0
+msgid "The provided URL is not reachable"
+msgstr "L'URL fornito non è raggiungibile"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "The request asks for too many pages"
+msgstr "La richiesta comprende troppe pagine"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid ""
+"The requested url redirected to another url, try again with the redirected "
+"url"
+msgstr ""
+"L'URL richiesto ha reindirizzato verso un altro URL. Prova di nuovo con "
+"l'URL reindirizzato"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid ""
+"The requested url took too long to load and is probably unreachable from the "
+"server"
+msgstr ""
+"L'URL richiesto ha impiegato troppo tempo per caricarsi e probabilmente non "
+"è raggiungibile dal server"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid ""
+"The same request has just been made, please wait before sending another "
+"identical request"
+msgstr ""
+"La stessa richiesta è appena stata effettuata, attendi prima di inviare una "
+"richiesta identica"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/generator_wait/generator.xml:0
+msgid "This can take a few minutes."
+msgstr "Possono volerci alcuni minuti."
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.js:0
+msgid "Too many requests"
+msgstr "Troppe richieste"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/page.py:0
+msgid "Top Menu for Website %s"
+msgstr "Menù principale per il sito web %s"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.js:0
+msgid "URL redirection"
+msgstr "Reindirizzamento URL"
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__target_url
+msgid "URL to scrape"
+msgstr "Url da scorporare"
+
+#. module: website_generator
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__version
+msgid "Version"
+msgstr "Versione"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Version is unsupported"
+msgstr "La versione non è supportata"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Waiting for the server to process the request"
+msgstr "In attesa del server per elaborare la richiesta"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/generator_wait/generator.xml:0
+msgid "We could not convert your website, please try again later"
+msgstr "Non è stato possibile convertire il tuo sito web, prova più tardi"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/systray_items/generator_request.js:0
+msgid "We will notify %(email)s when everything is ready."
+msgstr "Ti invieremo una notifica %(email)s quando tutto sarà pronto."
+
+#. module: website_generator
+#: model:ir.model,name:website_generator.model_website
+#: model:ir.model.fields,field_description:website_generator.field_website_generator_request__website_id
+msgid "Website"
+msgstr "Sito web"
+
+#. module: website_generator
+#: model:ir.actions.client,name:website_generator.website_generator_screen
+msgid "Website Generator"
+msgstr "Generatore sito web"
+
+#. module: website_generator
+#: model:ir.actions.server,name:website_generator.action_convert_scraping_request_ICP
+msgid "Website Generator After Install"
+msgstr "Generatore sito web dopo installazione"
+
+#. module: website_generator
+#: model:ir.model,name:website_generator.model_website_generator_request
+msgid "Website Generator Request"
+msgstr "Richiesta generatore sito web"
+
+#. module: website_generator
+#: model:ir.actions.server,name:website_generator.cron_get_result_ir_actions_server
+msgid "Website Generator: Get website scraper results"
+msgstr "Generatore sito web: ottieni risultati scraping sito web"
+
+#. module: website_generator
+#: model:mail.template,name:website_generator.email_template_website_scrapped
+msgid "Website Scraped"
+msgstr "Sito web scorporato"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "Website URL"
+msgstr "URL sito web"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Website blocked or unreachable"
+msgstr "Sito web bloccato o non raggiungibile"
+
+#. module: website_generator
+#. odoo-python
+#: code:addons/website_generator/models/generator.py:0
+msgid "Website not supported"
+msgstr "Sito web non supportato"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/generator_wait/generator.xml:0
+msgid "You will be redirected once your website is ready."
+msgstr "Verrai reindirizzato una volta che il sito web sarà pronto."
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "You'll be able to create additional pages later on."
+msgstr "In seguito, potrai creare pagine aggiuntive."
+
+#. module: website_generator
+#: model:mail.template,subject:website_generator.email_template_website_scrapped
+msgid "Your Odoo Website is Ready!"
+msgstr "Il tuo sito web Odoo è pronto!"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "and"
+msgstr "e"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "https://www.odoo.com/"
+msgstr "https://www.odoo.com/"
+
+#. module: website_generator
+#. odoo-javascript
+#: code:addons/website_generator/static/src/client_actions/configurator/configurator.xml:0
+msgid "odoo.com/help"
+msgstr "odoo.com/help"
+
+#~ msgid "support@odoo.com"
+#~ msgstr "support@odoo.com"

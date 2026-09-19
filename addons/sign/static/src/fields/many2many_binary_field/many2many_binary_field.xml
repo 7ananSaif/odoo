@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="sign.Many2ManyBinaryField">
+        <FileInput
+            acceptedFileExtensions="props.acceptedFileExtensions"
+            multiUpload="true"
+            onUpload.bind="onFileUploaded"
+            resModel="props.record.resModel"
+            resId="props.record.resId or 0"
+        >
+            <button class="btn btn-light w-auto" data-tooltip="Add Attachment">
+                <span class="fa fa-paperclip" aria-label="Attach"/>
+            </button>
+        </FileInput>
+    </t>
+
+</templates>

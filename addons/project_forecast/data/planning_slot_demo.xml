@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!--                                        Previous week                                        -->
+        <!-- Monday evening -->
+        <record id="project_forecast_slot112" model="planning.slot">
+            <field name="start_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() + 7)).strftime('%Y-%m-%d 11:00:00')"/>
+            <field name="end_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() + 7)).strftime('%Y-%m-%d 15:00:00')"/>
+            <field name="resource_id" model="resource.resource" eval="obj().env.ref('hr.employee_chs').resource_id.id"/>
+            <field name="role_id" ref="planning.planning_role_developer"/>
+            <field name="project_id" ref="project.project_project_1"/>
+            <field name="publication_warning" eval="False"/>
+            <field name="state">published</field>
+        </record>
+
+        <!-- Wednesday morning -->
+        <record id="project_forecast_slot113" model="planning.slot">
+            <field name="start_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() + 5)).strftime('%Y-%m-%d 06:00:00')"/>
+            <field name="end_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() + 5)).strftime('%Y-%m-%d 10:00:00')"/>
+            <field name="role_id" ref="planning.planning_role_developer"/>
+            <field name="project_id" ref="project.project_project_1"/>
+            <field name="publication_warning" eval="False"/>
+            <field name="state">published</field>
+        </record>
+
+        <!-- Thursday evening -->
+        <record id="project_forecast_slot114" model="planning.slot">
+            <field name="start_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() + 4)).strftime('%Y-%m-%d 11:00:00')"/>
+            <field name="end_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() + 4)).strftime('%Y-%m-%d 15:00:00')"/>
+            <field name="resource_id" model="resource.resource" eval="obj().env.ref('hr.employee_jep').resource_id.id"/>
+            <field name="role_id" ref="planning.planning_role_cm"/>
+            <field name="project_id" ref="project.project_project_1"/>
+            <field name="publication_warning" eval="False"/>
+            <field name="state">published</field>
+        </record>
+
+        <!-- Friday morning -->
+        <record id="project_forecast_slot115" model="planning.slot">
+            <field name="start_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() + 3)).strftime('%Y-%m-%d 06:00:00')"/>
+            <field name="end_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() + 3)).strftime('%Y-%m-%d 10:00:00')"/>
+            <field name="resource_id" model="resource.resource" eval="obj().env.ref('hr.employee_jth').resource_id.id"/>
+            <field name="role_id" ref="planning.planning_role_management"/>
+            <field name="project_id" ref="project.project_project_1"/>
+            <field name="publication_warning" eval="False"/>
+            <field name="state">published</field>
+        </record>
+
+        <!--                                        Week 1                                        -->
+        <!-- Monday afternoon -->
+        <record id="project_forecast_slot111" model="planning.slot">
+            <field name="start_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday())).strftime('%Y-%m-%d 11:00:00')"/>
+            <field name="end_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday())).strftime('%Y-%m-%d 15:00:00')"/>
+            <field name="resource_id" model="resource.resource" eval="obj().env.ref('hr.employee_chs').resource_id.id"/>
+            <field name="role_id" ref="planning.planning_role_developer"/>
+            <field name="publication_warning" eval="False"/>
+            <field name="project_id" ref="project.project_project_1"/>
+            <field name="state">published</field>
+        </record>
+
+        <!-- Wednesday morning -->
+        <record id="project_forecast_slot131" model="planning.slot">
+            <field name="start_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() - 2)).strftime('%Y-%m-%d 06:00:00')"/>
+            <field name="end_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() - 2)).strftime('%Y-%m-%d 10:00:00')"/>
+            <field name="role_id" ref="planning.planning_role_developer"/>
+            <field name="publication_warning" eval="False"/>
+            <field name="project_id" ref="project.project_project_1"/>
+            <field name="state">published</field>
+        </record>
+
+        <!-- Friday morning -->
+        <record id="project_forecast_slot151" model="planning.slot">
+            <field name="start_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() - 4)).strftime('%Y-%m-%d 06:00:00')"/>
+            <field name="end_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() - 4)).strftime('%Y-%m-%d 10:00:00')"/>
+            <field name="resource_id" model="resource.resource" eval="obj().env.ref('hr.employee_jth').resource_id.id"/>
+            <field name="role_id" ref="planning.planning_role_management"/>
+            <field name="publication_warning" eval="False"/>
+            <field name="state">published</field>
+        </record>
+
+        <record id="project_forecast_slot111" model="planning.slot">
+            <field name="start_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() - 4)).strftime('%Y-%m-%d 06:00:00')"/>
+            <field name="end_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() - 4)).strftime('%Y-%m-%d 10:00:00')"/>
+            <field name="resource_id" model="resource.resource" eval="obj().env.ref('hr.employee_jep').resource_id.id"/>
+            <field name="role_id" ref="planning.planning_role_cm"/>
+            <field name="publication_warning" eval="False"/>
+            <field name="project_id" ref="project.project_project_1"/>
+            <field name="state">published</field>
+        </record>
+
+        <!--                                        Week 2                                        -->
+
+        <!-- Monday afternoon -->
+        <record id="project_forecast_slot211" model="planning.slot">
+            <field name="start_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() - 7)).strftime('%Y-%m-%d 11:00:00')"/>
+            <field name="end_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() - 7)).strftime('%Y-%m-%d  15:00:00')"/>
+            <field name="resource_id" model="resource.resource" eval="obj().env.ref('hr.employee_admin').resource_id.id"/>
+            <field name="role_id" ref="planning.planning_role_management"/>
+            <field name="publication_warning" eval="False"/>
+            <field name="state">published</field>
+        </record>
+
+        <!-- Thursday afternoon -->
+        <record id="project_forecast_slot111" model="planning.slot">
+            <field name="start_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() - 7 - 3)).strftime('%Y-%m-%d 11:00:00')"/>
+            <field name="end_datetime" eval="(datetime.today() - timedelta(days=datetime.today().weekday() - 7 - 3)).strftime('%Y-%m-%d 15:00:00')"/>
+            <field name="resource_id" model="resource.resource" eval="obj().env.ref('hr.employee_jep').resource_id.id"/>
+            <field name="role_id" ref="planning.planning_role_cm"/>
+            <field name="publication_warning" eval="False"/>
+            <field name="state">published</field>
+        </record>
+    </data>
+    <data>
+        <function model="planning.slot" name="write">
+            <value model="planning.slot"
+                eval="[
+                        ref('planning.planning_slot_115'),
+                        ref('planning.planning_slot_132'),
+                        ref('planning.planning_slot_141'),
+                        ref('planning.planning_slot_148'),
+                        ref('planning.planning_slot_153'),
+                        ref('planning.planning_slot_155'),
+                        ref('planning.planning_slot_233'),
+                        ref('planning.planning_slot_234'),
+                        ref('planning.planning_slot_236'),
+                        ref('planning.planning_slot_246'),
+                        ref('planning.planning_slot_256'),
+                        ref('planning.planning_slot_263'),
+                        ref('planning.planning_slot_270'),
+                        ref('planning.planning_slot_275'),
+                        ref('planning.planning_slot_276'),
+                        ref('planning.planning_slot_285'),
+                        ref('planning.planning_slot_294'),
+                        ref('planning.planning_slot_306'),
+                        ref('planning.planning_slot_309'),
+                        ref('planning.planning_slot_312'),
+                        ref('planning.planning_slot_334'),
+                    ]"
+            />
+            <value eval="{'project_id': ref('project.project_project_1')}"/>
+        </function>
+
+        <function model="planning.slot" name="write">
+            <value model="planning.slot"
+                eval="[
+                        ref('planning.planning_slot_113'),
+                        ref('planning.planning_slot_116'),
+                        ref('planning.planning_slot_122'),
+                        ref('planning.planning_slot_124'),
+                        ref('planning.planning_slot_134'),
+                        ref('planning.planning_slot_142'),
+                        ref('planning.planning_slot_145'),
+                        ref('planning.planning_slot_223'),
+                        ref('planning.planning_slot_224'),
+                        ref('planning.planning_slot_232'),
+                        ref('planning.planning_slot_238'),
+                        ref('planning.planning_slot_243'),
+                        ref('planning.planning_slot_251'),
+                        ref('planning.planning_slot_258'),
+                        ref('planning.planning_slot_265'),
+                        ref('planning.planning_slot_272'),
+                        ref('planning.planning_slot_283'),
+                    ]"
+            />
+            <value eval="{'project_id': ref('project.project_project_2')}"/>
+        </function>
+
+        <function model="planning.slot" name="write">
+            <value model="planning.slot"
+                eval="[
+                        ref('planning.planning_slot_112'),
+                        ref('planning.planning_slot_114'),
+                        ref('planning.planning_slot_123'),
+                        ref('planning.planning_slot_129'),
+                        ref('planning.planning_slot_138'),
+                        ref('planning.planning_slot_144'),
+                        ref('planning.planning_slot_151'),
+                        ref('planning.planning_slot_156'),
+                        ref('planning.planning_slot_159'),
+                        ref('planning.planning_slot_226'),
+                        ref('planning.planning_slot_228'),
+                        ref('planning.planning_slot_244'),
+                        ref('planning.planning_slot_252'),
+                        ref('planning.planning_slot_259'),
+                        ref('planning.planning_slot_260'),
+                        ref('planning.planning_slot_279'),
+                        ref('planning.planning_slot_336'),
+                        ref('planning.planning_slot_338'),
+                        ref('planning.planning_slot_346'),
+                    ]"
+            />
+            <value eval="{'project_id': ref('project.project_project_3')}"/>
+        </function>
+    </data>
+</odoo>

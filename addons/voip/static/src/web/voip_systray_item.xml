@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<templates>
+    <t t-name="voip.SystrayItem">
+        <!-- This div is needed for the style of systray items to apply properly -->
+        <div>
+            <button data-hotkey="Shift+S" class="o_nav_entry" t-att-class="systrayButtonClasses" t-att-title="titleText" t-on-click="onClick">
+                <i t-attf-class="{{ iconClass }}" t-att-class="{ 'o-voip-RingingAnimation': userAgent.hasCallInvitation and !softphone.isDisplayed, 'oi-large': !systrayButtonText }"/>
+                <span t-if="missedCallCount" class="badge rounded-pill" t-esc="missedCallCount"/>
+                <span t-if="systrayButtonText" class="ms-2" t-esc="systrayButtonText"/>
+            </button>
+        </div>
+    </t>
+</templates>

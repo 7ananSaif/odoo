@@ -1,0 +1,14 @@
+// = Bottom Sheet
+// ============================================================================
+// No CSS hacks, variables overrides only
+
+.o_bottom_sheet {
+    .o_bottom_sheet_sheet {
+        --BottomSheetStatusBar__entry-background--active: #{rgba($o-gray-400, .5)};
+        --BottomSheetStatusBar__entry-color--active: #{color-contrast($o-gray-400)};
+
+        .o_cp_switch_buttons .o-dropdown-item {
+            --#{$prefix}btn-bg: #{$o-gray-400};
+        }
+    }
+}

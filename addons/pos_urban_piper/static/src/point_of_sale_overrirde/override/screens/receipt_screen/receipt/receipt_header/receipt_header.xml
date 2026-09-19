@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_urban_piper.ReceiptHeader" t-inherit="point_of_sale.ReceiptHeader" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('pos-receipt-contact')]" position="after">
+            <t t-if="order.delivery_provider_id?.name and order.getProviderOrderId">
+                <span class="fs-3">
+                    <t t-esc="order.delivery_provider_id?.name"/>
+                    <span>: </span><t t-esc="order.getProviderOrderId.slice(0, -4)"/>
+                    <span class="fw-bolder"><t t-esc="order.getProviderOrderId.slice(-4)"/></span>
+                </span>
+            </t>
+            <t t-if="order.delivery_identifier">
+                <span class="fs-3">UrbanPiper: <t t-esc="order.delivery_identifier" /></span>
+            </t>
+        </xpath>
+    </t>
+</templates>

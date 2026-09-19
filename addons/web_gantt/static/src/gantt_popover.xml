@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="web_gantt.GanttPopover">
+        <div t-ref="root" class="o_gantt_popover">
+            <div t-if="displayPopoverHeader" class="popover-header d-flex justify-content-between py-2 pe-2">
+                <h4 class="p-0 pt-1">
+                    <t t-esc="props.title" />
+                </h4>
+                <span class="ms-4 mt-1 me-2 cursor-pointer" t-on-click.stop="props.close">
+                    <i class="fa fa-close" />
+                </span>
+            </div>
+            <div class="popover-body">
+                <t t-if="templates.body">
+                    <t t-call="{{ templates.body }}" t-call-context="renderingContext" />
+                </t>
+                <t t-else="">
+                    <Record t-props="recordProps" t-slot-scope="data">
+                        <t t-component="props.KanbanRecord" t-props="kanbanRecordProps" record="data.record"/>
+                    </Record>
+                </t>
+            </div>
+            <div class="popover-footer d-flex justify-content-between">
+                <div t-if="(props.displayGenericButtons and props.buttons) or templates.footer" class="p-3 pt-0 d-flex gap-1">
+                    <t t-if="props.displayGenericButtons and props.buttons">
+                        <t t-foreach="props.buttons" t-as="button" t-key="button_index">
+                            <button t-att-class="button.class" t-on-click="() => this.onClick(button)" t-esc="button.text" />
+                        </t>
+                    </t>
+                    <t t-if="templates.footer">
+                        <t t-call="{{ templates.footer }}" t-call-context="renderingContext" />
+                    </t>
+                </div>
+                <span t-if="!displayPopoverHeader" class="p-3 pt-0 mt-1 ms-auto cursor-pointer" t-on-click.stop="props.close">
+                    <i class="fa fa-close" />
+                </span>
+            </div>
+        </div>
+    </t>
+
+</templates>

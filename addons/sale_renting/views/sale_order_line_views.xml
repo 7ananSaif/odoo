@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="sale_order_line_search_schedule" model="ir.ui.view">
+        <field name="name">sale.order.line.search.schedule</field>
+        <field name="model">sale.order.line</field>
+        <field name="priority">999</field>
+        <field name="arch" type="xml">
+            <search string="Rental Analysis">
+                <field
+                    name="start_date"
+                    string="Date"
+                    filter_domain="[
+                        ('start_date', '&lt;=', raw_value),
+                        ('return_date', '&gt;=', raw_value),
+                    ]"
+                />
+                <filter
+                    name="my_sale_orders"
+                    string="My Orders"
+                    domain="[('order_id.user_id', '=', uid)]"
+                />
+                <separator/>
+                <filter
+                    name="quotation"
+                    string="Quotations"
+                    domain="[('order_id.rental_status', '=', 'draft')]"
+                />
+                <filter
+                    name="confirmed"
+                    string="Confirmed Orders"
+                    domain="[('order_id.rental_status', 'not in', ('draft', 'cancel', 'sent'))]"
+                />
+                <filter
+                    name="booked"
+                    string="Booked"
+                    domain="[('rental_status', '=', 'pickup')]"
+                />
+                <filter
+                    name="pickedup"
+                    string="Picked-up"
+                    domain="[('rental_status', '=', 'return')]"
+                />
+                <separator/>
+                <!-- Note: the use of 'any' is useful to display "Next Action is in Today" when
+                     inspecting the filter. -->
+                <filter
+                    name="today"
+                    string="To Do Today"
+                    domain="[('order_id', 'any', [
+                        '&amp;', ('next_action_date', '&gt;=', 'today'),
+                                 ('next_action_date', '&lt;', 'today +1d'),
+                    ])]"
+                />
+                <filter name="late" string="Late" domain="[('is_late', '=', True)]"/>
+                <separator/>
+                <field name="product_id"/>
+                <field name="salesman_id"/>
+                <field name="order_partner_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <group name="report_group_by">
+                    <filter
+                        name="groupby_user"
+                        string="Salesperson"
+                        context="{'group_by': 'salesman_id'}"
+                    />
+                    <filter
+                        name="groupby_sales_channel"
+                        string="Sales Team"
+                        context="{'group_by': 'team_id'}"
+                    />
+                    <filter
+                        name="groupby_customer"
+                        string="Customer"
+                        context="{'group_by': 'order_partner_id'}"
+                    />
+                    <filter
+                        name="groupby_country"
+                        string="Customer Country"
+                        context="{'group_by': 'country_id'}"
+                    />
+                    <filter
+                        name="groupby_product"
+                        string="Product"
+                        context="{'group_by': 'product_id'}"
+                    />
+                    <filter
+                        name="groupby_category"
+                        string="Product Category"
+                        context="{'group_by': 'categ_id'}"
+                    />
+                    <filter
+                        name="groupby_company"
+                        string="Company"
+                        context="{'group_by': 'company_id'}"
+                        groups="base.group_multi_company"
+                    />
+                    <separator/>
+                    <filter
+                        name="groupby_pickup_date"
+                        string="Pickup Date"
+                        context="{'group_by': 'start_date'}"
+                    />
+                    <filter
+                        name="groupby_return_date"
+                        string="Return Date"
+                        context="{'group_by': 'return_date'}"
+                    />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="sale_order_line_form_schedule" model="ir.ui.view">
+        <field name="name">sale.order.line.form.schedule</field>
+        <field name="model">sale.order.line</field>
+        <field name="inherit_id" ref="sale.sale_order_line_view_form_readonly"/>
+        <field name="mode">primary</field>
+        <field name="priority">999</field>
+        <field name="arch" type="xml">
+            <div class="oe_title" position="before">
+                <field
+                    name="rental_status"
+                    widget="badge"
+                    decoration-success="rental_status == 'pickup'"
+                    decoration-warning="rental_status == 'return'"
+                    decoration-default="rental_status == 'returned'"
+                    class="float-end"
+                />
+            </div>
+            <field name="order_id" position="attributes">
+                <attribute name="context">
+                    {
+                        'form_view_ref': 'sale_renting.rental_order_primary_form_view',
+                        'in_rental_app': 1,
+                    }
+                </attribute>
+            </field>
+            <field name="name" position="after">
+                <field name="start_date" widget="remaining_days" invisible="rental_status != 'pickup'"/>
+                <field name="return_date" widget="remaining_days" invisible="rental_status != 'return'"/>
+            </field>
+            <sheet position="after">
+                <footer>
+                    <button
+                        type="button"
+                        string="Ok"
+                        special="cancel"
+                        data-hotkey="x"
+                        class="btn-primary"
+                        close="1"
+                    />
+                </footer>
+            </sheet>
+        </field>
+    </record>
+
+    <record id="sale_order_line_gantt_schedule" model="ir.ui.view">
+        <field name="name">sale.order.line.gantt.schedule</field>
+        <field name="model">sale.order.line</field>
+        <field name="priority">999</field>
+        <field name="arch" type="xml">
+            <gantt
+                string="Rental"
+                js_class="schedule_gantt"
+                date_start="start_date"
+                date_stop="return_date"
+                default_group_by="product_id"
+                groups_limit="20"
+                create="true"
+                edit="true"
+                plan="false"
+                cell_create="true"
+                on_create="sale_renting.action_create_rental_order"
+                decoration-info="state in ['draft', 'sent']"
+                decoration-danger="is_late"
+                color="rental_color"
+                consolidation="product_uom_qty"
+                consolidation_max="{'product_id': 1e9}"
+                thumbnails="{'order_partner_id': 'avatar_128', 'salesman_id': 'avatar_128'}"
+                form_view_id="%(sale_renting.sale_order_line_form_schedule)d"
+                sample="false"
+            >
+                <templates>
+                    <div t-name="gantt-popover">
+                        <div>
+                            <strong>Order # — </strong>
+                            <t t-out="order_id.display_name"/>
+                        </div>
+                        <div>
+                            <strong>Pickup — </strong>
+                            <t t-out="start_date.toFormat('f')"/>
+                        </div>
+                        <div>
+                            <strong>Return — </strong>
+                            <t t-out="return_date.toFormat('f')"/>
+                        </div>
+                        <div>
+                            <strong>Status — </strong>
+                            <t t-if="state != 'sale'">Quotation</t>
+                            <t t-elif="rental_status == 'pickup' and is_late">Late Pickup</t>
+                            <t t-elif="rental_status == 'pickup'">Booked</t>
+                            <t t-elif="rental_status == 'return' and is_late">Late Return</t>
+                            <t t-elif="rental_status == 'return'">Picked-Up</t>
+                            <t t-elif="rental_status == 'returned'">Returned</t>
+                        </div>
+                    </div>
+                </templates>
+                <field name="order_id"/>
+                <field name="state"/>
+                <field name="rental_status"/>
+                <field name="is_late"/>
+            </gantt>
+        </field>
+    </record>
+
+    <record id="action_rental_order_schedule" model="ir.actions.act_window">
+        <field name="name">Scheduled Rentals</field>
+        <field name="res_model">sale.order.line</field>
+        <field name="path">rental-schedule</field>
+        <field name="view_mode">gantt</field>
+        <field name="search_view_id" ref="sale_order_line_search_schedule"/>
+        <field name="domain">[('is_rental', '=', True)]</field>
+        <!-- 'convert_default_order_line_values' is necessary as the gantt view will add default
+             values named after sale.order.line fields. This context key will convert any relevant
+             SOL field to a SO field. -->
+        <field name="context">{
+            'in_rental_app': 1,
+            'in_rental_schedule': 1,
+            'search_default_confirmed': 1,
+            'convert_default_order_line_values': 1,
+            'sale_renting_short_display_name': 1,
+        }</field>
+    </record>
+
+</odoo>

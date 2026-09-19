@@ -1,0 +1,10 @@
+.o_popover{
+	@for $index from 1 through length($o-colors-complete) {
+		$color: nth($o-colors-complete, $index);
+
+		.o_appointment_booking_confirm_status.o_gantt_color_#{$index - 1} {
+			color: color-contrast($color);
+			background-color: $color;
+		}
+	}
+}

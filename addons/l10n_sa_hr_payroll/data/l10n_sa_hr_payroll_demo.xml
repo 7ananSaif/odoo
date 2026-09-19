@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="base.partner_demo_company_sa" model="res.partner" forcecreate="1">
+        <field name="name">My Saudi Arabian Company</field>
+        <field name="country_id" ref="base.id"/>
+        <field name="vat"></field>
+    </record>
+
+    <record id="base.demo_company_sa" model="res.company" forcecreate="1">
+        <field name="name">My Saudi Arabian Company</field>
+        <field name="partner_id" ref="base.partner_demo_company_sa"/>
+        <field name="currency_id" ref="base.SAR"/>
+        <field name="street">Al Amir Mohammed Bin Abdul Aziz Street</field>
+        <field name="zip">42317</field>
+        <field name="city">المدينة المنورة</field>
+        <field name="country_id" ref="base.sa"/>
+        <field name="phone">+966 51 234 5678</field>
+        <field name="email">info@company.saexample.com</field>
+        <field name="website">www.saexample.com</field>
+        <field name="resource_calendar_id" ref="l10n_sa_hr_payroll.resource_calendar_def_40h"/>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_sa'))]"/>
+    </record>
+
+    <record id="base.user_demo" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_sa'))]"/>
+    </record>
+
+    <record id="l10n_sa_hr_payroll.resource_calendar_def_40h" model="resource.calendar">
+        <field name="company_id" ref="base.demo_company_sa"/>
+    </record>
+
+    <record id="sa_hr_department_human_resources" model="hr.department">
+        <field name="name">Human Resources SA</field>
+        <field name="company_id" ref="base.demo_company_sa"/>
+    </record>
+    <record id="sa_hr_department_administration" model="hr.department">
+        <field name="name">Administration SA</field>
+        <field name="company_id" ref="base.demo_company_sa"/>
+    </record>
+
+    <record id="res_partner_nura" model="res.partner">
+        <field name="name">Nura Saad Abdullah</field>
+        <field name="street">King Fahd Road</field>
+        <field name="city">Riyadh</field>
+        <field name="zip">11564</field>
+        <field name="state_id" ref="base.state_sa_70"/>
+        <field name="country_id" ref="base.sa"/>
+        <field name="phone">099-1234567</field>
+        <field name="company_id" ref="base.demo_company_sa"/>
+    </record>
+    <record id="res_partner_nura" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_sa_hr_payroll.res_partner_nura')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_salem" model="res.partner">
+        <field name="name">Salem Ahmed Abdullah</field>
+        <field name="street">Prince Sultan Street</field>
+        <field name="city">Jeddah</field>
+        <field name="zip">21442</field>
+        <field name="state_id" ref="base.state_sa_54"/>
+        <field name="country_id" ref="base.sa"/>
+        <field name="phone">099-6543210</field>
+        <field name="company_id" ref="base.demo_company_sa"/>
+    </record>
+    <record id="res_partner_salem" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_sa_hr_payroll.res_partner_salem')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="user_salem" model="res.users">
+        <field name="partner_id" ref="l10n_sa_hr_payroll.res_partner_salem"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_salem')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_salem')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_sa_hr_payroll.res_partner_salem')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_sa'))]"/>
+        <field name="company_id" ref="base.demo_company_sa"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_al-image.jpg"/>
+    </record>
+
+    <record id="sa_res_bank_alrajhi_bank" model="res.bank">
+        <field name="name">Alrajhi Bank</field>
+        <field name="bic">RJHISARIXXX</field>
+        <field name="street">Alrajhi Bank Street</field>
+        <field name="city">Riyadh</field>
+        <field name="zip">11564</field>
+        <field name="state" ref="base.state_sa_70"/>
+        <field name="country" ref="base.sa"/>
+        <field name="phone">099-4798888</field>
+    </record>
+    <record id="sa_res_bank_alrajhi_bank" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_sa_hr_payroll.sa_res_bank_alrajhi_bank')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="sa_res_bank_saudi_national_bank" model="res.bank">
+        <field name="name">Saudi National Bank</field>
+        <field name="bic">SNBASARIXXX</field>
+        <field name="street">Saudi National Bank Road</field>
+        <field name="city">Jeddah</field>
+        <field name="zip">21442</field>
+        <field name="state" ref="base.state_sa_54"/>
+        <field name="country" ref="base.sa"/>
+        <field name="phone">012-6460000</field>
+    </record>
+    <record id="sa_res_bank_saudi_national_bank" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_sa_hr_payroll.sa_res_bank_saudi_national_bank')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_nura" model="res.partner.bank">
+        <field name="acc_number">SA4420000001234567891234</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_sa_hr_payroll.sa_res_bank_alrajhi_bank"/>
+        <field name="partner_id" ref="l10n_sa_hr_payroll.res_partner_nura"/>
+        <field name="company_id" ref="base.demo_company_sa"/>
+        <field name="currency_id" ref="base.SAR"/>
+    </record>
+
+    <record id="res_partner_bank_account_salem" model="res.partner.bank">
+        <field name="acc_number">SA0380000000608010167519</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_sa_hr_payroll.sa_res_bank_saudi_national_bank"/>
+        <field name="partner_id" ref="l10n_sa_hr_payroll.res_partner_salem"/>
+        <field name="company_id" ref="base.demo_company_sa"/>
+        <field name="currency_id" ref="base.SAR"/>
+    </record>
+
+    <record id="hr_employee_nura" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_nura')).name"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_mit-image.jpg"/>
+        <field name="job_title">Manager</field>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_sa_hr_payroll.sa_hr_department_human_resources"/>
+        <field name="work_phone">099-1230001</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_nura')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="work_contact_id" ref="l10n_sa_hr_payroll.res_partner_nura"/>
+        <field name="company_id" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_nura')).company_id"/>
+        <field name="resource_calendar_id" ref="l10n_sa_hr_payroll.resource_calendar_def_40h"/>
+        <field name="tz">Asia/Riyadh</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_nura')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_nura')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_nura')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_nura')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_nura')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_nura')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_nura')).phone"/>
+        <field name="distance_home_work">1</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_nura')).country_id"/>
+        <field name="identification_id">9900321987</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1989, 12, 28).date()"/>
+        <field name="place_of_birth">Lahore</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_nura')).country_id"/>
+        <field name="emergency_contact">Fatima Saad Abdullah</field>
+        <field name="emergency_phone">099-9876543</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Human Resources Management</field>
+        <field name="study_school">King Saud University</field>
+        <field name="marital">single</field>
+        <field name="wage_type">monthly</field>
+        <field name="wage">7000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="DateTime.today() + relativedelta(months=-4, days=-10)"/>
+        <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+        <field name="structure_type_id" ref="ksa_employee_payroll_structure_type"/>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_sa_hr_payroll.res_partner_bank_account_nura'))]"/>
+        <field name="l10n_sa_housing_allowance">2000</field>
+        <field name="l10n_sa_transportation_allowance">1000</field>
+        <field name="l10n_sa_other_allowances">500</field>
+        <field name="l10n_sa_number_of_days">30</field>
+    </record>
+
+    <record id="hr_employee_salem" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_salem')).name"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_al-image.jpg"/>
+        <field name="job_title">Accounting Manager</field>
+        <field name="job_id" ref="hr.job_consultant"/>
+        <field name="department_id" ref="l10n_sa_hr_payroll.sa_hr_department_administration"/>
+        <field name="work_phone">099-1230002</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_salem')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="parent_id" ref="l10n_sa_hr_payroll.hr_employee_nura"/>
+        <field name="user_id" ref="l10n_sa_hr_payroll.user_salem"/>
+        <field name="company_id" ref="base.demo_company_sa"/>
+        <field name="resource_calendar_id" ref="l10n_sa_hr_payroll.resource_calendar_def_40h"/>
+        <field name="tz">Asia/Riyadh</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_salem')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_salem')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_salem')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_salem')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_salem')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_salem')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_salem')).phone"/>
+        <field name="distance_home_work">3</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_salem')).country_id"/>
+        <field name="identification_id">9900456789</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1987, 7, 27).date()"/>
+        <field name="place_of_birth">Jakarta</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_sa_hr_payroll.res_partner_salem')).country_id"/>
+        <field name="emergency_contact">Omar Ahmed Abdullah</field>
+        <field name="emergency_phone">099-1122334</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Communication Studies</field>
+        <field name="study_school">University of Business and Technology</field>
+        <field name="marital">single</field>
+        <field name="wage_type">monthly</field>
+        <field name="wage">4500</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="DateTime.today() + relativedelta(years=-3,months=2,days=25)"/>
+        <field name="contract_type_id" ref="hr.contract_type_permanent"/>
+        <field name="structure_type_id" ref="ksa_employee_payroll_structure_type"/>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_sa_hr_payroll.res_partner_bank_account_salem'))]"/>
+        <field name="l10n_sa_housing_allowance">1700</field>
+        <field name="l10n_sa_transportation_allowance">250</field>
+        <field name="l10n_sa_other_allowances">550</field>
+        <field name="l10n_sa_number_of_days">23</field>
+    </record>
+</odoo>

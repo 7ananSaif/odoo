@@ -1,0 +1,345 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * product_barcodelookup
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:46+0000\n"
+"PO-Revision-Date: 2025-12-06 10:21+0000\n"
+"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"product_barcodelookup/ko/>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"%(matching_images_count)s matching images have been found for %"
+"(product_count)s products."
+msgstr ""
+"%(product_count)s 품목에 대해서 일치하는 이미지%(matching_images_count)s 개"
+"를 검색하였습니다."
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid ""
+"<span invisible=\"nb_products_selected &lt;= 1000\">\n"
+"                            As only 1000 products can be processed per day, "
+"the remaining will be\n"
+"                            done tomorrow.\n"
+"                        </span>"
+msgstr ""
+"<span invisible=\"nb_products_selected &lt;= 1000\">\n"
+"                            하루에 처리할 수 있는 품목의 수량은 10,000개이므"
+"로 나머지는 내일 완료될 수 \n"
+"                            있습니다.\n"
+"                        </span>"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid ""
+"<strong>Note: </strong>\n"
+"                        Some images may not be royalty-free and should not "
+"be published online."
+msgstr ""
+"<strong>참고: </strong>\n"
+"                        일부 이미지는 로열티가 적용되는 이미지일 수 있으며 "
+"이 경우 온라인에 게시해서는 안 됩니다."
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"A task to process products in the background is already running. Please try "
+"again later."
+msgstr ""
+"백그라운드에서 품목을 처리하는 작업이 이미 실행 중입니다. 나중에 다시 시도하"
+"세요.."
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "API Key:"
+msgstr "API 키:"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_res_config_settings__barcodelookup_api_key
+msgid "API key"
+msgstr "API 키"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "Barcode Database"
+msgstr "바코드 데이터베이스"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,help:product_barcodelookup.field_res_config_settings__barcodelookup_api_key
+msgid "Barcode Lookup API Key for create product from barcode."
+msgstr "바코드에서 제품을 생성하기 위한 바코드 조회 API 키입니다."
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "Cancel"
+msgstr "취소"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_res_config_settings
+msgid "Config Settings"
+msgstr "환경 설정"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "Create products by scanning using"
+msgstr "다음으로 스캔하여 품목을 생성합니다."
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__create_uid
+msgid "Created by"
+msgstr "작성자"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__create_date
+msgid "Created on"
+msgstr "작성일자"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_ir_cron_trigger__display_name
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__display_name
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_product__display_name
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_template__display_name
+#: model:ir.model.fields,field_description:product_barcodelookup.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "표시명"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_product_fetch_image_wizard
+msgid ""
+"Fetch product images from Barcode Lookup based on the product's barcode."
+msgstr "품목의 바코드를 기준으로 바코드 조회에서 품목 이미지를 가져옵니다."
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "Get Pictures"
+msgstr "이미지 가져오기"
+
+#. module: product_barcodelookup
+#: model:ir.actions.act_window,name:product_barcodelookup.product_product_action_get_pic_with_barcode
+#: model:ir.actions.act_window,name:product_barcodelookup.product_template_action_get_pic_with_barcode
+msgid "Get Pictures from Barcode Lookup"
+msgstr "바코드 조회로 사진 가져오기"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid "Go to Settings"
+msgstr "설정으로 이동"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_ir_cron_trigger__id
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__id
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_product__id
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_template__id
+#: model:ir.model.fields,field_description:product_barcodelookup.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_product__is_image_fetch_pending
+msgid "Is Image Fetch Pending"
+msgstr "이미지 가져오기 보류 중"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__write_uid
+msgid "Last Updated by"
+msgstr "최근 갱신한 사람"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__write_date
+msgid "Last Updated on"
+msgstr "최근 갱신 일자"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__nb_products_unable_to_process
+msgid "Number of product unprocessable"
+msgstr "처리 불가 품목 수"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__nb_products_to_process
+msgid "Number of products to process"
+msgstr "처리할 품목 수"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__nb_products_selected
+msgid "Number of selected products"
+msgstr "선택한 품목 수"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "Out of"
+msgstr "다음 중"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_product_template
+msgid "Product"
+msgstr "품목"
+
+#. module: product_barcodelookup
+#: model:ir.actions.server,name:product_barcodelookup.ir_cron_fetch_image_ir_actions_server
+msgid "Product Images: Get product images from Barcode Lookup"
+msgstr "품목 이미지: 바코드 조회에서 품목 이미지 가져오기"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_product_product
+msgid "Product Variant"
+msgstr "품목 세부사항"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid "Product images"
+msgstr "품목 이미지"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__products_to_process
+msgid "Products To Process"
+msgstr "처리할 품목"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"Products are processed in the background. Images will be updated "
+"progressively."
+msgstr ""
+"품목은 백그라운드에서 처리됩니다. 이미지가 계속해서 업데이트될 예정입니다."
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid "The API Key for Barcode Lookup must be set in the General Settings."
+msgstr "바코드 조회용 API 키는 반드시 일반 설정 메뉴에서 설정해야 합니다."
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"The Barcode Lookup API key is not set properly or it is invalid. Check your "
+"API key in setting and retry."
+msgstr ""
+"바코드 조회 API 키가 알맞게 설정되지 않았거나 유효하지 않은 키입니다. 설정에"
+"서 API 키를 확인한 후 다시 시도하세요."
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,help:product_barcodelookup.field_product_fetch_image_wizard__products_to_process
+msgid ""
+"The list of selected products that meet the criteria (have a barcode and no "
+"image)"
+msgstr "기준에 부합하도록 선별된 품목 리스트 (바코드눈 있으나 이미지 없음)"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"The scheduled action \"Product Images: Get product images from Barcode "
+"Lookup\" has been deleted. Please contact your administrator to have the "
+"action restored or to reinstall the module \"product_barcodelookup\"."
+msgstr ""
+"예약된 작업인 \"품목 이미지: 바코드 조회에서 품목 이미지 가져오기\" 가 삭제되"
+"었습니다. 작업을 복원하거나 모듈 \"product_barcodelookup\" 을 다시 설치하려"
+"면 관리자에게 문의하세요."
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_ir_cron_trigger
+msgid "Triggered actions"
+msgstr "진행된 작업"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,help:product_barcodelookup.field_product_product__is_image_fetch_pending
+msgid "Whether an image must be fetched for this product. Handled by a cron."
+msgstr ""
+"이 품목에 대한 이미지 가져오기를 실행할 지 여부입니다. 크론에서 처리합니다."
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_8
+msgid "age group"
+msgstr "연령대"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "barcodelookup.com"
+msgstr "barcodelookup.com"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_6
+msgid "brand"
+msgstr "브랜드"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_1
+msgid "color"
+msgstr "색상"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "e.g. d7vctmiv2rwgenebha8bxq7irooudn"
+msgstr "예: d7vctmiv2rwgenebha8bxq7irooudn"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_2
+msgid "gender"
+msgstr "성별"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_5
+msgid "manufacturer"
+msgstr "제조업체"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_3
+msgid "material"
+msgstr "재료"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_4
+msgid "pattern"
+msgstr "패턴"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "selected products,"
+msgstr "선택한 품목입니다."
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_7
+msgid "size"
+msgstr "크기"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "will be processed."
+msgstr "처리됩니다."
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid ""
+"won't be\n"
+"                            processed because they either already have an "
+"image or\n"
+"                            lack a barcode"
+msgstr ""
+"처리할 수\n"
+"                            없습니다. 이미 이미지가 존재하거나 바코드 번호"
+"가 \n"
+"                            없습니다."
+
+#~ msgid "This action is already scheduled. Please try again later."
+#~ msgstr "이미 예약된 작업입니다. 나중에 다시 시도하세요."

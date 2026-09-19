@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="calendar_alarm_view_form" model="ir.ui.view">
+        <field name="name">calendar.alarm.view.form.inherit.whatsapp.calendar</field>
+        <field name="model">calendar.alarm</field>
+        <field name="inherit_id" ref="calendar.calendar_alarm_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='mail_template_id']" position="after">
+                <field name="wa_template_id"
+                    placeholder="Choose a template..."
+                    invisible="alarm_type != 'whatsapp'"
+                    required="alarm_type == 'whatsapp'"
+                    options="{'no_create': True}"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

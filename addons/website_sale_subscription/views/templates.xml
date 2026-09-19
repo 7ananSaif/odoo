@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="price_dynamic_filter_template_product_product_subscription"
+              inherit_id="website_sale.price_dynamic_filter_template_product_product">
+        <xpath expr="//del" position="after">
+            <span t-if="record.recurring_invoice and data.get('is_subscription', False) and data.get('is_plan_possible', False)" class="fw-bold">
+                <span t-out="data.get('temporal_unit_display')"/>
+            </span>
+        </xpath>
+    </template>
+
+    <template id="subscription_search_result_price">
+        <t t-out="subscription_default_pricing_price"/>
+    </template>
+
+    <template id="products_item" inherit_id="website_sale.products_item">
+        <t name="product_base_price" position="after">
+            <span t-if="template_price_vals.get('is_subscription') and template_price_vals['is_plan_possible']" class="h6">
+                <span class="o_subscription_unit" t-out="template_price_vals['temporal_unit_display']"/>
+            </span>
+        </t>
+    </template>
+
+    <template id="subscription_product_price" inherit_id="website_sale.product_price" name="Subscription Product Price">
+        <div name="product_price_container" position="attributes">
+            <attribute name="t-if">not combination_info.get('is_subscription')</attribute>
+        </div>
+        <div name="product_list_price_container" position="attributes">
+            <attribute name="t-if">not combination_info.get('is_subscription')</attribute>
+        </div>
+        <div name="product_price" position="attributes">
+            <attribute
+                name="t-attf-class"
+                separator=" "
+                add="{{'w-100' if combination_info.get('is_subscription') else ''}}"
+            />
+        </div>
+        <div name="product_price_container" position="after">
+            <t t-if="combination_info.get('is_subscription') and combination_info.get('allow_one_time_sale')">
+                <t t-call="website_sale_subscription.subscription_one_time_sale"/>
+            </t>
+            <t t-else="">
+                <t t-call="website_sale_subscription.sale_subscription_product_price"/>
+            </t>
+        </div>
+    </template>
+
+    <template
+        id="subscription_product_price_boxed"
+        inherit_id="website_sale.cta_wrapper_boxed"
+        name="Subscription Product Price Boxed"
+    >
+        <span name="o_wsale_cta_wrapper_boxed_price_label" position="attributes">
+            <attribute name="t-attf-class">{{'d-none' if combination_info.get('is_subscription') else ''}}</attribute>
+        </span>
+    </template>
+
+    <template id="sale_subscription_product_price" name="Subscription Product Price">
+        <t t-if="combination_info.get('is_subscription') and combination_info['pricings']">
+            <div t-if="combination_info['subscription_pricing_select']" class="table-responsive border rounded-2 plan_select">
+                <table class="table align-middle mb-0">
+                    <tbody>
+                        <t t-foreach="combination_info['pricings']" t-as="pricing">
+                            <tr>
+                                <td class="col-auto">
+                                    <div class="d-flex align-items-center">
+                                        <label t-att-for="'plan_' + str(pricing['plan_id'])" class="mb-0 d-flex align-items-center">
+                                            <input type="radio" name="plan_id" t-att-id="'plan_' + str(pricing['plan_id'])"
+                                                t-att-value="pricing['plan_id']" t-att-disabled="not pricing['can_be_added']"
+                                                t-att-checked="pricing['plan_id'] == combination_info['subscription_default_pricing_plan_id']"
+                                                class="form-check-input me-2 flex-shrink-0" required="1"
+                                            />
+                                            <div>
+                                                <span t-if="product.type == 'consu'">Deliver Every </span>
+                                                <span t-out="pricing['table_name']"/>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </td>
+                                <td class="col-auto text-start">
+                                    <span class="fw-bold" t-out="pricing['table_price']"/>
+                                </td>
+                                <td class="col-auto" t-if="product.type == 'service' or pricing.get('discounted_price')">
+                                    <div class="d-flex align-items-center gap-1">
+                                        <span t-if="product.type == 'service'" t-out="pricing['to_minimum_billing_period']"/>
+                                        <span class="badge text-bg-success" t-if="pricing.get('discounted_price')">
+                                            -<t t-out="pricing['discounted_price']"/>%
+                                        </span>
+                                    </div>
+                                </td>
+                                <td t-else="" class="col-auto w-25"></td>
+                            </tr>
+                        </t>
+                    </tbody>
+                </table>
+            </div>
+            <h5 t-else="">
+                <span class="o_subscription_price" t-out="combination_info['subscription_default_pricing_price']"/>
+                <del t-if="combination_info.get('compare_list_price') and combination_info['compare_list_price'] &gt; combination_info['price']">
+                    <bdi dir="inherit">
+                        <span t-field="product.compare_list_price"/>
+                    </bdi>
+                </del>
+            </h5>
+            <t t-if="is_view_active('website_sale.tax_indication')" t-call="website_sale.tax_indication"/>
+        </t>
+    </template>
+
+    <template id="subscription_one_time_sale" name="Subscription One Time Sale">
+        <div class="border p-3 rounded mb-3 on_change_plan_table one-time-sale text-start">
+            <label class="form-check-label">
+                <input
+                    type="radio"
+                    name="purchase_type"
+                    id="allow_one_time_sale"
+                    required="1"
+                    checked="checked"
+                    class="form-check-input me-2 allow_one_time_sale"
+                />
+                <span>Buy Once</span>
+                <span class="fw-bold ms-3" t-out="combination_info.get('list_price')" t-options="{'widget': 'monetary', 'display_currency': combination_info.get('currency')}"/>
+            </label>
+        </div>
+        <div
+            t-if="combination_info.get('allow_recurring')"
+            class="on_change_plan_table regular-delivery"
+        >
+            <input type="radio" name="purchase_type" id="regular_delivery" required="1" class="form-check-input d-none"/>
+            <div class="align-items-center mt-2">
+                <div t-if="combination_info['subscription_pricing_select']" class="table-responsive border rounded-2">
+                    <table class="table align-middle mb-0">
+                        <tbody>
+                            <t t-foreach="combination_info['pricings']" t-as="pricing" t-key="pricing['plan_id']">
+                                <tr>
+                                    <td class="col-auto">
+                                        <div class="d-flex align-items-center">
+                                            <input type="radio" name="plan_id" class="form-check-input me-2 plan_select"
+                                                t-att-id="'plan_' + str(pricing['plan_id'])" t-att-value="pricing['plan_id']"
+                                                t-att-disabled="not pricing['can_be_added']" required="1"
+                                            />
+                                            <label t-att-for="'plan_' + str(pricing['plan_id'])" class="form-check-label mb-0">
+                                                <span t-if="product.type == 'consu'">Deliver Every </span>
+                                                <span t-out="pricing['table_name']"/>
+                                            </label>
+                                        </div>
+                                    </td>
+                                    <td class="col-auto text-start">
+                                        <div class="d-flex align-items-center gap-1">
+                                            <span t-out="pricing['table_price']"/>
+                                            <span t-if="pricing.get('discounted_price')" class="badge text-bg-success ms-1">
+                                                -<t t-out="pricing['discounted_price']"/>%
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </div>
+                <h5 t-else="">
+                    <span class="o_subscription_price no_plan_select small"
+                        t-out="combination_info['subscription_default_pricing_price']"/>
+                    <del t-if="combination_info.get('compare_list_price') and combination_info['compare_list_price'] &gt; combination_info['price']">
+                        <bdi dir="inherit">
+                            <span t-field="product.compare_list_price" />
+                        </bdi>
+                    </del>
+                </h5>
+            </div>
+        </div>
+    </template>
+
+    <template id="cart_summary_inherit_website_sale_subscription" inherit_id="website_sale.cart_summary_content">
+        <xpath expr="//table[hasclass('o_cart_products_table')]//td[@name='website_sale_cart_summary_line_price']" position="inside">
+            <small
+                t-if="line.recurring_invoice"
+                class="text-nowrap text-muted"
+                t-out="line.order_id.plan_id.billing_period_display_sentence"
+            />
+        </xpath>
+    </template>
+
+    <template id="cart_lines_subscription" inherit_id="website_sale.cart_line_description_following_lines">
+        <xpath expr="//div[@t-if='description_lines']" position="before">
+            <div
+                t-if="line.recurring_invoice and line.order_id.plan_id"
+                class="small text-muted"
+                name="recurring_info"
+            >
+                <t t-set="product_price" t-value="line._get_cart_display_price()"/>
+                <t t-call="website_sale.cart_product_price"/>
+                <span t-out="line.order_id.plan_id.billing_period_display_sentence"/>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="product_template_message" inherit_id="website_sale.product">
+        <xpath expr="//form[@t-if='is_add_to_cart_possible']" position="after">
+            <p t-elif="product.recurring_invoice and product.subscription_rule_ids" class="alert alert-warning">
+                This subscription is not compatible with the one already in your cart.
+                Please order them separately or empty your cart.
+            </p>
+        </xpath>
+    </template>
+
+    <template id="product_template_message_add_to_cart" inherit_id="website_sale.cta_wrapper">
+        <a id="add_to_cart" position="attributes">
+            <attribute name="t-att-data-subscription-plan-id">
+                combination_info['subscription_default_pricing_plan_id'] if combination_info.get('is_subscription') and combination_info['pricings'] else ''
+            </attribute>
+        </a>
+    </template>
+
+</odoo>

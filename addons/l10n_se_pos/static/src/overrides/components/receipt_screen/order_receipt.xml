@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-inherit="point_of_sale.ReceiptHeader" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('pos-receipt-contact')]" position="before">
+            <t t-if="order.config.iface_sweden_fiscal_data_module">
+                <br/>
+                <div>
+                    <span style="font-size: 200%">
+                        <t t-esc="seType"/>
+                    </span>
+                </div>
+                <t t-if="order.isReprint">
+                    Original date:
+                    <t t-esc="originalDate"/>
+                </t>
+                <div>
+                    <span>Sequence: </span>
+                    <t t-esc="order.sequence_number"/>
+                </div>
+            </t>
+        </xpath>
+    </t>
+
+    <t t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('after-footer')]" position="after">
+            <t t-if="order.config.iface_sweden_fiscal_data_module">
+                <div style="font-size: 75%;">
+                    <br/>
+                        <div>
+                        <span>POS id: </span>
+                            <t t-esc="order.config.name"/>
+                    </div>
+                        <div>
+                        <span>Blackbox unit id: </span>
+                            <t t-esc="order.blackbox_unit_id"/>
+                    </div>
+                        <div style="word-break: break-all;">
+                        <span>Blackbox Signature: </span>
+                            <t t-esc="order.blackbox_signature"/>
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </t>
+</templates>

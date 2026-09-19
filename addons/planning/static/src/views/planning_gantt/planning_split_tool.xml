@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="planning.PlanningSplitTool">
+        <div
+            t-if="props.reactive.position"
+            class="o_gantt_pill_split_tool pe-none"
+            t-att-style="props.reactive.position"
+        >
+            <div class="o_slot_dashed_cut_line"/>
+            <i class="fa fa-lg fa-scissors fa-rotate-270"/>
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,349 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * product_barcodelookup
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Junko Augias (juau)" <juau@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:46+0000\n"
+"PO-Revision-Date: 2025-11-06 07:15+0000\n"
+"Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"product_barcodelookup/ja/>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"%(matching_images_count)s matching images have been found for %"
+"(product_count)s products."
+msgstr ""
+"%(matching_images_count)sの一致する画像が%(product_count)s のプロダクト用に見"
+"つかりました。"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid ""
+"<span invisible=\"nb_products_selected &lt;= 1000\">\n"
+"                            As only 1000 products can be processed per day, "
+"the remaining will be\n"
+"                            done tomorrow.\n"
+"                        </span>"
+msgstr ""
+"<span invisible=\"nb_products_selected &lt;= 1000\">\n"
+"                            一日に1,000プロダクトしか処理されないため、残り"
+"は\n"
+"                            明日処理されます。\n"
+"                        </span>"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid ""
+"<strong>Note: </strong>\n"
+"                        Some images may not be royalty-free and should not "
+"be published online."
+msgstr ""
+"<strong>メモ: </strong>\n"
+"                        一部の画像はロイヤリティフリーではない可能性があり、"
+"オンラインで公開すべきではありません。"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"A task to process products in the background is already running. Please try "
+"again later."
+msgstr ""
+"バックグラウンドでプロダクトを処理するタスクがすでに実行中です。後ほどもう一"
+"度お試し下さい。"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "API Key:"
+msgstr "APIキー:"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_res_config_settings__barcodelookup_api_key
+msgid "API key"
+msgstr "APIキー"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "Barcode Database"
+msgstr "バーコードデータベース"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,help:product_barcodelookup.field_res_config_settings__barcodelookup_api_key
+msgid "Barcode Lookup API Key for create product from barcode."
+msgstr "バーコードからプロダクトを作成するためのBarcode Lookup APIキーです。"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "Cancel"
+msgstr "キャンセル"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_res_config_settings
+msgid "Config Settings"
+msgstr "構成設定"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "Create products by scanning using"
+msgstr "以下を使用してスキャンすることでプロダクト作成:"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__create_uid
+msgid "Created by"
+msgstr "作成者"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__create_date
+msgid "Created on"
+msgstr "作成日"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_ir_cron_trigger__display_name
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__display_name
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_product__display_name
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_template__display_name
+#: model:ir.model.fields,field_description:product_barcodelookup.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "表示名"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_product_fetch_image_wizard
+msgid ""
+"Fetch product images from Barcode Lookup based on the product's barcode."
+msgstr ""
+"プロダクトのバーコードに基づいたBarcode Lookupからプロダクト画像を取得しま"
+"す。"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "Get Pictures"
+msgstr "写真を入手する"
+
+#. module: product_barcodelookup
+#: model:ir.actions.act_window,name:product_barcodelookup.product_product_action_get_pic_with_barcode
+#: model:ir.actions.act_window,name:product_barcodelookup.product_template_action_get_pic_with_barcode
+msgid "Get Pictures from Barcode Lookup"
+msgstr "Barcode Lookupから画像を取得"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid "Go to Settings"
+msgstr "設定に移動する"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_ir_cron_trigger__id
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__id
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_product__id
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_template__id
+#: model:ir.model.fields,field_description:product_barcodelookup.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_product__is_image_fetch_pending
+msgid "Is Image Fetch Pending"
+msgstr "画像の取得が保留中"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__write_uid
+msgid "Last Updated by"
+msgstr "最終更新者"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__write_date
+msgid "Last Updated on"
+msgstr "最終更新日"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__nb_products_unable_to_process
+msgid "Number of product unprocessable"
+msgstr "処理不可能なプロダクト数"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__nb_products_to_process
+msgid "Number of products to process"
+msgstr "処理待ちのプロダクト数"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__nb_products_selected
+msgid "Number of selected products"
+msgstr "選択済プロダクト数"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "Out of"
+msgstr "利用できません"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_product_template
+msgid "Product"
+msgstr "プロダクト"
+
+#. module: product_barcodelookup
+#: model:ir.actions.server,name:product_barcodelookup.ir_cron_fetch_image_ir_actions_server
+msgid "Product Images: Get product images from Barcode Lookup"
+msgstr "プロダクト画像: プロダクト画像をBarcode Lookupから取得します"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_product_product
+msgid "Product Variant"
+msgstr "プロダクトバリアント"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid "Product images"
+msgstr "プロダクト画像"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__products_to_process
+msgid "Products To Process"
+msgstr "処理待ちのプロダクト"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"Products are processed in the background. Images will be updated "
+"progressively."
+msgstr "プロダクトはバックグラウンドで処理されます。画像は順次更新されます。"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid "The API Key for Barcode Lookup must be set in the General Settings."
+msgstr "Barcode Lookup用のAPIキーは、一般設定で設定する必要があります。"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"The Barcode Lookup API key is not set properly or it is invalid. Check your "
+"API key in setting and retry."
+msgstr ""
+"Barcode Lookup APIキーが正しく設定されていないか、無効です。設定したAPIキーを"
+"確認し、再度お試し下さい。"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,help:product_barcodelookup.field_product_fetch_image_wizard__products_to_process
+msgid ""
+"The list of selected products that meet the criteria (have a barcode and no "
+"image)"
+msgstr ""
+"条件（バーコードがあり、画像がない）を満たす、選択されたプロダクトのリスト"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"The scheduled action \"Product Images: Get product images from Barcode "
+"Lookup\" has been deleted. Please contact your administrator to have the "
+"action restored or to reinstall the module \"product_barcodelookup\"."
+msgstr ""
+"スケジュールされたアクション \"プロダクト画像: Barcode Lookupからプロダクト画"
+"像を取得\" が削除されました。アクションを復元するには、またはモジュール "
+"\"product_barcodelookup\" を再インストールするには、管理者にお問い合わせ下さ"
+"い。"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_ir_cron_trigger
+msgid "Triggered actions"
+msgstr "トリガーされたアクション"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,help:product_barcodelookup.field_product_product__is_image_fetch_pending
+msgid "Whether an image must be fetched for this product. Handled by a cron."
+msgstr ""
+"このプロダクトの画像を取得しなければならないかどうか。定期処理(cron)によって"
+"処理されます。"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_8
+msgid "age group"
+msgstr "年齢グループ"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "barcodelookup.com"
+msgstr "barcodelookup.com"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_6
+msgid "brand"
+msgstr "ブランド"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_1
+msgid "color"
+msgstr "色"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "e.g. d7vctmiv2rwgenebha8bxq7irooudn"
+msgstr "例: d7vctmiv2rwgenebha8bxq7irooudn"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_2
+msgid "gender"
+msgstr "性別"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_5
+msgid "manufacturer"
+msgstr "製造業"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_3
+msgid "material"
+msgstr "材料"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_4
+msgid "pattern"
+msgstr "パータン"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "selected products,"
+msgstr "選択されたプロダクト、"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_7
+msgid "size"
+msgstr "サイズ"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "will be processed."
+msgstr "処理されます。"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid ""
+"won't be\n"
+"                            processed because they either already have an "
+"image or\n"
+"                            lack a barcode"
+msgstr ""
+"処理されません。\n"
+"                            すでに画像があるか、バーコードが\n"
+"                            ないためです"
+
+#~ msgid "This action is already scheduled. Please try again later."
+#~ msgstr ""
+#~ "このアクションはすでにスケジュールされています。後でもう一度試して下さい。"

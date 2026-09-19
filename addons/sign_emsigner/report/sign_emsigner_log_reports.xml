@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="sign_emsigner.sign_request_logs_user" inherit_id="sign.sign_request_logs_user">
+        <xpath expr="//th[@id='participants_phone']" position="after">
+            <t t-set='has_emsigner_validation' t-value="o.sudo().request_item_ids.filtered(lambda i: i.emsigner_transaction_number)"/>
+            <th t-if="has_emsigner_validation" class="text-start">
+                Authenticated with emSigner
+            </th>
+        </xpath>
+        <xpath expr="//td[hasclass('participant_sms_validation')]" position="after">
+            <td t-if="has_emsigner_validation">
+                <t t-if="sri.emsigner_transaction_number and sri.emsigner_reference_number and sri.emsigner_status">
+                    <span>
+                        Status: <t t-out="sri.emsigner_status"/> <br/>
+                        Transaction Number: <t t-out="sri.emsigner_transaction_number"/> <br/>
+                        Reference Number: <t t-out="sri.emsigner_reference_number"/>
+                    </span>
+                </t>
+            </td>
+        </xpath>
+        <xpath expr="//div[hasclass('sms_footnote')]" position="after">
+            <div class="text-muted" t-if="has_emsigner_validation">
+                <small>The signatory has provided this identity through emSigner</small>
+            </div>
+        </xpath>
+    </template>
+</odoo>

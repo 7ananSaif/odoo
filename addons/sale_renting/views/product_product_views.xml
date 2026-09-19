@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="product_product_form_view_rental_gantt"  model="ir.ui.view">
+        <field name="name">product.product.form</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="sale.product_form_view_sale_order_button"/>
+        <field name="arch" type="xml">
+            <button name="action_view_sales" position="after">
+                <button
+                    class="oe_stat_button"
+                    name="action_view_rentals"
+                    type="object" icon="fa-calendar"
+                    groups="sales_team.group_sale_salesman"
+                    invisible="not rent_ok"
+                >
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value d-flex gap-1">
+                            <field name="qty_in_rent" widget="statinfo" nolabel="1" class="oe_inline"/>
+                            <field name="uom_name"  class="oe_inline"/>
+                        </span>
+                        <span class="o_stat_text">In Rental</span>
+                    </div>
+                </button>
+            </button>
+        </field>
+    </record>
+
+</odoo>

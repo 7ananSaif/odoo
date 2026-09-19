@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip.Agenda">
+    <Tab
+        itemsBySection="activitiesByDate"
+        extraClass="`o-voip-Agenda ${props.extraClass}`"
+        state="state"
+        noEntriesMessage.translate="No calls scheduled for today 😎"
+        getSectionStyle="getSectionStyle"
+        sectionIcon="'fa fa-clock-o'"
+    >
+        <t t-set-slot="top">
+            <SearchBar state="state" onInputSearch="onInputSearch"/>
+        </t>
+        <t t-set-slot="entry" t-slot-scope="slot">
+            <t t-set="activity" t-value="slot.item"/>
+            <t t-set="isFolded" t-value="!activity.eq(voip.softphone.activeRecord)"/>
+            <TabEntry
+                avatarUrl="activity.partner?.avatarUrl ?? '/base/static/img/avatar_grey.png'"
+                extraClass="getExtraClass(activity)"
+                title="activity.partner?.voipName ?? activity.phone"
+                subtitle="isFolded ? activity.summary || '' : activity.partner?.jobDescription || ''"
+                subtitleIcon="isFolded ? '' : 'fa fa-fw fa-building-o'"
+                phoneNumber="activity.partner ? activity.phone : ''"
+                record="activity"
+                section="slot.section"
+            >
+                <t t-set-slot="side">
+                    <ActionButton t-if="isFolded"
+                        hideLabel="true"
+                        icon="'fa-phone'"
+                        type="'outline-success'"
+                        onClick="() => this.onClickCall(activity)"
+                        isSmall="true"
+                        name="'Call'"
+                    />
+                </t>
+                <t t-set-slot="info">
+                <div class="d-flex flex-column gap-1">
+                    <div t-if="activity.summary" class="d-flex gap-1">
+                        <i class="fa fa-quote-left fa-fw flex-shrink-0 lh-base"/>
+                        <p class="mb-0 text-break" t-esc="activity.summary"/>
+                    </div>
+                    <div class="d-flex flex-column align-items-start">
+                        <t t-if="activity.partner and activity.res_model !== 'res.partner'">
+                            <button class="btn btn-link ms-n2 px-2" t-on-click="() => this.onClickContact(activity.partner.id)">
+                                <i class="oi oi-fw oi-user me-1" aria-hidden="true"/>Contact
+                            </button>
+                        </t>
+                        <t class="o-voip-Agenda-xpathTarget"/>
+                        <button class="btn btn-link ms-n2 px-2" title="Open related record" t-on-click="() => this.onClickActivity(activity)">
+                            <i class="oi oi-fw oi-arrow-right me-1" aria-hidden="true"/>
+                            <t t-esc="activity.res_name"/>
+                        </button>
+                    </div>
+                </div>
+                </t>
+                <t t-set-slot="actions">
+                    <ActionButton
+                        name.translate="Done"
+                        icon="'fa-check'"
+                        onClick="() => this.onClickDone(activity)"
+                    />
+                    <ActionButton
+                        name.translate="Edit"
+                        icon="'fa-pencil'"
+                        onClick="() => this.onClickEdit(activity)"
+                    />
+                    <ActionButton
+                        name.translate="Cancel"
+                        icon="'fa-close'"
+                        onClick="() => this.onClickCancel(activity)"
+                    />
+                </t>
+                <t t-set-slot="call-to-action">
+                    <t class="o-voip-Agenda-sms-xpathTarget"/>
+                    <ActionButton
+                        name.translate="Call"
+                        icon="'fa-phone'"
+                        type="'success'"
+                        onClick="() => this.onClickCall(activity)"
+                    />
+                </t>
+            </TabEntry>
+        </t>
+        <t t-set-slot="no-search-results">
+            <NoSearchResults
+                icon="'fa fa-clock-o'"
+                noResultsMessage.translate="No call activities found"
+                actionMessage.translate="See all other activities"
+                actionCallback="() => this.openMyActivities()"
+            />
+        </t>
+    </Tab>
+</t>
+</templates>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="l10n_se_returns_vat_return_submission_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_se_returns.vat.return.submission.wizard.form</field>
+            <field name="model">l10n_se_returns.vat.return.submission.wizard</field>
+            <field name="inherit_id" ref="account_reports.return_submission_wizard_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="instructions" position="replace">
+                    <group id="instructions">
+                        <ol colspan="2">
+                            <li>
+                                <div class="d-inline-block align-top">
+                                    <span>Download the VAT statement</span><br/>
+                                    <button string='Download XML' name="export_to_xml" type="object" class="btn-secondary"/>
+                                </div>
+                            </li>
+                            <li>Log in to <a href="https://www.skatteverket.se/" target="_blank">Skatteverket's</a> e-service</li>
+                            <li>Upload the XML file</li>
+                            <li>Validate the VAT return</li>
+                        </ol>
+                    </group>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

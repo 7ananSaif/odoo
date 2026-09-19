@@ -1,0 +1,184 @@
+<?xml version="1.0"?>
+<odoo noupdate="1">
+    <record id="sign_request_whatsapp_template" model="whatsapp.template" forcecreate="0">
+        <field name="name">Sign Request</field>
+        <field name="template_name">sign_request</field>
+        <field name="lang_code">en</field>
+        <field name="template_type">utility</field>
+        <field name="header_type">none</field>
+        <field name="phone_field">partner_id.phone</field>
+        <field name="model_id" ref="sign.model_sign_request_item"/>
+        <field name="body">Hello {{1}},
+
+{{2}} has requested your signature on the document {{3}}.
+
+To sign the document open the following link: {{4}}
+
+Additional details (if any) are shown below:
+{{5}}
+
+You have until *{{6}}* to sign the document.
+
+*This link is personal to you, do not share it with others.*
+*If you receive this message by mistake, please ignore it.*
+
+Attachments (if any): {{7}}
+
+Thank you.</field>
+        <field name="variable_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {
+                'name': '{{1}}',
+                'demo_value': 'Mark',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'display_name'
+            }),
+            (0, 0, {
+                'name': '{{2}}',
+                'demo_value': 'Mitchell',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'create_uid.partner_id.name'
+            }),
+            (0, 0, {
+                'name': '{{3}}',
+                'demo_value': 'Doc.pdf',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'sign_request_id.reference'
+            }),
+            (0, 0, {
+                'name': '{{4}}',
+                'demo_value': 'https://...',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'sign_link'
+            }),
+            (0, 0, {
+                'name': '{{5}}',
+                'demo_value': 'Optional message',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'sign_request_id.raw_optional_message'
+            }),
+            (0, 0, {
+                'name': '{{6}}',
+                'demo_value': '2025-10-14',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'sign_request_id.validity'
+            }),
+            (0, 0, {
+                'name': '{{7}}',
+                'demo_value': 'https://...',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'attachments_download_link'
+            })
+        ]" />
+    </record>
+    <record id="sign_request_completion_whatsapp_template" model="whatsapp.template" forcecreate="0">
+        <field name="name">Sign Request Completion</field>
+        <field name="template_name">sign_request_completion</field>
+        <field name="lang_code">en</field>
+        <field name="template_type">utility</field>
+        <field name="header_type">none</field>
+        <field name="phone_field">partner_id.phone</field>
+        <field name="model_id" ref="sign.model_sign_request_item"/>
+        <field name="body">Hello {{1}},
+
+The document {{2}} has been completed and signed by {{3}}.
+
+Document link:
+{{4}}
+
+*Warning do not forward this message to other people!*</field>
+        <field name="variable_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {
+                'name': '{{1}}',
+                'demo_value': 'Mark',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'display_name'
+            }),
+            (0, 0, {
+                'name': '{{2}}',
+                'demo_value': 'Doc.pdf',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'sign_request_id.reference'
+            }),
+            (0, 0, {
+                'name': '{{3}}',
+                'demo_value': 'Moustafa and you',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'sign_request_id.signers_name'
+            }),
+            (0, 0, {
+                'name': '{{4}}',
+                'demo_value': 'https://...',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'document_link'
+            })
+        ]" />
+    </record>
+    <record id="sign_request_refusal_whatsapp_template" model="whatsapp.template" forcecreate="0">
+        <field name="name">Sign Request Refusal</field>
+        <field name="template_name">sign_request_refusal</field>
+        <field name="lang_code">en</field>
+        <field name="template_type">utility</field>
+        <field name="header_type">none</field>
+        <field name="phone_field">partner_id.phone</field>
+        <field name="model_id" ref="sign.model_sign_request_item"/>
+        <field name="body">Hello {{1}},
+
+{{2}} declined to sign the document {{3}} for the following reason: *"{{4}}"*.
+
+Document link:
+{{5}}
+
+*Warning do not forward this message to other people!*</field>
+        <field name="variable_ids" eval="[
+            (5, 0, 0),
+            (0, 0, {
+                'name': '{{1}}',
+                'demo_value': 'Mark',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'display_name'
+            }),
+            (0, 0, {
+                'name': '{{2}}',
+                'demo_value': 'Moustafa',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'sign_request_id.refuser_partner.name'
+            }),
+            (0, 0, {
+                'name': '{{3}}',
+                'demo_value': 'Doc.pdf',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'sign_request_id.reference'
+            }),
+            (0, 0, {
+                'name': '{{4}}',
+                'demo_value': 'I’m unable to sign at this time due to unresolved concerns.',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'sign_request_id.refusal_reason'
+            }),
+            (0, 0, {
+                'name': '{{5}}',
+                'demo_value': 'https://...',
+                'line_type': 'body',
+                'field_type': 'field',
+                'field_name': 'document_link'
+            })
+        ]" />
+    </record>
+</odoo>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="pos_enterprise.DurationField">
+        <span t-if="props.readonly" t-esc="displayValue"/>
+        <input t-else=""
+               t-att-id="props.id"
+               t-att-type="props.inputType"
+               t-ref="numpadDecimal"
+               class="o_input"
+               autocomplete="off"/>
+    </t>
+</templates>

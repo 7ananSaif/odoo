@@ -1,0 +1,137 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * sale_purchase_stock_inter_company_rules
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.4+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:47+0000\n"
+"PO-Revision-Date: 2025-09-17 09:36+0000\n"
+"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
+"Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
+"odoo-19/sale_purchase_stock_inter_company_rules/es_419/>\n"
+"Language: es_419\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model,name:sale_purchase_stock_inter_company_rules.model_res_company
+msgid "Companies"
+msgstr "Empresas"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model,name:sale_purchase_stock_inter_company_rules.model_res_config_settings
+msgid "Config Settings"
+msgstr "Ajustes de configuración"
+
+#. module: sale_purchase_stock_inter_company_rules
+#. odoo-python
+#: code:addons/sale_purchase_stock_inter_company_rules/models/purchase_order.py:0
+#: code:addons/sale_purchase_stock_inter_company_rules/models/sale_order.py:0
+msgid ""
+"Configure correct warehouse for company(%s) from Menu: Settings/Users/"
+"Companies"
+msgstr ""
+"Configure el almacén correcto para la empresa (%s) en el menú: Ajustes/"
+"Usuarios/Empresas"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model.fields,help:sale_purchase_stock_inter_company_rules.field_res_company__intercompany_receipt_type_id
+#: model:ir.model.fields,help:sale_purchase_stock_inter_company_rules.field_res_config_settings__intercompany_receipt_type_id
+msgid ""
+"Default Operation type to set on Receipts that will be created for inter-"
+"company transfers"
+msgstr ""
+"Tipo de operación predeterminado a establecer en los recibos que se crearán "
+"para los traslados dentro de la empresa"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model.fields,help:sale_purchase_stock_inter_company_rules.field_res_company__intercompany_warehouse_id
+#: model:ir.model.fields,help:sale_purchase_stock_inter_company_rules.field_res_config_settings__intercompany_warehouse_id
+msgid ""
+"Default value to set on Purchase(Sales) Orders that will be created based on "
+"Sale(Purchase) Orders made to this company"
+msgstr ""
+"Valor predeterminado establecido en las órdenes de compra (venta) que se "
+"crearán basándose en las órdenes de venta (compra) para esta empresa."
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_purchase_order__display_name
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_res_company__display_name
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_sale_order__display_name
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_sale_order_line__display_name
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_stock_picking__display_name
+msgid "Display Name"
+msgstr "Nombre en pantalla"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_purchase_order__id
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_res_company__id
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_res_config_settings__id
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_sale_order__id
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_sale_order_line__id
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_stock_picking__id
+msgid "ID"
+msgstr "ID"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model,name:sale_purchase_stock_inter_company_rules.model_purchase_order
+msgid "Purchase Order"
+msgstr "Orden de compra"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_res_company__intercompany_receipt_type_id
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_res_config_settings__intercompany_receipt_type_id
+msgid "Receipt Operation Type"
+msgstr "Tipo de operación de recibo"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model,name:sale_purchase_stock_inter_company_rules.model_sale_order
+msgid "Sales Order"
+msgstr "Orden de venta"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model,name:sale_purchase_stock_inter_company_rules.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Línea de la orden de venta"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_res_company__intercompany_sync_delivery_receipt
+msgid "Synchronize Deliveries to your Receipts"
+msgstr "Sincronizar las entregas con sus recepciones"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_res_config_settings__intercompany_sync_delivery_receipt
+msgid "Synchronize Stock Moves"
+msgstr "Sincronizar movimientos de stock"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model,name:sale_purchase_stock_inter_company_rules.model_stock_picking
+msgid "Transfer"
+msgstr "Trasladar"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model_terms:ir.ui.view,arch_db:sale_purchase_stock_inter_company_rules.res_config_settings_view_form
+msgid "Use Operation"
+msgstr "Utilizar operación"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model_terms:ir.ui.view,arch_db:sale_purchase_stock_inter_company_rules.res_config_settings_view_form
+msgid "Use Warehouse"
+msgstr "Utilizar almacén"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_res_company__intercompany_warehouse_id
+msgid "Warehouse"
+msgstr "Almacén"
+
+#. module: sale_purchase_stock_inter_company_rules
+#: model:ir.model.fields,field_description:sale_purchase_stock_inter_company_rules.field_res_config_settings__intercompany_warehouse_id
+msgid "Warehouse For Purchase Orders"
+msgstr "Almacén para las órdenes de compra"

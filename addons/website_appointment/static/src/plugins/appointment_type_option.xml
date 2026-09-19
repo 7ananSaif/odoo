@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="website_appointment.AppointmentTypeOption">
+    <BuilderContext preview="false" reload="'/'">
+	    <BuilderRow label.translate="Show Time Zone">
+	        <BuilderCheckbox action="'appointmentTypeShowTimezone'"/>
+	    </BuilderRow>
+	    <BuilderRow label.translate="Show Duration">
+	        <BuilderCheckbox action="'appointmentTypeShowDuration'"/>
+	    </BuilderRow>
+	    <BuilderRow label.translate="Show User/Resource Pictures">
+	        <BuilderCheckbox action="'appointmentTypeShowAvatars'"/>
+	    </BuilderRow>
+	    <BuilderRow label.translate="Allow Guests">
+	        <BuilderCheckbox action="'appointmentTypeShowAllowGuests'"/>
+	    </BuilderRow>
+    </BuilderContext>
+</t>
+</templates>

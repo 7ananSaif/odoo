@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="preparation_time_report_search" model="ir.ui.view">
+        <field name="name">preparation.time.report.search.view</field>
+        <field name="model">preparation.time.report</field>
+        <field name="arch" type="xml">
+            <search string="Preparation Time Report">
+                <filter name="last_30_days" string="Last 30 Days" domain="[('create_date', '&gt;', '-30d')]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="preparation_time_report_graph" model="ir.ui.view">
+        <field name="name">preparation.time.report.graph</field>
+        <field name="model">preparation.time.report</field>
+        <field name="arch" type="xml">
+            <graph string="Preparation Time Report" type="bar" stacked="0" sample="1">
+                <field name="order_hour" type="row"/>
+                <field name="avg_preparation_time" type="measure" widget="duration_time" />
+                <field name="pos_config_id" type="col" />
+            </graph>
+        </field>
+    </record>
+
+    <record id="preparation_time_report_view_list" model="ir.ui.view">
+        <field name="name">preparation.time.report.view.list</field>
+        <field name="model">preparation.time.report</field>
+        <field name="arch" type="xml">
+            <list string="Preparation Time Lines">
+                <field name="create_date"/>
+                <field name="order_id"/>
+                <field name="product_id"/>
+                <field name="qty"/>
+                <field name="pos_config_id"/>
+                <field name="preparation_time" widget="duration_time" />
+            </list>
+        </field>
+    </record>
+
+    <record id="preparation_time_report_view_form" model="ir.ui.view">
+        <field name="name">preparation.time.report.view.form</field>
+        <field name="model">preparation.time.report</field>
+        <field name="arch" type="xml">
+            <form string="Preparation Time Line" readonly="1">
+                <group>
+                    <field name="create_date"/>
+                    <field name="order_id"/>
+                    <field name="product_id"/>
+                    <field name="qty"/>
+                    <field name="pos_config_id"/>
+                    <field name="preparation_time" widget="duration_time" />
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="pos_preparation_time_report_action" model="ir.actions.act_window">
+        <field name="name">Preparation Time Report</field>
+        <field name="res_model">preparation.time.report</field>
+        <field name="view_mode">graph</field>
+        <field name="context">
+            {
+                'group_by': ['order_hour', 'pos_config_id'],
+                'search_default_last_30_days': 1
+            }
+        </field>
+    </record>
+
+    <menuitem id="menu_report_preparation_time"
+        name="Preparation Time"
+        action="pos_preparation_time_report_action"
+        parent="point_of_sale.menu_point_rep"
+        sequence="6"/>
+</odoo>

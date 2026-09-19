@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <function model="project.task" name="write">
+            <value model="project.task" search="[('sale_line_id', '=', ref('project_sale_subscription.subscription_project_line_1'))]"/>
+            <value eval="{
+                'milestone_id': ref('project.project_home_construction_milestone_3'),
+                'stage_id': ref('project.project_stage_1'),
+                'user_ids': [Command.link(ref('base.user_demo'))],
+            }"/>
+        </function>
+        <function model="project.task" name="write">
+            <value model="project.task" search="[('sale_line_id', '=', ref('project_sale_subscription.subscription_project_line_2'))]"/>
+            <value eval="{
+                'milestone_id': ref('project.project_home_construction_milestone_3'),
+                'stage_id': ref('project.project_stage_1'),
+                'user_ids': [Command.link(ref('base.user_demo'))],
+            }"/>
+        </function>
+    </data>
+</odoo>

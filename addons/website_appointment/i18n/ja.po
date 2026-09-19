@@ -1,0 +1,828 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * website_appointment
+#
+# Translators:
+# Martin Trigaux, 2022
+# Ryoko Tsuda <ryoko@quartile.co>, 2023
+# Andy Yiu, 2023
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Junko Augias (juau)" <juau@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:49+0000\n"
+"PO-Revision-Date: 2025-11-20 08:14+0000\n"
+"Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"website_appointment/ja/>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_card_top
+msgid "<i class=\"fa fa-ban me-2\" role=\"presentation\"/>Unpublished"
+msgstr "<i class=\"fa fa-ban me-2\" role=\"presentation\"/>未公開"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_form
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_info
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_select_operator
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_validated
+msgid "<i class=\"fa fa-long-arrow-left me-2\"/>All Appointments"
+msgstr "<i class=\"fa fa-long-arrow-left me-2\"/>すべての予約"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.dynamic_filter_template_appointment_type_list
+msgid ""
+"<i class=\"fa fa-video-camera lh-base\" role=\"presentation\"/>\n"
+"                            <span class=\"o_not_editable\">Online</span>"
+msgstr ""
+"<i class=\"fa fa-video-camera lh-base\" role=\"presentation\"/>\n"
+"                            <span class=\"o_not_editable\">オンライン</span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_card_body
+msgid ""
+"<i class=\"fa fa-video-camera lh-base\" role=\"presentation\"/>\n"
+"                        <span class=\"o_not_editable\">Online</span>"
+msgstr ""
+"<i class=\"fa fa-video-camera lh-base\" role=\"presentation\"/>\n"
+"                        <span class=\"o_not_editable\">オンライン</span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_list_preview_data
+msgid ""
+"<small class=\"text-muted\">Easily reserve tennis courts for your next "
+"match, anytime and anywhere.</small>"
+msgstr ""
+"<small class=\"text-muted\">いつでもどこでも、次の試合のためにテニスコートを"
+"簡単に予約できます。</small>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_list_preview_data
+msgid ""
+"<small class=\"text-muted\">Explore online cooking lessons and learn new "
+"recipes at your pace.</small>"
+msgstr ""
+"<small class=\"text-muted\">オンライン料理レッスンを体験して、自分のペースで"
+"新しいレシピを学びましょう。</small>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_list_preview_data
+msgid ""
+"<small class=\"text-muted\">Schedule your visit today and experience expert "
+"dental care brought right to your doorstep.</small>"
+msgstr ""
+"<small class=\"text-muted\">今すぐご予約いただき、ご自宅で専門的な歯科ケアを"
+"ご体験ください。</small>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.dynamic_filter_template_appointment_type_picture
+msgid ""
+"<span class=\"o_not_editable\">Online</span>\n"
+"                                        <i class=\"fa fa-video-camera\" "
+"role=\"presentation\"/>"
+msgstr ""
+"<span class=\"o_not_editable\">オンライン</span>\n"
+"                                        <i class=\"fa fa-video-camera\" "
+"role=\"presentation\"/>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.dynamic_filter_template_appointment_type_picture
+msgid ""
+"<span class=\"p-2 text-white text-decoration-none text-center transition-"
+"base opacity-0 opacity-100-hover\">Book now</span>"
+msgstr ""
+"<span class=\"p-2 text-white text-decoration-none text-center transition-"
+"base opacity-0 opacity-100-hover\">今すぐ予約</span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "<span itemprop=\"name\">Bistr-Odoo</span>"
+msgstr "<span itemprop=\"name\">Bistr-Odoo</span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "<span itemprop=\"name\">Doctor's Office</span>"
+msgstr "<span itemprop=\"name\">診療所</span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "<span itemprop=\"name\">Online</span>"
+msgstr "<span itemprop=\"name\">オンライン</span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "<span itemprop=\"name\">Tennis Club</span>"
+msgstr "<span itemprop=\"name\">テニスクラブ</span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_list_preview_data
+msgid ""
+"<span><i class=\"fa fa-map-marker\" role=\"presentation\"/> Doctor's Office</"
+"span>"
+msgstr ""
+"<span><i class=\"fa fa-map-marker\" role=\"presentation\"/> 医師の診療所</"
+"span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_list_preview_data
+msgid ""
+"<span><i class=\"fa fa-map-marker\" role=\"presentation\"/> Online</span>"
+msgstr ""
+"<span><i class=\"fa fa-map-marker\" role=\"presentation\"/>オンライン</span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_list_preview_data
+msgid ""
+"<span><i class=\"fa fa-map-marker\" role=\"presentation\"/> Tennis Court</"
+"span>"
+msgstr ""
+"<span><i class=\"fa fa-map-marker\" role=\"presentation\"/>テニスコート</"
+"span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_picture_preview_data
+msgid ""
+"<span>Doctor's Office <i class=\"fa fa-marker\" role=\"presentation\"/></"
+"span>"
+msgstr ""
+"<span>医師の診療所<i class=\"fa fa-marker\" role=\"presentation\"/></span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_picture_preview_data
+msgid "<span>Online <i class=\"fa fa-marker\" role=\"presentation\"/></span>"
+msgstr ""
+"<span>オンライン<i class=\"fa fa-marker\" role=\"presentation\"/></span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_select_operator
+msgid ""
+"<span>See all availabilities <i class=\"fa fa-long-arrow-right\"/></span>"
+msgstr "<span>全ての空き状況を表示<i class=\"fa fa-long-arrow-right\"/></span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_picture_preview_data
+msgid ""
+"<span>Tennis Club <i class=\"fa fa-marker\" role=\"presentation\"/></span>"
+msgstr ""
+"<span>テニスクラブ<i class=\"fa fa-marker\" role=\"presentation\"/></span>"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "<strong class=\"text-primary small\">$<span>150.00</span></strong>"
+msgstr "<strong class=\"text-primary small\">$<span>150.00</span></strong>"
+
+#. module: website_appointment
+#. odoo-python
+#: code:addons/website_appointment/models/website_snippet_filter.py:0
+msgid "A first step in joining our team as a technical consultant."
+msgstr "技術コンサルタントとしてチームに参加する第一歩です。"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_select_operator
+msgid "Add a function here..."
+msgstr "ここに機能を追加"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_select_operator
+msgid "Add a resource description here..."
+msgstr "ここにリソースの説明を追加"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_select_operator
+msgid "Add a user description here..."
+msgstr "ここにユーザ説明を追加..."
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_card_body
+msgid "Add an intro message here..."
+msgstr "ここに案内メッセージを追加..."
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/online_appointment_option.xml:0
+msgid "All Types"
+msgstr "全てのタイプ"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/online_appointment_option.xml:0
+msgid "All assigned users"
+msgstr "全ての割当済ユーザ"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_invite_view_form
+msgid "All websites"
+msgstr "全てのウェブサイト"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointment_type_option.xml:0
+msgid "Allow Guests"
+msgstr "ゲストを許可"
+
+#. module: website_appointment
+#. odoo-python
+#: code:addons/website_appointment/models/website.py:0
+#: model:website.menu,name:website_appointment.menu_appointment
+msgid "Appointment"
+msgstr "予約"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.website_online_appointment_snippet
+msgid "Appointment Button"
+msgstr "予約ボタン"
+
+#. module: website_appointment
+#: model:ir.model,name:website_appointment.model_appointment_invite
+msgid "Appointment Invite"
+msgstr "予約招待"
+
+#. module: website_appointment
+#: model:ir.actions.act_window,name:website_appointment.action_appointment_pages_list
+msgid "Appointment Pages"
+msgstr "予約ページ"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointment_type_option_plugin.js:0
+#: model:ir.model,name:website_appointment.model_appointment_type
+msgid "Appointment Type"
+msgstr "アポイントメントタイプ"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/xml/website_appointment_templates.xml:0
+msgid "Appointment Type Name"
+msgstr "アポイントメントタイプ名"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/online_appointment_option.xml:0
+#: code:addons/website_appointment/static/src/plugins/searchbar_option.xml:0
+#: model:ir.ui.menu,name:website_appointment.menu_appointment_pages
+#: model:ir.ui.menu,name:website_appointment.website_appointment_type_menu
+#: model_terms:ir.ui.view,arch_db:website_appointment.snippets
+msgid "Appointments"
+msgstr "予約"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/website_appointment_page_option_plugin.js:0
+msgid "Appointments Page"
+msgstr "予約ページ"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "Book Dental Care"
+msgstr "歯科治療を予約"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "Book Online Cooking Lesson"
+msgstr "オンライン料理レッスンを予約"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "Book Table"
+msgstr "テーブルを予約"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "Book Tennis Court"
+msgstr "テニスコートを予約"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_online_appointment
+msgid "Book an Appointment"
+msgstr "予約する"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_card_body
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "Book now"
+msgstr "今すぐ予約"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_card_body
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_card_top
+#: model_terms:ir.ui.view,arch_db:website_appointment.dynamic_filter_template_appointment_type_list
+#: model_terms:ir.ui.view,arch_db:website_appointment.dynamic_filter_template_appointment_type_picture
+msgid "Book {{0}}"
+msgstr "予約 {{0}}"
+
+#. module: website_appointment
+#: model:ir.model,name:website_appointment.model_calendar_event
+#: model:ir.model.fields,field_description:website_appointment.field_website_visitor__calendar_event_ids
+msgid "Calendar Event"
+msgstr "カレンダーイベント"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_invite__can_publish
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__can_publish
+msgid "Can Publish"
+msgstr "公開可"
+
+#. module: website_appointment
+#. odoo-python
+#: code:addons/website_appointment/models/website_snippet_filter.py:0
+msgid "Candidate Interview"
+msgstr "候補者面接"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/website_appointment_page_option.xml:0
+msgid "Card Design"
+msgstr "カードデザイン"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointments_option.xml:0
+msgid "Choose a resource..."
+msgstr "リソースを選択してください..."
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointments_option.xml:0
+msgid "Choose a user..."
+msgstr "ユーザを選択..."
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_select_operator
+msgid "Choose what you would like to book"
+msgstr "ご希望の予約内容をお選びください"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_select_operator
+msgid "Choose who you will meet"
+msgstr "担当者を選択"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.website_calendar_index_topbar
+msgid "Choose your appointment"
+msgstr "予約を選択"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointments_option.xml:0
+msgid "Comma-separated list of parts of appointment names"
+msgstr "カンマで区切られたアポイント名の部分のリスト"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/xml/appointment_no_slot.xml:0
+msgid "Contact us"
+msgstr "お問い合わせ"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_list_preview_data
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_picture_preview_data
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "Dental Care"
+msgstr "歯科治療"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/searchbar_option_plugin.js:0
+msgid "Description"
+msgstr "説明"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_invite__appointment_type_warning_msg
+msgid "Different Website Message"
+msgstr "異なるウェブサイトメッセージ"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid ""
+"Discover the secrets kept in high-end kitchens with one of our starred "
+"chefs, from the comfort of your own home."
+msgstr ""
+"ご自宅にいながら、星付きシェフとともに高級レストランの厨房に隠された秘密を体"
+"験しましょう。"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_invite__display_name
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__display_name
+#: model:ir.model.fields,field_description:website_appointment.field_calendar_event__display_name
+#: model:ir.model.fields,field_description:website_appointment.field_website__display_name
+#: model:ir.model.fields,field_description:website_appointment.field_website_snippet_filter__display_name
+#: model:ir.model.fields,field_description:website_appointment.field_website_visitor__display_name
+msgid "Display Name"
+msgstr "表示名"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "Easily reserve tennis courts for your next match, anytime and anywhere."
+msgstr "いつでもどこでも、次の試合のテニスコートを簡単に予約できます。"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointments_option.xml:0
+msgid "Filter On"
+msgstr "フィルター"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/xml/appointment_no_slot.xml:0
+msgid "Go back to Appointment"
+msgstr "予約に戻る"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_invite__id
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__id
+#: model:ir.model.fields,field_description:website_appointment.field_calendar_event__id
+#: model:ir.model.fields,field_description:website_appointment.field_website__id
+#: model:ir.model.fields,field_description:website_appointment.field_website_snippet_filter__id
+#: model:ir.model.fields,field_description:website_appointment.field_website_visitor__id
+msgid "ID"
+msgstr "ID"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_invite__is_published
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__is_published
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_type_view_tree
+msgid "Is Published"
+msgstr "公開済"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_progress_bar
+msgid "Meeting"
+msgstr "ミーティング"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointments_option.xml:0
+msgid "Names"
+msgstr "名前"
+
+#. module: website_appointment
+#: model:ir.actions.act_window,name:website_appointment.appointment_type_action_add_simplified
+msgid "New Appointment Type"
+msgstr "新規アポイントメントタイプ"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointments_option.xml:0
+msgid "No Filter"
+msgstr "フィルタなし"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointments_cards
+msgid "No result for \""
+msgstr "次の結果がありません\""
+
+#. module: website_appointment
+#. odoo-python
+#: code:addons/website_appointment/models/website_snippet_filter.py:0
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_list_preview_data
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_picture_preview_data
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "Online Cooking Lesson"
+msgstr "オンライン料理レッスン"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_progress_bar
+msgid "Operator"
+msgstr "担当者"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/xml/website_appointment_templates.xml:0
+msgid "Please fill this field"
+msgstr "この項目にご記入ください"
+
+#. module: website_appointment
+#: model:website.snippet.filter,name:website_appointment.website_snippet_filter_appointments
+msgid "Public Appointments"
+msgstr "公開予約"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_type_view_kanban
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_type_view_search
+msgid "Published"
+msgstr "公開済"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid ""
+"Reserve your table at our bistro and enjoy a delightful dining experience at "
+"your convenience."
+msgstr ""
+"当店のビストロでテーブルをご予約下さい。至福のダイニング体験をお好きな時間"
+"に。"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointments_option.xml:0
+msgid "Resources"
+msgstr "リソース"
+
+#. module: website_appointment
+#: model:ir.model.fields,help:website_appointment.field_appointment_invite__website_id
+#: model:ir.model.fields,help:website_appointment.field_appointment_type__website_id
+msgid "Restrict to a specific website."
+msgstr "特定のウェブサイトに制限"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__is_seo_optimized
+msgid "SEO optimized"
+msgstr "SEO最適化済"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.dynamic_filter_template_appointment_type_card
+#: model_terms:ir.ui.view,arch_db:website_appointment.dynamic_filter_template_appointment_type_list
+#: model_terms:ir.ui.view,arch_db:website_appointment.dynamic_filter_template_appointment_type_picture
+msgid "Sample"
+msgstr "サンプル"
+
+#. module: website_appointment
+#. odoo-python
+#: code:addons/website_appointment/models/website.py:0
+msgid "Schedule an appointment"
+msgstr "予約をする"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid ""
+"Schedule your visit today and experience expert dental care brought right to "
+"your doorstep."
+msgstr ""
+"今すぐご来院の予約をお取りいただき、ご自宅近くで受けられる高度な歯科治療をご"
+"利用下さい。"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.website_calendar_index_topbar
+msgid "Search..."
+msgstr "検索..."
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointments_cards
+msgid "See all appointments <i class=\"fa fa-long-arrow-right\"/>"
+msgstr "全ての予約を表示<i class=\"fa fa-long-arrow-right\"/>"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__seo_name
+msgid "Seo name"
+msgstr "SEO名"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointment_type_option.xml:0
+msgid "Show Duration"
+msgstr "期間を表示"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointment_type_option.xml:0
+msgid "Show Time Zone"
+msgstr "タイムゾーンを表示"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointment_type_option.xml:0
+msgid "Show User/Resource Pictures"
+msgstr "ユーザ/リソース写真を表示"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointments_option.xml:0
+msgid "Specific Resources"
+msgstr "特定のリソース"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/online_appointment_option.xml:0
+msgid "Specific Types"
+msgstr "特定のタイプ"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointments_option.xml:0
+msgid "Specific Users"
+msgstr "特定のユーザー"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/online_appointment_option.xml:0
+msgid "Specific users"
+msgstr "特定のユーザ"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/online_appointment_option.xml:0
+msgid "Specify"
+msgstr "指定する"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "Table"
+msgstr "テーブル"
+
+#. module: website_appointment
+#. odoo-python
+#: code:addons/website_appointment/models/website_snippet_filter.py:0
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_list_preview_data
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_picture_preview_data
+#: model_terms:ir.ui.view,arch_db:website_appointment.s_appointments_preview_data
+msgid "Tennis Court"
+msgstr "テニスコート"
+
+#. module: website_appointment
+#. odoo-python
+#: code:addons/website_appointment/models/appointment_invite.py:0
+msgid ""
+"The following appointment type(s) are not compatible with the website "
+"chosen: %(appointments)s"
+msgstr ""
+"次のアポイントメントタイプは、選択したウェブサイトと互換性がありません: %"
+"(appointments)s"
+
+#. module: website_appointment
+#: model:ir.model.fields,help:website_appointment.field_appointment_invite__website_absolute_url
+#: model:ir.model.fields,help:website_appointment.field_appointment_type__website_absolute_url
+msgid "The full absolute URL to access the document through the website."
+msgstr "ウェブサイトを通じてドキュメントにアクセスするための完全な絶対URL"
+
+#. module: website_appointment
+#: model:ir.model.fields,help:website_appointment.field_appointment_invite__website_url
+#: model:ir.model.fields,help:website_appointment.field_appointment_type__website_url
+msgid "The full relative URL to access the document through the website."
+msgstr "ウェブサイトを通じてドキュメントにアクセスするための完全な相対URL"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointments_cards
+msgid "There is currently no appointment available"
+msgstr "現在利用可能な予約はありません"
+
+#. module: website_appointment
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointments_cards
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointments_list_layout
+msgid "Use the top button '<b>+ New</b>' to create an appointment type."
+msgstr ""
+"上の「<b>+ 新規</b>」ボタンで、アポイントメントタイプを作成してください。"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointments_option.xml:0
+#: code:addons/website_appointment/static/src/plugins/online_appointment_option.xml:0
+#: code:addons/website_appointment/static/src/xml/website_appointment_templates.xml:0
+msgid "Users"
+msgstr "ユーザ"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_invite__website_published
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__website_published
+msgid "Visible on current website"
+msgstr "現在のサイトに表示"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_calendar_event__visitor_id
+msgid "Visitor"
+msgstr "訪問者"
+
+#. module: website_appointment
+#: model:ir.model,name:website_appointment.model_website
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_invite__website_id
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__website_id
+#: model_terms:ir.ui.view,arch_db:website_appointment.appointment_type_view_search
+msgid "Website"
+msgstr "ウェブサイト"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_invite__website_absolute_url
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__website_absolute_url
+msgid "Website Absolute URL"
+msgstr "ウェブサイト絶対URL"
+
+#. module: website_appointment
+#: model:ir.model,name:website_appointment.model_website_snippet_filter
+msgid "Website Snippet Filter"
+msgstr "サイトスニペットフィルタ"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_invite__website_url
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__website_url
+msgid "Website URL"
+msgstr "サイトURL"
+
+#. module: website_appointment
+#: model:ir.model,name:website_appointment.model_website_visitor
+msgid "Website Visitor"
+msgstr "サイト訪問者"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__website_meta_description
+msgid "Website meta description"
+msgstr "サイトメタディスクリプション"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__website_meta_keywords
+msgid "Website meta keywords"
+msgstr "サイトメタキーワード"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__website_meta_title
+msgid "Website meta title"
+msgstr "サイトメタタイトル"
+
+#. module: website_appointment
+#: model:ir.model.fields,field_description:website_appointment.field_appointment_type__website_meta_og_img
+msgid "Website opengraph image"
+msgstr "サイトopengraph画像"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/xml/appointment_no_slot.xml:0
+msgid "contact us"
+msgstr "お問合せ"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/xml/website_appointment_templates.xml:0
+msgid "e.g. \"Technical Demo\""
+msgstr "例: 「技術デモ」"
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/plugins/appointments_option.xml:0
+msgid "e.g. Dental Care, ..."
+msgstr "例: 歯科治療、 ..."
+
+#. module: website_appointment
+#. odoo-javascript
+#: code:addons/website_appointment/static/src/xml/appointment_no_slot.xml:0
+msgid "or"
+msgstr "又は"
+
+#~ msgid "<i class=\"fa fa-ban me-2\"/>Unpublished"
+#~ msgstr "<i class=\"fa fa-ban me-2\"/>未公開"
+
+#~ msgid "<i class=\"fa fa-globe me-2\" title=\"Website URL\"/>"
+#~ msgstr "<i class=\"fa fa-globe me-2\" title=\"サイトURL\"/>"
+
+#~ msgid ""
+#~ "<span class=\"navbar-brand h4 my-0 me-auto my-auto\">Choose Your "
+#~ "Appointment</span>"
+#~ msgstr ""
+#~ "<span class=\"navbar-brand h4 my-0 me-auto my-auto\">予約を選択</span>"
+
+#~ msgid ""
+#~ "<span> See all availabilities <i class=\"fa fa-long-arrow-right\"/></span>"
+#~ msgstr ""
+#~ "<span> すべての空き状況を確認 <i class=\"fa fa-long-arrow-right\"/></span>"
+
+#~ msgid "All Appointments"
+#~ msgstr "すべての予約"
+
+#~ msgid "Booked<span class=\"chevron position-absolute d-block\"/>"
+#~ msgstr "予約済<span class=\"chevron position-absolute d-block\"/>"
+
+#~ msgid "Choose"
+#~ msgstr "選択"
+
+#~ msgid "Cover Properties"
+#~ msgstr "表紙のプロパティ"
+
+#~ msgid "Details<span class=\"chevron position-absolute d-block\"/>"
+#~ msgstr "詳細<span class=\"chevron position-absolute d-block\"/>"
+
+#~ msgid "No appointment found."
+#~ msgstr "予約は見つかりませんででした。"
+
+#~ msgid "Online"
+#~ msgstr "オンライン"
+
+#~ msgid "Online Appointments"
+#~ msgstr "オンライン予約"
+
+#~ msgid "Publish"
+#~ msgstr "公開"
+
+#~ msgid "Schedule"
+#~ msgstr "スケジュール"
+
+#~ msgid "Schedule Another Appointment"
+#~ msgstr "他の予約をする"
+
+#~ msgid "Schedule an Appointment"
+#~ msgstr "予約をする"
+
+#~ msgid "Search an appointment..."
+#~ msgstr "予約を検索"
+
+#~ msgid "The full URL to access the document through the website."
+#~ msgstr "サイト経由して、文書にアクセスする完全なURL。"
+
+#~ msgid "Time<span class=\"chevron position-absolute d-block\"/>"
+#~ msgstr "時間<span class=\"chevron position-absolute d-block\"/>"
+
+#~ msgid "Unpublish"
+#~ msgstr "非公開"

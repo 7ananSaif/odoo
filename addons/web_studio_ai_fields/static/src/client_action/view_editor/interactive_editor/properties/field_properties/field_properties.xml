@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-inherit="web_studio.ViewEditor.InteractiveEditorProperties.Field" t-inherit-mode="extension">
+        <xpath expr="//Property[contains(@name, 'help')]" position="after">
+            <t t-if="'ai' in this.props.node.field and !['binary', 'one2many', 'related', 'properties'].includes(this.props.node.field.type)">
+                <Property
+                    isReadonly="!props.node.field.manual"
+                    name.translate="AI"
+                    type="'boolean'"
+                    onChange.bind="onChangeAi"
+                    value="isAi"
+                    >
+                    AI
+                </Property>
+                <div t-if="isAi" class="o_web_studio_property my-2 d-flex flex-column">
+                    <label for="ai_prompt">
+                        Prompt
+                    </label>
+                    <div id="ai_update_prompt" t-on-click.prevent.stop="onSystemPromptClick" class="input-group-addon">
+                        <AiPrompt
+                            prompt="props.node.field.ai"
+                            readonly="true"
+                            updatePrompt="() => {}"
+                            aiFieldPath="this.props.node.field.name"
+                        />
+                    </div>
+                </div>
+            </t>
+        </xpath>
+    </t>
+</templates>

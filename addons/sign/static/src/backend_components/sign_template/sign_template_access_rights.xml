@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="sign.SignTemplateAccessRights">
+        <Dialog size="'lg'" title.translate="Access Rights">
+            <div class="row gap-2">
+                <Record t-props="recordProps" t-slot-scope="data">
+                    <t t-set="record" t-value="data.record"/>
+                    <div class="o_sign_template_authorized_ids_and_save align-items-center d-flex flex-row gap-3">
+                        <b>Authorized Users:</b>
+                        <div class="o_field_widget o_field_many2many_tags">
+                            <Many2ManyTagsField t-props="getMany2ManyProps(record, 'authorized_ids')"/>
+                        </div>
+                    </div>
+                    <div class="o_sign_template_group_id_and_save align-items-center d-flex flex-row gap-3">
+                        <b>Authorized Groups:</b>
+                        <div class="o_field_widget o_field_many2many_tags">
+                            <Many2ManyTagsField t-props="getMany2ManyProps(record, 'group_ids')"/>
+                        </div>
+                    </div>
+            </Record>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-secondary" t-on-click="props.close">
+                    Close
+                </button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

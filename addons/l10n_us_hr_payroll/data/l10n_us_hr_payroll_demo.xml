@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Keep the main company in Ohio to avoid the _check_us_state_filling_status() constraint. -->
+    <record id="base.main_company" model="res.company">
+        <field name="state_id" ref="base.state_us_30"/>
+    </record>
+
+    <record id="l10n_us.demo_company_us" model="res.company">
+        <field name="currency_id" ref="base.USD"/>
+        <field name="street">1034 Wildwood Street</field>
+        <field name="zip">44654</field>
+        <field name="state_id" ref="base.state_us_30"/>
+        <field name="city">Millersburg</field>
+        <field name="country_id" ref="base.us"/>
+        <field name="l10n_us_ca_ett_tax" eval="True"/>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="company_ids" eval="[(4, ref('l10n_us.demo_company_us'))]"/>
+    </record>
+
+    <record id="base.user_demo" model="res.users">
+        <field name="company_ids" eval="[(4, ref('l10n_us.demo_company_us'))]"/>
+    </record>
+
+    <record id="us_hr_department_rd" model="hr.department">
+        <field name="name">R&amp;D US</field>
+        <field name="company_id" ref="l10n_us.demo_company_us"/>
+    </record>
+
+    <record id="res_partner_troy" model="res.partner">
+        <field name="name">Troy Cruz</field>
+        <field name="street">5 King Street</field>
+        <field name="city">Los Angeles</field>
+        <field name="zip">90001</field>
+        <field name="state_id" ref="base.state_us_5"/>
+        <field name="country_id" ref="base.us"/>
+        <field name="phone">999-424-4557</field>
+        <field name="company_id" ref="l10n_us.demo_company_us"/>
+        <field name="image_1920" type="base64" file="l10n_us_hr_payroll/static/img/hr_employee_troy.jpg"/>
+    </record>
+    <record id="res_partner_troy" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_us_hr_payroll.res_partner_troy')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_maggie" model="res.partner">
+        <field name="name">Maggie Davidson</field>
+        <field name="street">3869 Mayo Street</field>
+        <field name="city">Trenton</field>
+        <field name="zip">08601</field>
+        <field name="state_id" ref="base.state_us_25"/>
+        <field name="country_id" ref="base.us"/>
+        <field name="phone">999-401-1716</field>
+        <field name="company_id" ref="l10n_us.demo_company_us"/>
+    </record>
+    <record id="res_partner_maggie" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_us_hr_payroll.res_partner_maggie')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_maggie_work_address" model="res.partner">
+        <field name="name">US Offices</field>
+        <field name="street">4906 Crosswind Drive</field>
+        <field name="city">Alamo</field>
+        <field name="city_id" ref="l10n_us_hr_payroll.city_us_3008"/>
+        <field name="zip">94507</field>
+        <field name="state_id" ref="base.state_us_5"/>
+        <field name="country_id" ref="base.us"/>
+        <field name="company_id" ref="l10n_us.demo_company_us"/>
+    </record>
+
+    <record id="user_maggie" model="res.users">
+        <field name="partner_id" ref="l10n_us_hr_payroll.res_partner_maggie"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_maggie')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="'&lt;div&gt;' + obj(ref('l10n_us_hr_payroll.res_partner_maggie')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_us_hr_payroll.res_partner_maggie')).name.split(' ')[-1] + '&lt;/div&gt;'"/>
+        <field name="company_ids" eval="[(4, ref('l10n_us.demo_company_us'))]"/>
+        <field name="company_id" ref="l10n_us.demo_company_us"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="l10n_us_hr_payroll/static/img/hr_employe_maggie.jpg"/>
+    </record>
+
+    <record id="us_res_bank_chase" model="res.bank">
+        <field name="name">Chase Bank</field>
+        <field name="bic">CHASUS33XXX</field>
+        <field name="street">Chase Bank Street</field>
+        <field name="city">Los Angeles</field>
+        <field name="zip">90281</field>
+        <field name="state" ref="base.state_us_5"/>
+        <field name="country" ref="base.us"/>
+        <field name="phone">999-348-9019</field>
+    </record>
+    <record id="us_res_bank_chase" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_us_hr_payroll.us_res_bank_chase')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="us_res_bank_bofa" model="res.bank">
+        <field name="name">Bank of America</field>
+        <field name="bic">BOFAUS3NXXX</field>
+        <field name="street">Bank of America Drive</field>
+        <field name="city">Alamo</field>
+        <field name="zip">94507</field>
+        <field name="state" ref="base.state_us_5"/>
+        <field name="country" ref="base.us"/>
+        <field name="phone">999-893-9872</field>
+    </record>
+    <record id="us_res_bank_bofa" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_us_hr_payroll.us_res_bank_bofa')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_troy" model="res.partner.bank">
+        <field name="acc_number">99988877700123456789</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_us_hr_payroll.us_res_bank_chase"/>
+        <field name="partner_id" ref="l10n_us_hr_payroll.res_partner_troy"/>
+        <field name="company_id" ref="l10n_us.demo_company_us"/>
+        <field name="currency_id" ref="base.USD"/>
+    </record>
+
+    <record id="res_partner_bank_account_maggie" model="res.partner.bank">
+        <field name="acc_number">US91417574509283017021752127</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_us_hr_payroll.us_res_bank_bofa"/>
+        <field name="partner_id" ref="l10n_us_hr_payroll.res_partner_maggie"/>
+        <field name="company_id" ref="l10n_us.demo_company_us"/>
+        <field name="currency_id" ref="base.USD"/>
+    </record>
+
+    <record id="hr_employee_troy" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_troy')).name"/>
+        <field name="image_1920" type="base64" file="l10n_us_hr_payroll/static/img/hr_employee_troy.jpg"/>
+        <field name="work_phone">999-231-3324</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_troy')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="work_contact_id" ref="l10n_us_hr_payroll.res_partner_troy"/>
+        <field name="company_id" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_troy')).company_id"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">America/Los_Angeles</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_troy')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_troy')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_troy')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_troy')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_troy')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_troy')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_troy')).phone"/>
+        <field name="distance_home_work">17</field>
+        <field name="distance_home_work_unit">miles</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_troy')).country_id"/>
+        <field name="identification_id">9609130123</field>
+        <field name="ssnid">999006492</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1995, 8, 15).date()"/>
+        <field name="place_of_birth">Vallejo</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_troy')).country_id"/>
+        <field name="emergency_contact">Adrian Cruz</field>
+        <field name="emergency_phone">999-108-4372</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Computer Engineering</field>
+        <field name="study_school">New York University</field>
+        <field name="marital">single</field>
+        <field name="address_id" ref="l10n_us_hr_payroll.res_partner_troy"/>
+        <field name="l10n_us_filing_status">single</field>
+        <field name="l10n_us_state_filing_status">ca_status_1</field>
+        <field name="job_id" ref="hr.job_cto"/>
+        <field name="department_id" ref="l10n_us_hr_payroll.us_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_us_hr_payroll.structure_type_employee_us"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">8700</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('l10n_us.demo_company_us').id)], limit=1)"/>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_us_hr_payroll.res_partner_bank_account_troy'))]"/>
+    </record>
+
+    <record id="hr_employee_maggie" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_maggie')).name"/>
+        <field name="job_title">Software Developer</field>
+        <field name="image_1920" type="base64" file="l10n_us_hr_payroll/static/img/hr_employe_maggie.jpg"/>
+        <field name="work_phone">999-878-2163</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_maggie')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="parent_id" ref="l10n_us_hr_payroll.hr_employee_troy"/>
+        <field name="user_id" ref="l10n_us_hr_payroll.user_maggie"/>
+        <field name="company_id" ref="l10n_us.demo_company_us"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">America/Los_Angeles</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_maggie')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_maggie')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_maggie')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_maggie')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_maggie')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_maggie')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_maggie')).phone"/>
+        <field name="distance_home_work">25</field>
+        <field name="distance_home_work_unit">miles</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_maggie')).country_id"/>
+        <field name="identification_id">8752027365496</field>
+        <field name="ssnid">876545678</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1991, 7, 19).date()"/>
+        <field name="place_of_birth">Columbus</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_us_hr_payroll.res_partner_maggie')).country_id"/>
+        <field name="emergency_contact">Kenneth Davidson</field>
+        <field name="emergency_phone">999-883-5177</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Computer Science</field>
+        <field name="study_school">University of Chicago</field>
+        <field name="marital">single</field>
+        <field name="address_id" ref="l10n_us_hr_payroll.res_partner_maggie_work_address"/>
+        <field name="l10n_us_filing_status">single</field>
+        <field name="l10n_us_state_filing_status">ca_status_1</field>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_us_hr_payroll.us_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_us_hr_payroll.structure_type_employee_us"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">6000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-2, month=1, day=1))"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-2, month=1, day=1))"/>
+        <field name="contract_date_end" eval="(DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('l10n_us.demo_company_us').id)], limit=1)"/>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_us_hr_payroll.res_partner_bank_account_maggie'))]"/>
+    </record>
+
+    <function name="create_version" model="hr.employee">
+        <value eval="[ref('l10n_us_hr_payroll.hr_employee_maggie')]"/>
+        <value eval="{
+            'date_version': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-1),
+            'contract_date_start': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-1),
+            'contract_date_end': False,
+            'wage': 7600
+        }"/>
+    </function>
+</odoo>

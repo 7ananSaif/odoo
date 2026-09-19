@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_config_param_sign_request_send" model="ir.config_parameter">
+            <field name="key">whatsapp_sign.whatsapp_template_id</field>
+            <field name="value" eval="ref('whatsapp_sign.sign_request_whatsapp_template')"/>
+        </record>
+        <record id="ir_config_param_sign_request_completion" model="ir.config_parameter">
+            <field name="key">whatsapp_sign.whatsapp_completion_template_id</field>
+            <field name="value" eval="ref('whatsapp_sign.sign_request_completion_whatsapp_template')"/>
+        </record>
+        <record id="ir_config_param_sign_request_refusal" model="ir.config_parameter">
+            <field name="key">whatsapp_sign.whatsapp_refusal_template_id</field>
+            <field name="value" eval="ref('whatsapp_sign.sign_request_refusal_whatsapp_template')"/>
+        </record>
+    </data>
+</odoo>

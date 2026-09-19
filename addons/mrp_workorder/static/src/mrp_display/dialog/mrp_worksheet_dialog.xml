@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="mrp_workorder.MrpWorksheetDialog">
+        <div class="o_tablet_popups o_worksheet_modal">
+            <Dialog size="'fs'" title.translate="Worksheet" modalRef="modalRef" footer="false">
+                <div class="o_tablet_instruction_note" t-out="props.worksheetText"/>
+                <DocumentViewer t-if="props.worksheetData" t-props="props.worksheetData"/>
+            </Dialog>
+        </div>
+    </t>
+</templates>

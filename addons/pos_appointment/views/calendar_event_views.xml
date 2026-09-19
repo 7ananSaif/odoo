@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="calendar_event_view_form_gantt_booking" model="ir.ui.view">
+        <field name="name">calendar.event.view.form.gantt.booking</field>
+        <field name="model">calendar.event</field>
+        <field name="arch" type="xml">
+            <form string="Bookings">
+            <sheet>
+                <div class="mb-3" invisible="not id">
+                    <button name="set_attended" type="object" string="Check In" class="btn-secondary mx-1"/>
+                    <button name="set_cancelled" type="object" string="Cancel" class="btn-secondary"/>
+                    <field name="appointment_status" widget="statusbar" invisible="not appointment_type_id" required="appointment_type_id" style="float:right;"/>
+                </div>
+                <div class="oe_title mb-3">
+                    <label for="name" string="Booking Name"/>
+                    <h1>
+                        <field name="name" placeholder="e.g. &quot;John Doe&quot;" required="True"/>
+                    </h1>
+                </div>
+                <group>
+                    <group>
+                        <label for="start" string="Date"/>
+                        <div class="o_row">
+                            <field name="start"/>
+                            <field name="stop" invisible="1"/><!--required for various things in custom js views and widgets-->
+                        </div>
+                        <div colspan="2">
+                            <label for="total_capacity_reserved" class="me-2" invisible="appointment_type_schedule_based_on != 'resources' or not appointment_type_manage_capacity"/>
+                            <field name="total_capacity_reserved" string="Reservation for" class="oe_inline ms-1" invisible="appointment_type_schedule_based_on != 'resources' or not appointment_type_manage_capacity"/>
+                            <label for="waiting_list_capacity" class="me-2" invisible="appointment_type_schedule_based_on == 'resources' and appointment_type_manage_capacity"/>
+                            <field name="waiting_list_capacity" string="Reservation for" class="oe_inline ms-1" invisible="appointment_type_schedule_based_on == 'resources' and appointment_type_manage_capacity"/>
+                            <span>people</span>
+                        </div>
+                        <field name="phone_number" widget="phone"/>
+                    </group>
+                    <group>
+                        <label for="duration"/>
+                        <div>
+                            <field name="duration" widget="float_time" string="Duration" class="oe_inline"/>
+                            <span> hours</span>
+                        </div>
+                        <field
+                            name="resource_ids" string="Resources" placeholder="Select Resources" options="{'no_create': True}"
+                            invisible="not id and context.get('default_resource_ids')" widget="many2many_tags"
+                            domain="[('appointment_type_ids', 'in', appointment_type_id)]"/>
+                    </group>
+                    <field name="answers"/>
+                    <field name="description"
+                    type="html" 
+                    placeholder="Extra Comments..."/>
+                </group>
+            </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="calendar_event_view_gantt_booking_resource" model="ir.ui.view">
+        <field name="name">calendar.event.view.gantt.booking.resource.pos.appointment</field>
+        <field name="model">calendar.event</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="appointment.calendar_event_view_gantt_booking_resource"/>
+        <field name="arch" type="xml">
+            <xpath expr="//gantt" position="attributes">
+                <attribute name="form_view_id">%(pos_appointment.calendar_event_view_form_gantt_booking)d</attribute>
+                <attribute name="js_class">pos_appointment_booking_gantt</attribute>
+                <attribute name="kanban_view_id"/>
+            </xpath>
+            <xpath expr="//gantt" position="inside">
+                <field name="description"/>
+                <field name="duration"/>
+                <field name="waiting_list_capacity"/>
+                <field name="resource_ids"/>
+                <field name="phone_number"/>
+
+                <templates>
+                    <div t-name="gantt-popover">
+                        <ul class="ps-1 mb-0 list-unstyled">
+                            <strong t-if="appointment_type_id">Booking Details</strong>
+                            <strong t-else="">Event Details</strong>
+                            <li t-if="phone_number">
+                                <strong>Phone: </strong> <t t-out="phone_number"/>
+                            </li>
+                            <li t-if="appointment_type_manage_capacity"><strong><t t-out="appointment_type_id.display_name"/></strong> for: <t t-out="waiting_list_capacity"/></li>
+                            <li><strong>Start Date: </strong> <t t-out="start.toFormat('f')"/></li>
+                            <t t-set="hours" t-value="Math.floor(duration)"/>
+                            <t t-set="minutes" t-value="Math.floor((duration - hours) * 60)"/>
+                            <li><strong>Duration: </strong> <t t-out="hours"/>:<t t-out='(minutes+"").padStart(2, "0")'/> hours </li>
+                            <li t-if="!isHtmlEmpty(description)">
+                                <br/>
+                                <t t-out="description"/>
+                            </li>
+                        </ul>
+                    </div>
+                </templates>
+            </xpath>
+        </field>
+    </record>
+    <record id="calendar_event_view_calendar" model="ir.ui.view">
+        <field name="name">calendar.event.view.calendar.pos.appointment</field>
+        <field name="model">calendar.event</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="appointment.calendar_event_view_calendar"/>
+        <field name="arch" type="xml">
+            <xpath expr="/calendar" position="attributes">
+                <attribute name="quick_create_view_id">%(pos_appointment.calendar_event_view_form_gantt_booking)d</attribute>
+                <attribute name="js_class">pos_appointment_attendee_calendar</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record id="calendar_event_view_tree" model="ir.ui.view">
+        <field name="name">calendar.event.view.tree.pos.appointment</field>
+        <field name="model">calendar.event</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="calendar.view_calendar_event_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="create">0</attribute>
+            </xpath>
+        </field>
+    </record>
+    <record id="calendar_event_view_kanban" model="ir.ui.view">
+    <field name="name">calendar.event.view.kanban.pos.appointment</field>
+    <field name="model">calendar.event</field>
+    <field name="arch" type="xml">
+        <kanban default_group_by="appointment_status" js_class="pos_kanban">
+            <field name="name" />
+            <field name="description" />
+            <field name="duration" />
+            <field name="appointment_type_id" />
+            <field name="appointment_status" />
+            <field name="resource_ids" />
+            <field name="start" />
+            <field name="stop" />
+            <field name="id" />
+            <field name="phone_number" />
+            <templates>
+                <t t-name="card">
+                    <div class="row">
+                        <div class="text-truncate col-4">
+                            <div class="mb-2"><t t-out="luxon.DateTime.fromISO(record.start.raw_value).toFormat('HH:mm')"/></div>
+                            <strong>
+                                <field name="name" class="fs-3"/>
+                            </strong>
+                        </div>
+                        <div class="d-flex align-items-end flex-column col-8 text-end ps-0">
+                            <div class="mb-2 rounded bg-secondary p-1">
+                                <span>
+                                    <field name="waiting_list_capacity"/>p
+                                </span>
+                            </div>
+                            <div class="d-flex gap-1">
+                                <field name="resource_ids" widget="kanban.many2many_tags" readonly="1" class="mt-1" />
+                                <div class="px-2 py-1 rounded align-self-start text-nowrap"
+                                    t-attf-class="{{ {'booked': 'o_kanban_color_2', 'attended': 'o_kanban_color_10', 'no_show': 'o_kanban_color_1'}[record.appointment_status.raw_value] }}">
+                                    <t t-if="record.appointment_status.raw_value == 'booked'">Waiting</t>
+                                    <t t-elif="record.appointment_status.raw_value == 'attended'">Check In</t>
+                                    <t t-elif="record.appointment_status.raw_value == 'no_show'">No show</t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </templates>
+        </kanban>
+    </field>
+    </record>
+    <record id="calendar_event_view_graph_pos_appointment" model="ir.ui.view">
+        <field name="name">calendar.event.view.graph.pos.appointment</field>
+        <field name="model">calendar.event</field>
+        <field name="arch" type="xml">
+            <graph string="Bookings" sample="1">
+                <field name="start" interval="day"/>
+                <field name="appointment_status"/>
+            </graph>
+        </field>
+    </record>
+
+</odoo>

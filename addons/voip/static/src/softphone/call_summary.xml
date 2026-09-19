@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip.CallSummary">
+    <div class="o-voip-CallSummary position-relative d-flex flex-column align-items-center h-100 gap-3 p-3 overflow-auto">
+        <div class="progress position-absolute top-0 start-0 end-0 bg-transparent">
+            <div class="progress-bar w-100"/>
+        </div>
+        <div class="my-auto">
+            <ContactInfo contact="props.call?.partner_id" phoneNumber="props.call.phone_number"/>
+            <h2 t-esc="statusText" class="m-0 py-3 text-center"/>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <ActionButton
+                    name.translate="Contact"
+                    title.translate="View contact information"
+                    icon="call.partner_id ? 'oi-user' : 'oi-user-plus'"
+                    onClick.bind="onClickContact"
+                />
+                <t class="o-voip-CallSummary-xpathTarget"/>
+                <ActionButton t-if="call.partner_id"
+                    name.translate="Activity"
+                    title.translate="Schedule an activity"
+                    icon="'oi-activity-plus'"
+                    onClick.bind="onClickActivity"
+                />
+                <ActionButton
+                    name.translate="Call"
+                    icon="'fa-phone'"
+                    type="'success'"
+                    onClick.bind="onClickCall"
+                />
+            </div>
+        </div>
+    </div>
+</t>
+</templates>

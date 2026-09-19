@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.l10n_us_hr_payroll</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="45"/>
+        <field name="inherit_id" ref="hr_payroll.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='hr_payroll']" position="inside">
+                <field name="company_country_code" invisible="1"/>
+                <block title="US Localization" id="l10n_us_hr_payroll_localization" invisible="company_country_code != 'US'">
+                    <setting string="Company Information" help="Official Company Information">
+                        <div class="mt8" id="l10n_us_suta_text">
+                            <button name="action_open_suta_rule_parameters" icon="oi-arrow-right" type="object" string="Configure State Unemployment Taxes (SUI)" class="btn-link"/>
+                        </div>
+                        <div class="content-group">
+                            <div class="row">
+                                <div class="col-lg-5">
+                                    <label string="Business Structure" for="l10n_us_business_structure"/>
+                                    <div class="fa fa-question-circle" title="Select the appropriate classification of your business. These will be used in forms 940 and 941."/>
+                                </div>
+                                <field name="l10n_us_business_structure"/>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-5">
+                                    <label string="Signatory" for="l10n_us_signatory_id"/>
+                                    <div class="fa fa-question-circle" title="Signatory used in forms 940 and 941. Name, title and phone number will be shared."/>
+                                </div>
+                                <field name="l10n_us_signatory_id"/>
+                            </div>
+                        </div>
+                    </setting>
+                    <setting string="California State">
+                        <group class="mt16">
+                            <field name="l10n_us_ca_ett_tax"/>
+                        </group>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,104 @@
+<?xml version="1.0"?>
+<odoo>
+    <data noupdate="1">
+        <record id="voip_call_demo_1" model="voip.call">
+            <field name="phone_number">+353 089 011 0798</field>
+            <field name="direction">incoming</field>
+            <field name="state">terminated</field>
+            <field name="create_date" eval="(datetime.now() - timedelta(minutes=8, seconds=6)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="start_date" eval="(datetime.now() - timedelta(minutes=8)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="end_date" eval="(datetime.now() - timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="user_id" ref="base.user_admin"></field>
+            <field name="partner_id" ref="base.res_partner_3"></field>
+            <field name="transcript">Hi I heard there's a new feature for tracking commissions can you tell me how it works yes of course it calculates sales commissions automatically once invoices are paid and you can track them by salesperson or by team that's great can we set different percentages for different groups yes you can configure rules per team or even per product category excellent how do we turn it on just go into sales configuration settings and activate sales commissions after that you'll see a new reporting menu perfect thanks I'll let my team know</field>
+            <field name="transcription_status">done</field>
+            <field name="summary">Tracking commissions feature</field>
+        </record>
+
+        <record id="voip_call_demo_2" model="voip.call">
+            <field name="phone_number">+33 1 99 00 12 34</field>
+            <field name="direction">outgoing</field>
+            <field name="state">terminated</field>
+            <field name="create_date" eval="(datetime.now() - timedelta(minutes=45, seconds=14)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="start_date" eval="(datetime.now() - timedelta(minutes=45)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="end_date" eval="(datetime.now() - timedelta(minutes=10)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="user_id" ref="base.user_admin"></field>
+            <field name="partner_id" ref="base.res_partner_address_3"></field>
+            <field name="transcript">Hi following up on our previous discussion. How is my subscription order. I paid everything, but didn't get any confirmation. Hi, let me check. Ah yes. I see we didn't have your email in the database so it wasn't sent automatically, but your subscription is active. Cool, Thanks.</field>
+            <field name="transcription_status">done</field>
+            <field name="summary">Customer confirmed order, provided delivery details</field>
+        </record>
+
+        <!-- transcription_status stuck in error to showcase banner in this state -->
+        <record id="voip_call_demo_3" model="voip.call">
+            <field name="phone_number">+33 1 99 00 12 34</field>
+            <field name="direction">outgoing</field>
+            <field name="state">terminated</field>
+            <field name="create_date" eval="(datetime.now() - timedelta(minutes=20, seconds=14)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="start_date" eval="(datetime.now() - timedelta(minutes=20)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="end_date" eval="(datetime.now() - timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="user_id" ref="base.user_admin"></field>
+            <field name="partner_id" ref="base.res_partner_address_3"></field>
+            <field name="transcript"></field>
+            <field name="transcription_status">error</field>
+            <field name="summary"></field>
+        </record>
+
+        <!-- transcription_status stuck in queued to showcase banner in this state -->
+        <record id="voip_call_demo_4" model="voip.call">
+            <field name="phone_number">+33 1 99 00 12 34</field>
+            <field name="direction">outgoing</field>
+            <field name="state">terminated</field>
+            <field name="create_date" eval="(datetime.now() - timedelta(minutes=20, seconds=14)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="start_date" eval="(datetime.now() - timedelta(minutes=20)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="end_date" eval="(datetime.now() - timedelta(minutes=0)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="user_id" ref="base.user_admin"></field>
+            <field name="partner_id" ref="base.res_partner_address_3"></field>
+            <field name="transcript"></field>
+            <field name="transcription_status">queued</field>
+            <field name="summary"></field>
+        </record>
+
+        <record id="voip_call_demo_5" model="voip.call">
+            <field name="phone_number">+353 089 011 0798</field>
+            <field name="direction">incoming</field>
+            <field name="state">calling</field>
+            <field name="create_date" eval="(datetime.now() - timedelta(minutes=30, seconds=5)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="start_date" eval="(datetime.now() - timedelta(minutes=30)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="end_date" eval="(datetime.now() - timedelta(minutes=25)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="user_id" ref="base.user_admin"></field>
+            <field name="partner_id" ref="base.res_partner_3"></field>
+            <field name="transcript"></field>
+            <field name="transcription_status">pending</field>
+            <field name="summary"></field>
+        </record>
+
+        <record id="voip_call_demo_6" model="voip.call">
+            <field name="phone_number">+33 1 99 00 12 34</field>
+            <field name="direction">outgoing</field>
+            <field name="state">terminated</field>
+            <field name="create_date" eval="(datetime.now() - timedelta(days=1, minutes=35, seconds=12)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="start_date" eval="(datetime.now() - timedelta(days=1, minutes=35)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="end_date" eval="(datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="user_id" ref="base.user_admin"></field>
+            <field name="partner_id" ref="base.res_partner_address_3"></field>
+            <field name="transcript"></field>
+            <field name="transcription_status">too_big_to_process</field>
+            <field name="summary"></field>
+        </record>
+
+        <record id="voip_call_demo_7" model="voip.call">
+            <field name="phone_number">+353 089 011 0798</field>
+            <field name="direction">incoming</field>
+            <field name="state">terminated</field>
+            <field name="create_date" eval="datetime(1999, 1, 29, 12, 0, 0).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="start_date" eval="datetime(1999, 1, 29, 12, 0, 5).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="end_date" eval="datetime(1999, 1, 29, 12, 10, 23).strftime('%Y-%m-%d %H:%M:%S')"></field>
+            <field name="user_id" ref="base.user_admin"></field>
+            <field name="partner_id" ref="base.res_partner_3"></field>
+            <field name="transcript"></field>
+            <field name="transcription_status">no_audio</field>
+            <field name="summary"></field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="menu_project_timesheet_forecast_report_analysis"
+        name="Planning / Timesheets Analysis"
+        sequence="15"
+        parent="planning.planning_menu_reporting"
+        action="project_timesheet_forecast_report_action"
+    />
+    <menuitem
+        id="planning.planning_menu_schedule_by_role"
+        name="By Role"
+        sequence="20"
+        parent="planning.planning_menu_schedule"
+        action="project_timesheet_action_schedule_by_role"
+    />
+</odoo>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.wise</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <setting id="sepa_payments" position="after">
+                <setting id="wise_payment_settings" string="U.S. Direct Deposit (via Wise)" company_dependent="1" help=""
+                    documentation="/applications/finance/accounting/payables/pay/sepa.html">
+                    <div class="content-group">
+                        <div class="row">
+                            <label for="wise_environment" string="Environment" class="col-lg-3 o_light_label"/>
+                            <field name="wise_environment"/>
+                        </div>
+                        <div class="row">
+                            <label for="wise_api_key" class="col-3 o_light_label"/>
+                            <field name="wise_api_key" password="True" placeholder="Your Wise API Key"/>
+                            <div class="mt16">
+                                <button name="action_connect_wise" type="object" class="btn-link" noSaveDialog="1"
+                                    invisible="wise_profile_identifier and wise_api_key">
+                                    <i title="Connect to Wise" role="img" aria-label="Connect to Wise"
+                                        class="fa fa-plug fa-fw"/>
+                                    Connect to Wise
+                                </button>
+                            </div>
+                            <div class="mt8">
+                                <button name="button_wise_enable_logging" type="object" class="btn-link">
+                                    <i title="Start logging for 30 minutes" role="img"
+                                        aria-label="Start logging for 30 minutes" class="fa fa-file-text-o"/>
+                                    Start logging for 30 minutes
+                                </button>
+                                <button name="button_wise_open_logs" type="object" class="btn-link">
+                                    <i title="Show logs" role="img" aria-label="Show logs" class="fa fa-file-text-o"/>
+                                    Show logs
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </setting>
+            </setting>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_pos_urban_piper_enhancements" inherit_id="account.report_invoice_document">
+        <xpath expr="//div[@name='reference']" position="after">
+            <t t-foreach="o.sudo().pos_order_ids" t-as="order">
+                <t t-if="order.delivery_identifier">
+                    <div class="col" name="delivery_reference">
+                        <strong><t t-esc="order.delivery_provider_id.name"/> Reference</strong>
+                        <div t-esc="order and json.loads(order.delivery_json).get('order', {}).get('details', {}).get('ext_platforms', [{}])[0].get('id')"/>
+                    </div>
+                </t>
+            </t>
+        </xpath>
+    </template>
+</odoo>

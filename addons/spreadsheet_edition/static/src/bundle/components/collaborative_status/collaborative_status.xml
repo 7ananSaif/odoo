@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <div t-name="spreadsheet_edition.CollaborativeStatus" class="user-select-none d-flex align-items-center h-100">
+        <div class="o_spreadsheet_users list-group list-group-horizontal">
+            <div t-foreach="this.usersThumbnail" t-as="user" t-key="user_index" class="o_spreadsheet_user ms-1">
+                <img t-att-src="user.avatar" class="rounded justify-content-between"
+                    t-att-style="'border-color: ' + user.color"
+                    t-att-data-tooltip="getDataTooltip(user.name)"
+                    t-on-click="() => this.jumpToUser(user)"
+                    t-on-mouseenter="() => this.showUser(user)"
+                    t-on-mouseleave="() => this.hideUser(user)"/>
+            </div>
+        </div>
+        <div t-if="this.tooltipInfo.length"
+            class="o_spreadsheet_more_users ms-1"
+            t-on-mouseenter="openPopover"
+            t-on-mouseleave="closePopover"
+        >
+            <div style="padding-top: 0.2rem;">
+                +<t t-esc="this.tooltipInfo.length"/>
+            </div>
+        </div>
+    </div>
+    <t t-name="spreadsheet_edition.SpreadsheetUsersTooltip">
+        <div class="d-print-none text-start"
+            t-on-mouseenter="this.props.onMouseEnter"
+            t-on-mouseleave="this.props.onMouseLeave"
+            >
+            <div t-foreach="this.props.users" t-as="user" t-key="user_index" class="pb-1">
+                <div class="o_spreadsheet_user d-flex justify-content-between align-items-center px-1 pt-1" style="cursor:pointer;"
+                    t-on-click="() => this.props.onClick(user)"
+                    t-att-data-tooltip="getDataTooltip(user.name)" data-tooltip-position="right"
+                >
+                    <img t-att-src="user.avatar" class="rounded justify-content-between"
+                    t-att-style="'padding: 0.15rem;background-color: ' + user.color"/>
+                    <span class="flex-grow-1 ps-1">
+                        <t t-esc="user.name"/>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

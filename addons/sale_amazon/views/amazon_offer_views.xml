@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="amazon_offer_view_tree" model="ir.ui.view">
+        <field name="name">amazon.offer.list</field>
+        <field name="model">amazon.offer</field>
+        <field name="arch" type="xml">
+            <list string="Amazon Offers" editable="top">
+                <field
+                    name="account_id"
+                    optional="show"
+                    options="{'no_create': True, 'no_open': True}"
+                    column_invisible="context.get('default_account_id', False)"
+                />
+                <field
+                    name="account_id"
+                    optional="hide"
+                    options="{'no_create': True, 'no_open': True}"
+                    column_invisible="not context.get('default_account_id', False)"
+                />
+                <field name="active_marketplace_ids" column_invisible="True"/>
+                <field name="marketplace_id" options="{'no_create_edit': True, 'no_open': True}"/>
+                <field name="product_id"/>
+                <field name="sku"/>
+                <field name="amazon_channel"
+                       widget="badge"
+                       decoration-info="amazon_channel == 'fbm'"
+                />
+                <field name="sync_stock" readonly="amazon_channel == 'fba'"/>
+                <field name="amazon_sync_status"
+                       widget="badge"
+                       decoration-warning="amazon_sync_status == 'processing'"
+                       decoration-success="amazon_sync_status == 'done'"
+                       decoration-danger="amazon_sync_status == 'error'"
+                       optional="hide"
+                       groups="base.group_no_one"
+                />
+                <field name="amazon_feed_ref" optional="hide" groups="base.group_no_one"/>
+                <button
+                    string="View on Seller Central"
+                    type="object"
+                    name="action_view_online"
+                    icon="fa-external-link"
+                />
+            </list>
+        </field>
+    </record>
+
+    <record id="amazon_offer_view_search" model="ir.ui.view">
+        <field name="name">amazon.offer.search</field>
+        <field name="model">amazon.offer</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="marketplace_id"
+                       filter_domain="[('marketplace_id.name', 'ilike', self)]"/>
+                <field name="product_id"/>
+                <filter
+                    string="Amazon Account"
+                    name="group_by_account"
+                    domain="[]"
+                    context="{'group_by': 'account_id'}"
+                />
+                <filter
+                    string="MarketPlace"
+                    name="group_by_marketplace"
+                    domain="[]"
+                    context="{'group_by': 'marketplace_id'}"
+                />
+                <filter
+                    string="Product"
+                    name="group_by_product"
+                    domain="[]"
+                    context="{'group_by': 'product_id'}"
+                />
+            </search>
+        </field>
+    </record>
+
+    <!-- ACTIONS -->
+
+    <record id="amazon_offer_action" model="ir.actions.act_window">
+        <field name="name">Offers</field>
+        <field name="res_model">amazon.offer</field>
+        <field name="view_mode">list</field>
+    </record>
+
+</odoo>

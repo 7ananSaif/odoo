@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="point_of_sale.Navbar" t-inherit="point_of_sale.Navbar" t-inherit-mode="extension">
+        <xpath expr="//ProxyStatus" position="replace">
+            <div class="d-flex flex-column align-items-center justify-content-center text-center w-100 gap-1 p-1 lh-sm">
+                <i t-att-class="'fa fa-fw fa-' + (pos.iotHttp.status === 'websocket' ? 'globe' : pos.iotHttp.status === 'offline' ? 'times' : 'sitemap') + (pos.iotHttp.status === 'offline' ? ' text-danger' : ' text-success')"
+                   role="img"
+                   title="IoT Box Connected">
+                </i>
+                <t t-esc="state.iotStatus" t-if="connectionStatus() and state.iotStatus" />
+            </div>
+        </xpath>
+    </t>
+</templates>

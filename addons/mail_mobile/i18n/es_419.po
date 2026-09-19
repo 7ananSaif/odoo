@@ -1,0 +1,124 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * mail_mobile
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Fernanda Alvarez (mfar)" <mfar@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:45+0000\n"
+"PO-Revision-Date: 2025-10-08 02:41+0000\n"
+"Last-Translator: \"Fernanda Alvarez (mfar)\" <mfar@odoo.com>\n"
+"Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
+"odoo-19/mail_mobile/es_419/>\n"
+"Language: es_419\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: mail_mobile
+#: model:ir.model.fields,help:mail_mobile.field_res_config_settings__disable_redirect_firebase_dynamic_link
+msgid ""
+"Check this if dynamic mobile-app detection links cause problems for your "
+"installation. This will stop the automatic wrapping of links inside outbound "
+"emails. The links will always open in a normal browser, even for users who "
+"have the Android/iOS app installed."
+msgstr ""
+"Selecciona esta opción si los enlaces de detección de aplicaciones móviles "
+"dinámicas ocasionan problemas con la instalación. Esta acción detendrá la "
+"encapsulación automática de los enlaces en los correos salientes. Los "
+"enlaces siempre se abrirán en un navegador normal, incluso si los usuarios "
+"tienen instalada la aplicación para Android o iOS."
+
+#. module: mail_mobile
+#: model:ir.model,name:mail_mobile.model_res_config_settings
+msgid "Config Settings"
+msgstr "Ajustes de configuración"
+
+#. module: mail_mobile
+#: model:ir.model,name:mail_mobile.model_res_partner
+msgid "Contact"
+msgstr "Contacto"
+
+#. module: mail_mobile
+#: model:ir.model,website_form_label:mail_mobile.model_res_partner
+msgid "Create a Customer"
+msgstr "Crear un cliente"
+
+#. module: mail_mobile
+#: model:ir.model.fields,field_description:mail_mobile.field_res_config_settings__disable_redirect_firebase_dynamic_link
+msgid "Disable link redirection to mobile app"
+msgstr "Deshabilitar la redirección de enlaces a la aplicación móvil"
+
+#. module: mail_mobile
+#: model:ir.model,name:mail_mobile.model_discuss_channel
+msgid "Discussion Channel"
+msgstr "Canal de conversaciones"
+
+#. module: mail_mobile
+#: model:ir.model.fields,field_description:mail_mobile.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:mail_mobile.field_ir_http__display_name
+#: model:ir.model.fields,field_description:mail_mobile.field_mail_thread__display_name
+#: model:ir.model.fields,field_description:mail_mobile.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:mail_mobile.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Nombre en pantalla"
+
+#. module: mail_mobile
+#: model:ir.model,name:mail_mobile.model_mail_thread
+msgid "Email Thread"
+msgstr "Hilo de correos"
+
+#. module: mail_mobile
+#: model:ir.model,name:mail_mobile.model_ir_http
+msgid "HTTP Routing"
+msgstr "Enrutamiento HTTP"
+
+#. module: mail_mobile
+#: model:ir.model.fields,field_description:mail_mobile.field_discuss_channel__id
+#: model:ir.model.fields,field_description:mail_mobile.field_ir_http__id
+#: model:ir.model.fields,field_description:mail_mobile.field_mail_thread__id
+#: model:ir.model.fields,field_description:mail_mobile.field_res_config_settings__id
+#: model:ir.model.fields,field_description:mail_mobile.field_res_partner__id
+msgid "ID"
+msgstr "ID"
+
+#. module: mail_mobile
+#: model_terms:ir.ui.view,arch_db:mail_mobile.res_config_settings_view_form
+msgid ""
+"If disabled, you won't be able to open external URL's in the Android/iOS "
+"mobile app (e.g. \"View Task\" button in email)."
+msgstr ""
+"No podrás abrir URL externas en la aplicación para Android o iOS (por "
+"ejemplo, el botón \"Ver tarea\" del correo) si está deshabilitada."
+
+#. module: mail_mobile
+#: model_terms:ir.ui.view,arch_db:mail_mobile.res_config_settings_view_form
+msgid "Mobile"
+msgstr "Celular"
+
+#. module: mail_mobile
+#: model:ir.model.fields,field_description:mail_mobile.field_res_partner__ocn_token
+#: model:ir.model.fields,field_description:mail_mobile.field_res_users__ocn_token
+msgid "OCN Token"
+msgstr "Token OCN"
+
+#. module: mail_mobile
+#: model:ir.model.fields,field_description:mail_mobile.field_res_config_settings__enable_ocn
+msgid "Push Notifications"
+msgstr "Notificaciones push"
+
+#. module: mail_mobile
+#: model_terms:ir.ui.view,arch_db:mail_mobile.res_config_settings_view_form
+msgid "Receive notifications on Android and iOS application"
+msgstr "Recibe notificaciones en la aplicación para Android y iOS"
+
+#. module: mail_mobile
+#: model:ir.model.fields,help:mail_mobile.field_res_partner__ocn_token
+#: model:ir.model.fields,help:mail_mobile.field_res_users__ocn_token
+msgid "Used for sending notification to registered devices"
+msgstr "Se utiliza para enviar la notificación a los dispositivos registrados"

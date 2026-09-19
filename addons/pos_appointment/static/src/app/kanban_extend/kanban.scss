@@ -1,0 +1,9 @@
+.appointment-card, .o_kanban_record {
+
+    @for $index from 1 through length($o-colors-complete) {
+		.o_kanban_color_#{$index - 1} {
+			$gantt-color: nth($o-colors-complete, $index);
+			@include o-gantt-colors($gantt-color);
+		}
+	}
+}

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="webhook_automation_act" model="ir.actions.act_window">
+            <field name="name">Webhook Automations</field>
+            <field name="res_model">base.automation</field>
+            <field name="path">automation_webhooks</field>
+            <field name="view_mode">kanban,list,form</field>
+            <field name="view_id" ref="base_automation.view_base_automation_kanban"/>
+            <field name="domain">[('trigger', '=', 'on_webhook')]</field>
+            <field name="help" type="html">
+                <img class="w-100 w-md-75"
+                src="/base_automation/static/img/automation.svg" />
+              <p>
+                Automate <em>everything</em> with Automation Rules
+              </p><p>
+                Send an email when an object changes state, archive records
+                after a month of inactivity or remind yourself to follow-up on
+                tasks when a specific tag is added.
+              </p><p>With Automation Rules, you can automate
+                <em>any</em> workflow.
+              </p>
+            </field>
+        </record>
+</odoo>

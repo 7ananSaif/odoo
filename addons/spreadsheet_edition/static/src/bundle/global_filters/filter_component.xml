@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+
+    <t t-name="spreadsheet_edition.FilterComponent">
+        <div class="btn o_topbar_filter_icon d-flex align-items-center p-0"
+            t-on-click="onClickButton"
+            t-on-mouseenter="openPopover"
+            t-on-mouseleave="closePopover"
+        >
+            <t t-call="o-spreadsheet-Icon.GLOBAL_FILTERS"/>
+            <span class="px-1">Filters</span>
+            <span t-if="activeFilter" t-esc="activeFilter" class="badge rounded-pill text-white bg-primary ms-1"/>
+        </div>
+    </t>
+
+    <t t-name="spreadsheet_edition.FiltersTooltip">
+        <div class="o-filter-tooltip d-grid p-2 cursor-pointer" style="grid-template-columns: auto min-content; row-gap:6px"
+            t-on-mouseenter="props.onMouseEnter"
+            t-on-mouseleave="props.onMouseLeave"
+            t-on-click="props.onClick"
+            >
+            <t t-foreach="facets" t-as="facet" t-key="facet.id">
+                <div class="position-relative rounded-start-2 px-1 rounded-end-0 p-0 badge bg-primary text-white align-content-around overflow-hidden">
+                    <small class="px-1" t-esc="facet.title"/>
+                </div>
+                <div class="position-relative d-flex flex-wrap align-items-center px-2 bg-200 rounded-end-2 text-wrap overflow-hidden">
+                    <span t-foreach="facet.values" t-as="value" t-key="value_index">
+                        <em t-if="!value_first" class="small fw-bold mx-1 opacity-50" t-esc="facet.separator"/>
+                        <small t-elif="facet.operator" class="small me-1 opacity-50 text-nowrap" t-esc="facet.operator"/>
+                        <small class="text-truncate" t-esc="value" t-att-title="value"/>
+                    </span>
+                </div>
+            </t>
+        </div>
+    </t>
+
+    <t t-name="spreadsheet_edition.FilterValuesDialog">
+        <Dialog title.translate="Global Filters" size="md" footer="false">
+            <FilterValuesList model="props.model" openFiltersEditor="props.openFiltersEditor" close="props.close"/>
+        </Dialog>
+    </t>
+
+</templates>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="uk_tax_return_type" model="account.return.type">
+            <field name="name">Tax</field>
+            <field name="report_id" ref="l10n_uk.tax_report"/>
+            <field name="country_id" ref="base.uk" />
+        </record>
+
+        <!-- EC sales list -->
+        <record id="uk_ec_sales_list_return_type" model="account.return.type">
+            <field name="name">EC Sales List</field>
+            <field name="report_id" ref="account_reports.generic_ec_sales_report"/>
+            <field name="default_deadline_periodicity">monthly</field>
+            <field name="auto_generate" eval="False"/>
+            <field name="country_id" ref="base.uk"/>
+            <field name="default_deadline_days_delay">21</field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="planning_role_view_form_inherit_sale_renting_planning" model="ir.ui.view">
+        <field name="name">planning.role.form.inherit.sale.renting.planning</field>
+        <field name="model">planning.role</field>
+        <field name="inherit_id" ref="sale_planning.sale_planning_role_view_form_inherit_sale_planning"/>
+        <field name="arch" type="xml">
+            <field name="product_ids" position="after">
+                <field name="sync_shift_rental" invisible="not rental_product_count"/>
+            </field>
+        </field>
+    </record>
+</odoo>

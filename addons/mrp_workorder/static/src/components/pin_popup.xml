@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="mrp_workorder.PinPopup">
+        <Dialog size="'md'" header="false" modalRef="modalRef" withBodyPadding="false">
+            <div class="popup d-flex flex-column align-items-center justify-content-center my-3 gap-3">
+                <div class="popup-input d-flex align-items-center justify-content-center">
+                    <span class="highlight">
+                        <span t-if="!inputBuffer" class="text-muted">Enter your pin</span>
+                        <span class="popup-input-text lh-1" t-else="" t-out="inputBuffer"/>
+                    </span>
+                </div>
+                <div class="popup-numpad text-center d-grid gap-1">
+                    <button class="numpad-button btn btn-secondary btn-lg fs-1" t-on-mousedown.prevent="() => this.sendInput('1')">1</button>
+                    <button class="numpad-button btn btn-secondary btn-lg fs-1" t-on-mousedown.prevent="() => this.sendInput('2')">2</button>
+                    <button class="numpad-button btn btn-secondary btn-lg fs-1" t-on-mousedown.prevent="() => this.sendInput('3')">3</button>
+                    <button class="numpad-button btn btn-secondary btn-lg fs-1" t-on-mousedown.prevent="() => this.sendInput('4')">4</button>
+                    <button class="numpad-button btn btn-secondary btn-lg fs-1" t-on-mousedown.prevent="() => this.sendInput('5')">5</button>
+                    <button class="numpad-button btn btn-secondary btn-lg fs-1" t-on-mousedown.prevent="() => this.sendInput('6')">6</button>
+                    <button class="numpad-button btn btn-secondary btn-lg fs-1" t-on-mousedown.prevent="() => this.sendInput('7')">7</button>
+                    <button class="numpad-button btn btn-secondary btn-lg fs-1" t-on-mousedown.prevent="() => this.sendInput('8')">8</button>
+                    <button class="numpad-button btn btn-secondary btn-lg fs-1" t-on-mousedown.prevent="() => this.sendInput('9')">9</button>
+                    <button class="numpad-button btn btn-warning btn-lg fs-1" t-on-mousedown.prevent="() => this.sendInput('Delete')">C</button>
+                    <button class="numpad-button btn btn-secondary btn-lg fs-1" t-on-mousedown.prevent="() => this.sendInput('0')">0</button>
+                    <button class="numpad-button btn btn-secondary btn-lg fs-1" t-on-mousedown.prevent="() => this.sendInput('Backspace')"><span class="fa fa-long-arrow-left"/></button>
+                </div>
+                <t t-set-slot="footer">
+                    <div class="btn btn-primary" t-on-click="confirm">Confirm</div>
+                    <div class="btn btn-secondary" t-on-click="cancel">Cancel</div>
+                </t>
+            </div>
+        </Dialog>
+    </t>
+</templates>

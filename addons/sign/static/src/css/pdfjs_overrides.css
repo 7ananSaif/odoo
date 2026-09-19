@@ -1,0 +1,105 @@
+/*
+Purpose
+========
+This file overrides the default PDF.js viewer styling to enhance the user 
+experience while signing documents. Specifically, Moves the side panel to 
+the right side of the viewer for improved accessibility. The customizations 
+aim to deliver a cleaner and more intuitive user interface.
+*/
+
+:root {
+    --sidebar-width: 200px;
+}
+
+#sidebarContainer {
+    inset-inline-end: calc(-1 * var(--sidebar-width));
+    inset-inline-start: unset !important;
+    transition-property: inset-inline-end !important;
+}
+
+#outerContainer {
+    overflow-x: hidden;
+}
+
+#viewerContainer {
+    inset-inline-start: 0 !important;
+}
+
+#outerContainer.sidebarOpen #sidebarContainer {
+    inset-inline-end: 0;
+}
+
+#outerContainer.sidebarOpen #loadingBar {
+    inset-inline-end: var(--sidebar-width);
+    inset-inline-start: unset !important;
+}
+
+#outerContainer.sidebarOpen #viewerContainer:not(.pdfPresentationMode) {
+    inset-inline-end: var(--sidebar-width);
+    transition-property: inset-inline-end;
+}
+
+#sidebarResizer {
+    inset-inline-end: unset !important;
+    position: absolute;
+    inset-block: unset;
+}
+
+#toolbarContainer #toolbarViewer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    justify-content: center !important;
+}
+
+#toolbarViewerLeft {
+    position: absolute;
+    right: 0;
+    display: flex;
+}
+
+#sidebarToggleButton {
+    order: 6;
+}
+
+#toolbarViewerRight {
+    display: none !important;
+}
+
+#secondaryToolbarToggleButton::before {
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+    transform: none !important;
+    content: "\2807";
+    font-size: 20px;
+    display: inline-block;
+    color: black;
+}
+
+#secondaryToolbarToggleButton.toolbarButton::before {
+    background-color: transparent !important;
+}
+
+#secondaryToolbar {
+    inset-inline-start: 4px;
+    inset-inline-end: unset !important;
+}
+
+#secondaryToolbar::before,
+#secondaryToolbar::after {
+    inset-inline-start: 10px;
+    margin-inline-start: -9px;
+}
+
+#findbar {
+    inset-inline-end: 7px;
+    inset-inline-start: unset !important;
+}
+
+.doorHanger::before,
+.doorHanger::after {
+    inset-inline-end: 10px;
+    margin-inline-end: -9px;
+    inset-inline-start: unset !important;
+    margin-inline-start: 0;
+}

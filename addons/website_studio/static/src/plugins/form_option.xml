@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-inherit="website.s_website_form_form_option" t-inherit-mode="extension">
+    <xpath expr="//t[@t-foreach='this.state.models']" position="after">
+        <BuilderSelectItem action="'studioMoreModels'">More models</BuilderSelectItem>
+    </xpath>
+    <xpath expr="//FormActionFieldsOption" position="after">
+        <BuilderRow label.translate="Form Access" t-if="state.activeForm.isFormAccessEditable"
+            tooltip.translate="Will be activated on save. Deactivate this if you do not want forms about this model."
+        >
+            <BuilderCheckbox id="'enable_website_form_access'"
+                action="'studioToggleFormAccess'"
+            />
+        </BuilderRow>
+    </xpath>
+</t>
+
+</templates>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_urban_piper.ProductInfoPopup" t-inherit="point_of_sale.ProductInfoPopup" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('section-inventory')]" position="before">
+            <div t-if="this.showFoodDeliveryAvailability" class="section-food-delivery-availability mt-3 mb-4 pb-4 border-bottom text-start d-flex align-items-center">
+                <h3 class="section-title">Online Food Delivery:</h3>
+                <div class="section-foog-delivery-availability-body d-flex ms-auto">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" t-att-checked="this.availableForFoodDelivery"
+                            t-on-click="() => this.switchFoodDeliveryAvailability()"/>
+                    </div>
+                    <span>
+                        <t t-if="this.availableForFoodDelivery">Available</t>
+                        <t t-else="">Not Available</t>
+                    </span>
+                </div>
+            </div>
+        </xpath>
+    </t>
+</templates>

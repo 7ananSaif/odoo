@@ -1,0 +1,48 @@
+<odoo>
+    <!-- PoS that has devices owned by IoT Box  -->
+    <record id="pos_iot_inherit_iot_box_view_kanban" model="ir.ui.view">
+        <field name="name">pos.iot.inherit.iot.box.view.kanban</field>
+        <field name="model">iot.box</field>
+        <field name="inherit_id" ref="iot.iot_box_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='card']" position="inside">
+                <field name="associated_pos_config_ids" groups="point_of_sale.group_pos_user" widget="many2many_tags"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="pos_iot_inherit_iot_box_view_form" model="ir.ui.view">
+        <field name="name">pos.iot.inherit.iot.box.view.form</field>
+        <field name="model">iot.box</field>
+        <field name="inherit_id" ref="iot.iot_box_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group/group/field[@name='company_id']" position="before">
+                <field name="associated_pos_config_ids" groups="point_of_sale.group_pos_user" widget="many2many_tags" invisible="not associated_pos_config_ids"/>
+            </xpath>
+            <xpath expr="//notebook/page[1]/field[1]/list" position="inside">
+                <field name="associated_pos_config_ids" groups="point_of_sale.group_pos_user" widget="many2many_tags"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- PoS that has this device configured for the specific device type -->
+    <record id="pos_iot_inherit_device_view_kanban" model="ir.ui.view">
+        <field name="name">pos.iot.inherit.iot.device.view.kanban</field>
+        <field name="model">iot.device</field>
+        <field name="inherit_id" ref="iot.iot_device_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//main" position="inside">
+                <field name="associated_pos_config_ids" groups="point_of_sale.group_pos_user" widget="many2many_tags"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="pos_iot_inherit_device_view_form" model="ir.ui.view">
+        <field name="name">pos.iot.inherit.iot.device.view.form</field>
+        <field name="model">iot.device</field>
+        <field name="inherit_id" ref="iot.iot_device_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group/group[1]/field[@name='iot_id']" position="before">
+                <field name="associated_pos_config_ids" groups="point_of_sale.group_pos_user" widget="many2many_tags" invisible="not associated_pos_config_ids"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

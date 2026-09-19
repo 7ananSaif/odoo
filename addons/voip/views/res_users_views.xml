@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="res_user_form" model="ir.ui.view">
+        <field name="name">VoIP Config in User Form</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='calendar']" position="after">
+                <!-- This page is not displayed in the forms of portal users (share = True) in order to avoid confusing administrators with irrelevant settings. -->
+                <page string="VoIP" name="voip" invisible="share">
+                    <group>
+                        <group string="Credentials" name="voip_credentials">
+                            <field name="voip_provider_id" string="Provider" colspan="2" options="{'no_open': 1, 'no_create': 1, 'no_edit':1}"/>
+                            <button name="%(voip.action_voip_provider_view)d" string="Manage Providers" type="action" icon="oi-arrow-right" class="btn-link ps-0" colspan="2"/>
+                            <field name="voip_username" string="Username" invisible="not voip_provider_id"/>
+                            <field name="voip_secret" string="Secret" password="True" invisible="not voip_provider_id"/>
+                        </group>
+                        <group string="Preferences" name="voip_preferences">
+                            <label for="should_call_from_another_device"/>
+                            <div class="o_row">
+                                <field name="should_call_from_another_device" string="Call Via Desk Phone"/>
+                                <field name="external_device_number" placeholder="No redirect" invisible="not should_call_from_another_device"/>
+                            </div>
+                            <field name="how_to_call_on_mobile" string="On Mobile" widget="radio"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="res_users_view_form_preferences" model="ir.ui.view">
+        <field name="name">VoIP Config in Preferences Form</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='calendar']" position="after">
+                <page string="VoIP" name="voip">
+                    <group>
+                        <group string="Credentials" name="voip_credentials">
+                            <field name="voip_provider_id" string="Provider" colspan="2" options="{'no_open': 1, 'no_create': 1, 'no_edit':1}"/>
+                            <button name="%(voip.action_voip_provider_view)d" string="Manage Providers" type="action" icon="oi-arrow-right" class="btn-link ps-0" colspan="2"/>
+                            <field name="voip_username" string="Username" invisible="not voip_provider_id"/>
+                            <field name="voip_secret" string="Secret" password="True" invisible="not voip_provider_id"/>
+                        </group>
+                        <group string="Preferences" name="voip_preferences">
+                            <label for="should_call_from_another_device"/>
+                            <div class="o_row">
+                                <field name="should_call_from_another_device" string="Call Via Desk Phone"/>
+                                <field name="external_device_number" placeholder="No redirect" invisible="not should_call_from_another_device"/>
+                            </div>
+                            <field name="how_to_call_on_mobile" string="On Mobile" widget="radio"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

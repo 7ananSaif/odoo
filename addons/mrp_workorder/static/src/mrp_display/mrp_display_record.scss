@@ -1,0 +1,59 @@
+.o_mrp_display_record {
+    break-inside: avoid;
+
+    .o_mrp_display_record_title {
+        // Set to avatar height to avoid flicker due to height change
+        height: var(--Avatar-size);
+    }
+
+    .o_mrp_display_record_start_btn {
+        // !important to override interaction-min-size with high specificity
+        min-height: 100% !important;
+    }
+
+    .card-header {
+        --card-cap-bg: #{$o-view-background-color};
+    }
+
+    .o_avatar {
+        --border-color: #{$o-view-background-color};
+    }
+
+    &.o_active {
+        .card-header {
+            --card-cap-bg: #{$component-active-bg};
+        }
+
+        .o_avatar {
+            --border-color: #{$component-active-bg};
+        }
+    }
+
+    &.o_disabled {
+        opacity: 0.75;
+    }
+
+    &.o_demo {
+        opacity: 0.1;
+    }
+
+    .o_mrp_record_line {
+        min-height: calc(var(--interaction-min-size) + var(--list-group-item-padding-y) * 2);
+    }
+
+    .o_mrp_record_line_indented {
+        &:before {
+            content: '';
+            @include o-position-absolute($bottom: 50%, $left: 0);
+            width: map-get($spacers, 2);
+            height: calc(50% + var(--list-group-item-padding-y));
+            margin-left: var(--list-group-item-padding-x);
+            border-left: $border-width solid $border-color;
+            border-bottom: $border-width solid $border-color;
+        }
+
+        & + .o_mrp_record_line_indented:before {
+            height: 100%;
+        }
+    }
+}

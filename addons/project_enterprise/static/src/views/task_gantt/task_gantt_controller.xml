@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="project_enterprise.TaskGanttController" t-inherit="web_gantt.GanttController" t-inherit-mode="primary">
+        <button class="o_gantt_button_add btn btn-primary" position="replace">
+            <ProjectTaskTemplateDropdown
+                projectId="props.context.default_project_id"
+                onCreate="() =&gt; this.onNewClicked()"
+                newButtonClasses="'o_gantt_button_add btn btn-primary'"
+                hotkey="r"
+                context="props.context"
+                getAdditionalContext.bind="getAdditionalContext"
+            />
+        </button>
+    </t>
+</templates>

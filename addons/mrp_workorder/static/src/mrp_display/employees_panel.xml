@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="mrp_workorder.MrpDisplayEmployeesPanel_content">
+        <ul t-if="props.employees.connected.length" class="list-group h-100 overflow-y-auto">
+            <li t-foreach="props.employees.connected" t-as="employee" t-key="employee.id"
+                class="list-group-item d-flex gap-2 py-2 cursor-pointer border-end-0 border-top-0"
+                t-on-click="() => props.setSessionOwner(employee.id,pin)"
+                t-att-class="{'o_admin_user': employee.id === props.employees.admin.id}">
+                <img t-attf-src="/web/image/hr.employee/{{employee.id}}/avatar_128"
+                    class="o_avatar rounded-circle"
+                    t-att-class="{'opacity-50': !employee.workcenters.length and employee.id !== props.employees.admin.id}"/>
+                <div class="d-flex flex-column flex-grow-1 gap-1 overflow-auto">
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                        <span class="fw-bold text-truncate"
+                         t-att-class="{'opacity-50': !employee.workcenters.length and employee.id !== props.employees.admin.id}" t-esc="employee.name"/>
+                    </div>
+                    <div t-foreach="employee.workcenters" t-as="wc" t-key="wc.id" class="d-flex justify-content-between">
+                        <span t-attf-class="o_tag o_tag_color_{{wc.id % 11}} badge rounded" t-esc="wc.name"/>
+                        <span class="o_tabular_nums fw-bold text-action" t-esc="Math.round(wc.duration) + '\''"/>
+                    </div>
+                    <div t-if="!employee.workcenters.length" class="d-flex justify-content-between">
+                        <span class="text-muted">
+                            <t t-if="employee.last_active &amp;&amp; employee.id !== props.employees.admin.id">
+                                Last seen <RelativeTime datetime="makeDate(employee.last_active)"/>
+                            </t>
+                            <t t-else="">Inactive</t>
+                        </span>
+                    </div>
+                </div>
+            </li>
+        </ul>
+        <div t-else="" class="d-flex justify-content-center align-items-center h-100">
+            <span class="text-muted">No operators connected</span>
+        </div>
+    </t>
+
+    <t t-name="mrp_workorder.MrpDisplayEmployeesPanel">
+        <div t-if="!ui.isSmall"
+             class="o_search_panel o_mrp_employees_panel d-flex flex-column border-end h-100 bg-view"
+             t-att-class="env.searchModel.searchPanelInfo.className" t-ref="root">
+            <t t-call="mrp_workorder.MrpDisplayEmployeesPanel_content"/>
+            <div class="p-3 w-100">
+                <button class="o_edit_operators btn btn-secondary w-100"
+                t-on-click="props.popupAddEmployee">
+                Edit Operators
+            </button>
+            </div>
+        </div>
+
+        <t t-else="">
+            <button class="o_mrp_employees_panel_btn btn btn-outline-secondary d-flex align-items-center bg-view"
+                    type="button"
+                    data-bs-toggle="offcanvas"
+                    data-bs-target="#o_employees_panel"
+                    aria-controls="o_employees_panel">
+                <t t-if="props.employees.admin.name">
+                    <img class="o_avatar rounded-circle me-2" t-att-src="props.employees.admin.path"/>
+                    <span class="text-truncate" t-out="props.employees.admin.name"/>
+                </t>
+                <t t-else="">
+                    <span>Choose Operator</span>
+                </t>
+            </button>
+            <div class="o_mrp_employees_panel offcanvas offcanvas-end bg-view"
+                 tabindex="-1" id="o_employees_panel"
+                 aria-labelledby="o_mrp_employees_panel">
+                <div class="offcanvas-header">
+                    <h5 class="offcanvas-title" id="o_mrp_employees_panel">Operators</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+                </div>
+                <div class="offcanvas-body p-0">
+                    <t t-call="mrp_workorder.MrpDisplayEmployeesPanel_content"/>
+                </div>
+                <div class="offcanvas-footer m-3 border-top">
+                    <button class="btn btn-secondary w-100"
+                    t-on-click="props.popupAddEmployee">
+                        Edit Operators
+                    </button>
+                </div>
+            </div>
+        </t>
+    </t>
+</templates>

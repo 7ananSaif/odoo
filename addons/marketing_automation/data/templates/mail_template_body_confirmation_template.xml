@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="mail_template_body_confirmation_template" name="Email Confirmation Template">
+        <div data-name="Mailing" class="o_layout oe_unremovable oe_unmovable o_empty_theme">
+            <div class="container o_mail_wrapper oe_unremovable o_mail_regular">
+                <div class="row">
+                    <div class="col o_mail_no_options o_mail_wrapper_td bg-white oe_structure oe_empty">
+                        <section class="s_text_block o_mail_snippet_general pt24 pb24 o_colored_level" style="padding-left: 15px; padding-right: 15px;"
+                                 data-snippet="s_text_block" data-name="Paragraph">
+                            <div class="container s_allow_columns">
+                                <div class="row">
+                                    <h2 style="text-align: center;">Welcome!</h2>
+                                    <p style="text-align: center;">Dear Customer,</p>
+                                    <p style="text-align: center;">Thank you for registering. Please click the button below to confirm your registration:</p>
+                                    <p style="text-align: center;">
+                                        <a t-att-href="db_host" style="background-color: rgb(0, 121, 204); padding: 15px 30px; text-decoration: none; border-radius: 5px;">
+                                            <font style="color: rgb(255, 255, 255);">&amp;nbsp;Confirm Registration&amp;nbsp;</font>
+                                        </a>
+                                    </p>
+                                    <p style="text-align: center;"> If you didn't make this request, you can ignore this email.</p>
+                                </div>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</odoo>

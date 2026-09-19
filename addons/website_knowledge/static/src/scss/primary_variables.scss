@@ -1,0 +1,14 @@
+@function o-map-reset-default-website-knowledge-values($map) {
+    $-map: ();
+    @if variable-exists(o-website-knowledge) and $o-website-knowledge {
+        @return $-map;
+    }
+    @return $map;
+}
+
+// Overwrite user-defined website styles in Knowledge published articles, mainly
+// to avoid color customization from affecting articles content.
+$o-user-color-palette: o-map-reset-default-website-knowledge-values($o-user-color-palette);
+$o-user-gray-color-palette: o-map-reset-default-website-knowledge-values($o-user-gray-color-palette);
+$o-user-theme-color-palette: o-map-reset-default-website-knowledge-values($o-user-theme-color-palette);
+$o-user-website-values: o-map-reset-default-website-knowledge-values($o-user-website-values);

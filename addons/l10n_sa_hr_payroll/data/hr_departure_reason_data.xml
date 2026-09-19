@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="saudi_departure_clause_77" model="hr.departure.reason">
+        <field name="sequence">5</field>
+        <field name="name">Clause 77</field>
+        <field name="l10n_sa_reason_type">clause_77</field>
+        <field name="country_id" ref="base.sa"/>
+    </record>
+
+    <record id="saudi_departure_end_of_contract" model="hr.departure.reason">
+        <field name="sequence">5</field>
+        <field name="name">End of Contract</field>
+        <field name="l10n_sa_reason_type">end_of_contract</field>
+        <field name="country_id" ref="base.sa"/>
+    </record>
+
+    <record id="hr.departure_fired" model="hr.departure.reason">
+        <field name="l10n_sa_reason_type">fired</field>
+    </record>
+
+    <record id="hr.departure_resigned" model="hr.departure.reason">
+        <field name="l10n_sa_reason_type">resigned</field>
+    </record>
+
+    <record id="hr.departure_retired" model="hr.departure.reason">
+        <field name="l10n_sa_reason_type">retired</field>
+    </record>
+</odoo>

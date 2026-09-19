@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="stock_picking_batch_form" model="ir.ui.view">
+        <field name="name">stock.picking.batch.form.inherit.stock.fleet.enterprise</field>
+        <field name="model">stock.picking.batch</field>
+        <field name="inherit_id" ref="stock_picking_batch.stock_picking_batch_form"/>
+        <field name="arch" type="xml">
+            <data>
+                <xpath expr="//header/button[@name='action_cancel']" position="before">
+                    <button type="object" name="action_picking_map_view" string="Map" class="btn btn-secondary" invisible="state != 'in_progress'" data-hotkey="g"/>
+                </xpath>
+            </data>
+        </field>
+    </record>
+
+    <record id="stock_picking_batch_view_form_plan_batch" model="ir.ui.view">
+        <field name="name">stock.picking.batch.view.form.plan.batch</field>
+        <field name="model">stock.picking.batch</field>
+        <field name="inherit_id" ref="stock_picking_batch.stock_picking_batch_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="replace">
+                <header>
+                    <button type="object" name="action_picking_map_view" string="Map" class="btn btn-secondary" invisible="state != 'in_progress'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,in_progress,done"/>
+                </header>
+            </xpath>
+            <xpath expr="//page[@name='page_operations']/button" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='move_ids']" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </xpath>
+            <xpath expr="//page[@name='page_operations']" position="before">
+                <page string="Detailed Operations" name="page_detailed_operations">
+                    <field name="move_line_ids" context="{'list_view_ref': 'stock_picking_batch.view_move_line_tree'}" readonly="1"/>
+                </page>
+            </xpath>
+            <xpath expr="//field[@name='scheduled_date']" position="after">
+                <field name="end_date" invisible="1"/><!-- Needed in widget below -->
+            </xpath>
+            <xpath expr="//field[@name='scheduled_date']" position="attributes">
+                <attribute name="widget">daterange</attribute>
+                <attribute name="options">{'end_date_field': 'end_date'}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='vehicle_category_id']" position="attributes">
+                <attribute name="readonly">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

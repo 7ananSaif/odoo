@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <!-- Update Preferences form !-->
+        <record id="view_users_form_simple_modif_color_scheme" model="ir.ui.view">
+            <field name="name">res.users.preferences.form.color_scheme</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form_simple_modif"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='other_preferences']" position="inside">
+                    <field name="color_scheme" widget="radio" string="Theme" options="{'horizontal': true}"/>
+                </xpath>
+            </field>
+        </record>
+        <!-- Update User form !-->
+        <record id="view_users_form_color_scheme" model="ir.ui.view">
+            <field name="name">res.users.form.color_scheme</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@name='other_preferences']" position="inside">
+                    <field name="color_scheme" widget="radio" string="Theme" options="{'horizontal': true}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
+

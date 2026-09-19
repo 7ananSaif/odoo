@@ -1,0 +1,14 @@
+<odoo>
+    <record id="voip_call_view_form" model="ir.ui.view">
+        <field name="name">voip.call.form</field>
+        <field name="model">voip.call</field>
+        <field name="inherit_id" ref="voip.voip_call_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="voip_action_view_applications" class="oe_stat_button" icon="fa-pencil" type="object" invisible="application_count == 0">
+                    <field name="application_count" widget="statinfo" string="Applications"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

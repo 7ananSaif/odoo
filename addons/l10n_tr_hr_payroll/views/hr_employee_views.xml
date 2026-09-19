@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form_inherit_l10n_tr_hr_payroll" model="ir.ui.view">
+        <field name="name">view.employee.form.inherit.l10n_tr_hr_payroll</field>
+        <field name="model">hr.employee</field>
+        <field name="priority">60</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <label for="wage" position="attributes">
+                <attribute name="invisible" separator="or" add="country_code == 'TR' and l10n_tr_is_net_to_gross" />
+            </label>
+
+            <label for="wage" position="before">
+                <field name="l10n_tr_is_net_to_gross" invisible="country_code != 'TR'" />
+                <label for="wage" string="Net Wage" invisible="not l10n_tr_is_net_to_gross or country_code != 'TR'" />
+            </label>
+        </field>
+    </record>
+</odoo>

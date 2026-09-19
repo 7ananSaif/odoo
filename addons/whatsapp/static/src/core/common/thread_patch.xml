@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-inherit="mail.Thread" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o-mail-Thread')]" position="before">
+            <span t-if="isWhatsAppThreadExpired" class="o-mail-Thread-banner d-flex border-bottom border-warning smaller fw-bolder">
+                <span class="alert alert-warning m-0 border-start-0 py-1 flex-grow-1">
+                    This conversation has been closed as more than 24 hours have passed since the last message received.
+                </span>
+            </span>
+        </xpath>
+    </t>
+
+</templates>

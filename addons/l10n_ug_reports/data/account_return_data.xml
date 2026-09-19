@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ug_tax_return_type" model="account.return.type">
+            <field name="name">Tax</field>
+            <field name="report_id" ref="l10n_ug.tax_report_ug"/>
+            <field name="country_id" ref="base.ug" />
+        </record>
+    </data>
+</odoo>

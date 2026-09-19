@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<templates>
+    <t t-inherit="voip.Agenda" t-inherit-mode="extension">
+        <xpath expr="//t[hasclass('o-voip-Agenda-sms-xpathTarget')]" position="before">
+            <SmsButton phoneNumber="activity.phone" resId="activity.res_id" resModel="activity.res_model"/>
+        </xpath>
+    </t>
+</templates>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sign_send_request_view_form" model="ir.ui.view">
+        <field name="name">sign.send.request.view.form</field>
+        <field name="model">sign.send.request</field>
+        <field name="arch" type="xml">
+            <!-- The 'sign_send_request_form' class is used to create a bus, which is required for the 'mail_composer_attachment_list' widget -->
+            <form class="o_sign_send_request_form" js_class="sign_send_request_form">
+                <div colspan="2" class="alert alert-warning mb-0 d-flex w-100 mb-3" role="alert" invisible="not context.get('has_signers_without_items', False)">
+                    Some signers have no related sign items.
+                </div>
+                <group>
+                    <group>
+                        <field name="available_template_ids" invisible="1"/>
+                        <field name="template_id"
+                            string="Template"
+                            placeholder="Choose a template"
+                            context="{'kanban_view_ref': 'sign.sign_template_view_kanban_mobile'}"
+                            invisible="has_default_template"
+                            options="{'no_create': True}"
+                            domain="[('id', 'in', available_template_ids)]"
+                            required="1"
+                        />
+                        <div invisible="not has_default_template and not template_id" colspan="2">
+                            <field name="signer_ids" colspan="2" nolabel="1" widget="signer_x2many" invisible="signers_count == 0" force_save="1"/>
+                            <div class="d-flex flex-row align-items-center" colspan="2" invisible="signers_count &lt; 2 or context.get('sign_directly_without_mail',False)">
+                                <field name="set_sign_order" nolabel="1" widget="boolean_toggle" class="oe_inline" options="{'autosave': false}"/>
+                                <label for="set_sign_order" class="fw-bold"/>
+                            </div>
+                            <div class="o_row" invisible="signers_count != 0 or not template_id">
+                                <label for="signer_id" string="Contacts" class="fw-bold"/>
+                                <field name="signer_id"
+                                       class="w-90"
+                                       required="signers_count == 0"
+                                       options="{'no_quick_create': True}"
+                                       context="{'show_email': True, 'form_view_ref': 'base.view_partner_simple_form'}"
+                                />
+                            </div>
+                        </div>
+                    </group>
+                    <group invisible="context.get('sign_directly_without_mail', False)">
+                        <div class="mobile-hide row align-items-center" invisible="has_default_template or template_id">
+                            <div class="col-lg-1 col-md-12 text-center mb-2">
+                                <span class="fw-bold">or</span>
+                            </div>
+                            <div class="col-lg-11 col-md-12">
+                                <widget name="upload_pdf_button" btnClass="btn btn-secondary w-100" title="Upload PDF" />
+                            </div>
+                        </div>
+                        <field name="validity" invisible="not has_default_template and not template_id"/>
+                        <div invisible="not has_default_template and not template_id" colspan="2">
+                            <field name="reminder_enabled" class="oe_inline mb-0" nolabel="1"/>
+                            <label for="reminder_enabled" string="Reminders"/>
+                            <span invisible="not reminder_enabled">every<field name="reminder" class="text-center o_sign_reminder_field"/> days.</span>
+                            <div class="d-flex flex-row align-items-center flex-nowrap">
+                                <field name="certificate_reference" nolabel="1" class="mt-1"/>
+                                <span class="text-nowrap">Add certificate on each page</span>
+                            </div>
+                        </div>
+                    </group>
+                    <group invisible="not context.get('sign_directly_without_mail', False)">
+                        <div class="o_horizontal_separator mb-2 text-uppercase fw-bolder small" colspan="2">
+                            Options
+                        </div>
+                        <field name="subject" placeholder="Signature Request" required="1"/>
+                        <field name="cc_partner_ids"
+                               widget="many2many_tags"
+                               string="CC"
+                               placeholder="Write email or search contact..."
+                               context="{'show_email': True}"
+                        />
+                        <div invisible="not cc_partner_ids" colspan="2">
+                            <field name="message_cc" placeholder="Optional Message..."/>
+                            <field name="attachment_ids" widget="many2many_binary" class="o_sign_attachments"/>
+                        </div>
+                        <div class="d-flex flex-row align-items-center flex-nowrap">
+                            <field name="certificate_reference" nolabel="1" class="mt-1"/>
+                            <span class="ms-1 text-nowrap">Add certificate on each page</span>
+                        </div>
+                    </group>
+                </group>
+                <hr invisible="context.get('sign_directly_without_mail',False) or (not has_default_template and not template_id)"/>
+                <group invisible="context.get('sign_directly_without_mail',False) or (not has_default_template and not template_id)">
+                    <field name="subject" placeholder="Signature Request"/>
+                    <field name="cc_partner_ids"
+                           string="CC"
+                           widget="many2many_tags"
+                           placeholder="Write email or search contact..."
+                           context="{'show_email': True}"
+                    />
+                </group>
+                <field name="body"
+                        widget="html_composer_message"
+                        class="oe-bordered-editor o_sign_message_style"
+                        invisible="context.get('sign_directly_without_mail',False) or (not has_default_template and not template_id)"
+                        placeholder="Enter your message"
+                />
+                <field name="activity_id" invisible="1"/>
+                <field name="signers_count" invisible="1"/>
+                <field name="has_default_template" invisible="1"/>
+                <field name="is_user_signer" invisible="1"/>
+                <field name="reference_doc" invisible="1"/>
+                <field name="model" invisible="1"/>
+                <field name="res_ids" invisible="1"/>
+                <field name="attachment_ids"
+                       widget="mail_composer_attachment_list"
+                       invisible="context.get('sign_directly_without_mail',False) or (not has_default_template and not template_id)"
+                />
+
+                <footer>
+                    <!-- Opens signing process for current user and emails all signers. -->
+                    <button string="Sign Now"
+                            name="sign_directly"
+                            type="object"
+                            class="btn-primary"
+                            invisible="context.get('sign_directly_without_mail',False) or not is_user_signer or (not has_default_template and not template_id) or scheduled_date"
+                            data-hotkey="q"
+                    />
+                    <button string="Send"
+                            name="send_request"
+                            type="object"
+                            class="btn-primary"
+                            invisible="context.get('sign_directly_without_mail',False) or (not has_default_template and not template_id) or scheduled_date"
+                            data-hotkey="w"
+                    />
+                    <!-- Starts signing for current user, then opens sign requests for other roles without emailing signers. -->
+                    <button string="Sign Now"
+                            name="sign_directly"
+                            context="{'no_sign_mail': True, 'sign_all': True}"
+                            type="object"
+                            class="btn-primary"
+                            invisible="not context.get('sign_directly_without_mail',False) or (not has_default_template and not template_id) or scheduled_date"
+                            data-hotkey="q"
+                    />
+                    <button string="Schedule" name="send_request" type="object" class="btn-primary" invisible="not scheduled_date"/>
+                    <button string="Download" name="quick_sign" title="Autocomplete values and download signed document" context="{'no_sign_mail': True, 'sign_all': True, 'sign_now': True}" type="object" invisible="not display_download_button"/>
+                    <button string="Discard" class="btn-secondary me-3" special="cancel" data-hotkey="x"/>
+                    <div invisible="(not has_default_template and not template_id) or (context.get('sign_directly_without_mail',False))" class="d-flex gap-3">
+                        <field name="attachment_ids" widget="many2many_binary_sign_request"/>
+                        <field name="scheduled_date" widget="text_scheduled_date"/>
+                    </div>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_sign_send_request" model="ir.actions.act_window">
+        <field name="name">New Signature Request</field>
+        <field name="res_model">sign.send.request</field>
+        <field name="target">new</field>
+        <field name="view_mode">form</field>
+    </record>
+</odoo>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="stock_barcode.ConfirmQuantDialog">
+        <Dialog title.translate="Confirm Inventory Adjustment"
+            contentClass="'o_stock_barcode_confirm_quant_dialog'" size="'md'" fullscreen="false">
+            <div class="container">
+                <div class="d-flex row justify-content-between align-items-center">
+                    <div>
+                        <span>Inventory Reason</span>
+                    </div>
+                    <div>
+                        <input type="text" class="o_input" t-att-value="inventoryReason.value" t-on-change="onInventoryReasonChange" />
+                    </div>
+                </div>
+            </div>
+            <t t-set-slot="footer">
+                <button class="o_confirm btn btn-primary" t-on-click="onConfirm">Apply Now</button>
+                <button class="o_confirm btn btn-primary" t-on-click="onWaitReview">Wait a Review</button>
+                <button class="o_cancel btn btn-secondary" t-on-click="props.close">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

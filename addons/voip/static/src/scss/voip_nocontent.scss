@@ -1,0 +1,15 @@
+.o_view_nocontent {
+    .o_view_nocontent_voip_provider:before {
+        background: transparent url(/voip/static/description/provider.png) no-repeat center;
+    }
+    .o_view_nocontent_voip_call:before {
+        background: transparent url(/voip/static/description/voip_phone.png) no-repeat center;
+    }
+    .o_view_nocontent_voip_provider:before,
+    .o_view_nocontent_voip_call:before {
+        @extend %o-nocontent-init-image;
+        width: 120px;
+        height: 120px;
+        background-size: 120px 120px;
+    }
+}

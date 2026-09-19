@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="hr_contract_template_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.template.view.form.inherit.l10_us_hr_payroll</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="model">hr.version</field>
+        <field name="arch" type="xml">
+            <group name="salary_info" position="inside">
+                <group name="l10n_us_pre_tax" string="Retirement Plans" invisible="country_code != 'US'">
+                    <label for="l10n_us_pre_retirement_amount" string="401(k)"/>
+                    <div class="o_row" name="l10n_us_pre_retirement_amount">
+                        <field name="l10n_us_pre_retirement_amount" class="o_hr_narrow_field" />
+                        <field name="l10n_us_pre_retirement_type" required="country_code == 'US'"/>
+                    </div>
+                    <label for="l10n_us_pre_retirement_matching_amount" string="Matching Amount"/>
+                    <div class="o_row" name="l10n_us_pre_retirement_matching_amount">
+                        <field name="l10n_us_pre_retirement_matching_amount" class="o_hr_narrow_field" />
+                        <field name="l10n_us_pre_retirement_matching_type" required="country_code == 'US'"/>
+                    </div>
+                    <label for="l10n_us_pre_retirement_matching_yearly_cap" invisible="l10n_us_pre_retirement_matching_type != 'percent'" string="Matching Yearly Cap"/>
+                    <div class="o_row" name="l10n_us_pre_retirement_matching_yearly_cap" invisible="l10n_us_pre_retirement_matching_type != 'percent'">
+                        <field name="l10n_us_pre_retirement_matching_yearly_cap" class="o_hr_narrow_field"/>
+                        <div>% of Yearly Salary</div>
+                    </div>
+
+                    <separator string="Health Benefits"/>
+                    <label for="l10n_us_health_benefits_medical" string="Medical"/>
+                    <div class="o_row" name="l10n_us_health_benefits_medical">
+                        <field name="l10n_us_health_benefits_medical" class="o_hr_narrow_field"/>
+                        <div>/ slip</div>
+                    </div>
+                    <label for="l10n_us_health_benefits_dental" string="Dental"/>
+                    <div class="o_row" name="l10n_us_health_benefits_dental">
+                        <field name="l10n_us_health_benefits_dental" class="o_hr_narrow_field"/>
+                        <div>/ slip</div>
+                    </div>
+                    <label for="l10n_us_health_benefits_vision" string="Vision"/>
+                    <div class="o_row" name="l10n_us_health_benefits_vision">
+                        <field name="l10n_us_health_benefits_vision" class="o_hr_narrow_field"/>
+                        <div>/ slip</div>
+                    </div>
+                    <label for="l10n_us_health_benefits_fsa" string="FSA"/>
+                    <div class="o_row" name="l10n_us_health_benefits_fsa">
+                        <field name="l10n_us_health_benefits_fsa" class="o_hr_narrow_field"/>
+                        <div>/ slip</div>
+                    </div>
+                    <label for="l10n_us_health_benefits_fsadc" string="FSA Dependent Care"/>
+                    <div class="o_row" name="l10n_us_health_benefits_fsadc">
+                        <field name="l10n_us_health_benefits_fsadc" class="o_hr_narrow_field"/>
+                        <div>/ slip</div>
+                    </div>
+                    <label for="l10n_us_health_benefits_hsa" string="HSA"/>
+                    <div class="o_row" name="l10n_us_health_benefits_hsa">
+                        <field name="l10n_us_health_benefits_hsa" class="o_hr_narrow_field"/>
+                        <div>/ slip</div>
+                    </div>
+                </group>
+                <group name="l10n_us_post_tax" string="Post-Tax Deductions" invisible="country_code != 'US'">
+                    <label for="l10n_us_post_roth_401k_amount"/>
+                    <div class="o_row" name="l10n_us_post_roth_401k_amount">
+                        <field name="l10n_us_post_roth_401k_amount" class="o_hr_narrow_field"/>
+                        <field name="l10n_us_post_roth_401k_type" required="country_code == 'US'"/>
+                    </div>
+                    <field name="l10n_us_employee_state_code" invisible="1"/>
+                    <field name="l10n_us_worker_compensation_id" invisible="l10n_us_employee_state_code != 'WA'"
+                        required="country_code == 'US' and l10n_us_employee_state_code == 'WA'"/>
+                </group>
+                <group name="l10n_us_other_benefits" string="Other Benefits" invisible="country_code != 'US'">
+                    <label for="l10n_us_commuter_benefits" string="Commuter"/>
+                    <div class="o_row" name="l10n_us_commuter_benefits">
+                        <field name="l10n_us_commuter_benefits" class="o_hr_narrow_field"/>
+                        <div>/ slip</div>
+                    </div>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

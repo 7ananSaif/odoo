@@ -1,0 +1,33 @@
+<?xml version ="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="stock_enterprise.markerPopup" t-inherit="web_map.markerPopup" t-inherit-mode="primary">
+        <xpath expr="//table" position="replace">
+            <div class="overflow-y-scroll" style="max-height: 300px;">
+                <t t-foreach="data" t-as="record" t-key="record.id">
+                    <t t-set="fields" t-value="record.fields"/>
+                    <table class="o-map-renderer--popup-table align-top">
+                        <thead>
+                            <tr>
+                                <th colspan="2"></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="fields" t-as="field" t-key="field.id">
+                                <td class="o-map-renderer--popup-table-content-name fw-bold text-nowrap align-baseline">
+                                    <t t-esc="field.string"/>
+                                </td>
+                                <td class="o-map-renderer--popup-table-space"></td>
+                                <td class="o-map-renderer--popup-table-content-value align-baseline">
+                                    <t t-esc="field.value"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <hr t-if="record_index !== data.length - 1"/>
+                </t>
+            </div>
+        </xpath>
+    </t>
+</templates>

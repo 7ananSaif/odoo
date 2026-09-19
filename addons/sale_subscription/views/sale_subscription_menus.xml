@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <menuitem
+        id="menu_sale_subscription_root"
+        name="Subscriptions"
+        web_icon="sale_subscription,static/description/icon.png"
+        groups="sales_team.group_sale_salesman"
+        sequence="40"
+    >
+        <menuitem id="menu_sale_subscription" name="Subscriptions" sequence="5">
+            <menuitem
+                id="menu_sale_subscription_action"
+                action="sale_subscription_action"
+                sequence="10"/>
+            <menuitem
+                id="menu_sale_subscription_quotes"
+                action="sale_subscription_action_quotes"
+                sequence="20"/>
+            <menuitem
+                id="menu_sale_subscription_pending"
+                action="sale_subscription_action_pending"
+                sequence="30"/>
+            <menuitem
+                id="menu_sale_subscription_upsell"
+                action="sale_subscription_action_upsell"
+                sequence="40"/>
+            <menuitem
+                id="menu_orders_customers"
+                action="account.res_partner_action_customer"
+                sequence="50"/>
+        </menuitem>
+
+        <menuitem
+            id="product_menu_catalog"
+            name="Products"
+            groups="sales_team.group_sale_salesman"
+            sequence="30"
+        >
+            <menuitem
+                id="menu_sale_subscription_product"
+                action="product_action_subscription"
+                sequence="10"/>
+            <menuitem
+                id="menu_sale_subscription_pricelist"
+                action="product.product_pricelist_action2"
+                groups="product.group_product_pricelist"
+                sequence="50"/>
+        </menuitem>
+
+        <menuitem
+            id="menu_sale_subscription_config"
+            name="Configuration"
+            groups="sales_team.group_sale_manager"
+            sequence="100"
+        >
+            <menuitem
+                id="menu_sale_subscription_settings"
+                name="Settings"
+                action="sale.action_sale_config_settings"
+                groups="base.group_system"
+                sequence="1"/>
+            <menuitem
+                id="menu_sale_subscription_plans"
+                name="Recurring Plans"
+                action="sale_subscription_plan_action"
+                sequence="2"/>
+            <menuitem
+                id="menu_template_of_subscription"
+                action="sale_subscription_template_action"
+                groups="sale_management.group_sale_order_template"
+                sequence="4"/>
+            <menuitem
+                id="menu_sale_subscription_close_reason_action"
+                action="sale_subscription_close_reason_action"
+                sequence="10"/>
+            <menuitem
+                id="subscription_menu_config_activity_type"
+                name="Activity Types"
+                action="mail_activity_type_action_config_subscription"
+                sequence="100"/>
+            <menuitem id="mail_activity_plan_menu_config_subscription"
+                name="Activity Plans"
+                action="mail_activity_plan_action_subscription"
+                sequence="110"/>
+        </menuitem>
+    </menuitem>
+</odoo>

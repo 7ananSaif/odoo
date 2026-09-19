@@ -1,0 +1,128 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * mail_mobile
+#
+# Translators:
+# Wil Odoo, 2025
+# Tony Ng, 2025
+#
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.3+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:45+0000\n"
+"PO-Revision-Date: 2025-11-16 17:51+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Chinese (Traditional Han script) <https://translate.odoo.com/"
+"projects/odoo-19/mail_mobile/zh_Hant/>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: mail_mobile
+#: model:ir.model.fields,help:mail_mobile.field_res_config_settings__disable_redirect_firebase_dynamic_link
+msgid ""
+"Check this if dynamic mobile-app detection links cause problems for your "
+"installation. This will stop the automatic wrapping of links inside outbound "
+"emails. The links will always open in a normal browser, even for users who "
+"have the Android/iOS app installed."
+msgstr ""
+"如果動態流動應用程式偵測連結導致您的安裝出現問題，請選取此項。 這將停止寄出電"
+"郵中連結的自動換行。 這些連結必會在普通瀏覽器中開啟，即使對於安裝了 "
+"Android / iOS 應用程式的用戶也是如此。"
+
+#. module: mail_mobile
+#: model:ir.model,name:mail_mobile.model_res_config_settings
+msgid "Config Settings"
+msgstr "配置設定"
+
+#. module: mail_mobile
+#: model:ir.model,name:mail_mobile.model_res_partner
+msgid "Contact"
+msgstr "聯絡人"
+
+#. module: mail_mobile
+#: model:ir.model,website_form_label:mail_mobile.model_res_partner
+msgid "Create a Customer"
+msgstr "建立客戶"
+
+#. module: mail_mobile
+#: model:ir.model.fields,field_description:mail_mobile.field_res_config_settings__disable_redirect_firebase_dynamic_link
+msgid "Disable link redirection to mobile app"
+msgstr "停用連結重新導向至流動應用程式"
+
+#. module: mail_mobile
+#: model:ir.model,name:mail_mobile.model_discuss_channel
+msgid "Discussion Channel"
+msgstr "討論群組"
+
+#. module: mail_mobile
+#: model:ir.model.fields,field_description:mail_mobile.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:mail_mobile.field_ir_http__display_name
+#: model:ir.model.fields,field_description:mail_mobile.field_mail_thread__display_name
+#: model:ir.model.fields,field_description:mail_mobile.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:mail_mobile.field_res_partner__display_name
+msgid "Display Name"
+msgstr "顯示名稱"
+
+#. module: mail_mobile
+#: model:ir.model,name:mail_mobile.model_mail_thread
+msgid "Email Thread"
+msgstr "電郵對話串"
+
+#. module: mail_mobile
+#: model:ir.model,name:mail_mobile.model_ir_http
+msgid "HTTP Routing"
+msgstr "HTTP 路由"
+
+#. module: mail_mobile
+#: model:ir.model.fields,field_description:mail_mobile.field_discuss_channel__id
+#: model:ir.model.fields,field_description:mail_mobile.field_ir_http__id
+#: model:ir.model.fields,field_description:mail_mobile.field_mail_thread__id
+#: model:ir.model.fields,field_description:mail_mobile.field_res_config_settings__id
+#: model:ir.model.fields,field_description:mail_mobile.field_res_partner__id
+msgid "ID"
+msgstr "識別號"
+
+#. module: mail_mobile
+#: model_terms:ir.ui.view,arch_db:mail_mobile.res_config_settings_view_form
+msgid ""
+"If disabled, you won't be able to open external URL's in the Android/iOS "
+"mobile app (e.g. \"View Task\" button in email)."
+msgstr ""
+"若停用，將無法在 Android 或 iOS 流動應用程式內，開啟外部網址（例如：電郵內的"
+"「檢視任務」按鈕）。"
+
+#. module: mail_mobile
+#: model_terms:ir.ui.view,arch_db:mail_mobile.res_config_settings_view_form
+msgid "Mobile"
+msgstr "行動電話"
+
+#. module: mail_mobile
+#: model:ir.model.fields,field_description:mail_mobile.field_res_partner__ocn_token
+#: model:ir.model.fields,field_description:mail_mobile.field_res_users__ocn_token
+msgid "OCN Token"
+msgstr "OCN 代碼"
+
+#. module: mail_mobile
+#: model:ir.model.fields,field_description:mail_mobile.field_res_config_settings__enable_ocn
+msgid "Push Notifications"
+msgstr "推送通知"
+
+#. module: mail_mobile
+#: model_terms:ir.ui.view,arch_db:mail_mobile.res_config_settings_view_form
+msgid "Receive notifications on Android and iOS application"
+msgstr "在 Android 和 iOS 應用程式接收通知"
+
+#. module: mail_mobile
+#: model:ir.model.fields,help:mail_mobile.field_res_partner__ocn_token
+#: model:ir.model.fields,help:mail_mobile.field_res_users__ocn_token
+msgid "Used for sending notification to registered devices"
+msgstr "用於向已登記裝置發送通知"
+
+#~ msgid "AI features for mail thread"
+#~ msgstr "郵件對話串 AI 功能"

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sign_request_share_view_form" model="ir.ui.view">
+        <field name="name">sign.request.share.view.form</field>
+        <field name="model">sign.request.share</field>
+        <field name="arch" type="xml">
+            <form string="Multiple Signature Requests">
+                <field name="share_link" invisible="1"/>
+                <group invisible="not share_link" col="3">
+                    <group colspan="3">
+                        <field name="share_link" widget="CopyClipboardChar" readonly="1" />
+                    </group>
+                    <group colspan="1">
+                        <field name="validity" options="{'min_date': 'today'}" />
+                    </group>
+                </group>
+                <footer>
+                    <button string="Stop sharing" name="action_stop_sharing" class="btn-primary" type="object" invisible="not is_shared" data-hotkey="q"/>
+                    <button string="Copy link" class="btn-primary" name="action_copy_and_close" type="object" invisible="not is_shared" data-hotkey="x"/>
+                    <button string="Close" name="action_close_request" type="object" data-hotkey="q"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo auto_sequence="1">
+    <record id="profit_and_loss" model="account.report">
+        <field name="name">Profit and Loss</field>
+        <field name="name@tr">Gelir Tablosu</field>
+        <field name="root_report_id" ref="account_reports.profit_and_loss"/>
+        <field name="country_id" ref="base.tr"/>
+        <field name="column_ids">
+            <record id="profit_and_loss_column" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="name@tr">Bakiye</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="account_report_line_tr_pl_gross_sales_60" model="account.report.line">
+                <field name="name">Gross Sales</field>
+                <field name="name@tr">BRÜT SATIŞLAR</field>
+                <field name="code">TR_PL_GROSS_SALES_60</field>
+                <field name="hierarchy_level">1</field>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_gross_sales_60_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">account_codes</field>
+                        <field name="formula">- 600 - 601 - 602</field>
+                    </record>
+                </field>
+            </record>
+            <record id="account_report_line_tr_pl_sales_deductions_61" model="account.report.line">
+                <field name="name">Sales Deductions (-)</field>
+                <field name="name@tr">SATIŞ İNDİRİMLERİ (-)</field>
+                <field name="code">TR_PL_SALES_DEDUCTIONS_61</field>
+                <field name="hierarchy_level">1</field>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_sales_deductions_61_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">account_codes</field>
+                        <field name="formula">610 + 611 + 612</field>
+                        <field name="green_on_positive" eval="False"/>
+                    </record>
+                </field>
+            </record>
+            <record id="account_report_line_tr_pl_net_sales"
+                    model="account.report.line">
+                <field name="name">Net Sales</field>
+                <field name="name@tr">NET SATIŞLAR</field>
+                <field name="code">TR_PL_NET_SALES</field>
+                <field name="hierarchy_level">1</field>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_net_sales_balance"
+                            model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">TR_PL_GROSS_SALES_60.balance - TR_PL_SALES_DEDUCTIONS_61.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="account_report_line_tr_pl_cost_of_sales" model="account.report.line">
+                <field name="name">Cost of Sales (-)</field>
+                <field name="name@tr">SATIŞLARIN MALİYETİ (-)</field>
+                <field name="code">TR_PL_COST_OF_SALES</field>
+                <field name="foldable" eval="True"/>
+                <field name="hierarchy_level">1</field>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_cost_of_sales_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">TR_PL_COST_OF_SALES_END_OF_PERIOD_62.balance + TR_PL_COST_OF_SALES_DURING_PERIOD_7.balance</field>
+                    </record>
+                </field>
+                <field name="children_ids">
+                    <record id="account_report_line_tr_pl_cost_of_sales_during_period_7" model="account.report.line">
+                        <field name="name">Cost of Sales During Period (-)</field>
+                        <field name="name@tr">DÖNEM İÇİ SATIŞLARIN MALİYETİ (-)</field>
+                        <field name="code">TR_PL_COST_OF_SALES_DURING_PERIOD_7</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="expression_ids">
+                            <record id="account_report_line_tr_pl_cost_of_sales_during_period_7_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">account_codes</field>
+                                <field name="formula">710 + 720 + 730 + 740</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="account_report_line_tr_pl_cost_of_sales_end_of_period_62" model="account.report.line">
+                        <field name="name">Cost of Sales End of Period (-)</field>
+                        <field name="name@tr">DÖNEM SONU SATIŞLARIN MALİYETİ (-)</field>
+                        <field name="code">TR_PL_COST_OF_SALES_END_OF_PERIOD_62</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="expression_ids">
+                            <record id="account_report_line_tr_pl_cost_of_sales_end_of_period_62_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">account_codes</field>
+                                <field name="formula">620 + 621 + 622 + 623</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+            <record id="account_report_line_tr_pl_gross_sales_profit_lost" model="account.report.line">
+                <field name="name">Gross Profit/Loss</field>
+                <field name="name@tr">BRÜT SATIŞ KÂRI/ZARARI</field>
+                <field name="code">TR_PL_GROSS_SALES_PROFIT_LOST</field>
+                <field name="hierarchy_level">0</field>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_gross_sales_profit_lost_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">TR_PL_NET_SALES.balance - TR_PL_COST_OF_SALES.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="account_report_line_tr_pl_operating_expenses" model="account.report.line">
+                <field name="name">Operating Expenses (-)</field>
+                <field name="name@tr">FAALİYET GİDERLERİ (-)</field>
+                <field name="code">TR_PL_OPERATING_EXPENSES</field>
+                <field name="foldable" eval="True"/>
+                <field name="hierarchy_level">1</field>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_operating_expenses_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">TR_PL_OPERATING_EXPENSES_END_OF_PERIOD_63.balance + TR_PL_OPERATING_EXPENSES_DURING_PERIOD_7.balance</field>
+                    </record>
+                </field>
+                <field name="children_ids">
+                    <record id="account_report_line_tr_pl_operating_expenses_during_period_7" model="account.report.line">
+                        <field name="name">Operating Expenses During Period (-)</field>
+                        <field name="name@tr">DÖNEM İÇİ FAALİYET GİDERLERİ (-)</field>
+                        <field name="code">TR_PL_OPERATING_EXPENSES_DURING_PERIOD_7</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="expression_ids">
+                            <record id="account_report_line_tr_pl_operating_expenses_during_period_7_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">account_codes</field>
+                                <field name="formula">750 + 760 + 770</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="account_report_line_tr_pl_operating_expenses_end_of_period_63" model="account.report.line">
+                        <field name="name">Operating Expenses End of Period (-)</field>
+                        <field name="name@tr">DÖNEM SONU FAALİYET GİDERLERİ (-)</field>
+                        <field name="code">TR_PL_OPERATING_EXPENSES_END_OF_PERIOD_63</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="expression_ids">
+                            <record id="account_report_line_tr_pl_operating_expenses_end_of_period_63_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">account_codes</field>
+                                <field name="formula">630 + 631 + 632</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+            <record id="account_report_line_tr_pl_operating_profit_lost" model="account.report.line">
+                <field name="name">Operating Profit/Loss</field>
+                <field name="name@tr">FAALİYET KÂRI/ZARARI</field>
+                <field name="code">TR_PL_OPERATING_PROFIT_LOST</field>
+                <field name="hierarchy_level">1</field>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_operating_profit_lost_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">TR_PL_GROSS_SALES_PROFIT_LOST.balance - TR_PL_OPERATING_EXPENSES.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="account_report_line_tr_pl_non_operating_profit_lost" model="account.report.line">
+                <field name="name">Non-operating Profit/Loss</field>
+                <field name="name@tr">DİĞER FAALİYET KÂRI veya ZARARI</field>
+                <field name="code">TR_PL_NON_OPERATING_PROFIT_LOST</field>
+                <field name="foldable" eval="True"/>
+                <field name="hierarchy_level">1</field>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_non_operating_profit_lost_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">TR_PL_NON_OPERATING_REVENUES_PROFIT_64.balance - TR_PL_NON_OPERATING_EXPENSES_LOSSES_65.balance</field>
+                    </record>
+                </field>
+                <field name="children_ids">
+                    <record id="account_report_line_tr_pl_non_operating_revenues_profit_64" model="account.report.line">
+                        <field name="name">Revenues and Gains From Other Operations</field>
+                        <field name="name@tr">DİĞER FAALİYETLERDEN GELİR ve KÂRLAR</field>
+                        <field name="code">TR_PL_NON_OPERATING_REVENUES_PROFIT_64</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="expression_ids">
+                            <record id="account_report_line_tr_pl_non_operating_revenues_profit_64_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">account_codes</field>
+                                <field name="formula">- 64</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="account_report_line_tr_pl_non_operating_expenses_losses_65" model="account.report.line">
+                        <field name="name">Expenses and Losses From Other Operations (-)</field>
+                        <field name="name@tr">DİĞER FAALİYETLERDEN GİDER ve ZARARLAR (-)</field>
+                        <field name="code">TR_PL_NON_OPERATING_EXPENSES_LOSSES_65</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="expression_ids">
+                            <record id="account_report_line_tr_pl_non_operating_expenses_losses_65_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">account_codes</field>
+                                <field name="formula">65</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+            <record id="account_report_line_tr_pl_financial_expenses" model="account.report.line">
+                <field name="name">Financial Expenses (-)</field>
+                <field name="name@tr">FİNANSMAN GİDERLERİ (-)</field>
+                <field name="code">TR_PL_FINANCIAL_EXPENSES</field>
+                <field name="foldable" eval="True"/>
+                <field name="hierarchy_level">1</field>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_financial_expenses_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">TR_PL_FINANCIAL_EXPENSES_DURING_PERIOD_78.balance + TR_PL_FINANCIAL_EXPENSES_END_OF_PERIOD_66.balance</field>
+                    </record>
+                </field>
+                <field name="children_ids">
+                    <record id="account_report_line_tr_pl_financial_expenses_during_period_78" model="account.report.line">
+                        <field name="name">Financial Expenses During Period (-)</field>
+                        <field name="name@tr">DÖNEM İÇİ FİNANSMAN GİDERLERİ (-)</field>
+                        <field name="code">TR_PL_FINANCIAL_EXPENSES_DURING_PERIOD_78</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="expression_ids">
+                            <record id="account_report_line_tr_pl_financial_expenses_during_period_78_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">account_codes</field>
+                                <field name="formula">780 + 781</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="account_report_line_tr_pl_financial_expenses_end_of_period_66" model="account.report.line">
+                        <field name="name">Financial Expenses End of Period (-)</field>
+                        <field name="name@tr">DÖNEM SONU FİNANSMAN GİDERLERİ (-)</field>
+                        <field name="code">TR_PL_FINANCIAL_EXPENSES_END_OF_PERIOD_66</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="expression_ids">
+                            <record id="account_report_line_tr_pl_financial_expenses_end_of_period_66_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">account_codes</field>
+                                <field name="formula">660 + 661</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+            <record id="account_report_line_tr_pl_profit_lost_from_ordinary_operations" model="account.report.line">
+                <field name="name">Ordinary Profit/Loss</field>
+                <field name="name@tr">OLAĞAN KÂR/ZARAR</field>
+                <field name="code">TR_PL_PROFIT_LOST_FROM_ORDINARY_OPERATIONS</field>
+                <field name="hierarchy_level">0</field>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_profit_lost_from_ordinary_operations_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">TR_PL_OPERATING_PROFIT_LOST.balance + TR_PL_NON_OPERATING_PROFIT_LOST.balance - TR_PL_FINANCIAL_EXPENSES.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="account_report_line_tr_pl_extraordinary_profit_lost" model="account.report.line">
+                <field name="name">Extraordinary Profit/Loss</field>
+                <field name="name@tr">OLAĞANDIŞI KÂR veya ZARAR</field>
+                <field name="code">TR_PL_EXTRAORDINARY_PROFIT_LOST</field>
+                <field name="hierarchy_level">1</field>
+                <field name="foldable" eval="True"/>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_extraordinary_profit_lost_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">TR_PL_EXTRAORDINARY_REVENUES_PROFIT_67.balance - TR_PL_EXTRAORDINARY_EXPENSES_LOSSES_68.balance</field>
+                    </record>
+                </field>
+                <field name="children_ids">
+                    <record id="account_report_line_tr_pl_extraordinary_revenues_profit_67" model="account.report.line">
+                        <field name="name">Extraordinary Revenues and Gains</field>
+                        <field name="name@tr">OLAĞANDIŞI GELİR ve KÂRLAR</field>
+                        <field name="code">TR_PL_EXTRAORDINARY_REVENUES_PROFIT_67</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="expression_ids">
+                            <record id="account_report_line_tr_pl_extraordinary_revenues_profit_67_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">account_codes</field>
+                                <field name="formula">- 671 - 679</field>
+                            </record>
+                        </field>
+                    </record>
+                    <record id="account_report_line_tr_pl_extraordinary_expenses_losses_68" model="account.report.line">
+                        <field name="name">Extraordinary Expenses and Losses (-)</field>
+                        <field name="name@tr">OLAĞANDIŞI GİDER ve ZARARLAR (-)</field>
+                        <field name="code">TR_PL_EXTRAORDINARY_EXPENSES_LOSSES_68</field>
+                        <field name="hierarchy_level">3</field>
+                        <field name="expression_ids">
+                            <record id="account_report_line_tr_pl_extraordinary_expenses_losses_68_balance" model="account.report.expression">
+                                <field name="label">balance</field>
+                                <field name="engine">account_codes</field>
+                                <field name="formula">680 + 681 + 689</field>
+                                <field name="green_on_positive" eval="False"/>
+                            </record>
+                        </field>
+                    </record>
+                </field>
+            </record>
+            <record id="account_report_line_tr_pl_profit_lost_before_tax" model="account.report.line">
+                <field name="name">Profit Before Taxes</field>
+                <field name="name@tr">VERGİ ÖNCESİ DÖNEM KÂRI</field>
+                <field name="code">TR_PL_PROFIT_LOST_BEFORE_TAX</field>
+                <field name="hierarchy_level">1</field>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_profit_lost_before_tax_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">TR_PL_PROFIT_LOST_FROM_ORDINARY_OPERATIONS.balance + TR_PL_EXTRAORDINARY_PROFIT_LOST.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="account_report_line_tr_pl_taxes_and_legal_obligations_69" model="account.report.line">
+                <field name="name">Taxes and Legal Obligations</field>
+                <field name="name@tr">VERGİLER ve YASAL YÜKÜMLÜLÜKLER</field>
+                <field name="code">TR_PL_TAXES_AND_LEGAL_OBLIGATIONS_69</field>
+                <field name="hierarchy_level">1</field>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_taxes_and_legal_obligations_69_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">account_codes</field>
+                        <field name="formula">691</field>
+                        <field name="green_on_positive" eval="False"/>
+                    </record>
+                </field>
+            </record>
+            <record id="account_report_line_tr_pl_profit_lost_after_tax" model="account.report.line">
+                <field name="name">Period Net Profit Or Loss</field>
+                <field name="name@tr">DÖNEM NET KÂRI veya ZARARI</field>
+                <field name="code">TR_PL_PROFIT_LOST_AFTER_TAX</field>
+                <field name="hierarchy_level">0</field>
+                <field name="parent_id" eval="False"/>
+                <field name="expression_ids">
+                    <record id="account_report_line_tr_pl_profit_lost_after_tax_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">TR_PL_PROFIT_LOST_BEFORE_TAX.balance - TR_PL_TAXES_AND_LEGAL_OBLIGATIONS_69.balance</field>
+                    </record>
+                </field>
+            </record>
+        </field>
+    </record>
+</odoo>

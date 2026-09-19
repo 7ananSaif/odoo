@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="web_gantt.GanttRendererControls">
+        <div
+            class="o_gantt_renderer_controls d-inline-flex d-print-none flex-wrap column-gap-1 align-items-center w-100 bg-view border-bottom sticky-top start-0"
+            t-att-class="{ 'px-3': !env.isSmall, 'py-1': env.isSmall }"
+        >
+            <t t-call="{{ constructor.rangeMenuTemplate }}" />
+            <hr t-if="env.isSmall" class="my-0 w-100"/>
+            <button
+                class="o_gantt_button_today btn btn-secondary"
+                t-att-class="{ 'ms-3': env.isSmall }"
+                title="Focus Today"
+                data-hotkey="t"
+                t-on-click="onTodayClicked"
+            >
+                Today
+            </button>
+            <t t-if="env.isSmall">
+                <div class="flex-grow-1 w-0"/>
+                <Dropdown>
+                    <button class="btn btn-secondary me-3" aria-label="Toolbar menu">
+                        <i class="fa fa-cog"/>
+                    </button>
+                    <t t-set-slot="content">
+                        <t t-call="{{ constructor.toolbarContentTemplate }}" />
+                    </t>
+                </Dropdown>
+            </t>
+            <t t-else="" t-call="{{ constructor.toolbarContentTemplate }}" />
+            <div t-if="displayRescheduleMethods">
+                <Dropdown>
+                    <button id="reschedule-method" class="btn btn-secondary o-dropdown-caret">
+                        <t t-esc="model.metaData.rescheduleMethods[state.rescheduleMethod]"/>
+                    </button>
+                    <t t-set-slot="content">
+                        <t t-foreach="Object.keys(model.metaData.rescheduleMethods)" t-as="method" t-key="method">
+                            <DropdownItem
+                                class="{ active: method === state.rescheduleMethod }"
+                                onSelected.bind="() => this.selectRescheduleMethod(method)"
+                            >
+                                <t t-esc="model.metaData.rescheduleMethods[method]"/>
+                            </DropdownItem>
+                        </t>
+                    </t>
+                </Dropdown>
+            </div>
+            <t t-slot="multi_selection_buttons" />
+        </div>
+    </t>
+
+    <t t-name="web_gantt.GanttRendererControls.ToolbarContent">
+        <t t-if="!env.isSmall">
+            <div class="btn-toolbar gap-1" role="toolbar" name="ganttToolbar">
+                <button class="btn btn-secondary fa"
+                    t-att-class="{ 'fa-compress': model.displayParams.displayMode === 'sparse', 'fa-expand': model.displayParams.displayMode === 'dense'  }"
+                    t-att-title="model.displayParams.displayMode === 'dense' ? 'Activate sparse mode' : 'Activate dense mode'"
+                    t-on-click="model.toggleDisplayMode.bind(model)"
+                >
+                </button>
+                <div class="btn-group" t-att-class="{ invisible: !props.displayExpandCollapseButtons }" name="expandCollapseButtons">
+                    <t t-if="model.rowsAreExpanded">
+                        <button class="o_gantt_button_collapse_rows btn btn-secondary" title="Collapse rows" t-on-click="model.collapseRows.bind(model)">
+                            <i class="fa fa-caret-down"/>
+                        </button>
+                    </t>
+                    <t t-else="">
+                        <button class="o_gantt_button_expand_rows btn btn-secondary" title="Expand rows" t-on-click="model.expandRows.bind(model)">
+                            <i class="fa fa-caret-right"/>
+                        </button>
+                    </t>
+                </div>
+            </div>
+        </t>
+        <t t-else="">
+            <DropdownItem onSelected="model.toggleDisplayMode.bind(model)">
+                <t t-if="model.displayParams.displayMode === 'dense'">
+                    <i class="fa fa-fw fa-expand"/>
+                    <span class="ms-1">Activate sparse mode</span>
+                </t>
+                <t t-else="">
+                    <i class="fa fa-fw fa-compress"/>
+                    <span class="ms-1">Activate dense mode</span>
+                </t>
+            </DropdownItem>
+            <t t-if="props.displayExpandCollapseButtons">
+                <div class="dropdown-divider" role="separator"/>
+                <t t-if="model.rowsAreExpanded">
+                    <DropdownItem onSelected="model.collapseRows.bind(model)">
+                        <i class="fa fa-fw fa-caret-square-o-down"/>
+                        <span class="ms-1">Collapse rows</span>
+                    </DropdownItem>
+                </t>
+                <t t-else="">
+                    <DropdownItem onSelected="model.expandRows.bind(model)">
+                        <i class="fa fa-fw fa-caret-square-o-right"/>
+                        <span class="ms-1">Expand rows</span>
+                    </DropdownItem>
+                </t>
+            </t>
+        </t>
+    </t>
+
+    <t t-name="web_gantt.GanttRendererControls.RangeMenu">
+        <div class="btn-group" t-att-class="{ 'ms-3': env.isSmall }">
+            <button class="btn btn-secondary" data-hotkey="p" t-on-click="() => this.selectRange('previous')" >
+                <i class="oi oi-arrow-left"/>
+            </button>
+            <button class="btn btn-secondary" data-hotkey="n" t-on-click="() => this.selectRange('next')">
+                <i class="oi oi-arrow-right"/>
+            </button>
+        </div>
+        <GanttScaleSelector t-props="this.getGanttScaleSelectorProps()"/>
+    </t>
+
+</templates>

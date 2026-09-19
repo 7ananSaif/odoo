@@ -1,0 +1,320 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * pos_appointment
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:42+0000\n"
+"PO-Revision-Date: 2025-10-23 06:32+0000\n"
+"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"pos_appointment/ko/>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_form_gantt_booking
+msgid "<span> hours</span>"
+msgstr "<span> 시간</span>"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_form_gantt_booking
+msgid "<span>people</span>"
+msgstr "<span>사용자</span>"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_gantt_booking_resource
+msgid "<strong>Duration: </strong>"
+msgstr "<strong>기간 : </strong>"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_gantt_booking_resource
+msgid "<strong>Phone: </strong>"
+msgstr "<strong>전화: </strong>"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_gantt_booking_resource
+msgid "<strong>Start Date: </strong>"
+msgstr "<strong>시작일 : </strong>"
+
+#. module: pos_appointment
+#: model:ir.model.fields,field_description:pos_appointment.field_calendar_event__appointment_status
+msgid "Appointment Status"
+msgstr "예약 상태"
+
+#. module: pos_appointment
+#: model:ir.model,name:pos_appointment.model_appointment_type
+#: model:ir.model.fields,field_description:pos_appointment.field_pos_config__appointment_type_id
+#: model:ir.model.fields,field_description:pos_appointment.field_res_config_settings__pos_appointment_type_id
+msgid "Appointment Type"
+msgstr "약속 유형"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.res_config_settings_view_form
+msgid "Appointment type"
+msgstr "예약 유형"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/gantt_overrides/gantt_renderer.js:0
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_record.js:0
+msgid "Booked"
+msgstr "예약됨"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/components/navbar/navbar.xml:0
+msgid "Booking"
+msgstr "예약"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_gantt_booking_resource
+msgid "Booking Details"
+msgstr "예약 세부 사항"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_form_gantt_booking
+msgid "Booking Name"
+msgstr "예약명"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_form_gantt_booking
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_graph_pos_appointment
+msgid "Bookings"
+msgstr "예약"
+
+#. module: pos_appointment
+#: model:ir.model,name:pos_appointment.model_calendar_event
+msgid "Calendar Event"
+msgstr "행사 일정표"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_form_gantt_booking
+msgid "Cancel"
+msgstr "취소"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/gantt_overrides/gantt_renderer.js:0
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_record.js:0
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_form_gantt_booking
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_kanban
+msgid "Check In"
+msgstr "출근"
+
+#. module: pos_appointment
+#: model:ir.model,name:pos_appointment.model_res_config_settings
+msgid "Config Settings"
+msgstr "환경설정"
+
+#. module: pos_appointment
+#. odoo-python
+#: code:addons/pos_appointment/models/calendar_event.py:0
+msgid "Create Booking"
+msgstr "예약 만들기"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_form_gantt_booking
+msgid "Date"
+msgstr "날짜"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/gantt_overrides/gantt_renderer.js:0
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_record.js:0
+msgid "Delete"
+msgstr "삭제"
+
+#. module: pos_appointment
+#: model:ir.model.fields,field_description:pos_appointment.field_appointment_type__display_name
+#: model:ir.model.fields,field_description:pos_appointment.field_calendar_event__display_name
+#: model:ir.model.fields,field_description:pos_appointment.field_pos_config__display_name
+#: model:ir.model.fields,field_description:pos_appointment.field_pos_session__display_name
+#: model:ir.model.fields,field_description:pos_appointment.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "표시명"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_form_gantt_booking
+msgid "Duration"
+msgstr "소요 기간"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_record.xml:0
+msgid "Duration:"
+msgstr "기간 :"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/gantt_overrides/gantt_renderer.js:0
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_record.xml:0
+msgid "Edit"
+msgstr "편집"
+
+#. module: pos_appointment
+#. odoo-python
+#: code:addons/pos_appointment/models/calendar_event.py:0
+msgid "Edit Booking"
+msgstr "예약 수정"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_controller.xml:0
+msgid "Evening: 5:00 PM - 12:00 AM"
+msgstr ""
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_gantt_booking_resource
+msgid "Event Details"
+msgstr "행사 세부 정보"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_form_gantt_booking
+msgid "Extra Comments..."
+msgstr "추가 댓글..."
+
+#. module: pos_appointment
+#: model:ir.model.fields,field_description:pos_appointment.field_appointment_type__id
+#: model:ir.model.fields,field_description:pos_appointment.field_calendar_event__id
+#: model:ir.model.fields,field_description:pos_appointment.field_pos_config__id
+#: model:ir.model.fields,field_description:pos_appointment.field_pos_session__id
+#: model:ir.model.fields,field_description:pos_appointment.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_controller.xml:0
+msgid "Lunch: 11:00 AM - 5:00 PM"
+msgstr ""
+
+#. module: pos_appointment
+#. odoo-python
+#: code:addons/pos_appointment/models/calendar_event.py:0
+msgid "Manage Bookings"
+msgstr "예약 관리"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_controller.xml:0
+msgid "Morning: 12:00 AM - 11:00 AM"
+msgstr ""
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/gantt_overrides/gantt_renderer.js:0
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_record.js:0
+msgid "No Show"
+msgstr "노쇼"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_kanban
+msgid "No show"
+msgstr "노쇼"
+
+#. module: pos_appointment
+#: model:ir.model.fields,field_description:pos_appointment.field_calendar_event__phone_number
+msgid "Phone number"
+msgstr "전화번호"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_record.xml:0
+msgid "Phone:"
+msgstr "전화:"
+
+#. module: pos_appointment
+#: model:ir.model,name:pos_appointment.model_pos_config
+msgid "Point of Sale Configuration"
+msgstr "POS 환경 설정"
+
+#. module: pos_appointment
+#: model:ir.model,name:pos_appointment.model_pos_session
+msgid "Point of Sale Session"
+msgstr "점포판매시스템 기간"
+
+#. module: pos_appointment
+#: model:ir.model.fields,field_description:pos_appointment.field_calendar_event__answers
+msgid "Q&A answers"
+msgstr "Q&A 답변"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_form_gantt_booking
+msgid "Reservation for"
+msgstr "예약"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_form_gantt_booking
+msgid "Resources"
+msgstr "리소스"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_controller.xml:0
+msgid "Select Date"
+msgstr "날짜 선택"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_form_gantt_booking
+msgid "Select Resources"
+msgstr "리소스 선택"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_controller.xml:0
+msgid "Select hour"
+msgstr "시간 선택"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_record.xml:0
+msgid "Start Date:"
+msgstr "시작일 :"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/gantt_overrides/gantt_renderer.xml:0
+msgid "Unassigned"
+msgstr "미지정"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/gantt_overrides/gantt_renderer.js:0
+msgid "View"
+msgstr "화면"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_kanban
+msgid "Waiting"
+msgstr "대기 중"
+
+#. module: pos_appointment
+#: model:ir.model.fields,field_description:pos_appointment.field_calendar_event__waiting_list_capacity
+msgid "Waiting List Capacity"
+msgstr "대기 목록 수용량"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_form_gantt_booking
+msgid "e.g. \"John Doe\""
+msgstr "예: 홍길동"
+
+#. module: pos_appointment
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_gantt_booking_resource
+msgid "for:"
+msgstr "대상:"
+
+#. module: pos_appointment
+#. odoo-javascript
+#: code:addons/pos_appointment/static/src/app/kanban_extend/kanban_record.xml:0
+#: model_terms:ir.ui.view,arch_db:pos_appointment.calendar_event_view_gantt_booking_resource
+msgid "hours"
+msgstr "시간"

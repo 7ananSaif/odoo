@@ -1,0 +1,34 @@
+.o-spreadsheet-templates-dialog {
+    .o-sp-dialog-row {
+        display: flex;
+        margin-bottom: 0.75rem;
+
+        label {
+            min-width: 7.5rem;
+            max-width: 7.5rem;
+            white-space: normal;
+            word-break: break-word;
+        }
+
+        &.o-sp-dialog-meta-threshold input {
+            max-width: 7.5rem;
+        }
+    }
+
+    .o-sp-dialog-cp {
+        padding-top: 10px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+
+        .o-sp-searchview {
+            width: 50%;
+            display: flex;
+            flex-direction: row;
+
+            .o-sp-searchview-icon {
+                padding-top: 8px;
+            }
+        }
+    }
+}

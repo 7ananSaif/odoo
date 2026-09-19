@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mrp_routing_workcenter_tree_view_inherited" model="ir.ui.view">
+        <field name="name">mrp.routing.workcenter.list.view.inherited</field>
+        <field name="model">mrp.routing.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_routing_workcenter_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='time_total']" position="after">
+                <field name="quality_point_count"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="mrp_bom_form_view_inherited" model="ir.ui.view">
+        <field name="name">mrp.bom.from.inherited</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']/button[1]" position="before">
+                <button name="%(mrp.mrp_routing_action)d" type="action" context="{'search_default_bom_id': id, 'bom_id_invisible': True}"
+                    class="oe_stat_button" icon="fa-cogs" groups="mrp.group_mrp_routings" invisible="operation_count == 0">
+                    <div class="o_field_widget o_stat_info">
+                        <div class="d-flex align-items-baseline gap-1">
+                            <span class="o_stat_value order-1">
+                                <field name="operation_count" nolabel="1"/>
+                            </span>
+                            <span class="o_stat_text order-2">Operations</span>
+                        </div>
+                        <div class="d-flex align-items-baseline gap-1">
+                            <span class="o_stat_value">
+                                <field name="quality_point_count" nolabel="1"/>
+                            </span>
+                            <span class="o_stat_text order-2">Instructions</span>
+                        </div>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="mrp_routing_workcenter_bom_tree_view" model="ir.ui.view">
+        <field name="name">mrp.routing.workcenter.bom.list.view.inherited</field>
+        <field name="model">mrp.routing.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_routing_workcenter_bom_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='quality_point_count']" position="replace"/>
+        </field>
+    </record>
+</odoo>

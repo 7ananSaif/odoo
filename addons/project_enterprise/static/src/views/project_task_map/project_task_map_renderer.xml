@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="project_enterprise.ProjectTaskMapRenderer" t-inherit="web_map.MapRenderer" t-inherit-mode="primary">
+        <xpath expr="//t[@t-elif='props.model.metaData.routing and !props.model.data.useMapBoxAPI']" position="attributes">
+            <attribute name="t-elif" add="and isProjectManager" separator=" "/>
+        </xpath>
+    </t>
+    <t t-name="project_enterprise.ProjectTaskMapRenderer.PinListItems" t-inherit="web_map.MapRenderer.PinListItems" t-inherit-mode="primary">
+        <xpath expr="//li[@t-if='latitude and longitude']" position="attributes">
+            <attribute name="t-attf-class">#{record.planned_date_begin ? '' : 'text-muted'}</attribute>
+        </xpath>
+        <xpath expr="//t[@t-foreach='records']" position="before">
+            <p t-if="!records.length" class="fst-italic text-muted">View customer locations for your tasks</p>
+        </xpath>
+    </t>
+</templates>

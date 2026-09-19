@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mrp_mps_forecast_suggestion_form_view" model="ir.ui.view">
+        <field name="name">mrp.mps.forecast.suggestion.form</field>
+        <field name="model">mrp.mps.forecast.suggestion</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <div class="text-muted">
+                        <p>Forecast Quantity for <field name="product_id" class="oe_inline fw-bold" options="{'no_open': True}" readonly="mrp_mps_id"/> based on historical date or actual demand.</p>
+                    </div>
+                </group>
+                <group>
+                    <label for="period"/>
+                    <div>
+                        <field name="period" widget="mps_selection" class="oe_inline me-2"/>
+                    </div>
+                    <label for="based_on"/>
+                    <div>
+                        <field name="based_on" class="oe_inline me-1" invisible="period"/>
+                        <field name="based_on_readonly" class="oe_inline me-1" invisible="not period"/>
+                        x <field name="percent_factor" class="o_small oe_inline me-1 text-center"/> %
+                    </div>
+                </group>
+                <footer>
+                    <button name="apply_forecast_quantity_suggestion" data-hotkey="q" type="object" string="Apply" class="btn-primary"/>
+                    <button special="cancel" class="btn btn-secondary" string="Discard" data-hotkey="x" />
+                    <div class="position-absolute end-0 pe-3 text-end text-info fw-bold" invisible="not period and based_on not in ['30_days', 'three_months', 'one_year']">
+                        <field name="quantity_before_scale" class="oe_inline"/> units x 
+                        <field name="percent_factor" class="o_small oe_inline me-1" readonly="True"/>% = 
+                        <field name="quantity" class="oe_inline"/> units
+                    </div>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

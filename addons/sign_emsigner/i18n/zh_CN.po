@@ -1,0 +1,243 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * sign_emsigner
+#
+# "Chloe Wang (chwa)" <chwa@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:47+0000\n"
+"PO-Revision-Date: 2025-11-21 06:33+0000\n"
+"Last-Translator: \"Chloe Wang (chwa)\" <chwa@odoo.com>\n"
+"Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
+"projects/odoo-19/sign_emsigner/zh_Hans/>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: sign_emsigner
+#: model_terms:ir.ui.view,arch_db:sign_emsigner.sign_request_logs_user
+msgid ""
+"<br/>\n"
+"                        Reference Number:"
+msgstr ""
+"<br/>\n"
+"                        参考编号："
+
+#. module: sign_emsigner
+#: model_terms:ir.ui.view,arch_db:sign_emsigner.sign_request_logs_user
+msgid ""
+"<br/>\n"
+"                        Transaction Number:"
+msgstr ""
+"<br/>\n"
+"                        交易编号："
+
+#. module: sign_emsigner
+#: model_terms:ir.ui.view,arch_db:sign_emsigner.sign_request_logs_user
+msgid ""
+"<small>The signatory has provided this identity through emSigner</small>"
+msgstr "<small>签名者通过 emSigner 提供了这一身份信息</small>"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/backend_components/sign_template_action.js:0
+msgid ""
+"Aadhaar Sign works only with a single signer and document. Adding more will "
+"switch to the standard eSignature."
+msgstr ""
+"Aadhaar 电子签名仅对单个签名者和文件有效。添加更多签名将转为标准电子签名。"
+
+#. module: sign_emsigner
+#: model:iap.service,description:sign_emsigner.iap_service_emsigner_proxy
+msgid ""
+"Ask document signatories in Odoo Sign to provide their identity using the "
+"emSigner aadhaar esign. By combining Odoo Sign with emSigner, you can add an "
+"identification step in your signature flows and ask signatories to provide "
+"their identity through the emSigner platform using aadhaar card number. "
+"Available in India."
+msgstr ""
+"要求 Odoo 电子签名中的文件签署人使用 emSigner aadhaar 电子签名提供其身份信"
+"息。通过将 Odoo 电子签名与 emSigner 相结合，您可以在签名流程中添加身份验证步"
+"骤，并要求签名人通过 emSigner 平台使用 aadhaar 卡号提供其身份信息。在印度可"
+"用。"
+
+#. module: sign_emsigner
+#: model_terms:ir.ui.view,arch_db:sign_emsigner.sign_request_logs_user
+msgid "Authenticated with emSigner"
+msgstr "通过 emSigner 验证"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/dialogs/emsigner_dialog.xml:0
+msgid "Continue"
+msgstr "继续"
+
+#. module: sign_emsigner
+#: model:iap.service,unit_name:sign_emsigner.iap_service_emsigner_proxy
+msgid "Credits"
+msgstr "信用"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_item_role__display_name
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request__display_name
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request_item__display_name
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_send_request__display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: sign_emsigner
+#. odoo-python
+#: code:addons/sign_emsigner/controllers/main.py:0
+msgid "ERROR: Invalid PDF file! %s"
+msgstr "错误：PDF 文件无效！%s"
+
+#. module: sign_emsigner
+#. odoo-python
+#: code:addons/sign_emsigner/controllers/main.py:0
+msgid "Emsigner only supports signing a single document at a time."
+msgstr "Emsigner 一次只支持签署一份文档。"
+
+#. module: sign_emsigner
+#. odoo-python
+#: code:addons/sign_emsigner/wizard/sign_send_request.py:0
+msgid ""
+"Emsigner role cannot be signed first. Please keep emsigner as last signer."
+msgstr "不能先签署 Emsigner 角色。请将 emsigner 保留为最后签署人。"
+
+#. module: sign_emsigner
+#. odoo-python
+#: code:addons/sign_emsigner/models/sign_request.py:0
+msgid ""
+"Emsigner role cannot be used for signing directly. Please send the request "
+"instead."
+msgstr "Emsigner 角色不能直接用于签名。请发送请求。"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/components/document_signable.js:0
+msgid "Error"
+msgstr "错误"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_item_role__auth_method
+msgid "Extra Authentication Step"
+msgstr "额外的身份验证步骤"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,help:sign_emsigner.field_sign_item_role__auth_method
+msgid "Force the signatory to identify using a second authentication method"
+msgstr "强制签名人使用第二种身份验证方法进行身份验证"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_item_role__id
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request__id
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request_item__id
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_send_request__id
+msgid "ID"
+msgstr "ID"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/backend_components/sign_template_action.js:0
+msgid "Ok"
+msgstr "确定"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/dialogs/emsigner_dialog.xml:0
+msgid "Proceed to eSign"
+msgstr "进入电子签名"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/dialogs/emsigner_dialog.xml:0
+msgid "Redirecting to complete the Aadhaar eSign process."
+msgstr "重定向以完成 Aadhaar 电子签名流程。"
+
+#. module: sign_emsigner
+#. odoo-python
+#: code:addons/sign_emsigner/models/sign_request_item.py:0
+msgid "Sign request item is not validated yet."
+msgstr "签名请求项目尚未验证。"
+
+#. module: sign_emsigner
+#: model:ir.model,name:sign_emsigner.model_sign_send_request
+msgid "Sign send request"
+msgstr "发送签名请求"
+
+#. module: sign_emsigner
+#: model:ir.model,name:sign_emsigner.model_sign_item_role
+msgid "Signature Item Role"
+msgstr "签字项角色"
+
+#. module: sign_emsigner
+#: model:ir.model,name:sign_emsigner.model_sign_request
+msgid "Signature Request"
+msgstr "签字请求"
+
+#. module: sign_emsigner
+#: model:ir.model,name:sign_emsigner.model_sign_request_item
+msgid "Signature Request Item"
+msgstr "签字请求项"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/backend_components/sign_template_action.js:0
+msgid "Signer Edition"
+msgstr "签署人版本"
+
+#. module: sign_emsigner
+#: model_terms:ir.ui.view,arch_db:sign_emsigner.sign_request_logs_user
+msgid "Status:"
+msgstr "状态："
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/components/document_signable.js:0
+msgid ""
+"The emSigner identification data could not be forwarded to Odoo, the "
+"signature could not be saved."
+msgstr "emSigner 识别数据无法转发到 Odoo，签名无法保存。"
+
+#. module: sign_emsigner
+#: model:ir.model.fields.selection,name:sign_emsigner.selection__sign_item_role__auth_method__emsigner
+msgid "Via Aadhar eSign"
+msgstr "通过 Aadhar 电子签名"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/backend_components/sign_template_action.js:0
+msgid "Warning"
+msgstr "警告消息"
+
+#. module: sign_emsigner
+#. odoo-python
+#: code:addons/sign_emsigner/controllers/main.py:0
+msgid "emSigner IAP service could not be found."
+msgstr "无法找到 emSigner IAP 服务。"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request_item__emsigner_reference_number
+msgid "emSigner Reference Number"
+msgstr "emSigner 参考编号"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request_item__emsigner_status
+msgid "emSigner Status"
+msgstr "emSigner 状态"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request_item__emsigner_transaction_number
+msgid "emSigner Transaction Number"
+msgstr "emSigner 交易编号"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request_item__emsigner_return_value
+msgid "emSigner Values"
+msgstr "emSigner 价值"

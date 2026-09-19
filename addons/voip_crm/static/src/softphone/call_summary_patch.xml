@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<templates>
+    <t t-inherit="voip.CallSummary" t-inherit-mode="extension">
+        <xpath expr="//t[hasclass('o-voip-CallSummary-xpathTarget')]" position="before">
+            <LeadButton call="call"/>
+        </xpath>
+    </t>
+</templates>

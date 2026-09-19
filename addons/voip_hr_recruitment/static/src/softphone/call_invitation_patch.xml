@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<templates>
+    <t t-inherit="voip.CallInvitation" t-inherit-mode="extension">
+        <xpath expr="//t[hasclass('o-voip-CallInvitation-xpathTarget')]" position="before">
+            <ApplicantButton t-if="props.call.partner_id?.applicant_ids?.length > 0" contact="props.call.partner_id"/>
+        </xpath>
+    </t>
+</templates>

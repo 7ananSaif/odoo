@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.stock.accountant</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='default_accounts']" position="after">
+                <block title="Inventory Valuation" id="stock_valuation">
+                    <setting string="Inventory Accounting" company_dependent="1"
+                             help="Default accounts, valuation and cost method for the company. These option can be overridden on each product category" id="default_stock_valuation_accounts">
+                        <div name="default_accounts" class="content-group">
+                            <div class="row mt8">
+                                <label for="valuation_method" class="col-lg-5 o_light_label"/>
+                                <field name="valuation_method"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="inventory_period" string="Periodic Valuation" class="col-lg-5 o_light_label"/>
+                                <field name="inventory_period"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="cost_method" class="col-lg-5 o_light_label"/>
+                                <field name="cost_method"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="stock_valuation_account_id" string="Valuation Account" class="col-lg-5 o_light_label"/>
+                                <field name="stock_valuation_account_id"/>
+                            </div>
+                            <div class="row mt8">
+                                <label for="stock_journal" string="Journal" class="col-lg-5 o_light_label"/>
+                                <field name="stock_journal"/>
+                            </div>
+                            <div class="text-muted pt-2">
+                                Other accounts can be defined on "Inventory Loss" and "Production" on dedicated <button
+                                    type="object" name="action_stock_open_valued_locations"
+                                    class="btn btn-link p-0 align-baseline">locations</button>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

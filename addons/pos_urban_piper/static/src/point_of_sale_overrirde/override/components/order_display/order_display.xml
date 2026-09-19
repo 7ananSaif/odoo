@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_urban_piper.OrderDisplay" t-inherit="point_of_sale.OrderDisplay" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('order-summary')]" position="before">
+            <div t-if="showTimer" class="ms-auto p-2 px-2">
+                <div class="rounded-pill p-1 px-2" t-att-class="{'text-bg-danger': state.remainingTime lt 5, 'text-bg-info text-white': state.remainingTime >= 5}">
+                    <i class="fa fa-clock-o px-1" aria-hidden="true"/>
+                    <span t-esc="state.remainingTime" />'
+                </div>
+            </div>
+        </xpath>
+        <xpath expr="//div[hasclass('tax-info')]" position="before">
+            <div t-if="this.pos.router.state.current == 'TicketScreen' and this.props.order.delivery_provider_id and this.props.order.delivery_status == 'placed'" class="d-flex align-items-center gap-2 my-2">
+                <t t-set="currentOrder" t-value="this.props.order"/>
+                <button
+                    type="button"
+                    class="btn btn-secondary btn-sm px-3 fs-2"
+                    t-on-click="() => this.changePrepTime(currentOrder, false)">
+                    －
+                </button>
+                <input
+                    type="number"
+                    class="form-control text-center form-control-sm fs-2"
+                    t-att-value="this.props.order.prep_time"
+                    t-on-blur="(event) => this.onInputChangePrepTime(currentOrder, event.target.value, event)"/>
+                <button
+                    type="button"
+                    class="increment-btn btn btn-secondary m-0 btn-sm px-3 fs-2"
+                    t-on-click="() => this.changePrepTime(currentOrder, true)">
+                    ＋
+                </button>
+                <span class="fs-3">Min(s)</span>
+            </div>
+        </xpath>
+    </t>
+</templates>

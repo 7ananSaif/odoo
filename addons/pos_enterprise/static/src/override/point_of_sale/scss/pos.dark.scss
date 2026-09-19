@@ -1,0 +1,86 @@
+.pos-logo {
+    --navbar-logo: url("/web/static/img/odoo_logo_dark.svg");
+}
+
+.login-overlay {
+    --homeMenu-bg-image: url("/web_enterprise/static/img/background-dark.jpg");
+}
+
+.btn-light {
+    --btn-active-bg: #{$o-gray-100};
+    --btn-bg: #{$o-gray-200};
+    --btn-hover-bg: #{$o-gray-200};
+}
+
+.btn-secondary {
+    --btn-bg: #{$o-gray-300};
+    --btn-border-color: #{$o-gray-300};
+}
+
+.bg-secondary {
+    --background-color: #{$o-gray-300};
+}
+
+.numpad-button {
+    --border-color: #{$o-gray-200};
+}
+
+.popover {
+    .btn-secondary {
+        --btn-bg: #{$o-gray-400};
+    }
+}
+
+.fields {
+    --search-selected-bg: #{$o-gray-400};
+}
+
+.selected {
+    --orderline-selected: #{saturate($o-component-active-bg, 10%)};
+}
+
+.rightpane {
+    --background-color: #{$o-gray-100};
+
+    .product {
+        --btn-bg: #{$o-gray-300};
+        --btn-hover-bg: #{$o-gray-400};
+    }
+}
+
+@for $size from 2 through length($o-colors) {
+    $-list-color: nth($o-colors, $size);
+
+    .o_colorlist_item_color_transparent_#{$size - 1} {
+        $-border-color: $-list-color;
+        $-background-color: $-list-color;
+        --bg: #{$-background-color};
+        --hover-bg: #{darken($-background-color, 5%)};
+        --border-color: #{$-border-color};
+    }
+
+    .o_colorlist_item_numpad_color_#{$size - 1} {
+        $-background-color: mix($-list-color, $white, 35%);
+        $-text-color: color-contrast($-background-color);
+        --bg: #{$-background-color};
+        --hover-bg: #{darken($-background-color, 5%)};
+        @include o-print-color($-text-color, color, 1);
+    }
+    
+    .o_colorlist_item_color_#{$size - 1} {
+        --color: #{$o-gray-100};
+    }
+}
+
+.payment-method-icon, .navbar-icon {
+    filter: invert(1);
+}
+
+.floor-table {
+    --tableOccupied-color: #000000;
+    --table-color: #000000;
+}
+
+.pos .fa-star-o {
+    color: $o-gray-900;
+}

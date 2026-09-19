@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+
+    <t t-name="spreadsheet_edition.RelatedFilters">
+        <Section class="'pt-0'">
+            <p>
+                Link each filter to a corresponding field in the data source to enable filtering.
+            </p>
+            <t t-foreach="stores" t-as="filterId" t-key="filterId">
+                <t t-set="filter" t-value="this.stores[filterId].filter"/>
+                <t t-set="fieldMatching" t-value="getFieldMatching(filter.id)"/>
+                <t t-set="fieldMatchingIsDefined" t-value="fieldMatching.fieldMatch.chain !== undefined or editedFilters[filter.id]"/>
+
+                <div class="py-1 px-2 d-flex flex-column shadow-sm mb-2 w-100 pivot-dimension"
+                    t-att-class="{'opacity-50': !fieldMatchingIsDefined, 'pivot-dimension-invalid': !fieldMatching.isValid}">
+                    <div class="d-flex flex-row justify-content-between align-items-center">
+                        <span class="o-fw-bold o_side_panel_filter_label" t-esc="filter.label"/>
+                        <i
+                            t-if="fieldMatchingIsDefined"
+                            class="o-button-icon fa fa-link pe-1 ps-2"
+                            t-on-click="() => this.removeFieldMatching(filter.id, fieldMatching.id)"
+                            title="Unlink from the filter"
+                        />
+                        <i
+                            t-else=""
+                            class="o-button-icon fa fa-unlink pe-1 ps-2"
+                            t-on-click="() => this.linkFieldMatching(filter.id)"
+                            title="Link to the filter"
+                        />
+                    </div>
+                    <div t-if="fieldMatchingIsDefined" class="d-flex justify-content-between flex-column">
+                        <div class="d-flex flex-row justify-content-start" name="field-match">
+                            <span class="text-muted pe-2">Field</span>
+                            <ModelFieldSelector
+                                path="fieldMatching.fieldMatch.chain ?? ''"
+                                resModel="props.resModel"
+                                readonly="false"
+                                allowEmpty="false"
+                                isDebugMode="!!env.debug"
+                                update="(path, fieldInfo) => this.selectField(filter.id, fieldMatching.id, path, fieldInfo.fieldDef)"
+                                filter="(field, path, coModel) => this.filterModelFieldSelectorField(filter.id, field, path, coModel)"
+                                sort.bind="sortModelFieldSelectorFields"
+                        />
+                        </div>
+                        <FilterFieldOffset
+                            active="filter.type === 'date' and !!fieldMatching.fieldMatch.chain"
+                            selectedOffset="fieldMatching.fieldMatch.offset ?? 0"
+                            onOffsetSelected="(value) => this.updateFieldMatchingOffset(filter.id, fieldMatching.id, value)"
+                        />
+                    </div>
+                </div>
+            </t>
+        </Section>
+    </t>
+</templates>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="planning_preview_view_form" model="ir.ui.view">
+        <field name="name">planning.preview.form</field>
+        <field name="model">planning.preview</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="slot_count" invisible="1"/>
+                <div class="alert alert-warning text-center py-2 mb-2" role="status" invisible="not employee_id or slot_count != 0">
+                    This employee has no published shifts scheduled for this period.
+                </div>
+                <sheet>
+                    <group>
+                        <field name="employee_id" widget="many2one_avatar_employee"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_preview_shift" type="object" string="Preview" class='btn-primary' data-hotkey="q" disabled="1" invisible="slot_count > 0"/>
+                    <button name="action_preview_shift" type="object" string="Preview" class='btn-primary' data-hotkey="q" invisible="slot_count == 0"/>
+                    <button name="discard" string="Discard" class='btn-secondary' special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="resource_preview_action" model="ir.actions.act_window">
+        <field name="name">Preview Planning</field>
+        <field name="res_model">planning.preview</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="planning_preview_view_form"/>
+        <field name="context">{"dialog_size": "medium"}</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

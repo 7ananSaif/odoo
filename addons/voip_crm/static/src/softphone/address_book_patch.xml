@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<templates>
+    <t t-inherit="voip.AddressBook" t-inherit-mode="extension">
+        <xpath expr="//t[hasclass('o-voip-AddressBook-xpathTarget')]" position="before">
+            <LeadButton contact="contact"/>
+        </xpath>
+    </t>
+</templates>

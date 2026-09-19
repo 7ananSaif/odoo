@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="web_gantt.GanttScaleSelector" t-inherit="web.ViewScaleSelector">
+        <xpath expr="div" position="attributes">
+            <attribute name="class">o_gantt_scale_selector</attribute>
+        </xpath>
+        <xpath expr="//Dropdown" position="attributes">
+            <attribute name="state">this.dropdownState</attribute>
+            <attribute name="menuClass">'o_gantt_scale_selector_menu'</attribute>
+        </xpath>
+        <xpath expr="//DropdownItem" position="replace">
+            <t t-if="scale.key === 'custom'">
+                <div class="dropdown-divider"/>
+                <DropdownItem
+                    class="{ 'o_scale_button_custom': true, 'active': this.props.currentScale === 'custom' }"
+                    closingMode="'none'"
+                >
+                    <div class="d-flex align-items-center gap-1">
+                        <label>From </label>
+                        <span class="o_gantt_picker o_input cursor-pointer px-1" t-ref="start-picker" t-on-click="() => this.startPicker.open()">
+                            <t t-esc="this.getFormattedDate(this.pickerValues.startDate)" />
+                        </span>
+                        <label>to </label>
+                        <span class="o_gantt_picker o_input cursor-pointer px-1" t-ref="stop-picker" t-on-click="() => this.stopPicker.open()">
+                            <t t-esc="this.getFormattedDate(this.pickerValues.stopDate)" />
+                        </span>
+                        <button class="btn btn-sm btn-primary ms-1" t-on-click="() => this.onApply()">Apply</button>
+                    </div>
+                </DropdownItem>
+            </t>
+            <t t-else="">$0</t>
+        </xpath>
+    </t>
+
+</templates>
