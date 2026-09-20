@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip.History">
+    <Tab
+        itemsBySection="callsByDate"
+        extraClass="`o-voip-History ${props.extraClass}`"
+        noEntriesMessage.translate="Your call history is empty! Make a call now and have it listed here 💡"
+        onTabEnd="() => this.voip.fetchRecentCalls(this.state.searchInputValue, this.filteredCalls.length)"
+        state="state"
+    >
+        <t t-set-slot="top">
+            <SearchBar state="state" onInputSearch="onInputSearch">
+                <t t-set-slot="right">
+                    <button class="btn btn-transparent oi oi-launch" t-on-click="onClickExpandHistory" title="Expand history"/>
+                </t>
+            </SearchBar>
+        </t>
+        <t t-set-slot="entry" t-slot-scope="slot">
+            <t t-set="call" t-value="slot.item"/>
+            <t t-set="title" t-value="call.partner_id?.voipName ?? call.phone_number"/>
+            <t t-set="phoneNumber" t-value="call.phone_number"/>
+            <TabEntry
+                avatarUrl="call.partner_id?.avatarUrl ?? '/base/static/img/avatar_grey.png'"
+                title="title"
+                subtitle="getStatusText(call)"
+                subtitleClass="getStatusColor(call)"
+                subtitleIcon="getSubtitleIcon(call)"
+                phoneNumber="phoneNumber"
+                record="call"
+                section="slot.section"
+            >
+                <t t-set-slot="side">
+                    <small class="text-muted smaller text-nowrap" t-esc="call.callDate"/>
+                </t>
+                <t t-set-slot="info">
+                    <div class="d-flex flex-column d-empty-none gap-1">
+                        <p t-if="phoneNumber !== title" class="mb-0 text-muted text-truncate">
+                            <span t-if="call.phone_country_id?.image_url" class="o-voip-countryFlag-wrapper d-inline-block me-1 align-middle">
+                                <img class="o-voip-countryFlag mx-auto" t-att-src="call.phone_country_id.image_url"
+                                t-att-alt="flagAlt"/>
+                            </span>
+                            <i t-else="" class="fa fa-phone fa-fw me-1"/>
+                            <span t-att-class="{ 'align-middle': call.phone_country_id?.image_url }" t-esc="phoneNumber"/>
+                        </p>
+                        <p t-if="call.partner_id?.commercial_company_name" class="m-0 text-muted">
+                            <i class="fa fa-fw fa-building-o me-1" aria-hidden="true"/>
+                            <t t-esc="call.partner_id?.commercial_company_name"/>
+                        </p>
+                    </div>
+                </t>
+                <t t-set-slot="actions">
+                    <ActionButton
+                        name.translate="Contact"
+                        title.translate="View customer details"
+                        icon="call.partner_id ? 'oi-user' : 'oi-user-plus'"
+                        onClick="() => this.onClickContact(call)"
+                    />
+                    <t class="o-voip-History-xpathTarget"/>
+                    <ActionButton t-if="call.partner_id"
+                        name.translate="Activity"
+                        title.translate="Schedule an activity"
+                        icon="'oi-activity-plus'"
+                        onClick="() => this.onClickActivity(call)"
+                    />
+                </t>
+                <t t-set-slot="call-to-action">
+                    <ActionButton t-if="call.partner_id?.email"
+                        name.translate="Email"
+                        title.translate="Send e-mail"
+                        icon="'fa-envelope-o'"
+                        onClick="() => this.onClickEmail(call)"
+                    />
+                    <t class="o-voip-History-sms-xpathTarget"/>
+                    <ActionButton
+                        name.translate="Call"
+                        icon="'fa-phone'"
+                        type="'success'"
+                        onClick="() => this.onClickCall(call)"
+                    />
+                </t>
+            </TabEntry>
+        </t>
+        <t t-set-slot="no-search-results">
+            <NoSearchResults
+                icon="'fa fa-history'"
+                noResultsMessage.translate="No recent calls found"
+                actionMessage.translate="See your contact list"
+                actionCallback="() => this.openPartnerList()"
+            />
+        </t>
+    </Tab>
+</t>
+</templates>

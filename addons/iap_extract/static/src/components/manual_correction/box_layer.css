@@ -1,0 +1,71 @@
+
+  .o_extract_mixin_box_layer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    opacity: 0.8;
+    z-index: 999;
+  }
+
+  .o_extract_mixin_box_layer > .o_extract_mixin_box {
+    color: transparent;
+    position: absolute;
+    white-space: pre;
+    cursor: pointer;
+    border-radius: 2px;
+    border: 2px solid rgba(100,100,255,0.3);
+    background-color: transparent;
+    transition: background-color 0.5s ease-out;
+    -webkit-transform-origin: center center;
+    -moz-transform-origin: center center;
+    -o-transform-origin: center center;
+    -ms-transform-origin: center center;
+    transform-origin: center center;
+  }
+
+  .o_extract_mixin_box_layer:not(.is-selecting) > .o_extract_mixin_box:hover,
+  .o_extract_mixin_box_layer > .o_extract_mixin_box.highlighted  {
+    border: 2px solid rgba(0,0,255,0.8) !important;
+  }
+
+  .o_extract_mixin_box_layer > .o_extract_mixin_box.fadeout  {
+    transition: none;
+    background-color: rgba(100,200,255,0.8);
+  }
+
+  .o_extract_mixin_box_layer .highlight {
+    margin: -1px;
+    padding: 1px;
+
+    background-color: rgb(180, 0, 170);
+    border-radius: 4px;
+  }
+
+  .o_extract_mixin_box_layer .highlight.begin {
+    border-radius: 4px 0px 0px 4px;
+  }
+
+  .o_extract_mixin_box_layer .highlight.end {
+    border-radius: 0px 4px 4px 0px;
+  }
+
+  .o_extract_mixin_box_layer .highlight.middle {
+    border-radius: 0px;
+  }
+
+  .o_extract_mixin_box_layer .highlight.selected {
+    background-color: rgb(0, 100, 0);
+  }
+
+  .o_extract_mixin_box_layer ::selection { background: rgb(0,0,255); }
+  .o_extract_mixin_box_layer ::-moz-selection { background: rgb(0,0,255); }
+
+  .o_extract_selection_box {
+    position: fixed;
+    border: 1px solid #007bff;
+    background-color: rgba(0, 123, 255, 0.2);
+    pointer-events: none;
+  }

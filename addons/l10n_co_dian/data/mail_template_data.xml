@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <function model="mail.template" name="_create_dian_mail_templates"/>
+
+        <record id="email_template_commercial_event" model="mail.template">
+            <field name="name">Colombia Commercial Event</field>
+            <field name="model_id" ref="account.model_account_move"/>
+            <field name="email_from">{{ (object.invoice_user_id.email_formatted or object.company_id.email_formatted or user.email_formatted) }}</field>
+            <field name="partner_to" eval="False"/>
+            <field name="use_default_to" eval="True"/>
+            <field name="subject">Evento;{{ object.ref }};{{ object.company_id.partner_id._get_vat_without_verification_code() }};{{ object.company_id.partner_id.l10n_co_edi_commercial_name or object.company_id.partner_id.name }};{{ object._l10n_co_dian_get_electronic_document_number() }};{{ object._l10n_co_dian_get_mail_commercial_state_label().split(' - ', 1)[0] }}</field>
+            <field name="description">Sent to vendor with the application response in attachment</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+        <t t-out="object._l10n_co_dian_get_mail_commercial_state_label()"/> event reported to DIAN.
+    </p>
+</div>
+            </field>
+            <field name="lang">{{ object.partner_id.lang }}</field>
+            <field name="auto_delete" eval="True"/>
+        </record>
+    </data>
+</odoo>

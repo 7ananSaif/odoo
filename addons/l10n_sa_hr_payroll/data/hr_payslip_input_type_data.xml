@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_sa_input_salary_advance" model="hr.payslip.input.type">
+        <field name="name">Salary Advance</field>
+        <field name="code">ADV</field>
+        <field name="country_id" ref="base.sa"/>
+        <field name="struct_ids" eval="[(4, ref('l10n_sa_hr_payroll.l10n_sa_salary_advance_and_loan'))]"/>
+    </record>
+    <record id="l10n_sa_input_loan_deduction" model="hr.payslip.input.type">
+        <field name="name">Loan Deduction</field>
+        <field name="code">LOAN_DEDUCTION</field>
+        <field name="country_id" ref="base.sa"/>
+        <field name="available_in_attachments" eval="True"/>
+    </record>
+    <record id="l10n_sa_input_weekdays_overtime_hours" model="hr.payslip.input.type">
+        <field name="name">Weekdays Overtime Hours</field>
+        <field name="code">OVT</field>
+        <field name="country_id" ref="base.sa"/>
+        <field name="struct_ids" eval="[(4, ref('ksa_saudi_employee_payroll_structure'))]"/>
+    </record>
+    <record id="l10n_sa_input_exit_re_entry" model="hr.payslip.input.type">
+        <field name="name">Exit Re-Entry</field>
+        <field name="code">EXITREENTRY</field>
+        <field name="country_id" ref="base.sa"/>
+        <field name="struct_ids" eval="[(4, ref('ksa_saudi_employee_payroll_structure'))]"/>
+    </record>
+</odoo>

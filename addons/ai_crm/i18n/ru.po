@@ -1,0 +1,100 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * ai_crm
+#
+# "Anastasiia Koroleva (koan)" <koan@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-12-06 10:09+0000\n"
+"Last-Translator: \"Anastasiia Koroleva (koan)\" <koan@odoo.com>\n"
+"Language-Team: Russian <https://translate.odoo.com/projects/odoo-19/ai_crm/"
+"ru/>\n"
+"Language: ru\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: ai_crm
+#: model:ir.actions.server,ai_tool_description:ai_crm.ir_actions_server_ai_create_lead
+msgid ""
+"## Tool: Create a Lead\n"
+"Use when the customer has provided the required information and you are "
+"ready to register the lead."
+msgstr ""
+"## Инструмент: Создать лид\n"
+"Используйте, когда клиент предоставил необходимую информацию и вы готовы "
+"зарегистрировать лид."
+
+#. module: ai_crm
+#: model:ir.actions.server,ai_tool_description:ai_crm.ir_actions_server_ai_get_lead_create_available_params
+msgid ""
+"## Tool: Get Lead Creation Parameters\n"
+"Retrieves available teams and tags for lead creation.\n"
+"Use this tool only immediately before calling the lead creation tool (never "
+"at other times).\n"
+"When the customer provides their country (or if it can be clearly inferred "
+"from the conversation),\n"
+"use the country’s code as parameter to retrieve the country and its states "
+"IDs."
+msgstr ""
+"## Инструмент: Получить параметры для создания лида\n"
+"Получает доступные команды и теги для создания лида.\n"
+"Используйте этот инструмент только непосредственно перед вызовом инструмента "
+"создания лида.\n"
+"Когда клиент сообщает свою страну (или если страна очевидна из контекста "
+"разговора), используйте ее код в качестве параметра для получения ID страны "
+"и ее регионов."
+
+#. module: ai_crm
+#: model:ir.model,name:ai_crm.model_ai_agent
+msgid "AI Agent"
+msgstr "ИИ-агент"
+
+#. module: ai_crm
+#: model:ir.actions.server,name:ai_crm.ir_actions_server_ai_create_lead
+msgid "AI CRM: Create Lead"
+msgstr "ИИ CRM: Создать лид"
+
+#. module: ai_crm
+#: model:ir.actions.server,name:ai_crm.ir_actions_server_ai_get_lead_create_available_params
+msgid "AI CRM: Get Lead creation available parameters"
+msgstr "ИИ CRM: Получить доступные параметры для создания лида"
+
+#. module: ai_crm
+#: model:ir.model.fields,field_description:ai_crm.field_ai_agent__name
+msgid "Agent Name"
+msgstr "Имя агента"
+
+#. module: ai_crm
+#: model:ir.model,website_form_label:ai_crm.model_crm_lead
+msgid "Create an Opportunity"
+msgstr "Создать возможность"
+
+#. module: ai_crm
+#: model:ir.model.fields,field_description:ai_crm.field_ai_agent__display_name
+#: model:ir.model.fields,field_description:ai_crm.field_crm_lead__display_name
+msgid "Display Name"
+msgstr "Display Name"
+
+#. module: ai_crm
+#: model:ir.model.fields,field_description:ai_crm.field_ai_agent__id
+#: model:ir.model.fields,field_description:ai_crm.field_crm_lead__id
+msgid "ID"
+msgstr "ID"
+
+#. module: ai_crm
+#: model:ir.model,name:ai_crm.model_crm_lead
+msgid "Lead"
+msgstr "Лид"
+
+#. module: ai_crm
+#: model:ir.model.fields,field_description:ai_crm.field_ai_agent__source_id
+msgid "Source"
+msgstr "Источник"

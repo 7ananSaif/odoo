@@ -1,0 +1,80 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * event_social
+#
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.2+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:44+0000\n"
+"PO-Revision-Date: 2025-09-18 02:44+0000\n"
+"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"Language-Team: French <https://translate.odoo.com/projects/odoo-19/"
+"event_social/fr/>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: event_social
+#. odoo-python
+#: code:addons/event_social/models/event_mail.py:0
+#: code:addons/event_social/models/event_type_mail.py:0
+msgid ""
+"As social posts have no recipients, they cannot be triggered by "
+"registrations."
+msgstr ""
+"Comme les publications sur les réseaux sociaux n'ont pas de destinataires, "
+"elles ne peuvent pas être déclenchées par des inscriptions."
+
+#. module: event_social
+#: model:ir.model.fields,field_description:event_social.field_event_mail__display_name
+#: model:ir.model.fields,field_description:event_social.field_event_type_mail__display_name
+#: model:ir.model.fields,field_description:event_social.field_social_post_template__display_name
+msgid "Display Name"
+msgstr "Nom d'affichage"
+
+#. module: event_social
+#: model:ir.model,name:event_social.model_event_mail
+msgid "Event Automated Mailing"
+msgstr "Envois automatisés pour un événement"
+
+#. module: event_social
+#: model:ir.model.fields,field_description:event_social.field_event_mail__id
+#: model:ir.model.fields,field_description:event_social.field_event_type_mail__id
+#: model:ir.model.fields,field_description:event_social.field_social_post_template__id
+msgid "ID"
+msgstr "ID"
+
+#. module: event_social
+#: model:ir.model,name:event_social.model_event_type_mail
+msgid "Mail Scheduling on Event Category"
+msgstr "Planification d'e-mails en fonction de la catégorie d'événement"
+
+#. module: event_social
+#: model:ir.model.fields,field_description:event_social.field_event_mail__notification_type
+#: model:ir.model.fields,field_description:event_social.field_event_type_mail__notification_type
+msgid "Send"
+msgstr "Envoyer"
+
+#. module: event_social
+#: model:ir.model.fields.selection,name:event_social.selection__event_mail__notification_type__social_post
+#: model:ir.model.fields.selection,name:event_social.selection__event_mail__template_ref__social_post_template
+#: model:ir.model.fields.selection,name:event_social.selection__event_type_mail__notification_type__social_post
+#: model:ir.model.fields.selection,name:event_social.selection__event_type_mail__template_ref__social_post_template
+msgid "Social Post"
+msgstr "Post social"
+
+#. module: event_social
+#: model:ir.model,name:event_social.model_social_post_template
+msgid "Social Post Template"
+msgstr "Modèle de post social"
+
+#. module: event_social
+#: model:ir.model.fields,field_description:event_social.field_event_mail__template_ref
+#: model:ir.model.fields,field_description:event_social.field_event_type_mail__template_ref
+msgid "Template"
+msgstr "Modèle"

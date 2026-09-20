@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr.departure_resigned" model="hr.departure.reason">
+        <field name="l10n_hk_empf_code">RESIGN</field>
+    </record>
+
+    <record id="hr.departure_retired" model="hr.departure.reason">
+        <field name="l10n_hk_empf_code">RETIRE</field>
+    </record>
+
+    <record id="hr.departure_fired" model="hr.departure.reason">
+        <field name="l10n_hk_empf_code">DISMIS</field>
+    </record>
+
+    <record id="l10n_hk_hr_payroll.hr_departure_reason_death" model="hr.departure.reason">
+        <field name="l10n_hk_empf_code">DEATH</field>
+    </record>
+
+    <record id="hr_departure_reason_early_retire" model="hr.departure.reason">
+        <field name="sequence">12</field>
+        <field name="name">Early Retirement</field>
+        <field name="l10n_hk_ir56f_code">2</field>
+        <field name="l10n_hk_empf_code">EARLY_RETIRE</field>
+        <field name="country_id" ref="base.hk"/>
+    </record>
+
+    <record id="hr_departure_reason_summary_dismissal" model="hr.departure.reason">
+        <field name="sequence">13</field>
+        <field name="name">Summary Dismissal</field>
+        <field name="l10n_hk_ir56f_code">3</field>
+        <field name="l10n_hk_empf_code">SUM_DISMISS</field>
+        <field name="country_id" ref="base.hk"/>
+    </record>
+
+    <record id="hr_departure_reason_redundancy" model="hr.departure.reason">
+        <field name="sequence">14</field>
+        <field name="name">Redundancy</field>
+        <field name="l10n_hk_ir56f_code">5</field>
+        <field name="l10n_hk_empf_code">REDUNDANCY</field>
+        <field name="country_id" ref="base.hk"/>
+    </record>
+
+    <record id="hr_departure_reason_laid_off" model="hr.departure.reason">
+        <field name="sequence">15</field>
+        <field name="name">Laid Off</field>
+        <field name="l10n_hk_ir56f_code">5</field>
+        <field name="l10n_hk_empf_code">LAID_OFF</field>
+        <field name="country_id" ref="base.hk"/>
+    </record>
+
+    <record id="hr_departure_reason_contract_end" model="hr.departure.reason">
+        <field name="sequence">16</field>
+        <field name="name">Contract Ended</field>
+        <field name="l10n_hk_ir56f_code">5</field>
+        <field name="l10n_hk_empf_code">CONTRACT_END</field>
+        <field name="country_id" ref="base.hk"/>
+    </record>
+
+    <record id="hr_departure_reason_ill_health" model="hr.departure.reason">
+        <field name="sequence">17</field>
+        <field name="name">Ill Health</field>
+        <field name="l10n_hk_ir56f_code">5</field>
+        <field name="l10n_hk_empf_code">ILL_HEALTH</field>
+        <field name="country_id" ref="base.hk"/>
+    </record>
+
+    <record id="hr_departure_reason_total_incap" model="hr.departure.reason">
+        <field name="sequence">18</field>
+        <field name="name">Total Incapacity</field>
+        <field name="l10n_hk_ir56f_code">5</field>
+        <field name="l10n_hk_empf_code">TOTAL_INCAP</field>
+        <field name="country_id" ref="base.hk"/>
+    </record>
+
+    <!-- We keep `hr_departure_reason_other` as is, but it is not valid to use with eMPF. -->
+    <record id="l10n_hk_hr_payroll.hr_departure_reason_other" model="hr.departure.reason">
+        <field name="sequence">99</field>
+    </record>
+</odoo>

@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="base.demo_company_mx" model="res.company">
+        <field name="l10n_mx_imss_id">Y5847150105</field>
+    </record>
+
+    <record id="base.demo_company_2_mx" model="res.company">
+        <field name="l10n_mx_edi_pac">sw</field>
+        <field name="l10n_mx_edi_pac_test_env" eval="True"/>
+        <field name="l10n_mx_imss_id">Z879200284</field>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.user_xochilt" model="res.users">
+        <field name="company_ids" eval="[Command.link(ref('base.demo_company_2_mx'))]"/>
+        <field name="company_id" ref="base.demo_company_2_mx"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.user_karla" model="res.users">
+        <field name="company_ids" eval="[Command.link(ref('base.demo_company_2_mx'))]"/>
+        <field name="company_id" ref="base.demo_company_2_mx"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.res_partner_xochilt" model="res.partner">
+        <field name="company_id" ref="base.demo_company_2_mx"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.res_partner_karla" model="res.partner">
+        <field name="company_id" ref="base.demo_company_2_mx"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.res_partner_bank_account_xochilt" model="res.partner.bank">
+        <field name="company_id" ref="base.demo_company_2_mx"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.res_partner_bank_account_karla" model="res.partner.bank">
+        <field name="company_id" ref="base.demo_company_2_mx"/>
+    </record>
+
+    <record id="base.hr_employee_cesar" model="hr.employee">
+        <field name="l10n_mx_rfc">CUSC850516316</field>
+        <field name="l10n_mx_curp">CUSC850516XNERLS05</field>
+        <field name="contract_type_id" ref="l10n_mx_contract_type_01"/>
+    </record>
+
+    <record id="base.hr_employee_cecilia" model="hr.employee">
+        <field name="l10n_mx_rfc">MISC491214B86</field>
+        <field name="l10n_mx_curp">MISC491214MDFRNC06</field>
+        <field name="contract_type_id" ref="l10n_mx_contract_type_01"/>
+    </record>
+
+    <record id="base.hr_employee_xochilt" model="hr.employee">
+        <field name="l10n_mx_rfc">CACX7605101P8</field>
+        <field name="l10n_mx_curp">CACX760431HNESHC03</field>
+        <field name="contract_type_id" ref="l10n_mx_contract_type_01"/>
+        <field name="company_id" ref="base.demo_company_2_mx"/>
+    </record>
+
+    <record id="base.hr_employee_karla" model="hr.employee">
+        <field name="l10n_mx_rfc">FUNK671228PH6</field>
+        <field name="l10n_mx_curp">FUNK671228MYNNLR02</field>
+        <field name="contract_type_id" ref="l10n_mx_contract_type_01"/>
+        <field name="company_id" ref="base.demo_company_2_mx"/>
+    </record>
+
+    <record id="base.hr_employee_maria" model="hr.employee">
+        <field name="l10n_mx_rfc">MASO451221PM4</field>
+        <field name="l10n_mx_curp">MIAL451221MDFLYY12</field>
+        <field name="contract_type_id" ref="l10n_mx_contract_type_01"/>
+    </record>
+
+    <record id="base.hr_employee_felix" model="hr.employee">
+        <field name="l10n_mx_rfc">AABF800614HI0</field>
+        <field name="l10n_mx_curp">AABF800616HNLDNF07</field>
+        <field name="contract_type_id" ref="l10n_mx_contract_type_01"/>
+    </record>
+</odoo>

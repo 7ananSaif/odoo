@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip.NoSearchResults">
+    <article class="o-voip-NoSearchResults h-100 d-flex flex-column gap-2 justify-content-center align-items-center p-3">
+        <i class="fs-1 text-300" t-att-class="props.icon" aria-hidden="true"/>
+        <h3 class="mb-0 text-center text-break" t-esc="props.noResultsMessage"/>
+        <button class="btn btn-link" t-esc="props.actionMessage" t-on-click="props.actionCallback"/>
+    </article>
+</t>
+</templates>

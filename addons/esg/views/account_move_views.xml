@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_move_form_inherit_esg" model="ir.ui.view">
+        <field name="name">account.move.inherit.esg</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button
+                    class="oe_stat_button"
+                    name="action_view_move_emissions"
+                    type="object"
+                    icon="fa-leaf"
+                    invisible="not esg_show_emissions_button"
+                >
+                    <div class="o_stat_info">
+                        <span class="o_stat_text d-flex align-items-baseline gap-1">
+                            <field name="esg_emissions_value" widget="statinfo" nolabel="1" class="oe_inline"/>
+                            <span>kgCO₂e</span>
+                        </span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

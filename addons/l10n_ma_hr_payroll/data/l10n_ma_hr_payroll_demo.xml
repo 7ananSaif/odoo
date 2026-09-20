@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="base.partner_demo_company_ma" model="res.partner" forcecreate="1">
+        <field name="name">My Moroccan Company</field>
+        <field name="country_id" ref="base.ma"/>
+    </record>
+
+    <record id="base.demo_company_ma" model="res.company" forcecreate="1">
+        <field name="name">My Moroccan Company</field>
+        <field name="partner_id" ref="base.partner_demo_company_ma"/>
+        <field name="currency_id" ref="base.MAD"/>
+        <field name="street">14000 Avenue Mokhtar Gazoulit</field>
+        <field name="zip">10000</field>
+        <field name="city">Rabat</field>
+        <field name="country_id" ref="base.ma"/>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_ma'))]"/>
+    </record>
+
+    <record id="base.user_demo" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_ma'))]"/>
+    </record>
+
+    <record id="ma_hr_department_rd" model="hr.department">
+        <field name="name">R&amp;D MA</field>
+        <field name="company_id" ref="base.demo_company_ma"/>
+    </record>
+
+    <record id="res_partner_sufyan" model="res.partner">
+        <field name="name">Sufyan Harrak</field>
+        <field name="street">436, Avenue Mohammed El Fassi </field>
+        <field name="city">Rabat</field>
+        <field name="zip">10100</field>
+        <field name="country_id" ref="base.ma"/>
+        <field name="phone">0993 784 912</field>
+        <field name="company_id" ref="base.demo_company_ma"/>
+    </record>
+    <record id="res_partner_sufyan" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_ma_hr_payroll.res_partner_sufyan')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_meryem" model="res.partner">
+        <field name="name">Meryem Kadiri</field>
+        <field name="street">14000 Avenue Mokhtar Gazoulit</field>
+        <field name="city">Rabat</field>
+        <field name="zip">10000</field>
+        <field name="country_id" ref="base.ma"/>
+        <field name="phone">0991 842 900</field>
+        <field name="company_id" ref="base.demo_company_ma"/>
+    </record>
+    <record id="res_partner_meryem" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="user_meryem" model="res.users">
+        <field name="partner_id" ref="l10n_ma_hr_payroll.res_partner_meryem"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_ma'))]"/>
+        <field name="company_id" ref="base.demo_company_ma"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="l10n_ma_hr_payroll/static/img/hr_employee_meryem.jpg"/>
+    </record>
+
+    <record id="ma_res_bank_attijariwafa" model="res.bank">
+        <field name="name">Attijariwafa Bank</field>
+        <field name="bic">BCMAMAMCXXX</field>
+        <field name="street">Attijariwafa Bank Rd</field>
+        <field name="city">Rabat</field>
+        <field name="zip">129019</field>
+        <field name="country" ref="base.ma"/>
+        <field name="phone">0993 438 127</field>
+    </record>
+    <record id="ma_res_bank_attijariwafa" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_ma_hr_payroll.ma_res_bank_attijariwafa')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="ma_res_bank_banque_populaire" model="res.bank">
+        <field name="name">Banque Populaire</field>
+        <field name="bic">BCPOMAMCXXX</field>
+        <field name="street">Banque Populaire Street</field>
+        <field name="city">Rabat</field>
+        <field name="zip">10283</field>
+        <field name="country" ref="base.ma"/>
+        <field name="phone">0991 908 032</field>
+    </record>
+    <record id="ma_res_bank_banque_populaire" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_ma_hr_payroll.ma_res_bank_banque_populaire')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_sufyan" model="res.partner.bank">
+        <field name="acc_number">MA030103599935698356</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_ma_hr_payroll.ma_res_bank_attijariwafa"/>
+        <field name="partner_id" ref="l10n_ma_hr_payroll.res_partner_sufyan"/>
+        <field name="company_id" ref="base.demo_company_ma"/>
+        <field name="currency_id" ref="base.EUR"/>
+    </record>
+
+    <record id="res_partner_bank_account_meryem" model="res.partner.bank">
+        <field name="acc_number">MA64031419000001205000892323</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_ma_hr_payroll.ma_res_bank_banque_populaire"/>
+        <field name="partner_id" ref="l10n_ma_hr_payroll.res_partner_meryem"/>
+        <field name="company_id" ref="base.demo_company_ma"/>
+        <field name="currency_id" ref="base.MAD"/>
+    </record>
+
+    <record id="hr_employee_sufyan" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_sufyan')).name"/>
+        <field name="image_1920" type="base64" file="l10n_ma_hr_payroll/static/img/hr_employee_sufyan.jpg"/>
+        <field name="work_phone">0994 000 111</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_sufyan')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="work_contact_id" ref="l10n_ma_hr_payroll.res_partner_sufyan"/>
+        <field name="company_id" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_sufyan')).company_id"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Africa/Casablanca</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_sufyan')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_sufyan')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_sufyan')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_sufyan')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_sufyan')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_sufyan')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_sufyan')).phone"/>
+        <field name="distance_home_work">17</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_sufyan')).country_id"/>
+        <field name="identification_id">9993083335496</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1975, 3, 21).date()"/>
+        <field name="place_of_birth">Marrakesh</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_sufyan')).country_id"/>
+        <field name="emergency_contact">Abdou Harrak</field>
+        <field name="emergency_phone">0999 274 891</field>
+        <field name="certificate">doctor</field>
+        <field name="study_field">Physiology</field>
+        <field name="study_school">Al Akhawayn University</field>
+        <field name="marital">single</field>
+        <field name="l10n_ma_cin_number">1000-274</field>
+        <field name="l10n_ma_cnss_number">1000-149</field>
+        <field name="l10n_ma_cimr_number">1000-784</field>
+        <field name="l10n_ma_mut_number">1000-893</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_ma_hr_payroll.res_partner_bank_account_sufyan'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_ma_hr_payroll.ma_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_ma_hr_payroll.structure_type_employee_mar"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">3250</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_ma').id)], limit=1)"/>
+    </record>
+
+    <record id="hr_employee_meryem" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).name"/>
+        <field name="image_1920" type="base64" file="l10n_ma_hr_payroll/static/img/hr_employee_meryem.jpg"/>
+        <field name="work_phone">0994 000 112</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="parent_id" ref="l10n_ma_hr_payroll.hr_employee_sufyan"/>
+        <field name="user_id" ref="l10n_ma_hr_payroll.user_meryem"/>
+        <field name="company_id" ref="base.demo_company_ma"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Africa/Casablanca</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).phone"/>
+        <field name="distance_home_work">1</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).country_id"/>
+        <field name="identification_id">9992027365496</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1961, 7, 28).date()"/>
+        <field name="place_of_birth">Casablanca</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_ma_hr_payroll.res_partner_meryem')).country_id"/>
+        <field name="emergency_contact">Nawal Kadiri</field>
+        <field name="emergency_phone">0999 123 123</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Electrical Engineering</field>
+        <field name="study_school">Université Mundiapolis Casablanca</field>
+        <field name="marital">single</field>
+        <field name="l10n_ma_cin_number">1000-123</field>
+        <field name="l10n_ma_cnss_number">1000-123</field>
+        <field name="l10n_ma_cimr_number">1000-123</field>
+        <field name="l10n_ma_mut_number">1000-123</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_ma_hr_payroll.res_partner_bank_account_meryem'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_ma_hr_payroll.ma_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_ma_hr_payroll.structure_type_employee_mar"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">5000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-2, month=1, day=1))"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-2, month=1, day=1))"/>
+        <field name="contract_date_end" eval="(DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_ma').id)], limit=1)"/>
+    </record>
+
+    <function name="create_version" model="hr.employee">
+        <value eval="[ref('l10n_ma_hr_payroll.hr_employee_meryem')]"/>
+        <value eval="{
+            'date_version': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2) + relativedelta(days=1),
+            'contract_date_start': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2) + relativedelta(days=1),
+            'contract_date_end': False,
+            'wage': 5600.00
+        }"/>
+    </function>
+
+    <record id="hr_payslip_batch_morocco" model="hr.payslip.run">
+        <field name="name" eval="'Batch salary ' + (DateTime.today() + relativedelta(months=-1)).strftime('%B %Y')"/>
+        <field name="date_start" eval="(DateTime.today() + relativedelta(months=-1, day=1)).strftime('%Y-%m-%d')"/>
+        <field name="date_end" eval="(DateTime.today() + relativedelta(day=1, days=-1)).strftime('%Y-%m-%d')"/>
+        <field name="company_id" ref="base.main_company"/>
+    </record>
+</odoo>

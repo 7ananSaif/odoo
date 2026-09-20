@@ -1,0 +1,222 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * approvals_purchase
+#
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.2+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:44+0000\n"
+"PO-Revision-Date: 2025-09-16 15:32+0000\n"
+"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"approvals_purchase/fi/>\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: approvals_purchase
+#: model:ir.model.fields,help:approvals_purchase.field_approval_category__approval_type
+msgid ""
+"Allows you to define which documents you would like to create once the "
+"request has been approved"
+msgstr ""
+"Voit määrittää, mitä asiakirjoja haluat luoda, kun pyyntö on hyväksytty"
+
+#. module: approvals_purchase
+#: model:ir.model,name:approvals_purchase.model_approval_category
+msgid "Approval Category"
+msgstr "Hyväksymiskategoria"
+
+#. module: approvals_purchase
+#: model:ir.model,name:approvals_purchase.model_approval_request
+msgid "Approval Request"
+msgstr "Hyväksyntäpyyntö"
+
+#. module: approvals_purchase
+#: model:ir.model.fields,field_description:approvals_purchase.field_approval_category__approval_type
+msgid "Approval Type"
+msgstr "Hyväksyntätyyppi"
+
+#. module: approvals_purchase
+#: model:ir.model,name:approvals_purchase.model_res_partner
+msgid "Contact"
+msgstr "Yhteystiedot"
+
+#. module: approvals_purchase
+#: model:approval.category,name:approvals_purchase.approval_category_data_rfq
+#: model:ir.model.fields.selection,name:approvals_purchase.selection__approval_category__approval_type__purchase
+#: model_terms:ir.ui.view,arch_db:approvals_purchase.approval_purchase_request_view_form_inherit
+msgid "Create RFQ's"
+msgstr "Luo tarjouspyyntöjä (RFQ)"
+
+#. module: approvals_purchase
+#: model:ir.model,website_form_label:approvals_purchase.model_res_partner
+msgid "Create a Customer"
+msgstr "Luo asiakas"
+
+#. module: approvals_purchase
+#: model:ir.model.fields,field_description:approvals_purchase.field_approval_category__display_name
+#: model:ir.model.fields,field_description:approvals_purchase.field_approval_product_line__display_name
+#: model:ir.model.fields,field_description:approvals_purchase.field_approval_request__display_name
+#: model:ir.model.fields,field_description:approvals_purchase.field_purchase_order__display_name
+#: model:ir.model.fields,field_description:approvals_purchase.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Näyttönimi"
+
+#. module: approvals_purchase
+#: model_terms:ir.ui.view,arch_db:approvals_purchase.exception_approval_request_canceled
+msgid "Exception occurred: the Approval Request"
+msgstr "Tapahtui poikkeus: hyväksymispyyntö"
+
+#. module: approvals_purchase
+#: model_terms:ir.ui.view,arch_db:approvals_purchase.exception_approval_request_canceled
+msgid "Exception(s):"
+msgstr "Poikkeukset:"
+
+#. module: approvals_purchase
+#: model:ir.model.fields,field_description:approvals_purchase.field_approval_category__id
+#: model:ir.model.fields,field_description:approvals_purchase.field_approval_product_line__id
+#: model:ir.model.fields,field_description:approvals_purchase.field_approval_request__id
+#: model:ir.model.fields,field_description:approvals_purchase.field_purchase_order__id
+#: model:ir.model.fields,field_description:approvals_purchase.field_res_partner__id
+msgid "ID"
+msgstr "Tunnus"
+
+#. module: approvals_purchase
+#. odoo-python
+#: code:addons/approvals_purchase/models/approval_product_line.py:0
+msgid "Please select a vendor on product line or set it on product(s) %s."
+msgstr "Valitse toimittaja tuoterivillä tai aseta se tuotteelle %s."
+
+#. module: approvals_purchase
+#: model:ir.model,name:approvals_purchase.model_approval_product_line
+msgid "Product Line"
+msgstr "Tuoterivi"
+
+#. module: approvals_purchase
+#: model:ir.model.fields,field_description:approvals_purchase.field_approval_product_line__product_template_id
+msgid "Product Template"
+msgstr "Tuotemalli"
+
+#. module: approvals_purchase
+#: model:ir.model.fields,field_description:approvals_purchase.field_approval_product_line__product_id
+msgid "Products"
+msgstr "Tuotteet"
+
+#. module: approvals_purchase
+#. odoo-python
+#: code:addons/approvals_purchase/models/purchase_order.py:0
+msgid "Products: "
+msgstr "Tuotteet: "
+
+#. module: approvals_purchase
+#: model:ir.model,name:approvals_purchase.model_purchase_order
+msgid "Purchase Order"
+msgstr "Ostotilaus"
+
+#. module: approvals_purchase
+#: model:ir.model.fields,field_description:approvals_purchase.field_approval_request__purchase_order_count
+msgid "Purchase Order Count"
+msgstr "Ostotilausten määrä"
+
+#. module: approvals_purchase
+#: model:ir.model.fields,field_description:approvals_purchase.field_approval_product_line__purchase_order_line_id
+msgid "Purchase Order Line"
+msgstr "Ostotilausrivi"
+
+#. module: approvals_purchase
+#. odoo-python
+#: code:addons/approvals_purchase/models/approval_request.py:0
+#: model_terms:ir.ui.view,arch_db:approvals_purchase.approval_purchase_request_view_form_inherit
+msgid "Purchase Orders"
+msgstr "Ostotilaukset"
+
+#. module: approvals_purchase
+#: model:ir.model.fields,field_description:approvals_purchase.field_approval_product_line__po_uom_qty
+msgid "Purchase Unit Quantity"
+msgstr "Ostoyksiköiden määrä"
+
+#. module: approvals_purchase
+#. odoo-python
+#: code:addons/approvals_purchase/models/purchase_order.py:0
+msgid ""
+"RFQ %(rfq_name)s state has been changed: %(old_state_label)s -> %"
+"(new_state_label)s"
+msgstr ""
+"Tarjouspyynnön%(rfq_name)s  tila on muuttunut: %(old_state_label)s -> %"
+"(new_state_label)s"
+
+#. module: approvals_purchase
+#: model:ir.model.fields,field_description:approvals_purchase.field_res_partner__category_id
+#: model:ir.model.fields,field_description:approvals_purchase.field_res_users__category_id
+msgid "Tags"
+msgstr "Tunnisteet"
+
+#. module: approvals_purchase
+#. odoo-python
+#: code:addons/approvals_purchase/models/approval_request.py:0
+msgid ""
+"The following products couldn't be removed because the RFQs are not in draft "
+"state:"
+msgstr ""
+"Seuraavia tuotteita ei voitu poistaa, koska tarjouspyynnöt eivät ole "
+"luonnoksia:"
+
+#. module: approvals_purchase
+#. odoo-python
+#: code:addons/approvals_purchase/models/approval_request.py:0
+msgid "The following products have been added to the RFQs:"
+msgstr "Seuraavat tuotteet on lisätty tarjouspyyntöihin:"
+
+#. module: approvals_purchase
+#. odoo-python
+#: code:addons/approvals_purchase/models/approval_request.py:0
+msgid "The following products have been removed from the RFQs:"
+msgstr "Seuraavat tuotteet on poistettu tarjouspyynnöistä:"
+
+#. module: approvals_purchase
+#: model:ir.model.fields,help:approvals_purchase.field_approval_product_line__po_uom_qty
+msgid ""
+"The quantity converted into the Unit used by the product in Purchase Order."
+msgstr "Määrä on muunnettu ostotilauksen tuotteen yksikön mukaiseksi."
+
+#. module: approvals_purchase
+#: model:ir.model.fields,field_description:approvals_purchase.field_approval_product_line__seller_id
+msgid "Vendors"
+msgstr "Toimittajat"
+
+#. module: approvals_purchase
+#. odoo-python
+#: code:addons/approvals_purchase/models/approval_request.py:0
+msgid "You cannot create an empty purchase request."
+msgstr "Et voi luoda tyhjää ostopyyntöä."
+
+#. module: approvals_purchase
+#. odoo-python
+#: code:addons/approvals_purchase/models/approval_request.py:0
+msgid "You must select a product for each line of requested products."
+msgstr "Sinun on valittava tuote jokaista pyydettyä tuoteriviä kohden."
+
+#. module: approvals_purchase
+#: model_terms:ir.ui.view,arch_db:approvals_purchase.exception_approval_request_canceled
+msgid "cancelled"
+msgstr "peruutettu"
+
+#. module: approvals_purchase
+#: model_terms:ir.ui.view,arch_db:approvals_purchase.exception_approval_request_canceled
+msgid ""
+"has been canceled.\n"
+"            Manual actions may be needed."
+msgstr ""
+"on peruttu.\n"
+"            Saattaa vaatia manuaalisia toimenpiteitä."
+
+#. module: approvals_purchase
+#: model_terms:ir.ui.view,arch_db:approvals_purchase.exception_approval_request_canceled
+msgid "of"
+msgstr " "

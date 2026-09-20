@@ -1,0 +1,710 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * documents_account
+#
+# Translators:
+# Tuomo Aura <tuomo.aura@web-veistamo.fi>, 2022
+# Martin Trigaux, 2022
+# Jarmo Kortetjärvi <jarmo.kortetjarvi@gmail.com>, 2022
+# Kari Lindgren <kari.lindgren@emsystems.fi>, 2022
+# Joakim Weckman, 2022
+# Eino Mäkitalo <eino.makitalo@netitbe.fi>, 2022
+# Ossi Mantylahti <ossi.mantylahti@obs-solutions.fi>, 2023
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Saara Hakanen <sahak@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:44+0000\n"
+"PO-Revision-Date: 2025-12-17 17:58+0000\n"
+"Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"documents_account/fi/>\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/ir_actions_server.py:0
+msgid "\"New Journal Entry\" can only be applied to Document."
+msgstr "\"Uusi päiväkirjamerkintä\" voidaan liittää vain asiakirjaan."
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "<b>Deselect this page</b> as we plan to process all bills first."
+msgstr ""
+"<b>Poista valinta tältä sivulta</b>, koska aiomme käsitellä kaikki laskut "
+"ensin."
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "<b>Select</b> this page to continue."
+msgstr "<b>Valitse</b> tämä sivu jatkaaksesi."
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.account_move_view_form
+msgid "<span class=\"o_stat_text\">Documents</span>"
+msgstr "<span class=\"o_stat_text\">Asiakirjat</span>"
+
+#. module: documents_account
+#: model:ir.model.constraint,message:documents_account.constraint_documents_account_folder_setting_journal_unique
+msgid "A setting already exists for this journal"
+msgstr "Tätä päiväkirjaa varten on jo olemassa asetus"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.res_config_settings_view_form
+msgid "Accounting"
+msgstr "Kirjanpito"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__company_account_folder_id
+#: model:ir.model.fields,field_description:documents_account.field_res_company__account_folder_id
+msgid "Accounting Folder"
+msgstr "Kirjanpitokansio"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_account_report
+msgid "Accounting Report"
+msgstr "Kirjanpitoraportti"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Action"
+msgstr "Toiminto"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "All"
+msgstr "Kaikki"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/documents_document.py:0
+msgid "Annual Closing"
+msgstr "Tilinpäätös"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid ""
+"As this PDF contains multiple documents, let's split and process in bulk."
+msgstr ""
+"Koska tämä PDF-tiedosto sisältää useita asiakirjoja, jaetaan ja käsitellään "
+"ne joukkona."
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_ir_attachment
+msgid "Attachment"
+msgstr "Liite"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_bank_statement
+msgid "Bank Statement"
+msgstr "Pankin tiliote"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.res_config_settings_view_form
+msgid "Centralize accounting files and documents"
+msgstr "Keskittää kirjanpitotiedostot ja -asiakirjat"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.view_account_move_form_inherit_documents_account
+msgid "Check them"
+msgstr "Tarkista ne"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.view_server_action_form_template
+msgid "Choose a journal..."
+msgstr "Valitse päiväkirja..."
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.view_server_action_form_template
+msgid "Choose an accounting document type..."
+msgstr "Valitse kirjanpitoasiakirjan tyyppi..."
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Click on a card to <b>select the document</b>."
+msgstr "<b>Valitse asiakirja</b> napsauttamalla korttia."
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Click on a thumbnail to <b>preview the document</b>."
+msgstr "Voit <b>esikatsella asiakirjaa</b> napsauttamalla pikkukuvaa."
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid ""
+"Click on the <b>page separator</b>: we don't want to split these two pages "
+"as they belong to the same document."
+msgstr ""
+"Napsauta <b>sivun erotinta</b>: emme halua jakaa näitä kahta sivua, koska ne "
+"kuuluvat samaan asiakirjaan."
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Click the cross to <b>exit preview</b>."
+msgstr "<b>Poistu esikatselusta</b> napsauttamalla ristiä."
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Close (Esc)"
+msgstr "Sulje (Esc)"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_res_company
+msgid "Companies"
+msgstr "Yritykset"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__company_id
+msgid "Company"
+msgstr "Yritys"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_res_config_settings
+msgid "Config Settings"
+msgstr "Asetukset"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/account_report.py:0
+msgid "Copy to Documents"
+msgstr "Kopioi asiakirjoihin"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.view_server_action_form_template
+msgid "Create"
+msgstr "Luo"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/ir_actions_server.py:0
+msgid "Create %(model_name)s"
+msgstr "Luo %(model_name)s"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/ir_actions_server.py:0
+msgid "Create %(model_name)s (%(journal_name)s)"
+msgstr "Luo %(model_name)s (%(journal_name)s)"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_credit_note_code
+msgid "Create Credit Note"
+msgstr "Luo hyvityslasku"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_credit_note
+msgid "Create Customer Credit Note"
+msgstr "Luo asiakkaan hyvityslasku"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_customer_invoice
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_customer_invoice_code
+msgid "Create Customer Invoice"
+msgstr "Luo asiakaslasku"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_misc_entry
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_misc_entry_code
+msgid "Create Misc Entry"
+msgstr "Luo Satunnainen merkintä"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_bill
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_bill_code
+msgid "Create Vendor Bill"
+msgstr "Luo toimittajan lasku"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_refund
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_refund_code
+msgid "Create Vendor Credit Note"
+msgstr "Luo toimittajan hyvityslasku"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_receipt
+msgid "Create Vendor Receipt"
+msgstr "Luo myyjän kuitti"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Create a new document for the remaining page, it will be handled later."
+msgstr ""
+"Luo uusi asiakirja jäljellä olevalle sivulle, se käsitellään myöhemmin."
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__create_uid
+msgid "Created by"
+msgstr "Luonut"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__create_date
+msgid "Created on"
+msgstr "Luotu"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_move_out_refund
+msgid "Credit Note"
+msgstr "Hyvityslasku"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_move_out_invoice
+msgid "Customer Invoice"
+msgstr "Myyntilasku"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_account_journal__display_name
+#: model:ir.model.fields,field_description:documents_account.field_account_move__display_name
+#: model:ir.model.fields,field_description:documents_account.field_account_report__display_name
+#: model:ir.model.fields,field_description:documents_account.field_account_reports_export_wizard__display_name
+#: model:ir.model.fields,field_description:documents_account.field_account_reports_export_wizard_format__display_name
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__display_name
+#: model:ir.model.fields,field_description:documents_account.field_documents_document__display_name
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__display_name
+#: model:ir.model.fields,field_description:documents_account.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:documents_account.field_res_company__display_name
+#: model:ir.model.fields,field_description:documents_account.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "Näyttönimi"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_documents_document
+msgid "Document"
+msgstr "Dokumentti"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__documents_account_create_model
+#: model:ir.model.fields,field_description:documents_account.field_ir_cron__documents_account_create_model
+msgid "Documents Account Create Model"
+msgstr "Asiakirjojen tilin luontimalli"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__documents_account_journal_id
+#: model:ir.model.fields,field_description:documents_account.field_ir_cron__documents_account_journal_id
+msgid "Documents Account Journal"
+msgstr "Asiakirjojen tilipäiväkirja"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__documents_account_move_type
+#: model:ir.model.fields,field_description:documents_account.field_ir_cron__documents_account_move_type
+msgid "Documents Account Move Type"
+msgstr "Asiakirjojen tilikirjauksen tyyppi"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__documents_account_suitable_journal_ids
+#: model:ir.model.fields,field_description:documents_account.field_ir_cron__documents_account_suitable_journal_ids
+msgid "Documents Account Suitable Journal"
+msgstr "Asiakirjojen tilille sopiva päiväkirja"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/account_report.py:0
+msgid "Export"
+msgstr "Vienti"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_account_reports_export_wizard_format
+msgid "Export format for accounting's reports"
+msgstr "Kirjanpidon raporttien vientimuoto"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_account_reports_export_wizard
+msgid "Export wizard for accounting's reports"
+msgstr "Ohjattu kirjanpidon raporttien vienti"
+
+#. module: documents_account
+#. odoo-javascript
+#. odoo-python
+#: code:addons/documents_account/models/documents_document.py:0
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Finance"
+msgstr "Taloushallinto"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_account_reports_export_wizard__folder_id
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__folder_id
+#: model_terms:ir.ui.view,arch_db:documents_account.res_config_settings_view_form
+msgid "Folder"
+msgstr "Kansio"
+
+#. module: documents_account
+#: model:ir.model.fields,help:documents_account.field_account_reports_export_wizard__folder_id
+msgid "Folder where to save the generated file"
+msgstr "Kansio, johon luotu tiedosto tallennetaan"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/account_journal.py:0
+msgid "Generated Bank Statements"
+msgstr "Luodut tiliotteet"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/wizard/account_reports_export_wizard.py:0
+msgid "Generated Documents"
+msgstr "Luodut dokumentit"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_account_bank_statement_line__has_documents
+#: model:ir.model.fields,field_description:documents_account.field_account_move__has_documents
+msgid "Has Documents"
+msgstr "Sisältää asiakirjoja"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_document__has_embedded_pdf
+msgid "Has Embedded PDF"
+msgstr "Sisältää upotetun PDF-tiedoston"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_account_journal__id
+#: model:ir.model.fields,field_description:documents_account.field_account_move__id
+#: model:ir.model.fields,field_description:documents_account.field_account_report__id
+#: model:ir.model.fields,field_description:documents_account.field_account_reports_export_wizard__id
+#: model:ir.model.fields,field_description:documents_account.field_account_reports_export_wizard_format__id
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__id
+#: model:ir.model.fields,field_description:documents_account.field_documents_document__id
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__id
+#: model:ir.model.fields,field_description:documents_account.field_ir_attachment__id
+#: model:ir.model.fields,field_description:documents_account.field_res_company__id
+#: model:ir.model.fields,field_description:documents_account.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_bank_statement
+#: model:ir.actions.server,name:documents_account.ir_actions_server_bank_statement_code
+msgid "Import Bank Statement"
+msgstr "Tuo tiliote"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/documents_document.py:0
+msgid "Invoices"
+msgstr "Laskut"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_account_journal
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__journal_id
+#: model_terms:ir.ui.view,arch_db:documents_account.view_server_action_form_template
+msgid "Journal"
+msgstr "Päiväkirja"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_account_move
+msgid "Journal Entry"
+msgstr "Päiväkirjan kirjaus"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_documents_account_folder_setting
+msgid "Journal and Folder settings"
+msgstr "Päiväkirjan ja kansion asetukset"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.res_config_settings_view_form
+msgid "Journals"
+msgstr "Päiväkirjat"
+
+#. module: documents_account
+#: model:ir.actions.act_window,name:documents_account.action_folder_settings_installer
+msgid "Journals to synchronize"
+msgstr "Synkronoitavat päiväkirjat"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__write_uid
+msgid "Last Updated by"
+msgstr "Viimeksi päivittänyt"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__write_date
+msgid "Last Updated on"
+msgstr "Viimeksi päivitetty"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid ""
+"Let's process documents in this folder.<br/> <i>Tip: Use Tags to filter "
+"documents and structure your process.</i>"
+msgstr ""
+"Käsitellään tässä kansiossa olevat asiakirjat.<br/><i>Vinkki: Käytä "
+"tunnisteita suodattaaksesi asiakirjoja ja jäsennelläksesi prosessiasi.</i>"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Let's process these bills: turn them into vendor bills."
+msgstr "Käsitellään nämä laskut: muutetaan ne myyjien laskuiksi."
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Let's process this document now."
+msgstr "Käsitellään tämä asiakirja nyt."
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid ""
+"Let's tag this mail as Finance<br/> <i>Tips: actions can be tailored to your "
+"process, according to the folder.</i>"
+msgstr ""
+"Lisätään tähän viestiin tunniste \"Taloushallinto\"<br/><i>Vinkki: "
+"toimenpiteitä voi räätälöidä prosessiisi sopiviksi, kansioiden perusteella.</"
+"i>"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_move_entry
+msgid "Miscellaneous Operations"
+msgstr "Muut toiminnot"
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_credit_note_move
+msgid "Move Document To Taxes"
+msgstr ""
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_customer_invoice_move
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_bill_move
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_vendor_refund_move
+msgid "Move Document to Taxes"
+msgstr ""
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_create_misc_entry_move
+msgid "Move Documents to Annual Closing"
+msgstr ""
+
+#. module: documents_account
+#: model:ir.actions.server,name:documents_account.ir_actions_server_bank_statement_move
+msgid "Move to Annual Closing"
+msgstr ""
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__state__documents_account_record_create
+msgid "New Journal Entry"
+msgstr "Uusi päiväkirjamerkintä"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Open the actions menu"
+msgstr "Avaa toimenpidevalikko"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_move_in_receipt
+msgid "Purchase Receipt"
+msgstr "Ostokuitti"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_account_bank_statement_line__suspense_statement_line_id
+#: model:ir.model.fields,field_description:documents_account.field_account_move__suspense_statement_line_id
+msgid "Request document from a bank statement line"
+msgstr "Pyydä asiakirjaa pankin tiliote-riviltä"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Send To Finance"
+msgstr "Lähetä rahoitukseen"
+
+#. module: documents_account
+#: model:ir.model,name:documents_account.model_ir_actions_server
+msgid "Server Action"
+msgstr "Palvelintoiminto"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "Split PDF"
+msgstr "Jaa PDF"
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_account_reports_export_wizard__tag_ids
+#: model:ir.model.fields,field_description:documents_account.field_documents_account_folder_setting__tag_ids
+msgid "Tags"
+msgstr "Tunnisteet"
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/documents_document.py:0
+msgid "Taxes"
+msgstr "Verot"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.view_account_move_form_inherit_documents_account
+msgid "This invoice has been initiated by a bank transaction."
+msgstr "Tämä lasku on käynnistetty pankkitapahtumalla."
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid "This should be processed as a misc entry."
+msgstr "Tämä tulisi käsitellä sekalaisena kirjauksena."
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_ir_actions_server__state
+#: model:ir.model.fields,field_description:documents_account.field_ir_cron__state
+msgid "Type"
+msgstr "Tyyppi"
+
+#. module: documents_account
+#: model:ir.model.fields,help:documents_account.field_ir_actions_server__state
+#: model:ir.model.fields,help:documents_account.field_ir_cron__state
+msgid ""
+"Type of server action. The following values are available:\n"
+"- 'Update a Record': update the values of a record\n"
+"- 'Create Activity': create an activity (Discuss)\n"
+"- 'Send Email': post a message, a note or send an email (Discuss)\n"
+"- 'Send SMS': send SMS, log them on documents (SMS)- 'Add/Remove Followers': "
+"add or remove followers to a record (Discuss)\n"
+"- 'Create Record': create a new record with new values\n"
+"- 'Execute Code': a block of Python code that will be executed\n"
+"- 'Send Webhook Notification': send a POST request to an external system, "
+"also known as a Webhook\n"
+"- 'Multi Actions': define an action that triggers several other server "
+"actions\n"
+msgstr ""
+"Palvelintoiminnon tyyppi. Saatavilla seuraavat arvot:\n"
+"- 'Päivitä kirjaus': päivitä kirjauksen arvot\n"
+"- 'Luo toiminta': luo toiminnan (Viestintä)\n"
+"- 'Lähetä sähköposti': lähettää viestin, huomautuksen tai sähköpostin "
+"(Viestintä)\n"
+"- 'Lähetä tekstiviesti': lähetä tekstiviestejä, kirjaa ne asiakirjoihin "
+"(Tekstiviesti)\n"
+"- 'Lisää/poista seuraajia': lisää tai poista seuraajia kirjaukseen "
+"(Viestintä)\n"
+"- 'Luo kirjaus': luo uusi kirjaus uusilla arvoilla\n"
+"- 'Suorita koodi': Python-koodin pätkä, joka suoritetaan\n"
+"- 'Lähetä Webhook-ilmoitus': lähetä POST-pyyntö ulkoiseen järjestelmään, "
+"joka tunnetaan myös nimellä Webhook\n"
+"- 'Suorita useita toimintoja': Määritä toiminto, joka käynnistää useita "
+"muita palvelintoimintoja\n"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_move_in_invoice
+msgid "Vendor Bill"
+msgstr "Ostolasku"
+
+#. module: documents_account
+#: model:ir.model.fields.selection,name:documents_account.selection__ir_actions_server__documents_account_create_model__account_move_in_refund
+msgid "Vendor Credit Note"
+msgstr "Toimittajahyvitys"
+
+#. module: documents_account
+#. odoo-javascript
+#: code:addons/documents_account/static/src/js/tour.js:0
+msgid ""
+"Want to become a <b>paperless company</b>? Let's discover Odoo Documents."
+msgstr ""
+"Haluatko tulla <b>paperittomaksi yritykseksi</b>? Tutustutaan Odoo Asiakirja "
+"-sovellukseen."
+
+#. module: documents_account
+#: model_terms:web_tour.tour,rainbow_man_message:documents_account.documents_account_tour
+msgid ""
+"Wow... 6 documents processed in a few seconds, You're good.<br>The tour is "
+"complete. Try uploading your own documents now."
+msgstr ""
+"Vaikuttavaa. Kuusi asiakirjaa käsitelty muutamassa sekunnissa."
+"<br>Esittelykierros on nyt päättynyt. Kokeile omien asiakirjojen lataamista."
+
+#. module: documents_account
+#. odoo-python
+#: code:addons/documents_account/models/documents_document.py:0
+msgid "You can not create account move on folder."
+msgstr "Et voi luoda tilikirjausta kansioon."
+
+#. module: documents_account
+#: model:ir.model.fields,field_description:documents_account.field_res_config_settings__account_folder_id
+msgid "account default folder"
+msgstr "tilin oletuskansio"
+
+#. module: documents_account
+#: model_terms:ir.ui.view,arch_db:documents_account.view_account_move_form_inherit_documents_account
+msgid "to mark this invoice as paid."
+msgstr "merkitä tämän laskun maksetuksi."
+
+#~ msgid ""
+#~ "A set of condition and actions which will be available to all attachments "
+#~ "matching the conditions"
+#~ msgstr ""
+#~ "Joukko ehtoja ja toimia, jotka ovat kaikkien ehtoja vastaavien "
+#~ "liitetiedostojen käytettävissä"
+
+#~ msgid "Accounting "
+#~ msgstr "Kirjanpito "
+
+#~ msgid "Accounting Workspace"
+#~ msgstr "Kirjanpidon työtila"
+
+#~ msgid "Credit note"
+#~ msgstr "Hyvityslasku"
+
+#~ msgid "Customer invoice"
+#~ msgstr "Asiakaslasku"
+
+#~ msgid "Documents Account Settings"
+#~ msgstr "Asiakirjojen tiliasetukset"
+
+#~ msgid "Financial Statement"
+#~ msgstr "Tilinpäätös"
+
+#~ msgid ""
+#~ "Let's process documents in your Inbox.<br/><i>Tip: Use Tags to filter "
+#~ "documents and structure your process.</i>"
+#~ msgstr ""
+#~ "Käsitellään saapuneet asiakirjat.<br/><i>Vinkki: Käytä tunnisteita "
+#~ "asiakirjojen suodattamiseen ja prosessin jäsentämiseen.</i>"
+
+#~ msgid "Let's process this document, coming from our scanner."
+#~ msgstr "Käsittelemme tätä skannerista tulevaa asiakirjaa."
+
+#~ msgid ""
+#~ "Let's tag this mail as legal<br/> <i>Tips: actions can be tailored to "
+#~ "your process, according to the workspace.</i>"
+#~ msgstr ""
+#~ "Merkitään tämä posti lakiasioiden postiksi<br/> <i>Vinkkejä: Toiminnot "
+#~ "voidaan räätälöidä prosessisi mukaan työtilan mukaan.</i>"
+
+#~ msgid ""
+#~ "Send this letter to the legal department, by assigning the right tags."
+#~ msgstr ""
+#~ "Lähetä tämä kirje oikeudelliselle osastolle antamalla oikeat tunnisteet."
+
+#~ msgid "Tax Statement"
+#~ msgstr "Veroilmoitus"
+
+#~ msgid "Vendor bill"
+#~ msgstr "Ostolasku"
+
+#~ msgid "Workspace"
+#~ msgstr "Työtila"
+
+#~ msgid ""
+#~ "Wow... 6 documents processed in a few seconds, You're good.<br/>The tour "
+#~ "is complete. Try uploading your own documents now."
+#~ msgstr ""
+#~ "Vau... 6 asiakirjaa käsitelty muutamassa sekunnissa, olet hyvä.<br/"
+#~ ">Kierros on valmis. Kokeile nyt omien asiakirjojesi lataamista."

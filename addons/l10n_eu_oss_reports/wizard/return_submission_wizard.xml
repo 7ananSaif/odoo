@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="oss_return_submission_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_eu_oss_report.return.submission.wizard.form</field>
+            <field name="model">l10n_eu_oss_reports.return.submission.wizard</field>
+            <field name="inherit_id" ref="account_reports.return_submission_wizard_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="instructions" position="replace">
+                    <group>
+                        <group id="instructions">
+                            <field name="country_code" invisible="1"/>
+
+                            <ol colspan="2" invisible="country_code != 'BE'">
+                                <li >
+                                    <div class="d-inline-block align-top">
+                                        <span>Download your OSS return</span><br/>
+                                        <button string='Download XML' name="print_xml" type="object" class="btn-secondary"/>
+                                    </div>
+                                </li>
+                                <li>Log in to <a href="https://intervat.minfin.fgov.be/" target="_blank">Intervat</a> using Itsme or your card reader</li>
+                                <li>Select Intervat &gt; Dashboard</li>
+                                <li>Upload the XML file on the right panel and click "Continue"</li>
+                                <li>Validate the return</li>
+                            </ol>
+
+                            <ol colspan="2" invisible="country_code != 'LU'">
+                                <li invisible="country_code != 'LU'">
+                                    <div class="d-inline-block align-top">
+                                        <span>Download your OSS return</span><br/>
+                                        <button string='Download XML' name="print_xml" type="object" class="btn-secondary"/>
+                                        <li>Upload it to the tax administration</li>
+                                    </div>
+                                </li>
+                            </ol>
+                        </group>
+                    </group>
+                </field>
+            </field>
+        </record>
+
+    </data>
+</odoo>

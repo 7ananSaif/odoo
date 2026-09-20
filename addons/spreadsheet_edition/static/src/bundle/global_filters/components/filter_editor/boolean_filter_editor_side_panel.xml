@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <div t-name="spreadsheet_edition.BooleanFilterEditorSidePanel" class="o_spreadsheet_filter_editor_side_panel">
+        <Section title.translate="Label">
+            <TextInput
+                placeholder="store.labelPlaceholder"
+                class="'o_global_filter_label' + (store.missingLabelError ? ' o_field_invalid' : '')"
+                value="store.filter.label"
+                onChange.bind="setLabel"
+                autofocus="true"
+            />
+        </Section>
+        <t t-if="store.isValid">
+            <Section title.translate="Default value">
+                <select class="o_input w-25 pe-3 me-3 text-truncate" t-on-change="updateBooleanDefaultValue">
+                    <t t-foreach="['', 'set', 'not set']" t-as="operator" t-key="operator">
+                        <option class="text-black" t-att-value="operator" t-att-selected="store.filter.defaultValue?.operator === operator" t-esc="getOperatorLabel(operator)" />
+                    </t>
+                </select>
+            </Section>
+            <t t-if="store.shouldDisplayFieldMatching">
+                <SidePanelCollapsible isInitiallyCollapsed="!store.isNew" title.translate="Field matching">
+                    <t t-set-slot="content">
+                        <Section class="'pt-0'">
+                            <FilterEditorFieldMatching
+                                fieldMatchings="store.fieldsMatching"
+                                selectField.bind="store.updateFieldMatching"
+                                filterModelFieldSelectorField="store.filterModelFieldSelectorField"
+                            />
+                        </Section>
+                    </t>
+                </SidePanelCollapsible>
+            </t>
+        </t>
+        <Section t-else="1">
+            <ValidationMessages messages="[invalidModel]" msgType="'error'"/>
+        </Section>
+        <GlobalFilterFooter t-props="footerProps"/>
+    </div>
+</templates>

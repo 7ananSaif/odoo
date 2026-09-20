@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_batch_payment_form_inherit" model="ir.ui.view">
+        <field name="name">wise.account.batch.payment.form.inherit</field>
+        <field name="model">account.batch.payment</field>
+        <field name="inherit_id" ref="account_batch_payment.view_batch_payment_form"/>
+        <field name="arch" type="xml">
+            <sheet position="inside">
+                <div class="oe_button_box" name="button_box">
+                    <button class="oe_stat_button" type="object" name="open_wise_batch"
+                        icon="fa-money" invisible="not wise_batch_identifier">
+                        <div class="o_field_widget o_stat_info">
+                            <span class="o_stat_text">
+                                View Batch
+                            </span>
+                        </div>
+                    </button>
+                </div>
+            </sheet>
+            <xpath expr="//button[@id='validate_button']" position="attributes">
+                <attribute name="invisible" add="(wise_payments_enabled and batch_type == 'outbound')" separator=" or "/>
+            </xpath>
+            <xpath expr="//button[@id='regenerate_file_button']" position="attributes">
+                <attribute name="invisible" add="wise_payment_status != 'uninitiated'" separator=" or "/>
+            </xpath>
+            <xpath expr="//button[@id='validate_button']" position="after">
+                <button
+                    id="wise_validate_batch_button"
+                    name="validate_batch_button"
+                    class="oe_highlight"
+                    type="object"
+                    string="Initiate Payment"
+                    invisible="not wise_payments_enabled or state != 'draft' or wise_payment_status not in ['uninitiated', 'new'] or batch_type != 'outbound' or not payment_ids"
+                    />
+            </xpath>
+        </field>
+    </record>
+</odoo>
+

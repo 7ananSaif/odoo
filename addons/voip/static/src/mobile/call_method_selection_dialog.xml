@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<templates>
+    <t t-name="voip.CallMethodSelectionDialog">
+        <Dialog t-props="dialogProps" size="'md'">
+            <fieldset class="mb-3" t-ref="fieldset">
+                <div class="o-voip-call-method d-flex flex-column flex-sm-row gap-3">
+                    <input type="radio" id="voip" name="call-method" value="voip" checked="checked" class="d-none"/>
+                    <label for="voip" class="o-voip-call-method-label d-flex flex-column align-items-center gap-2 flex-grow-1 w-100 border p-3 cursor-pointer">
+                        <i class="oi oi-voip fa-2x"/>Use Odoo Phone
+                    </label>
+                    <input type="radio" id="phone" name="call-method" value="phone" class="d-none"/>
+                    <label for="phone" class="o-voip-call-method-label d-flex flex-column align-items-center gap-2 flex-grow-1 w-100 border p-3 cursor-pointer">
+                        <i class="fa fa-mobile fa-2x"/>Use phone's default app
+                    </label>
+                </div>
+            </fieldset>
+            <div class="form-check">
+                <input type="checkbox" id="remember" name="remember" t-ref="rememberCheckbox" class="form-check-input"/>
+                <label for="remember" class="form-check-label">Remember my choice</label>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="onClickConfirm">Confirm</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

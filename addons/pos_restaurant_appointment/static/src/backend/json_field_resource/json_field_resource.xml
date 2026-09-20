@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="pos_restauramt_appointment.JsonFieldResource" t-inherit="web.CharField">
+        <xpath expr="//t[@t-if='props.readonly']//span" position="replace">
+            <t t-set="details" t-value="timeAndPersonDetails"/>
+            <t t-if="details">
+                <t t-out="details.time"/>
+                <span class="text-muted ms-3 fst-italic">
+                    <t t-out="details.person"/>p
+                </span>
+            </t>
+        </xpath>
+    </t>
+</templates>

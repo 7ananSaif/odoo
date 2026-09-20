@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.l10n_hk_hr_payroll_empf</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="l10n_hk_hr_payroll.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <!-- In the new system, we allow configuring MPF schemes as a record, and each employee can be set to use different schemes. -->
+            <xpath expr="//label[@for='l10n_hk_employer_file_number']/parent::div" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//label[@for='l10n_hk_manulife_mpf_scheme']/parent::div" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//label[@for='l10n_hk_manulife_mpf_scheme']/parent::div" position="after">
+                <button name="open_mpf_scheme_list" icon="oi-arrow-right" type="object" string="Configure your MPF Schemes" class="btn-link"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

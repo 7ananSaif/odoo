@@ -1,0 +1,435 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * helpdesk_timesheet
+#
+# Translators:
+# ilan kl <ilan@qaroads.co.il>, 2022
+# שהאב חוסיין <shhab89@gmail.com>, 2022
+# דודי מלכה <Dudimalka6@gmail.com>, 2022
+# yotam linder <linder@laylinetech.com>, 2022
+# Yihya Hugirat <hugirat@gmail.com>, 2022
+# Lilach Gilliam <lilach.gilliam@gmail.com>, 2022
+# ZVI BLONDER <ZVIBLONDER@gmail.com>, 2022
+# Yves Goldberg <admin@ygol.com>, 2022
+# Martin Trigaux, 2022
+# NoaFarkash, 2022
+# Roy Sayag, 2022
+# Ha Ketem <haketem@gmail.com>, 2022
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# or balmas <or@laylinetech.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0beta+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:45+0000\n"
+"PO-Revision-Date: 2025-11-16 17:48+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Hebrew <https://translate.odoo.com/projects/odoo-19/"
+"helpdesk_timesheet/he/>\n"
+"Language: he\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=4; plural=(n == 1) ? 0 : ((n == 2) ? 1 : ((n > 10 && "
+"n % 10 == 0) ? 2 : 3));\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_project_project__ticket_count
+msgid "# Tickets"
+msgstr "מס' קריאות שירות"
+
+#. module: helpdesk_timesheet
+#. odoo-python
+#: code:addons/helpdesk_timesheet/wizard/timesheet_merge_wizard.py:0
+msgid "All timesheets must be linked to the same helpdesk ticket."
+msgstr ""
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket__analytic_account_id
+msgid "Analytic Account"
+msgstr "חשבון אנליטי"
+
+#. module: helpdesk_timesheet
+#: model:ir.model,name:helpdesk_timesheet.model_account_analytic_line
+msgid "Analytic Line"
+msgstr "שורה אנליטית"
+
+#. module: helpdesk_timesheet
+#. odoo-python
+#: code:addons/helpdesk_timesheet/models/helpdesk_ticket.py:0
+msgid "Confirm Time Spent"
+msgstr "אשר זמן עבודה למשימה"
+
+#. module: helpdesk_timesheet
+#: model:ir.model,name:helpdesk_timesheet.model_helpdesk_ticket_convert_wizard
+msgid "Convert Helpdesk Tickets to Tasks"
+msgstr "הפוך למשימה"
+
+#. module: helpdesk_timesheet
+#: model:ir.model,name:helpdesk_timesheet.model_project_task_convert_wizard
+msgid "Convert Project Tasks to Tickets"
+msgstr "המר משימות פרויקט לקריאות שירות"
+
+#. module: helpdesk_timesheet
+#: model:ir.model,website_form_label:helpdesk_timesheet.model_helpdesk_ticket
+msgid "Create a Ticket"
+msgstr ""
+
+#. module: helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.helpdesk_ticket_view_form_inherit_helpdesk_timesheet
+msgid "Days Spent"
+msgstr "ימים ששהו"
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_sla_report_analysis__department_id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket_report_analysis__department_id
+msgid "Department"
+msgstr "מחלקה"
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_account_analytic_line__display_name
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_sla_report_analysis__display_name
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_team__display_name
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket__display_name
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket_convert_wizard__display_name
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket_report_analysis__display_name
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_hr_timesheet_merge_wizard__display_name
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_project_project__display_name
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_project_task_convert_wizard__display_name
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_timesheets_analysis_report__display_name
+msgid "Display Name"
+msgstr "שם לתצוגה"
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket__display_timesheet_timer
+msgid "Display Timesheet Time"
+msgstr "הצג זמן דיווח שעות"
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_sla_report_analysis__employee_id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket_report_analysis__employee_id
+msgid "Employee"
+msgstr "עובד"
+
+#. module: helpdesk_timesheet
+#: model:ir.model,name:helpdesk_timesheet.model_helpdesk_team
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket__team_id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_project_project__helpdesk_team
+msgid "Helpdesk Team"
+msgstr "צוות תמיכה"
+
+#. module: helpdesk_timesheet
+#: model:ir.model,name:helpdesk_timesheet.model_helpdesk_ticket
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_timesheets_analysis_report__helpdesk_ticket_id
+msgid "Helpdesk Ticket"
+msgstr "קריאת שירות מוקד תמיכה"
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_sla_report_analysis__total_hours_spent
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket_report_analysis__total_hours_spent
+msgid "Hours Spent (Timesheets)"
+msgstr "שעות שהושקעו (דיווחי שעות)"
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_account_analytic_line__id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_sla_report_analysis__id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_team__id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket__id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket_convert_wizard__id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket_report_analysis__id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_hr_timesheet_merge_wizard__id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_project_project__id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_project_task_convert_wizard__id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_timesheets_analysis_report__id
+msgid "ID"
+msgstr "מזהה"
+
+#. module: helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.timesheet_table
+msgid "Issue with new portal system"
+msgstr "תקלה במערכת הפורטל החדשה"
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_sla_report_analysis__manager_id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket_report_analysis__employee_parent_id
+msgid "Manager"
+msgstr "מנהל"
+
+#. module: helpdesk_timesheet
+#: model:ir.model,name:helpdesk_timesheet.model_hr_timesheet_merge_wizard
+msgid "Merge Timesheets"
+msgstr "מזג גיליונות זמנים"
+
+#. module: helpdesk_timesheet
+#. odoo-python
+#: code:addons/helpdesk_timesheet/models/helpdesk_ticket.py:0
+msgid ""
+"Moving this task to a helpdesk team without timesheet support will retain "
+"timesheet drafts in the original helpdesk team. Although they won't be "
+"visible here, you can still edit them using the Timesheets app."
+msgstr ""
+"העברתה של משימה לצוות תמיכה שאין לו תמיכה בגיליונות זמנים תשאיר את טיוטות "
+"גיליונות הזמנים בצוות התמיכה המקורי. למרות שהם לא יהיו גלויים כאן, עדיין "
+"תוכל/י לערוך אותם באמצעות אפליקציית דיווחי השעות."
+
+#. module: helpdesk_timesheet
+#. odoo-python
+#: code:addons/helpdesk_timesheet/models/helpdesk_team.py:0
+msgid "New"
+msgstr "חדש"
+
+#. module: helpdesk_timesheet
+#: model:ir.model,name:helpdesk_timesheet.model_project_project
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_account_analytic_line__project_id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_team__project_id
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket__project_id
+msgid "Project"
+msgstr "פרויקט"
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,help:helpdesk_timesheet.field_helpdesk_team__project_id
+#: model:ir.model.fields,help:helpdesk_timesheet.field_helpdesk_ticket__project_id
+msgid ""
+"Project to which the timesheets of this helpdesk team's tickets will be "
+"linked."
+msgstr "הפרויקט שאליו ייקשרו דיווחי הזמן של קריאות השירות של צוות זה."
+
+#. module: helpdesk_timesheet
+#: model_terms:ir.actions.act_window,help:helpdesk_timesheet.act_hr_timesheet_line_helpdesk
+msgid "Record a new activity"
+msgstr "רשום פעילות חדשה"
+
+#. module: helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.helpdesk_team_view_form_inherit_helpdesk_timesheet
+msgid "Recorded"
+msgstr "נרשם"
+
+#. module: helpdesk_timesheet
+#: model:ir.model,name:helpdesk_timesheet.model_helpdesk_sla_report_analysis
+msgid "SLA Status Analysis"
+msgstr "ניתוח סטטוס הסכם תנאי שירות"
+
+#. module: helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.helpdesk_ticket_view_form_inherit_helpdesk_timesheet
+msgid "Start"
+msgstr "התחל"
+
+#. module: helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.helpdesk_ticket_view_form_inherit_helpdesk_timesheet
+msgid "Stop"
+msgstr "עצור"
+
+#. module: helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.timesheet_table
+msgid "Task/Ticket"
+msgstr "משימה\\קריאת שירות"
+
+#. module: helpdesk_timesheet
+#: model:project.project,label_tasks:helpdesk_timesheet.helpdesk_team3_projet
+msgid "Tasks"
+msgstr "משימות"
+
+#. module: helpdesk_timesheet
+#. odoo-javascript
+#: code:addons/helpdesk_timesheet/static/src/components/grid_timesheet_timer_header/grid_timesheet_timer_header.js:0
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_account_analytic_line__helpdesk_ticket_id
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.hr_timesheet_line_search_inherit_helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.report_timesheet_ticket
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.timesheet_table
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.view_calendar_account_analytic_line
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.view_calendar_account_analytic_line_multi_create
+msgid "Ticket"
+msgstr "קריאת שירות"
+
+#. module: helpdesk_timesheet
+#: model:ir.model,name:helpdesk_timesheet.model_helpdesk_ticket_report_analysis
+msgid "Ticket Analysis"
+msgstr "ניתוח נתוני קריאות שירות"
+
+#. module: helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.report_timesheet_ticket
+msgid "Ticket:"
+msgstr "קריאת שירות:"
+
+#. module: helpdesk_timesheet
+#. odoo-python
+#: code:addons/helpdesk_timesheet/models/project_project.py:0
+#: model:ir.actions.act_window,name:helpdesk_timesheet.project_project_action_view_helpdesk_tickets
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_project_project__ticket_ids
+msgid "Tickets"
+msgstr "קריאות שירות"
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket__total_hours_spent
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.helpdesk_ticket_view_form_inherit_helpdesk_timesheet
+msgid "Time Spent"
+msgstr "זמן עבודה"
+
+#. module: helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.helpdesk_ticket_view_graph_main_inherit_helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.helpdesk_ticket_view_pivot_main_inherit_helpdesk_timesheet
+msgid "Time Spent (Timesheets)"
+msgstr "זמן שהושקע (דיווחי שעות)"
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,help:helpdesk_timesheet.field_helpdesk_ticket__timesheet_ids
+msgid ""
+"Time spent on this ticket. By default, your timesheets will be linked to the "
+"sales order item of your ticket.\n"
+"Remove the sales order item to make your timesheet entries non billable."
+msgstr ""
+"הזמן שהושקע בקריאת שירות זו. באופן ברירת מחדל, גיליונות הזמנים שלך יקושרו "
+"לפריט הזמנת המכירה של הקריאת שירות. הסר את פריט הזמנת המכירה כדי להפוך את "
+"רשומות דיווחי השעות שלך ללא ניתנות לחיוב."
+
+#. module: helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.helpdesk_ticket_view_form_inherit_helpdesk_timesheet
+msgid "Timesheet Activities"
+msgstr "פעילויות בדיווח שעות"
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket__timesheet_unit_amount
+msgid "Timesheet Unit Amount"
+msgstr ""
+
+#. module: helpdesk_timesheet
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket__use_helpdesk_timesheet
+msgid "Timesheet activated on Team"
+msgstr "דיווח שעות מופעל בצוות"
+
+#. module: helpdesk_timesheet
+#: model:ir.actions.act_window,name:helpdesk_timesheet.act_hr_timesheet_line_helpdesk
+#: model:ir.actions.report,name:helpdesk_timesheet.timesheet_report_ticket
+#: model:ir.model.fields,field_description:helpdesk_timesheet.field_helpdesk_ticket__timesheet_ids
+#: model:res.groups,name:helpdesk_timesheet.group_use_helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.helpdesk_ticket_view_form_inherit_helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.report_timesheet_ticket
+msgid "Timesheets"
+msgstr "דיווחי שעות"
+
+#. module: helpdesk_timesheet
+#: model:ir.model,name:helpdesk_timesheet.model_timesheets_analysis_report
+msgid "Timesheets Analysis Report"
+msgstr "דוח ניתוח דיווחי שעות"
+
+#. module: helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.helpdesk_ticket_view_tree_inherit_helpdesk_timesheet
+msgid "Total"
+msgstr "סה\"כ"
+
+#. module: helpdesk_timesheet
+#: model_terms:ir.actions.act_window,help:helpdesk_timesheet.act_hr_timesheet_line_helpdesk
+msgid ""
+"Track your working hours by projects every day and invoice this time to your "
+"customers."
+msgstr ""
+"עקוב אחר שעות העבודה שלך לפי פרויקטים מדי יום וחייב את הלקוחות שלך בהתאם."
+
+#. module: helpdesk_timesheet
+#: model:project.project,name:helpdesk_timesheet.helpdesk_team3_projet
+msgid "VIP Support"
+msgstr "תמיכת VIP"
+
+#. module: helpdesk_timesheet
+#. odoo-python
+#: code:addons/helpdesk_timesheet/models/helpdesk_ticket.py:0
+msgid "Warning"
+msgstr "אזהרה"
+
+#. module: helpdesk_timesheet
+#. odoo-python
+#: code:addons/helpdesk_timesheet/models/account_analytic_line.py:0
+msgid ""
+"You cannot link a timesheet entry to a task and a ticket at the same time."
+msgstr "לא ניתן לקשר רשומת דיווחי שעות גם למשימה וגם לכרטיס בו זמנית."
+
+#. module: helpdesk_timesheet
+#: model_terms:ir.ui.view,arch_db:helpdesk_timesheet.report_timesheet_ticket
+msgid "for the"
+msgstr "עבור ה"
+
+#. module: helpdesk_timesheet
+#. odoo-python
+#: code:addons/helpdesk_timesheet/models/project_project.py:0
+msgid "id"
+msgstr "מספר זיהוי"
+
+#~ msgid "Created by"
+#~ msgstr "נוצר על-ידי"
+
+#~ msgid "Created on"
+#~ msgstr "נוצר ב-"
+
+#~ msgid "Delete"
+#~ msgstr "מחק"
+
+#~ msgid "Describe your activity..."
+#~ msgstr "תאר את הפעילות שלך..."
+
+#~ msgid "Description"
+#~ msgstr "תיאור"
+
+#~ msgid "Discard"
+#~ msgstr "בטל"
+
+#~ msgid "Display Timer"
+#~ msgstr "הצגת טיימר"
+
+#~ msgid "Display Timer Pause"
+#~ msgstr "הצגת אפשרות עצירת טיימר"
+
+#~ msgid "Duration"
+#~ msgstr "משך זמן"
+
+#~ msgid "Has Helpdesk Teams"
+#~ msgstr "צוותי תמיכה"
+
+#~ msgid "Hours Spent"
+#~ msgstr "זמן עבודה"
+
+#~ msgid "Is Timer Running"
+#~ msgstr "האם טיימר פועל"
+
+#~ msgid "Last Updated by"
+#~ msgstr "עודכן לאחרונה על-ידי"
+
+#~ msgid "Last Updated on"
+#~ msgstr "עדכון אחרון ב"
+
+#~ msgid "My Department"
+#~ msgstr "המחלקה שלי"
+
+#~ msgid "My Team's Ratings"
+#~ msgstr "דירוג הצוות שלי"
+
+#~ msgid "My Team's Tickets"
+#~ msgstr "קריאות השירות של הצוות שלי"
+
+#~ msgid "Pause"
+#~ msgstr "השהה"
+
+#~ msgid "Resume"
+#~ msgstr "המשך"
+
+#~ msgid "Save"
+#~ msgstr "שמור"
+
+#~ msgid "Save time"
+#~ msgstr "שמור זמן"
+
+#~ msgid "Time"
+#~ msgstr "זמן"
+
+#~ msgid "Timer Last Pause"
+#~ msgstr "הפסקה אחרונה של שעון העצר"
+
+#~ msgid "Timer Start"
+#~ msgstr "שעון עצר התחיל"
+
+#~ msgid "Timesheet Encoding Unit"
+#~ msgstr "יחידת קידוד דיווח שעות"
+
+#~ msgid "User Timer"
+#~ msgstr "טיימר משתמש"

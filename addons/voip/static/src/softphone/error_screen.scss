@@ -1,0 +1,12 @@
+.o-voip-ErrorScreen {
+    backdrop-filter: blur(10px);
+
+    .o-calling & {
+        --#{$prefix}background-color: #{RGBA(to-rgb($o-voipCalling-bg-color), var(--#{$prefix}bg-opacity, 1))};
+        --#{$prefix}heading-color: #{color-contrast($o-voipCalling-bg-color)};
+    }
+}
+
+.o-voip-ErrorScreen-errorMessage {
+    white-space: pre-line;
+}

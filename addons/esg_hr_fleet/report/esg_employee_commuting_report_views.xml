@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_employee_commuting_report_search" model="ir.ui.view">
+        <field name="name">employee_commuting.report.search</field>
+        <field name="model">esg.employee.commuting.report</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="vehicle_id"/>
+                <field name="driver_id"/>
+                <separator/>
+                <filter name="date_from" date="date_from"/>
+                <separator/>
+                <group>
+                    <filter name="group_by_vehicle_id" context="{'group_by': 'vehicle_id'}"/>
+                    <filter name="group_by_driver_id" context="{'group_by': 'driver_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="employee_commuting_report_pivot" model="ir.ui.view">
+        <field name="name">employee_commuting.report.pivot</field>
+        <field name="model">esg.employee.commuting.report</field>
+        <field name="arch" type="xml">
+            <pivot string="Employee Commuting" disable_linking="1" js_class="esg_employee_commuting_report_pivot">
+                <field name="driver_id" type="row"/>
+                <field name="date_from" interval="year" type="col"/>
+                <field name="total_co2" type="measure"/>
+                <field name="total_distance" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_employee_commuting_report_views" model="ir.actions.act_window">
+        <field name="name">Employee Commuting</field>
+        <field name="path">esg-employee-commuting</field>
+        <field name="res_model">esg.employee.commuting.report</field>
+        <field name="view_mode">pivot</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_empty_folder">
+                No commuting data available.
+            </p>
+            <p>
+                Track commuting emissions based on each employee’s distance from home to the office and the emission factor of their vehicle model.
+            </p>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <div t-name="sign_emsigner.EmsignerDialog">
+        <Dialog t-props="dialogProps">
+            <t t-set-slot="header" t-slot-scope="scope">
+                <h4 class="modal-title text-break text-center" t-att-class="{ 'me-auto': scope.isFullscreen }">
+                    Proceed to eSign
+                </h4>
+                <button class="btn btn-close float-end" t-on-click="props.close"/>
+            </t>
+            <div class="row my-1">
+                <p>Redirecting to complete the Aadhaar eSign process.</p>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary o_emsigner_submit" t-on-click="onEmsignerClick">
+                    Continue
+                </button>
+            </t>
+        </Dialog>
+    </div>
+</templates>

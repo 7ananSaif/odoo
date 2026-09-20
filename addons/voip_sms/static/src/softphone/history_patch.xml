@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<templates>
+    <t t-inherit="voip.History" t-inherit-mode="extension">
+        <xpath expr="//t[hasclass('o-voip-History-sms-xpathTarget')]" position="before">
+            <SmsButton phoneNumber="call.phone_number" resId="call.partner_id ? call.partner_id.id : call.id" resModel="call.partner_id ? 'res.partner' : 'voip.call'"/>
+        </xpath>
+    </t>
+</templates>

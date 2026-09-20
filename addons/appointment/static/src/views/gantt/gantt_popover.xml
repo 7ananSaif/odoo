@@ -1,0 +1,22 @@
+<templates id="template">
+    <t t-name="appointment.GanttPopover" t-inherit="web_gantt.GanttPopover" t-inherit-mode="primary">
+        <xpath expr="//div[hasclass('popover-header')]" position="attributes">
+            <attribute name="t-attf-class" add="{{props.headerClass}}" separator=" "/>
+        </xpath>
+        <!--enable moving icons over to the right (ms-auto)-->
+        <xpath expr="//div[hasclass('popover-footer')]/div" position="attributes">
+            <attribute name="class" add="w-100" separator=" "/>
+        </xpath>
+        <!--enable icons next to/instead of text-->
+        <xpath expr="//div[hasclass('popover-footer')]/div" position="replace">
+            <div t-if="props.buttons" class="p-3 pt-0 d-flex gap-1 w-100">
+                <t t-foreach="props.buttons" t-as="button" t-key="button_index">
+                    <button t-att-class="button.class" t-on-click="() => this.onClick(button)" t-att-title="button.iconTitle">
+                        <i t-if="button.icon" t-attf-class="{{button.text ? 'me-1' : ''}} {{button.icon}}" t-att-title="button.iconTitle"/>
+                        <t t-out="button.text"/>
+                    </button>
+                </t>
+            </div>
+        </xpath>
+    </t>
+</templates>

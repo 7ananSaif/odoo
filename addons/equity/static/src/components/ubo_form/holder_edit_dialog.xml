@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="equity.HolderEditDialog">
+        <Dialog title="title" size="'l'">
+            <div class="o_holder_edit_dialog">
+                <div class="container">
+                    <div id="nameInput" class="container-item">
+                        <label class="col-form-label">Name</label>
+                        <input class="form-control" t-model="state.newUbo.holder_id.name"/>
+                    </div>
+
+                    <div id="countryInput" class="container-item">
+                        <label class="col-form-label">Nationality</label>
+                        <select class="form-select" t-on-change="onchangeCountryId">
+                            <t t-foreach="Object.keys(this.props.allCountries)" t-as="countryId" t-key="countryId">
+                                <option
+                                    t-att-value="countryId"
+                                    t-att-selected="countryId == this.state.newUbo.holder_id.country_id"
+                                    t-out="this.props.allCountries[countryId]"
+                                />
+                            </t>
+                        </select>
+                    </div>
+
+                    <div class="d-flex container-item row">
+                        <div id="idInput" class="col">
+                            <label class="col-form-label">ID Number</label>
+                            <input class="form-control" t-model="state.newUbo.holder_id.ubo_national_identifier"/>
+                        </div>
+
+                        <div class="col-1 mt-auto mb-2">
+                            <span>or</span>
+                        </div>
+
+                        <div id="birthDateInput" class="col">
+                            <label class="col-form-label">Birth Date</label>
+                            <input class="form-control" type="date" required="1" t-model="state.newUbo.holder_id.ubo_birth_date"/>
+                        </div>
+                    </div>
+
+                    <div id="pepInput" class="container-item d-flex">
+                        <label class="col-form-label">Politically Exposed Person</label>
+                        <div class="form-check form-switch pt-2 ms-2">
+                            <input class="form-check-input" type="checkbox" t-model="state.newUbo.holder_id.ubo_pep"/>
+                        </div>
+                    </div>
+
+                    <div id="startDateInput" class="container-item">
+                        <label class="col-form-label">Control Start Date</label>
+                        <input class="form-control mb-2" type="date" required="1" t-model="state.newUbo.start_date"/>
+                    </div>
+
+                    <div id="controlMethodInput" class="container-item">
+                        <label class="col-form-label">Controlling Method</label>
+                        <select class="form-select" t-model="state.newUbo.control_method" t-on-change="onchangeControlMethod">
+                            <t t-foreach="Object.keys(this.controlMethods)" t-as="controlMethod" t-key="controlMethod">
+                                <option
+                                    t-att-value="controlMethod"
+                                    t-out="this.controlMethods[controlMethod]"
+                                />
+                            </t>
+                        </select>
+                    </div>
+
+                    <div class="container-item">
+                        <t t-if="showPercentages">
+                            <div class="d-flex">
+                                <div id="ownershipInput" class="col">
+                                    <label class="col-form-label">Ownership</label>
+                                    <div class="d-flex">
+                                        <input class="form-control oe_inline" type="number" t-att-value="formatPercentage(state.newUbo.ownership)" t-on-change="onchangeOwnership"/>
+                                        <span class="px-1 py-2">%</span>
+                                    </div>
+                                </div>
+
+                                <div id="votingRightsInput" class="col">
+                                    <label class="col-form-label">Voting Rights</label>
+                                    <div class="d-flex">
+                                        <input class="form-control oe_inline" type="number" t-att-value="formatPercentage(state.newUbo.voting_rights)" t-on-change="onchangeVotingRights"/>
+                                        <span class="px-1 py-2">%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                        <t t-if="showRole">
+                            <div id="roleInput">
+                                <label class="col-form-label">Authorized Representative Role</label>
+                                <select class="form-select" t-model="state.newUbo.auth_rep_role">
+                                    <t t-foreach="Object.keys(this.authRepRoles)" t-as="authRepRole" t-key="authRepRole">
+                                        <option
+                                            t-att-value="authRepRole"
+                                            t-out="this.authRepRoles[authRepRole]"
+                                        />
+                                    </t>
+                                </select>
+                            </div>
+                        </t>
+
+                        <div id="docInput" class="container-item">
+                            <label class="col-form-label">Supporting Document<span class="text-muted"> (Optional)</span></label>
+                            <div>
+                                <FileUploader onUploaded.bind="onFileUpload">
+                                    <t t-set-slot="toggler">
+                                        <button
+                                            class="btn btn-secondary fa fa-upload mx-1"
+                                            data-tooltip="Upload"
+                                            aria-label="Upload"
+                                        />
+                                    </t>
+                                    <button
+                                        t-if="state.newUbo.attachment"
+                                        t-on-click="onFileRemove"
+                                        class="btn btn-secondary fa fa-trash mx-1"
+                                        data-tooltip="Clear"
+                                        aria-label="Clear"
+                                    />
+                                    <span t-if="state.newUbo.attachment" t-att-title="state.newUbo.attachment.name" class="m-2 float-end attachment-name">
+                                        <p t-out="state.newUbo.attachment.name"/>
+                                    </span>
+                                </FileUploader>
+                            </div>
+                        </div>
+
+                        <div t-if="this.state.newUbo.attachment" id="expirationDateInput" class="container-item">
+                            <label class="col-form-label">Document Expiration Date<span class="text-muted"> (Optional)</span></label>
+                            <input class="form-control" type="date" required="1" t-model="state.newUbo.attachment_expiration_date"/>
+                        </div>
+                    </div>
+                </div>                
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click="confirm" t-out="props.isNew ? 'Add Person' : 'Submit changes'"/>
+                <button class="btn btn-secondary" t-on-click="this.props.close">Discard</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <record id="structure_002" model="hr.payroll.structure">
+            <field name="name">Regular Pay</field>
+            <field name="type_id" ref="hr.structure_type_employee"/>
+            <field name="unpaid_work_entry_type_ids" eval="[(4, ref('hr_work_entry.work_entry_type_unpaid_leave'))]"/>
+            <field name="country_id" eval="False"/>
+            <field name="rule_ids" eval="[]"/>
+        </record>
+        <record id="hr.structure_type_employee" model="hr.payroll.structure.type">
+            <field name="default_struct_id" ref="structure_002"/>
+        </record>
+
+        <record id="structure_worker_001" model="hr.payroll.structure">
+            <field name="name">Worker Pay</field>
+            <field name="type_id" ref="hr.structure_type_worker"/>
+            <field name="country_id" eval="False"/>
+            <field name="rule_ids" eval="[]"/>
+        </record>
+    </data>
+
+    <data noupdate="1">
+        <!--Default structure -->
+        <record id="default_structure" model="hr.payroll.structure">
+            <field name="name">Default Structure Rules Set</field>
+            <field name="type_id" ref="hr.structure_type_employee"/>
+            <field name="country_id" eval="False"/>
+            <field name="active">False</field>
+            <field name="rule_ids" eval="[]"/>
+        </record>
+    </data>
+</odoo>

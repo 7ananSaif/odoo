@@ -1,0 +1,172 @@
+<odoo>
+    <record id="l10n_pk_hr_payroll_structure_pk_employee_salary_basic_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.BASIC"/>
+        <field name="name">Basic Salary</field>
+        <field name="sequence">1</field>
+        <field name="code">BASIC</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = payslip.paid_amount
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_pk_employee_salary"/>
+    </record>
+
+    <record id="l10n_pk_hr_payroll_structure_pk_employee_salary_gross_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.GROSS"/>
+        <field name="name">Taxable Salary</field>
+        <field name="sequence">100</field>
+        <field name="code">GROSS</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW']
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_pk_employee_salary"/>
+    </record>
+
+    <record id="pk_gross_yearly_salary_rule" model="hr.salary.rule">
+        <field name="name">Gross Yearly</field>
+        <field name="category_id" ref="hr_payroll.GROSS"/>
+        <field name="code">GROSSY</field>
+        <field name="sequence">120</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = GROSS * 12</field>
+        <field name="struct_id" ref="l10n_pk_hr_payroll.hr_payroll_structure_pk_employee_salary"/>
+    </record>
+
+    <record id="pk_tax_bracket_yearly" model="hr.salary.rule">
+        <field name="name">Tax Bracket Yearly</field>
+        <field name="category_id" ref="l10n_pk_hr_payroll.pk_tax_bracket_salary_rule_category"/>
+        <field name="code">TXB</field>
+        <field name="sequence">130</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = (payslip._l10n_pk_get_tax(GROSSY))
+</field>
+        <field name="struct_id" ref="l10n_pk_hr_payroll.hr_payroll_structure_pk_employee_salary"/>
+    </record>
+
+    <record id="l10n_pk_hr_payroll_structure_pk_employee_salary_attachment_of_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Attachment of Salary</field>
+        <field name="sequence">174</field>
+        <field name="code">ATTACH_SALARY</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'ATTACH_SALARY' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['ATTACH_SALARY'].amount
+result_name = inputs['ATTACH_SALARY'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_pk_employee_salary"/>
+    </record>
+
+    <record id="l10n_pk_hr_payroll_structure_pk_employee_salary_assignment_of_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Assignment of Salary</field>
+        <field name="sequence">174</field>
+        <field name="code">ASSIG_SALARY</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'ASSIG_SALARY' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['ASSIG_SALARY'].amount
+result_name = inputs['ASSIG_SALARY'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_pk_employee_salary"/>
+    </record>
+
+    <record id="l10n_pk_hr_payroll_structure_pk_employee_salary_child_support" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Child Support</field>
+        <field name="code">CHILD_SUPPORT</field>
+        <field name="amount_select">code</field>
+        <field name="sequence">174</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'CHILD_SUPPORT' in inputs</field>
+        <field name="amount_python_compute">
+result = -inputs['CHILD_SUPPORT'].amount
+result_name = inputs['CHILD_SUPPORT'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_pk_employee_salary"/>
+    </record>
+
+    <record id="pk_end_of_service_benefit" model="hr.salary.rule">
+        <field name="name">End of Service Benefit</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="code">EOS</field>
+        <field name="sequence">180</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = employee.departure_date</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+difference = relativedelta(employee.departure_date, employee.contract_date_start)
+years = difference.years
+if difference.months &gt;= 6:
+    years += 1
+result = 0
+if years &gt;= 5:
+    compensation_per_year = (version.wage * 30)
+    result = (compensation_per_year * years) / 26
+    result = payslip.company_id.currency_id.round(ceil(result))
+</field>
+        <field name="struct_id" ref="l10n_pk_hr_payroll.hr_payroll_structure_pk_employee_salary"/>
+    </record>
+
+    <record id="pk_total_tak_bracket_monthly" model="hr.salary.rule">
+        <field name="name">Income Tax Withheld</field>
+        <field name="category_id" ref="l10n_pk_hr_payroll.pk_tax_deduction_salary_rule_category"/>
+        <field name="code">TXW</field>
+        <field name="sequence">190</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 600000 &lt; GROSSY</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = -categories["TB"] / 12</field>
+        <field name="struct_id" ref="l10n_pk_hr_payroll.hr_payroll_structure_pk_employee_salary"/>
+    </record>
+
+    <record id="l10n_pk_hr_payroll_structure_pk_employee_salary_deduction_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Deduction</field>
+        <field name="sequence">198</field>
+        <field name="code">DEDUCTION</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'DEDUCTION' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['DEDUCTION'].amount
+result_name = inputs['DEDUCTION'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_pk_employee_salary"/>
+    </record>
+
+    <record id="l10n_pk_hr_payroll_structure_pk_employee_salary_reimbursement_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="name">Reimbursement</field>
+        <field name="sequence">199</field>
+        <field name="code">REIMBURSEMENT</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'REIMBURSEMENT' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = inputs['REIMBURSEMENT'].amount
+result_name = inputs['REIMBURSEMENT'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_pk_employee_salary"/>
+    </record>
+
+    <record id="l10n_pk_hr_payroll_structure_pk_employee_salary_net_salary" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.NET"/>
+        <field name="name">Net Salary</field>
+        <field name="sequence">200</field>
+        <field name="code">NET</field>
+        <field name="appears_on_employee_cost_dashboard" eval="True"/>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW'] + categories['DED']
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_pk_employee_salary"/>
+    </record>
+</odoo>

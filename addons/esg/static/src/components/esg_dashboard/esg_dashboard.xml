@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <!--General information -->
+        <t t-name="esg.DashboardInfo">
+            <t t-if="state.showInfo and !env.isSmall">
+                <div class="text-end">
+                    <a class="btn" title="Close the onboarding tips" t-on-click="toggleInfo">
+                        <i class="oi oi-close"/>
+                    </a>
+                </div>
+                <div class="d-none d-sm-flex align-items-center mb-5">
+                    <div class="o_nocontent_esg d-flex gap-3 flex-column flex-md-row w-100 pe-auto">
+                        <div class="o_esg_step w-100 mx-auto text-center">
+                            <img src="/esg/static/src/img/magnifying_glass.svg" alt="Collect" class="mb-3"/>
+                            <h2>Collect</h2>
+                            <p class="mb-0">Seamlessly bring all your ESG data together, whether from Odoo or outside, in a simple and organized way.</p>
+                        </div>
+                        <i class="o_esg_step_icon oi oi-arrow-right align-self-center fs-2 text-muted"/>
+                        <div class="o_esg_step w-100 mx-auto text-center">
+                            <img src="/esg/static/src/img/statistics.svg" alt="Collect" class="mb-3"/>
+                            <h2>Measure</h2>
+                            <p class="mb-0">Track your ESG performance, transform data into actionable insights, and generate reports to meet compliance requirements all while making informed, strategic decisions.</p>
+                        </div>
+                        <i class="o_esg_step_icon oi oi-arrow-right align-self-center fs-2 text-muted"/>
+                        <div class="o_esg_step w-100 mx-auto text-center">
+                            <img src="/esg/static/src/img/target.svg" alt="Collect" class="mb-3"/>
+                            <h2>Act</h2>
+                            <p class="mb-0">Turn insights into action, monitor your impact in real-time, and drive meaningful change across your organization.</p>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </t>
+
+    <!-- Dashboard -->
+    <t t-name="esg.Dashboard">
+        <div class="o_esg_dashboard container-fluid h-100 overflow-auto mt-3">
+            <t t-call="esg.DashboardInfo"/>
+            <div name="esg_dashboard_content" class="o_dashboard_grid">
+                <t t-foreach="dashboardContent" t-as="dashboardItem" t-key="dashboardItem_index">
+                    <t t-component="dashboardItem.component" t-props="dashboardItem.props"/>
+                </t>
+            </div>
+        </div>
+    </t>
+</templates>

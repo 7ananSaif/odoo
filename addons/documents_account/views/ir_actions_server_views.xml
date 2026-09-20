@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="view_server_action_form_template">
+            <field name="name">ir.actions.server.form</field>
+            <field name="model">ir.actions.server</field>
+            <field name="inherit_id" ref="base.view_server_action_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//t[@name='action_content']//notebook" position="before">
+                    <group invisible="state != 'documents_account_record_create'">
+                        <group>
+                            <field name="documents_account_create_model" string="Create"
+                                   placeholder="Choose an accounting document type..."
+                                   required="state == 'documents_account_record_create'"/>
+                            <field name="documents_account_journal_id" string="Journal"
+                                   placeholder="Choose a journal..."/>
+                        </group>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

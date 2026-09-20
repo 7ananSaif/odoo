@@ -1,0 +1,14 @@
+<odoo>
+    <record id="voip_call_view_form_inherit" model="ir.ui.view">
+        <field name="name">voip.call.form.inherit</field>
+        <field name="model">voip.call</field>
+        <field name="inherit_id" ref="voip.voip_call_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button class="oe_stat_button" groups="sales_team.group_sale_salesman" type="object" name="voip_action_open_subscription" icon="fa-refresh" invisible="subscription_count == 0">
+                    <field string="Subscriptions" name="subscription_count" widget="statinfo"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

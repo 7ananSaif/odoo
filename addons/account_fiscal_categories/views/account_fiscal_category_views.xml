@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_account_fiscal_category_tree" model="ir.ui.view">
+        <field name="name">account.fiscal.category.list</field>
+        <field name="model">account.fiscal.category</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="code"/>
+                <field name="name"/>
+                <field name="account_ids" string="Related Account(s)" widget="many2many_tags" domain="[('internal_group', 'in', ('asset', 'expense', 'income')), ('fiscal_category_id', '=', None)]" options="{'no_create': True}"/>
+                <field name="company_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_account_fiscal_category_search" model="ir.ui.view">
+        <field name="name">account.fiscal.category.search</field>
+        <field name="model">account.fiscal.category</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="code"/>
+                <field name="name"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_account_fiscal_category_form" model="ir.ui.view">
+        <field name="name">account.fiscal.category.form</field>
+        <field name="model">account.fiscal.category</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div>
+                        <h1 style="font-size: 1.9rem;">
+                            <div class="row">
+                                <div class="col">
+                                    <label for="code" string="Code"/>
+                                    <div>
+                                        <field name="code" placeholder="e.g. 1201"/>
+                                    </div>
+                                </div>
+                                <div class="col col-md-10">
+                                    <label for="name" string="Category Name"/>
+                                    <div>
+                                        <field name="name"
+                                               placeholder="e.g. Non-Deductible Tax"
+                                               class="oe_inline"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="left_column">
+                            <field name="company_id" options="{'no_create': True}"/>
+                            <field name="account_ids" string="Related Account(s)" widget="many2many_tags" domain="[('internal_group', 'in', ('expense', 'income'))]" options="{'no_create': True}"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_account_fiscal_category_list" model="ir.actions.act_window">
+        <field name="name">Fiscal Categories</field>
+        <field name="res_model">account.fiscal.category</field>
+        <field name="path">fiscal-categories</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Add a Fiscal Category
+            </p>
+        </field>
+    </record>
+
+    <menuitem action="action_account_fiscal_category_list"
+              id="menu_action_account_fiscal_category_list"
+              parent="account.account_account_menu"
+              groups="base.group_no_one"/>
+</odoo>

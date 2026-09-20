@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="account_reports.AccountReturnCheckFileUploader">
+        <FileUploader
+            multiUpload="true"
+            onUploaded.bind="onFileUploaded"
+            onUploadComplete.bind="onUploadCompleted"
+            onClick.bind="onClick"
+        >
+            <t t-set-slot="toggler">
+                <button class="btn btn-secondary">
+                    Upload File
+                </button>
+            </t>
+        </FileUploader>
+    </t>
+
+    <t t-name="account_reports.CustomAccountReturnFileUploaderComponent" t-inherit="web.FileUploader" t-inherit-mode="primary">
+        <input position="attributes">
+            <attribute name="data-bs-toggle">input</attribute>
+        </input>
+    </t>
+</templates>

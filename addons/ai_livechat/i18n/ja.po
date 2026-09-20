@@ -1,0 +1,123 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * ai_livechat
+#
+# "Junko Augias (juau)" <juau@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-11-05 18:00+0000\n"
+"Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"ai_livechat/ja/>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: ai_livechat
+#: model:ir.model,name:ai_livechat.model_ai_agent
+#: model:ir.model.fields,field_description:ai_livechat.field_im_livechat_channel_rule__ai_agent_id
+#: model_terms:ir.ui.view,arch_db:ai_livechat.im_livechat_channel_rule_view_form
+msgid "AI Agent"
+msgstr "AIエージェント"
+
+#. module: ai_livechat
+#: model:ir.model.fields,field_description:ai_livechat.field_discuss_channel_member__ai_agent_id
+#: model:ir.model.fields,field_description:ai_livechat.field_im_livechat_channel_member_history__ai_agent_id
+msgid "Ai Agent"
+msgstr "AIエージェント"
+
+#. module: ai_livechat
+#: model_terms:ir.ui.view,arch_db:ai_livechat.im_livechat_channel_rule_view_form
+msgid ""
+"As both a scripted chatbot and an AI Agent are configured, the priority will "
+"be given to the AI Agent."
+msgstr ""
+"スクリプト型チャットボットと AI エージェントの両方が設定されているため、AI "
+"エージェントが優先されます。"
+
+#. module: ai_livechat
+#. odoo-javascript
+#: code:addons/ai_livechat/static/src/discuss/core/common/chat_window_patch.xml:0
+msgid "Ask a Human"
+msgstr "スタッフに質問する"
+
+#. module: ai_livechat
+#: model:ir.model,name:ai_livechat.model_discuss_channel_member
+msgid "Channel Member"
+msgstr "チャネルメンバ"
+
+#. module: ai_livechat
+#: model:ir.model,name:ai_livechat.model_discuss_channel
+msgid "Discussion Channel"
+msgstr "ディスカッションチャネル"
+
+#. module: ai_livechat
+#: model:ir.model.fields,field_description:ai_livechat.field_ai_agent__display_name
+#: model:ir.model.fields,field_description:ai_livechat.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:ai_livechat.field_discuss_channel_member__display_name
+#: model:ir.model.fields,field_description:ai_livechat.field_im_livechat_channel__display_name
+#: model:ir.model.fields,field_description:ai_livechat.field_im_livechat_channel_member_history__display_name
+#: model:ir.model.fields,field_description:ai_livechat.field_im_livechat_channel_rule__display_name
+msgid "Display Name"
+msgstr "表示名"
+
+#. module: ai_livechat
+#: model:ir.model.fields,field_description:ai_livechat.field_ai_agent__id
+#: model:ir.model.fields,field_description:ai_livechat.field_discuss_channel__id
+#: model:ir.model.fields,field_description:ai_livechat.field_discuss_channel_member__id
+#: model:ir.model.fields,field_description:ai_livechat.field_im_livechat_channel__id
+#: model:ir.model.fields,field_description:ai_livechat.field_im_livechat_channel_member_history__id
+#: model:ir.model.fields,field_description:ai_livechat.field_im_livechat_channel_rule__id
+msgid "ID"
+msgstr "ID"
+
+#. module: ai_livechat
+#: model:ir.model,name:ai_livechat.model_im_livechat_channel_member_history
+msgid "Keep the channel member history"
+msgstr "チャネルメンバー履歴を残す"
+
+#. module: ai_livechat
+#: model:ir.model,name:ai_livechat.model_im_livechat_channel
+msgid "Livechat Channel"
+msgstr "ライブチャットチャネル"
+
+#. module: ai_livechat
+#: model:ir.model.fields,field_description:ai_livechat.field_ai_agent__livechat_channel_rule_ids
+msgid "Livechat Channel Rule"
+msgstr "ライブチャットチャネル規則"
+
+#. module: ai_livechat
+#: model:ir.model,name:ai_livechat.model_im_livechat_channel_rule
+msgid "Livechat Channel Rules"
+msgstr "ライブチャットチャネル規則"
+
+#. module: ai_livechat
+#: model:ir.model.fields,field_description:ai_livechat.field_im_livechat_channel__ai_agent_count
+msgid "Number of AI Agents"
+msgstr "AI エージェント数"
+
+#. module: ai_livechat
+#: model:ir.model.fields,field_description:ai_livechat.field_im_livechat_channel_rule__chatbot_script_id
+#: model_terms:ir.ui.view,arch_db:ai_livechat.im_livechat_channel_rule_view_form
+msgid "Scripted Bot"
+msgstr "スクリプト型ボット"
+
+#. module: ai_livechat
+#. odoo-python
+#: code:addons/ai_livechat/controllers/main.py:0
+msgid "The conversation has been forwarded successfully."
+msgstr "会話が正常に転送されました。"
+
+#. module: ai_livechat
+#. odoo-python
+#: code:addons/ai_livechat/controllers/main.py:0
+msgid ""
+"There is no human agent available at the moment. Please try again later."
+msgstr ""
+"現在、オペレーターが対応できません。しばらくしてから再度お試しください。"

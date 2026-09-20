@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_project_form_inherit_industry_fsm_report" model="ir.ui.view">
+        <field name="name">project.project.form.inherit.industry.fsm.report</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="industry_fsm.project_view_form_inherit"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='group_field_service']/div" position="inside">
+                <setting class="col-lg-12" help="Complete custom worksheets for your interventions" id="industry_fsm">
+                    <field name="allow_worksheets"/>
+                    <div class="mt-3 d-flex flex-wrap" invisible="not allow_worksheets">
+                        <label for="worksheet_template_id" class="fw-bold" string="Worksheet Template"/>
+                        <field name="worksheet_template_id" class="oe_inline ps-2" required="allow_worksheets"
+                            placeholder="e.g. Device Installation" options="{'no_quick_create': True}"
+                            context="{'form_view_ref': 'industry_fsm_report.worksheet_template_view_form_footer_design_button', 'default_res_model': 'project.task'}"/>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_project_kanban_inherit_industry_fsm_report" model="ir.ui.view">
+        <field name="name">project.project.kanban.inherit.industry.fsm.report</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//span[@name='partner_name']" position="before">
+                <span t-if="record.worksheet_template_id.value" class="text-muted text-truncate" invisible="not context.get('fsm_mode', False)">
+                    <span class="fa fa-pencil me-1" aria-label="Worksheet Template" title="Worksheet Template"/><field name="worksheet_template_id"/>
+                </span>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="industry_fsm.project_project_action_only_fsm" model="ir.actions.act_window">
+        <field name="context">
+            {
+            'fsm_mode': True,
+            'default_is_fsm': True,
+            'default_allow_timesheets': True,
+            'default_allow_worksheets': True,
+            }
+        </field>
+        <field name="search_view_id" ref="project.view_project_project_filter"/>
+    </record>
+</odoo>

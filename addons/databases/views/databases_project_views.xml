@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="action_synchronize_all_databases" model="ir.actions.server">
+        <field name="name">Synchronize all the Databases</field>
+        <field name="model_id" ref="model_project_project"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = model.action_synchronize_all_databases()
+        </field>
+    </record>
+
+    <record id="action_synchronize_database" model="ir.actions.server">
+        <field name="name">Synchronize</field>
+        <field name="model_id" ref="model_project_project"/>
+        <field name="group_ids" eval="[Command.link(ref('databases.group_databases_manager'))]"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.action_database_synchronize()
+        </field>
+    </record>
+
+    <record id="action_invite_users" model="ir.actions.server">
+        <field name="name">Invite Users</field>
+        <field name="model_id" ref="model_project_project"/>
+        <field name="group_ids" eval="[Command.link(ref('databases.group_databases_manager'))]"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.action_database_invite_users()
+        </field>
+    </record>
+
+    <record id="action_remove_users" model="ir.actions.server">
+        <field name="name">Remove Users</field>
+        <field name="model_id" ref="model_project_project"/>
+        <field name="group_ids" eval="[Command.link(ref('databases.group_databases_manager'))]"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.action_database_remove_users()
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_databases_list">
+        <field name="name">databases.project.list</field>
+        <field name="model">project.project</field>
+        <field name="priority" eval="20"/>
+        <field name="arch" type="xml">
+            <list action="action_view_tasks" type="object" class="o_databases_list" js_class="databases_project_list">
+                <header>
+                    <button name="databases.action_synchronize_all_databases" type="action" string="Synchronize"
+                        display="always" groups="databases.group_databases_user"/>
+                    <button name="%(databases.action_invite_users)d" type="action" string="Invite Users" groups="databases.group_databases_user"/>
+                    <button name="%(databases.action_remove_users)d" type="action" string="Remove Users" groups="databases.group_databases_user"/>
+                </header>
+                <field name="name"/>
+                <field name="database_name" optional="hide"/>
+                <field name="database_version" string="Version" optional="hide"/>
+                <field name="user_id" optional="show" string="Responsible" widget="many2one_avatar_user"/>
+                <field name="tag_ids" widget="many2many_tags" optional="show"/>
+                <field name="database_nb_documents" optional="show" string="Inbox" invisible="database_nb_documents == 0"/>
+                <field name="database_nb_users" optional="show" string="Users" invisible="database_nb_users == 0"/>
+                <field name="database_kpi_properties"/>
+                <field name="database_last_synchro" optional="hide"/>
+                <button icon="fa-sign-in" string="Connect" name="action_database_connect" type="object"
+                        invisible="not database_can_access"/>
+                <button icon="fa-gear" string="Settings" name="action_open_self" type="object"
+                        groups="databases.group_databases_manager"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_view_databases_all" model="ir.actions.act_window">
+        <field name="name">Databases</field>
+        <field name="path">databases</field>
+        <field name="res_model">project.project</field>
+        <field name="domain">[("database_hosting", "!=", False)]</field>
+        <field name="view_mode">list,kanban,form,calendar,activity</field>
+        <field name="view_id" ref="view_databases_list"/>
+        <field name="context">{'default_privacy_visibility': 'followers', 'databases_template': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Get all your Odoo databases summarized, and perform mass action like inviting users.
+            </p>
+            <p>
+                Synchronize to automatically fetch Odoo Online databases, or set an API Key to connect to On Premise or Odoo.sh ones.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_view_tasks_all" model="ir.actions.act_window">
+        <field name="name">Tasks</field>
+        <field name="res_model">project.task</field>
+        <field name="domain">[("project_id.database_hosting", "!=", False)]</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No tasks found. Let's create one!
+            </p>
+            <p>
+                Organize your tasks by dispatching them across the pipeline.<br/>
+                Collaborate efficiently by chatting in real-time or via email.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_databases_configuration" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module': 'databases'}</field>
+    </record>
+
+    <record id="edit_project" model="ir.ui.view">
+        <field name="name">databases.project.form</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <header position="inside">
+                <button name="action_database_synchronize" type="object" string="Synchronize" groups="databases.group_databases_user" invisible="(database_hosting or 'other') == 'other'"/>
+            </header>
+            <notebook position="inside">
+                <page name="database" string="Database" groups="databases.group_databases_manager">
+                    <group>
+                        <group invisible="is_template">
+                            <field name="database_hosting" placeholder="Regular Project"/>
+                            <field name="database_url" invisible="not database_hosting" required="database_hosting"/>
+                            <field name="database_name" invisible="(database_hosting or 'other') == 'other'"/>
+                            <field name="database_api_login" invisible="(database_hosting or 'other') == 'other'"/>
+                            <field name="database_api_key" invisible="(database_hosting or 'other') == 'other'"/>
+                        </group>
+                        <group invisible="(database_hosting or 'other') == 'other' and not is_template">
+                            <span class="o_wrap_label"><span class="o_form_label">Fetch</span></span>
+                            <div>
+                                <div><field name="database_fetch_documents"/><span>Documents</span></div>
+                                <div><field name="database_fetch_draft_entries"/><span>Draft Journal Entries</span></div>
+                                <div><field name="database_fetch_tax_returns"/><span>Tax Returns</span></div>
+                            </div>
+                            <field name="database_last_synchro" invisible="is_template"/>
+                        </group>
+                    </group>
+                    <group string="User Management" invisible="not database_hosting or is_template">
+                        <field name="database_user_ids" colspan="2" nolabel="1" options="{'write': false, 'delete': false}">
+                            <list>
+                                <control>
+                                    <button name="action_invite_users" type="object" string="Add a user" class="btn-link" groups="databases.group_databases_manager"/>
+                                </control>
+                                <field name="name"/>
+                                <field name="login"/>
+                                <field name="latest_authentication"/>
+                                <field name="local_user_id" widget="many2one_avatar_user"/>
+                                <button name="action_remove_users" type="object" groups="databases.group_databases_manager" icon="fa-trash" title="Remove User" invisible="local_user_id == uid"/>
+                            </list>
+                        </field>
+                    </group>
+                </page>
+                <page name="kpis" string="KPIs" groups="databases.group_databases_manager" invisible="(database_hosting or 'other') == 'other'">
+                    <field name="database_kpi_properties"/>
+                </page>
+            </notebook>
+        </field>
+    </record>
+
+</odoo>

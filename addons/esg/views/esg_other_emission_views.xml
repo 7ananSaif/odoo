@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="other_emission_form_view" model="ir.ui.view">
+        <field name="name">other.emission.form</field>
+        <field name="model">esg.other.emission</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="d-flex align-items-center">
+                        <div class="w-75">
+                            <h1>
+                                <field name="name" placeholder="e.g. Bus Transportation" widget="text" class="o_text_overflow" options="{'line_breaks': False}"/>
+                            </h1>
+                        </div>
+                        <h2 class="ms-auto">
+                            <field name="esg_emissions_value"/><span class="ms-2">kgCO₂e</span>
+                        </h2>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="date" widget="esg_daterange" options="{'end_date_field': 'date_end'}"/>
+                            <field name="esg_emission_factor_id"/>
+                            <field name="company_id"/>
+                            <field name="note"/>
+                        </group>
+                        <group>
+                            <label for="quantity" string="Quantity"/>
+                            <div class="d-inline-flex">
+                                <field name="quantity"/>
+                                <field name="uom_id" required="compute_method == 'physically'" invisible="not esg_emission_factor_id or compute_method == 'monetary'" placeholder="Unit of Measure"/>
+                                <field name="currency_id" required="compute_method == 'monetary'" invisible="not esg_emission_factor_id or compute_method == 'physically'" placeholder="Currency"/>
+                            </div>
+                            <field name="esg_uncertainty_value" widget="percentage"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

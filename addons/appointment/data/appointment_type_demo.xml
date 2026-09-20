@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="appointment_type_dental_care" model="appointment.type">
+        <field name="name">Dental Care</field>
+        <field name="location_id" ref="res_partner_appointment_type_dental_care"/>
+        <field name="appointment_duration">0.5</field>
+        <field name="slot_creation_interval">0.5</field>
+        <field name="max_schedule_days">45</field>
+        <field name="schedule_based_on">users</field>
+        <field name="staff_user_ids" eval="[(6, 0, [ref('base.user_admin'), ref('base.user_demo')])]"/>
+        <field name="show_avatars">True</field>
+        <field name="event_videocall_source" eval="False"/>
+        <field name="image_1920" type="base64" file="appointment/static/src/img/appointment_1.jpg"/>
+        <field name="message_intro" type="html">
+            <p>Schedule your visit today and experience expert dental care brought right to your doorstep.</p>
+        </field>
+    </record>
+
+    <record id="appointment_type_dental_care_question_1" model="appointment.question">
+        <field name="appointment_type_ids" eval="[(6, 0, [ref('appointment_type_dental_care')])]"/>
+        <field name="is_reusable">False</field>
+        <field name="name">Symptoms</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="appointment_type_tennis_court" model="appointment.type">
+        <field name="name">Tennis Court</field>
+        <field name="location_id" ref="res_partner_appointment_type_tennis_court"/>
+        <field name="appointment_duration">1</field>
+        <field name="schedule_based_on">resources</field>
+        <field name="is_auto_assign">False</field>
+        <field name="is_date_first">True</field>
+        <field name="max_schedule_days">45</field>
+        <field name="allow_guests">True</field>
+        <field name="event_videocall_source" eval="False"/>
+        <field name="image_1920" type="base64" file="appointment/static/src/img/appointment_2.jpg"/>
+        <field name="message_intro" type="html">
+            <p>Easily reserve tennis courts for your next match, anytime and anywhere.</p>
+        </field>
+    </record>
+</odoo>

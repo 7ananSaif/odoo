@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_payslip_input_view_search_report" model="ir.ui.view">
+        <field name="name">hr.payslip.input.search.report</field>
+        <field name="model">hr.payslip.input</field>
+        <field name="arch" type="xml">
+            <search string="Search Payslip Other Input">
+                <field name="employee_id" domain="[('company_id', 'in', allowed_company_ids)]"/>
+                <field name="name" string="Other Input Type" filter_domain="['|',('input_type_id','ilike',self),('code','ilike',self)]"/>
+                <field name="payslip_id" string="Payslip Name"/>
+                <filter string="Paid" name="is_paid" domain="[('payslip_id.state', '=', 'paid')]"/>
+                <filter string="Validated" name="is_done" domain="[('payslip_id.state', '=', 'validated')]"/>
+                <filter string="Waiting" name="is_waiting" domain="[('payslip_id.state', '=', 'draft')]"/>
+                <separator/>
+                <filter string="Date" name="date_from" date="date_from" default_period="year"/>
+                <group col="8" colspan="4">
+                    <filter string="Input Type" name="group_by_input_type" context="{'group_by': 'input_type_id'}"/>
+                    <filter string="Input Type Code" name="group_by_code" context="{'group_by': 'code'}"/>
+                    <filter string="Employee" name="group_by_employee_id" context="{'group_by': 'employee_id'}"/>
+                    <filter string="Payslip" name="group_by_payslip_id" context="{'group_by': 'payslip_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="hr_payslip_input_view_pivot" model="ir.ui.view">
+        <field name="name">hr.payslip.input.pivot</field>
+        <field name="model">hr.payslip.input</field>
+        <field name="arch" type="xml">
+            <pivot string="Payroll Analysis" sample="1">
+                <field name="date_from" interval="month" type="col"/>
+                <field name="amount" string="Amount" type="measure" widget="float" digits="[1,2]"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="hr_payslip_input_view_list" model="ir.ui.view">
+        <field name="name">hr.payslip.input.list</field>
+        <field name="model">hr.payslip.input</field>
+        <field name="arch" type="xml">
+            <list string="Payroll Analysis" create="false" edit="false">
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="payslip_id" optional="show"/>
+                <field name="input_type_id" optional="show"/>
+                <field name="amount" string="Amount" optional="show"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_payslip_input_action_report" model="ir.actions.act_window">
+        <field name="name">Payslip Other Inputs Report</field>
+        <field name="res_model">hr.payslip.input</field>
+        <field name="view_mode">pivot,list</field>
+        <field name="search_view_id" ref="hr_payslip_input_view_search_report"/>
+        <field name="context">{
+            'search_default_is_paid': 1,
+            'search_default_is_done': 1,
+            'search_default_date_from': 1,
+            'search_default_group_by_input_type': 1
+        }</field>
+    </record>
+</odoo>

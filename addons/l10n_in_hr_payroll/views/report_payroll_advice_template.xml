@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_payrolladvice">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <t t-foreach="docs" t-as="o">
+                    <div class="page">
+                        <h2 class="text-center"><strong>Payment Advice</strong></h2>
+                        <p class="text-end my-0"> Made on <span t-out="time.strftime('%d-%m-%Y')"/></p>
+                        <p class="text-end my-0"> Payment date <span t-out="o.l10n_in_effective_from.strftime('%d-%m-%Y')"/></p>
+                        <p class="m-0">To,</p>
+                        <p>The Manager,</p>
+                        <p><strong><span t-out="o.l10n_in_company_bank_id.bank_name"/></strong></p>
+                        <p>Dear Sir/Madam,</p>
+                        <p class="text-center text-decoration-underline">
+                            <strong>Payment Advice from 
+                                <span t-out="o.company_id.name"/>
+                                <t t-if="o.l10n_in_neft">with NEFT</t>
+                                <t t-else="">with Cheque No. 
+                                    <span t-if="o.l10n_in_cheque_number" t-out="o.l10n_in_cheque_number"/>
+                                    <span t-else="">XXXXXXXX</span>
+                                    <span t-if="o.l10n_in_cheque_date">
+                                        (<span t-out="o.l10n_in_cheque_date.strftime('%d-%m-%Y')"/>)
+                                    </span>
+                                </t> from <span t-out="o.payslip_ids.get_month()['from_name']"/> to 
+                                <span t-out="o.payslip_ids.get_month()['to_name']"/>
+                            </strong>
+                        </p>
+                    <p class="text-start">
+                        <span>
+                            Please initiate a payroll transfer from account number
+                            <span t-if="o.l10n_in_company_bank_id" t-out="o.l10n_in_company_bank_id.acc_number"/>
+                            <span t-else="">XXXXXXXXX</span>
+                            to the below mentioned account numbers towards employees salaries:
+                        </span>
+                    </p>
+                        <table class="o_ignore_layout_styling table table-sm">
+                            <thead>
+                                <tr style="border-top: 1px solid black">
+                                    <th>Si No.</th>
+                                    <th>Employee</th>
+                                    <th>C/D</th>
+                                    <th>Bank Account No.</th>
+                                    <th>IFSC Code</th>
+                                    <th class="text-end">By salary</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-set="report_details" t-value="line_ids"/>
+                                <tr t-foreach="report_details['lines']" t-as="l">
+                                    <td>
+                                        <span t-out="l_index+1">.</span>
+                                    </td>
+                                    <td>
+                                        <span t-out="l['name']"/>
+                                    </td>
+                                    <td>
+                                        <span t-out="l['debit_credit']"/>
+                                    </td>
+                                    <td>
+                                        <span t-out="l['acc_no']"/>
+                                    </td>
+                                    <td>
+                                        <span t-out="l['ifsc_code']"/>
+                                    </td>
+                                    <td class="text-end">
+                                        <span t-out="l['bysal']" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end" colspan="5"><strong>Total</strong></td>
+                                    <td class="text-end">
+                                        <strong><span t-out="report_details['total_bysal']" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/></strong>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p>
+                            Total Amount: <span t-out="o.company_id.currency_id.with_context(lang='en_US')
+                            .amount_to_text(report_details['total_bysal'])"/>
+                        </p>
+                        <p class="m-0">Yours Sincerely</p>
+                        <p>For <span t-out="o.company_id.name"/></p>
+                        <p class="mt-5">Authorized Signature</p>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+
+<odoo>
+    <record id="hr_payslip_work_days_view_list" model="ir.ui.view">
+        <field name="name">hr.payslip.worked_days.list</field>
+        <field name="model">hr.payslip.worked_days</field>
+        <field name="arch" type="xml">
+            <list string="Payroll Analysis" create="false" edit="false">
+                <field name="employee_id" widget="many2one_avatar_employee"/>
+                <field name="payslip_id" optional="show"/>
+                <field name="name"/>
+                <field name="amount" optional="hide"/>
+                <field name="number_of_days" optional="hide"/>
+                <field name="number_of_hours" optional="hide"/>
+
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_payslip_work_days_view_pivot" model="ir.ui.view">
+        <field name="name">hr.payslip.worked_days.pivot</field>
+        <field name="model">hr.payslip.worked_days</field>
+        <field name="arch" type="xml">
+            <pivot string="Payroll Analysis" sample="1" disable_linking="True">
+                <field name="work_entry_type_id" type="row"/>
+                <field name="date_from" interval="month" type="col"/>
+                <field name="amount" type="measure"/>
+
+            </pivot>
+        </field>
+    </record>
+
+    <record id="hr_payslip_work_days_view_search_report" model="ir.ui.view">
+        <field name="name">hr.payslip.worked_days.search.report</field>
+        <field name="model">hr.payslip.worked_days</field>
+        <field name="arch" type="xml">
+            <search string="Search Payslip Work Days">
+                <field name="employee_id" domain="[('company_id', 'in', allowed_company_ids)]"/>
+                <field name="name" string="Payslip Work Days" filter_domain="['|',('name','ilike',self),('code','ilike',self)]"/>
+                <field name="payslip_id" string="Payslip Name"/>
+                <filter string="Paid" name="is_paid" domain="[('payslip_id.state', '=', 'paid')]"/>
+                <filter string="Done" name="is_done" domain="[('payslip_id.state', '=', 'validated')]"/>
+                <filter string="Waiting" name="is_waiting" domain="[('payslip_id.state', '=', 'draft')]"/>
+                <separator />
+                <filter string="Date" name="date_from" date="date_from" default_period="year"/>
+                <filter string="Description" name="name" context="{'group_by':'name'}"/>
+
+            </search>
+        </field>
+    </record>
+
+    <record id="hr_payslip_work_days_action_report" model="ir.actions.act_window">
+        <field name="name">Payslip Work Days Lines Report</field>
+        <field name="res_model">hr.payslip.worked_days</field>
+        <field name="view_mode">pivot,list</field>
+        <field name="search_view_id" ref="hr_payslip_work_days_view_search_report"/>
+        <field name="context">{
+            'search_default_is_paid': 1, 
+            'search_default_is_done': 1, 
+            'search_default_date_from': 1
+        }</field>
+    </record>
+
+    <record id="hr_payslip_work_days_action_report_view_pivot" model="ir.actions.act_window.view">
+        <field name="sequence" eval="1"/>
+        <field name="view_mode">pivot</field>
+        <field name="view_id" ref="hr_payslip_work_days_view_pivot"/>
+        <field name="act_window_id" ref="hr_payslip_work_days_action_report"/>
+    </record>
+</odoo>

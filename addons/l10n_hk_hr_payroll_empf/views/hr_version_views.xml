@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="payroll_hr_version_list_view_payrun_inherit_l10n_hk_hr_payroll_empf" model="ir.ui.view">
+        <field name="name">payroll.hr.version.view.list.payrun.inherit.l10n_hk_hr_payroll_empf</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr_payroll.payroll_hr_version_list_view_payrun"/>
+        <field name="arch" type="xml">
+            <field name="department_id" position="after">
+                <field name="l10n_hk_payroll_group_id" optional="show"/>
+            </field>
+        </field>
+    </record>
+</odoo>

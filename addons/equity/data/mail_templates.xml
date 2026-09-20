@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="equity_shareholder_email_template" model="mail.template">
+            <field name="name">Equity Shareholder Email</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="subject">Equity notice</field>
+            <field name="body_html" type="html">
+                <div>
+                    <p> Hello <t t-out="ctx.get('holder_name')"/>,<br/>
+                        You will find your latest transaction and valuations in the following link: <br/>
+                        <a t-attf-href="/my/equity?access_token={{ctx.get('equity_access_token')}}" class="btn btn-primary">Show Equity</a> <br/> <br/>
+                        Best,
+                        <t t-if="user_id.signature">
+                            <br/>--<br/>
+                            <t t-out="user_id.signature or ''">Mitchell Admin</t>
+                        </t>
+                    </p>
+                </div>
+            </field>
+        </record>
+
+        <record id="equity_ubo_form_email_template" model="mail.template">
+            <field name="name">Equity UBO Form Email</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="subject">UBO form</field>
+            <field name="body_html" type="html">
+                <div>
+                    <p> Hello <t t-out="object.name"/>,<br/>
+                        Following our legal obligations to identify clients, we need to report natural persons who directly or indirectly
+                        hold or control at least 25% in the capital or voting rights of <b><t t-out="user_id.company_id.name"/></b>. <br/> <br/>
+                        Please fill in the UBO request:<br/>
+                        <a t-attf-href="/my/ubo?{{object._get_equity_url_params()}}" class="btn btn-primary">Fill UBO</a> <br/> <br/>
+                        Thank you,
+                        <t t-if="user_id.signature">
+                            <br/>--<br/>
+                            <t t-out="user_id.signature or ''">Mitchell Admin</t>
+                        </t>
+                    </p>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

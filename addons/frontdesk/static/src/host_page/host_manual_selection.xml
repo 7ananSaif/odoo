@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="frontdesk.HostManualSelection">
+        <div class="o_frontdesk_kiosk_mode position-absolute top-0 start-0 w-100 h-100 overflow-hidden">
+            <div class="o_control_panel_main d-flex justify-content-between align-items-center flex-grow-1 gap-2 p-2" t-att-class="props.theme === 'light' ? 'bg-white' : 'bg-900'" style="top: 0px;">
+                <button
+                    t-on-click="() => this.props.onClickBack()"
+                    class="o_frontdesk_back_button btn btn-secondary rounded-pill d-flex flex-row align-items-center">
+                    <i class="oi oi-chevron-left me-1" role="img" aria-label="Go back" title="Go back"/>
+                    Back
+                </button>
+                <div class="o_cp_searchview d-flex flex-grow-1">
+                    <div class="d-flex flex-row align-items-center rounded-pill border flex-grow-1" t-att-class="props.theme === 'light' ? 'bg-white' : 'bg-700 border-secondary'" style="height: 3.5rem;">
+                        <i class="o_searchview_icon oi oi-search m-2" aria-label="Search..." title="Search..."/>
+                        <div class="o_searchview_input_container position-relative w-100">
+                            <input t-on-input="onSearchInput" type="text" class="border-0"
+                            t-att-class="props.theme === 'light' ? 'bg-white text-dark' : 'bg-700 text-white'" style="width: 95%;" placeholder="Search..."/>
+                        </div>
+                    </div>
+                </div>
+                <Pager
+                    t-if="state.hostsData.count > state.limit"
+                    total="state.hostsData.count"
+                    offset="state.offset"
+                    limit="state.limit"
+                    onUpdate.bind="_onPagerChanged"/>
+            </div>
+            <div class="d-flex flex-column flex-md-row" t-att-class="props.theme === 'light' ? 'bg-300' : 'bg-900'">
+                <t t-if="!env.isSmall">
+                    <div class="o_frontdesk_sidebar ps-2 py-2 overflow-auto">
+                        <div class="list-group">
+                            <a t-on-click="() => this.onDepartmentClick()" class="list-group-item py-3 list-group-item-action text-start"
+                                t-att-class="props.theme === 'light' ? '' : 'bg-700 border-secondary text-white'">
+                                All
+                            </a>
+                            <t t-foreach="this.state.departments" t-as="dep" t-key="dep.id">
+                                <a t-on-click="() => this.onDepartmentClick(dep.id)" class="list-group-item py-3 list-group-item-action d-flex justify-content-between align-items-center"
+                                    t-att-class="props.theme === 'light' ? '' : 'bg-700 border-secondary text-white'">
+                                    <span class="text-truncate"><t t-out="dep.name"/></span>
+                                    <small class="badge bg-secondary rounded-pill ms-3"><t t-out="dep.count"/></small>
+                                </a>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+                <t t-else="">
+                    <Dropdown>
+                        <button class="btn m-2 me-auto align-self-start" t-att-class="props.theme === 'light' ? 'btn-light' : 'btn-secondary'">
+                            <span id="departmentButton" ><i class="fa fa-users me-2"/><t t-out="departmentName"/></span>
+                            <i class="fa fa-caret-down ms-2"/>
+                        </button>
+                        <t t-set-slot="content">
+                            <a t-on-click="() => this.onDepartmentClick()" class="d-flex text-start text-reset p-3">
+                                All
+                            </a>
+                            <DropdownItem
+                                t-foreach="this.state.departments"
+                                t-as="dep"
+                                t-key="dep.id"
+                                class="'py-3 d-flex justify-content-between align-items-center'"
+                                onSelected="() => this.onDepartmentClick(dep.id)">
+                                <span class="text-truncate"><t t-out="dep.name"/></span>
+                                <small class="badge bg-secondary rounded-pill ms-3"><t t-out="dep.count"/></small>
+                            </DropdownItem>
+                        </t>
+                    </Dropdown>
+                </t>
+                <div class="o_frontdesk_manual_selection w-100 p-2 pt-0 pt-md-2 overflow-auto" t-att-class="props.theme === 'light' ? 'bg-300' : 'bg-900'">
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 row-cols-xxl-4 g-2">
+                        <t t-foreach="this.state.hostsData.records" t-as="host" t-key="host.id">
+                            <div t-on-click="() => this.onSelectHost(host.id)" class="col">
+                                <div class="card d-flex flex-column align-items-center h-100 p-1 pt-2" t-att-class="props.theme === 'light' ? '' : 'bg-700 border-secondary'">
+                                    <img class="rounded-circle" alt="Host Avatar" loading="lazy" t-attf-src="{{host.avatar}}"/>
+                                    <div class="d-flex flex-column align-items-center mt-2">
+                                        <h6 class="mb-0" t-out="host.display_name"/>
+                                        <p class="text-muted text-center mb-1" style="font-size: 0.75em;" t-if="host.job_id" t-out="host.job_id"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

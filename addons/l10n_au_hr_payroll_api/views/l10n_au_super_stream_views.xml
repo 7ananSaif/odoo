@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_au_super_stream_view_form" model="ir.ui.view">
+        <field name="name">l10n_au.super.stream.view.form</field>
+        <field name="model">l10n_au.super.stream</field>
+        <field name="inherit_id" ref="l10n_au_hr_payroll_account.l10n_au_super_stream_view_form"/>
+        <field name="arch" type="xml">
+            <header position="inside">
+                <button name="action_cancel" string="Cancel"
+                        type="object" class="btn btn-secondary" invisible="state != 'done' or payment_status not in ('EMPLOYER_PAYMENT', 'FUND_PAYMENT')" data-hotkey="x"/>
+                <button name="action_resubmit_failed" string="Resubmit Failed / Cancelled"
+                        type="object" class="btn-secondary" invisible="not to_be_replaced" data-hotkey="r"/>
+                <button name="update_payment_status" string="Update Payment Status"
+                        type="object" class="btn-secondary" invisible="state != 'done' or payment_status in ('PAYMENT_COMPLETE', 'PAYMENT_CANCELLED')" data-hotkey="u"/>
+            </header>
+            <field name="super_stream_file" position="replace">
+                <field name="message_id" groups="base.group_no_one"/>
+                <field name="payment_ref" groups="base.group_no_one"/>
+                <field name="source_payment_status" widget="badge"
+                    decoration-success="source_payment_status == 'COMPLETED'"
+                    decoration-info="source_payment_status == 'PENDING'"
+                    decoration-danger="source_payment_status in ('SOURCE_FAILED', 'SOURCE_CANCELLED')" />
+            </field>
+            <xpath expr="//sheet/div" position="before">
+                <widget name="web_ribbon" title="Employer Pending"
+                        bg_color="bg-info"
+                        invisible="payment_status != 'EMPLOYER_PAYMENT'"
+                        tooltip="Employer direct debit has been initiated by SuperChoice."/>
+                <widget name="web_ribbon" title="Fund Pending"
+                        bg_color="bg-info"
+                        invisible="payment_status != 'FUND_PAYMENT'"
+                        tooltip="Employer direct debit has successfully cleared and payment to super funds have been initiated."/>
+                <widget name="web_ribbon" title="Successful"
+                        invisible="payment_status != 'PAYMENT_COMPLETE'"/>
+                <widget name="web_ribbon" title="Pending Cancellation"
+                        bg_color="bg-warning"
+                        invisible="payment_status != 'pending_cancel'"
+                        tooltip="Intermediate state when a cancellation for payment has been requested."/>
+                <widget name="web_ribbon" title="Payment Cancelled"
+                        bg_color="bg-danger"
+                        invisible="payment_status != 'PAYMENT_CANCELLED'"
+                        tooltip="If any payments have been dishonoured or requested to be stopped prior to completion. This is a final state - you do not need to keep polling."/>
+            </xpath>
+            <xpath expr="//div[hasclass('oe_title')]" position="before">
+                <div class="alert alert-info row" role="alert" invisible="days_funds_update &lt; 2 or state == 'done'">
+                    <span class="o_form_label">
+                        <field name="days_funds_update" nolabel="1" class="oe_inline"/>
+                        days have passed since Odoo last updated super funds:
+                        <button class="oe_link oe_inline p-0" icon="fa-repeat" type="object" name="action_update_funds" >Update Funds</button>
+                    </span>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="l10n_au_super_stream_view_tree" model="ir.ui.view">
+        <field name="name">l10n_au.super.stream.view.list</field>
+        <field name="model">l10n_au.super.stream</field>
+        <field name="inherit_id" ref="l10n_au_hr_payroll_account.l10n_au_super_stream_view_tree"/>
+        <field name="arch" type="xml">
+            <list position="inside">
+                <field name="payment_status" widget="badge"
+                    decoration-success="payment_status == 'PAYMENT_COMPLETE'"
+                    decoration-info="payment_status in ('EMPLOYER_PAYMENT', 'FUND_PAYMENT')"
+                    decoration-danger="payment_status in ('PAYMENT_CANCELLED')"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_au_super_stream_line_view_tree" model="ir.ui.view">
+        <field name="name">l10n_au.super.stream.line.view.list</field>
+        <field name="model">l10n_au.super.stream.line</field>
+        <field name="inherit_id" ref="l10n_au_hr_payroll_account.l10n_au_super_stream_line_view_tree"/>
+        <field name="arch" type="xml">
+            <list position="inside">
+                <field name="dest_payment_status" widget="badge" optional="show"/>
+                <field name="dest_payment_ref" optional="hide" groups="base.group_no_one"/>
+            </list>
+        </field>
+    </record>
+</odoo>

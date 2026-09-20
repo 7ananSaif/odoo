@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_eg_input_weekdays_overtime_daytime_hours" model="hr.payslip.input.type">
+        <field name="name">Weekdays Overtime Daytime Hours</field>
+        <field name="code">OVTWD</field>
+        <field name="country_id" ref="base.eg"/>
+        <field name="struct_ids" eval="[(4, ref('hr_payroll_structure_eg_employee_salary'))]"/>
+    </record>
+
+    <record id="l10n_eg_input_weekdays_overtime_nighttime_hours" model="hr.payslip.input.type">
+        <field name="name">Weekdays Overtime Nighttime Hours</field>
+        <field name="code">OVTWDN</field>
+        <field name="country_id" ref="base.eg"/>
+        <field name="struct_ids" eval="[(4, ref('hr_payroll_structure_eg_employee_salary'))]"/>
+    </record>
+
+    <record id="l10n_eg_input_weekend_public_holiday_overtime_hours" model="hr.payslip.input.type">
+        <field name="name">Weekend/Public Holidays Overtime Hours</field>
+        <field name="code">OVTPUB</field>
+        <field name="country_id" ref="base.eg"/>
+        <field name="struct_ids" eval="[(4, ref('hr_payroll_structure_eg_employee_salary'))]"/>
+    </record>
+</odoo>

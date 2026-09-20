@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="revoke_wizard_view" model="ir.ui.view">
+        <field name="name">l10n_be_codabox.revoke.wizard.view.form</field>
+        <field name="model">l10n_be_codabox.revoke.wizard</field>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <form string="CodaBox Revoke Connection">
+                <group>
+                    <field name="fiduciary_vat" invisible="company_vat == fiduciary_vat"/>
+                    <field name="company_vat"/>
+                    <field name="fidu_password" password="True"/>
+                </group>
+                <footer>
+                    <button name="l10n_be_codabox_revoke" string="Revoke" type="object" class="btn-secondary"
+                            confirm="Are you sure you want to revoke this connection ?" invisible="nb_connections == 1"/>
+                    <button name="l10n_be_codabox_revoke" string="Revoke" type="object" class="btn-secondary" invisible="nb_connections > 1"
+                            confirm="This is the last connection for this account. Are you sure you want to revoke it ?"/>
+                    <button string="Close" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

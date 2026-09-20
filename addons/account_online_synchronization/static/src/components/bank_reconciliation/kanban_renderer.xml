@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="account_online_synchronization.BankRecKanbanRenderer" t-inherit="account_accountant.BankRecKanbanRenderer" t-inherit-mode="extension">
+        <xpath expr="//BankRecStatementSummary[1]" position="attributes">
+            <attribute name="journalAvailableBalanceAmount">globalState.journalAvailableBalanceAmount</attribute>
+        </xpath>
+    </t>
+</templates>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="account_return_type_form_view" model="ir.ui.view">
+            <field name="name">account.return.type.form</field>
+            <field name="model">account.return.type</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="category" widget="radio" options="{'horizontal': true}"/>
+                            <group colspan="2">
+                                <h1>
+                                    <field name="name" placeholder="Tax Return" invisible="category != 'account_return'"/>
+                                    <field name="name" placeholder="Audit" invisible="category != 'audit'"/>
+                                </h1>
+                            </group>
+                            <group>
+                                <field name="deadline_periodicity"/>
+                                <field name="deadline_start_date"/>
+                                <label for="deadline_days_delay" class="o_form_label"/>
+                                <div class="d-flex align-items-left">
+                                    <field name="deadline_days_delay" style="width: 15%" class="o_form_field text-center"/>
+                                    <span style="width: 85%">days after tax period</span>
+                                </div>
+                                <field name="states_workflow" invisible="category == 'audit'"/>
+                            </group>
+                            <group>
+                                <field name="country_id" string="Country" invisible="category == 'audit'"/>
+                                <field name="report_id"/>
+                                <field name="payment_partner_id" readonly="0" invisible="category == 'audit'"/>
+                                <field name="payment_partner_bank_id" invisible="category == 'audit'"/>
+                            </group>
+                        </group>
+                    </sheet>
+                    <chatter/>
+                </form>
+            </field>
+        </record>
+
+        <record id="account_return_type_list_view" model="ir.ui.view">
+            <field name="name">account.return.type.list.view</field>
+            <field name="model">account.return.type</field>
+            <field name="arch" type="xml">
+                <list>
+                    <field name="name" string="Return Name"/>
+                    <field name="category" string="Type"/>
+                    <field name="deadline_periodicity"/>
+                    <field name="country_id"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="account_return_type_search_view" model="ir.ui.view">
+            <field name="name">account.return.type.search.view</field>
+            <field name="model">account.return.type</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="category"/>
+                    <field name="report_id"/>
+                    <field name="country_id"/>
+                    <field name="deadline_periodicity"/>
+                    <field name="deadline_start_date"/>
+                    <field name="payment_partner_id"/>
+                    <field name="payment_partner_bank_id"/>
+
+                    <filter name="tax_return" string="Tax Return" domain="[('category', '=', 'account_return')]"/>
+                    <filter name="audit" string="Audit" domain="[('category', '=', 'audit')]"/>
+
+                    <filter name="groupby_category" string="Category" context="{'group_by': 'category'}"/>
+                    <filter name="groupby_country" string="Country" context="{'group_by': 'country_id'}"/>
+                    <filter name="groupby_periodicity" string="Periodicity" context="{'group_by': 'deadline_periodicity'}"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_view_account_return_types" model="ir.actions.act_window">
+            <field name="name">Return Types</field>
+            <field name="res_model">account.return.type</field>
+            <field name="view_id" ref="account_reports.account_return_type_list_view"/>
+        </record>
+    </data>
+</odoo>

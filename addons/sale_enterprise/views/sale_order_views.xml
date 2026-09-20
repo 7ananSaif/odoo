@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="sale_order_map" model="ir.ui.view">
+        <field name="name">sale.order.view.map</field>
+        <field name="model">sale.order</field>
+        <field name="arch" type="xml">
+            <map res_partner="partner_id" routing="1">
+                <field name="partner_id" string="Customer"/>
+            </map>
+        </field>
+    </record>
+
+    <record id="action_quotations_map" model="ir.actions.act_window.view">
+        <field name="act_window_id" ref="sale.action_quotations_with_onboarding"/>
+        <field name="view_mode">map</field>
+        <field name="view_id" ref="sale_enterprise.sale_order_map"/>
+    </record>
+
+    <record id="action_orders_map" model="ir.actions.act_window.view">
+        <field name="act_window_id" ref="sale.action_orders"/>
+        <field name="view_mode">map</field>
+        <field name="view_id" ref="sale_enterprise.sale_order_map"/>
+    </record>
+
+    <record id="sale.action_orders" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form,calendar,pivot,graph,activity,map</field>
+    </record>
+
+    <record id="sale.action_quotations_with_onboarding" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form,calendar,pivot,graph,activity,map</field>
+    </record>
+
+</odoo>

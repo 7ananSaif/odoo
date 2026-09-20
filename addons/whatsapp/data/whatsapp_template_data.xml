@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<odoo noupdate="1">
+    <record id="whatsapp_template_discuss_channel_reviver" model="whatsapp.template">
+        <field name="name">Conversation Reviver</field>
+        <field name="template_name">conversation_reviver</field>
+        <field name="lang_code">en</field>
+        <field name="template_type">marketing</field>
+        <field name="footer_text">Write 'stop' to stop receiving messages</field>
+        <field name="phone_field">whatsapp_number</field>
+        <field name="model_id" ref="mail.model_discuss_channel"/>
+        <field name="body">Hello there,
+
+Just a quick note to let you know that we're here to help with anything you might need. If you have any questions, please don't hesitate to send us a message.
+
+We're always happy to assist!
+        </field>
+    </record>
+</odoo>

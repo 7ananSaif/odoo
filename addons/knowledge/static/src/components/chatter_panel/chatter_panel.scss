@@ -1,0 +1,11 @@
+.o_widget_knowledge_chatter_panel {
+    &:empty {
+        display: none,
+    }
+    li.nav-item {
+        display: none;
+    }
+    @include media-breakpoint-up(lg) {
+        min-width: 400px;
+    }
+}

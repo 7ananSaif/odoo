@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <!-- Article layout -->
+    <template id="website_knowledge.layout" name="Knowledge Public Layout" inherit_id="web.frontend_layout" primary="True">
+        <xpath expr="//t[@t-call-assets='web.assets_frontend']" position="replace">
+            <t t-call-assets="website_knowledge.assets_public_knowledge" t-js="false"/>
+        </xpath>
+        <xpath expr="//header" position="before">
+            <t t-set="no_header" t-value="True"/>
+            <t t-set="no_footer" t-value="True"/>
+            <t t-set="no_livechat" t-value="True"/>
+        </xpath>
+        <xpath expr="//body" position="replace">
+            <body>
+                <div id="wrapwrap">
+                    <t t-out="0"/>
+                </div>
+            </body>
+        </xpath>
+    </template>
+
+    <template id="website_knowledge.article_public_content" name="Knowledge Public Article Content">
+        <div class="o_knowledge_public_content d-flex flex-column h-100">
+            <!-- Article header -->
+            <header class="o_knowledge_header o_knowledge_header_line d-flex d-print-none p-3">
+                <button t-if="show_sidebar" class="o_knowledge_sidebar_enabler_button o_toggle_public_sidebar btn py-1 px-2 me-2">
+                    <i class="oi oi-lg oi-panel-right" title="Show Sidebar"/>
+                </button>
+                <!-- Title -->
+                <div class="o_knowledge_article_display_name min-w-0 text-truncate flex-grow-1 d-flex align-items-center">
+                    <span t-if="article['display_name']" t-out="article['display_name']"/>
+                    <span t-else="">Untitled</span>
+                </div>
+                <!-- Log In -->
+                <div class="o_knowledge_public_virality nav-item text-center o_no_autohide_item">
+                    <a t-att-href="'/web/login?redirect=/knowledge/article/' + str(article['id'])"
+                        class="o_knowledge_article_log_in nav-link fw-bold text-nowrap">Sign in</a>
+                </div>
+            </header>
+            <main class="o_knowledge_body flex-grow-1">
+                <!-- Article Cover -->
+                <div class="pt-md-5" t-if="not article['cover_image_id']"/>
+                <div t-if="article['cover_image_id']" class="o_knowledge_cover">
+                    <img t-att-src="article['cover_image_url']" t-attf-style="object-position: 50% #{article['cover_image_position'] or 50}%;"/>
+                </div>
+                <!-- Article Icon -->
+                <div t-if="article['icon']" t-attf-class="o_knowledge_icon px-3 #{'o_full_width' if article['full_width'] else ''}">
+                    <t t-out="article['icon']" />
+                </div>
+                <!-- Article Body -->
+                <div t-attf-class="o_knowledge_article px-3 #{'pt-3' if not article['icon'] else ''} #{'o_full_width' if article['full_width'] else ''}">
+                    <div class="o_readonly" t-out="article['body']"/>
+                </div>
+            </main>
+        </div>
+    </template>
+
+    <template id="website_knowledge.article_view_public" name="Knowledge Public">
+        <t t-call="website_knowledge.layout">
+            <t t-set="head">
+                <t t-call-assets="website_knowledge.assets_knowledge_print" media="print" t-js="false"/>
+                <t t-out="head or ''"/>
+            </t>
+            <div class="o_knowledge_public_view d-flex h-100" t-att-data-res_id="article['id']">
+                <div class="o_knowledge_sidebar_container o_knowledge_sidebar_loading bg-100 border-end" t-if="show_sidebar"/>
+                <div class="flex-grow-1 min-w-0 o_knowledge_public_content_container">
+                    <t t-call="website_knowledge.article_public_content"/>
+                </div>
+            </div>
+        </t>
+    </template>
+</data>
+</odoo>

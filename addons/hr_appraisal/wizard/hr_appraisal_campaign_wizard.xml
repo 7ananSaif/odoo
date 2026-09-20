@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="hr_appraisal_campaign_wizard_view_form" model="ir.ui.view">
+        <field name="name">hr.appraisal.campaign.wizard.form</field>
+        <field name="model">hr.appraisal.campaign.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Appraisal Campaign">
+                <group>
+                    <field name="mode"/>
+                    <field name="employee_ids" widget="many2many_avatar_employee" placeholder="All Employees" invisible="mode != 'employee'"/>
+                    <field name="company_id" required="mode == 'company'" invisible="mode != 'company'"/>
+                    <field name="department_id" required="mode == 'department'" invisible="mode != 'department'"/>
+                    <field name="category_id" required="mode == 'category'" invisible="mode != 'category'"/>
+                    <field name="manager" string="Manager" widget="radio" class="o_appraisal_radio_button"/>
+                    <field name="manager_ids" string="Other" placeholder="Type Employee's Name" widget="many2many_avatar_employee" required="manager == 'person'" invisible="manager != 'person'"/>
+                    <field name="appraisal_template_id"/>
+                    <field name="appraisal_date" widget="datetime" options="{'min_date':'today'}"/>
+                </group>
+                <group>
+                    <field name="warning" class="alert alert-warning" style="white-space: pre-wrap" role="alert" nolabel="1" invisible="not warning"/>
+                </group> 
+                <footer>
+                    <button string="Schedule" class="btn-primary" name="action_generate_appraisals" type="object" data-hotkey="q"/>
+                    <button string="Discard" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

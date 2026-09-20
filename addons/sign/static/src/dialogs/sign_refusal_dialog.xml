@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="sign.SignRefusalDialogTitle" t-inherit="sign.ThankYouDialog" t-inherit-mode="primary">
+        <span id="header-title-content" position="replace">
+            <span id="header-title-content">Refused</span>
+        </span>
+        <i id="sign-thank-you-icon" position="replace">
+            <i id="sign-thank-you-icon" class="fa fa-exclamation-triangle fa-2x p-2 rounded-circle text-warning" role="img"/>
+        </i>
+    </t>
+    <t t-name="sign.SignRefusalDialog">
+        <Dialog t-props="dialogProps">
+            <p>
+                We'll notify the sender, signer and copied contacts.
+                Your refusal reason will be included to keep things clear and transparent for everyone.
+            </p>
+            <div>
+                <div class="mb-3 row" t-if="!user">
+                    <label for="o_sign_public_signer_name_input" class="col-lg-1 col-form-label">Name</label>
+                    <div class="col-lg-11">
+                        <input type="text" t-ref="refuse-name"
+                            id="o_sign_public_signer_name_input"
+                            placeholder="Your name" class="form-control"
+                            t-on-change="checkForChanges"
+                            t-on-keyup="checkForChanges"
+                            t-on-paste="checkForChanges"
+                        />
+                    </div>
+                </div>
+                <div class="mb-3 row" t-if="!user">
+                    <label for="o_sign_public_signer_mail_input" class="col-lg-1 col-form-label">Email</label>
+                    <div class="col-lg-11">
+                        <input type="email" t-ref="refuse-email"
+                            id="o_sign_public_signer_mail_input"
+                            placeholder="Your email" class="form-control"
+                            t-on-change="checkForChanges"
+                            t-on-keyup="checkForChanges"
+                            t-on-paste="checkForChanges"
+                        />
+                    </div>
+                </div>
+                <div class="mb-3 row">
+                    <label for="o_sign_public_signer_reason_input" class="col-lg-1 col-form-label">Reason</label>
+                    <div class="col-lg-11">
+                        <textarea class="form-control o_sign_refuse_confirm_message placeholder-spacing"
+                            placeholder="Please provide a reason for refusal"
+                            t-ref="refuse-reason"
+                            t-on-change="checkForChanges"
+                            t-on-keyup="checkForChanges"
+                            t-on-paste="checkForChanges"
+                        />
+                    </div>
+                </div>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary refuse-button" t-on-click="refuse" t-ref="refuse-button" disabled="disabled">Decline</button>
+                <button class="btn btn-secondary" t-on-click="props.close">Cancel</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

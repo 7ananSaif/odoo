@@ -1,0 +1,173 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * documents_product
+#
+# Translators:
+# Uros Kalajdzic <ukalajdzic@gmail.com>, 2022
+# Martin Trigaux, 2022
+# Dragan Vukosavljevic <dragan.vukosavljevic@gmail.com>, 2022
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 15.5alpha1+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:44+0000\n"
+"PO-Revision-Date: 2025-11-16 05:28+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Serbian (Latin script) <https://translate.odoo.com/projects/"
+"odoo-19/documents_product/sr_Latn/>\n"
+"Language: sr@latin\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: documents_product
+#: model_terms:ir.ui.view,arch_db:documents_product.res_config_settings_view_form
+msgid "Centralize files attached to products"
+msgstr "Centralizujte dokumenta priložena uz proizvode"
+
+#. module: documents_product
+#: model:ir.model,name:documents_product.model_res_company
+msgid "Companies"
+msgstr "Preduzeća"
+
+#. module: documents_product
+#: model:ir.model,name:documents_product.model_res_config_settings
+msgid "Config Settings"
+msgstr "Podešavanje konfiguracije"
+
+#. module: documents_product
+#: model:ir.model.fields,field_description:documents_product.field_documents_document__display_name
+#: model:ir.model.fields,field_description:documents_product.field_product_product__display_name
+#: model:ir.model.fields,field_description:documents_product.field_product_template__display_name
+#: model:ir.model.fields,field_description:documents_product.field_res_company__display_name
+#: model:ir.model.fields,field_description:documents_product.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "Naziv za prikaz"
+
+#. module: documents_product
+#: model:ir.model,name:documents_product.model_documents_document
+#, fuzzy
+msgid "Document"
+msgstr "Dokumenti"
+
+#. module: documents_product
+#: model:ir.model.fields,field_description:documents_product.field_res_company__documents_product_settings
+msgid "Documents Product Settings"
+msgstr "Podešavanje dokumenata proizvoda"
+
+#. module: documents_product
+#: model_terms:ir.ui.view,arch_db:documents_product.res_config_settings_view_form
+msgid "Folder"
+msgstr "Folder"
+
+#. module: documents_product
+#: model:ir.model.fields,field_description:documents_product.field_documents_document__id
+#: model:ir.model.fields,field_description:documents_product.field_product_product__id
+#: model:ir.model.fields,field_description:documents_product.field_product_template__id
+#: model:ir.model.fields,field_description:documents_product.field_res_company__id
+#: model:ir.model.fields,field_description:documents_product.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: documents_product
+#: model:ir.model,name:documents_product.model_product_template
+#: model:ir.model.fields,field_description:documents_product.field_documents_document__product_template_id
+#: model:ir.model.fields,field_description:documents_product.field_res_config_settings__documents_product_settings
+msgid "Product"
+msgstr "Proizvod"
+
+#. module: documents_product
+#: model:documents.tag,name:documents_product.documents_product_sheet_tag
+msgid "Product > DataSheets"
+msgstr ""
+
+#. module: documents_product
+#: model:documents.tag,name:documents_product.documents_product_msds_tag
+msgid "Product > MSDS"
+msgstr ""
+
+#. module: documents_product
+#: model:documents.tag,name:documents_product.documents_product_new_tag
+msgid "Product > New"
+msgstr ""
+
+#. module: documents_product
+#: model:documents.tag,name:documents_product.documents_product_plans_tag
+msgid "Product > Plans"
+msgstr ""
+
+#. module: documents_product
+#: model:documents.tag,name:documents_product.documents_product_specs_tag
+msgid "Product > Specs"
+msgstr ""
+
+#. module: documents_product
+#: model:ir.model.fields,field_description:documents_product.field_res_company__product_folder_id
+msgid "Product Folder"
+msgstr ""
+
+#. module: documents_product
+#: model:ir.model.fields,field_description:documents_product.field_res_company__product_tag_ids
+msgid "Product Tag"
+msgstr "Oznaka proizvoda"
+
+#. module: documents_product
+#: model:ir.model.fields,field_description:documents_product.field_res_config_settings__product_tag_ids
+msgid "Product Tags"
+msgstr "Oznake proizvoda"
+
+#. module: documents_product
+#: model:ir.model,name:documents_product.model_product_product
+#: model:ir.model.fields,field_description:documents_product.field_documents_document__product_id
+msgid "Product Variant"
+msgstr "Varijante proizvoda"
+
+#. module: documents_product
+#. odoo-python
+#: code:addons/documents_product/models/document.py:0
+msgid "Product created from Documents"
+msgstr ""
+
+#. module: documents_product
+#: model:documents.document,name:documents_product.document_product_folder
+msgid "Products"
+msgstr "Proizvod"
+
+#. module: documents_product
+#: model_terms:ir.ui.view,arch_db:documents_product.res_config_settings_view_form
+msgid "Tags"
+msgstr "Oznake"
+
+#. module: documents_product
+#: model:ir.model.fields,field_description:documents_product.field_res_config_settings__product_folder_id
+msgid "product default folder"
+msgstr ""
+
+#~ msgid ""
+#~ "A set of condition and actions which will be available to all attachments "
+#~ "matching the conditions"
+#~ msgstr ""
+#~ "Grupa uslova i aktivnosti koji će biti dostupni svim prilozima koji "
+#~ "zadovoljavaju uslove"
+
+#~ msgid "Create"
+#~ msgstr "Kreirajte"
+
+#~ msgid "Default Tags"
+#~ msgstr "Podrazumevane oznake"
+
+#~ msgid "Documents"
+#~ msgstr "Dokumenti"
+
+#~ msgid "New"
+#~ msgstr "Novo"
+
+#~ msgid "Plans"
+#~ msgstr "Planovi"
+
+#~ msgid "Workspace"
+#~ msgstr "Radni prostor"

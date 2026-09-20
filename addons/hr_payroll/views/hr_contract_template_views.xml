@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_hr_payslip_new" model="ir.actions.act_window">
+        <field name="name">Payslip</field>
+        <field name="res_model">hr.payslip</field>
+        <field name="view_mode">form</field>
+    </record>
+
+    <record id="action_hr_salary_attachment_new" model="ir.actions.act_window">
+        <field name="name">Salary Adjustment</field>
+        <field name="res_model">hr.salary.attachment</field>
+        <field name="view_mode">form</field>
+    </record>
+
+    <record id="hr_contract_template_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.template.view.form.inherit.hr_payroll</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+            <page name="information" position="attributes">
+                <attribute name="groups">hr_payroll.group_hr_payroll_user</attribute>
+            </page>
+            <group name="salary_info" position="after">
+                <group groups="hr_payroll.group_hr_payroll_user" colspan="4">
+                    <field name="payroll_properties" nolabel="1" colspan="4"/>
+                    <button name="action_configure_template_inputs" type="object" icon="fa-plus" string="Add Inputs"
+                            class="btn btn-secondary text-break m-0"/>
+                </group>
+            </group>
+            <label for="wage" position="before">
+                <field name="wage_type"/>
+                <field name="schedule_pay"/>
+                <label for="hourly_wage" invisible="wage_type != 'hourly'"/>
+                <div class="o_row" name="hourly_wage" invisible="wage_type != 'hourly'">
+                    <field name="hourly_wage" class="o_hr_narrow_field"/>
+                    <span>/ hour</span>
+                </div>
+            </label>
+            <div name="wage_period_label" position="attributes">
+                <attribute name="invisible">schedule_pay != 'monthly'</attribute>
+            </div>
+            <div name="wage_period_label" position="after">
+                <span invisible="schedule_pay != 'annually'">/ year</span>
+                <span invisible="schedule_pay != 'semi-annually'">/ half-year</span>
+                <span invisible="schedule_pay != 'quarterly'">/ quarter</span>
+                <span invisible="schedule_pay != 'bi-monthly'">/ two months</span>
+                <span invisible="schedule_pay != 'semi-monthly'">/ half-month</span>
+                <span invisible="schedule_pay != 'bi-weekly'">/ two weeks</span>
+                <span invisible="schedule_pay != 'weekly'">/ week</span>
+                <span invisible="schedule_pay != 'daily'">/ day</span>
+            </div>
+            <field name="resource_calendar_id" position="attributes">
+                <attribute name="groups">hr.group_hr_manager</attribute>
+            </field>
+            <page name="information" position="attributes">
+                <attribute name="groups">hr_payroll.group_hr_payroll_user</attribute>
+            </page>
+        </field>
+    </record>
+
+    <record id="hr_version_payroll_list_view" model="ir.ui.view">
+        <field name="name">hr.version.payroll.list</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_version_list_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='structure_type_id']" position="after">
+                <field name="payslips_count" optional="hidden"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_new_salary_attachment" model="ir.actions.server">
+        <field name="name">Create Salary Adjustment</field>
+        <field name="model_id" ref="hr_payroll.model_hr_version"/>
+        <field name="binding_model_id" ref="hr.model_hr_version"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">action = record.action_new_salary_attachment()</field>
+    </record>
+</odoo>

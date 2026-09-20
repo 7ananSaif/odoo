@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="hr_appraisal_skills.GoalProgressBarField" t-inherit="web.ProgressBarField" t-inherit-mode="primary">
+        <xpath expr="//div[@t-ref='numpadDecimal']" position="attributes">
+            <attribute name="t-on-click.stop">onClick</attribute>
+        </xpath>
+    </t>
+</templates>

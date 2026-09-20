@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="account_accountant.BankRecKanbanRenderer" t-inherit="web.KanbanRenderer" t-inherit-mode="primary">
+        <xpath expr="//div[@t-ref='root']" position="attributes">
+            <attribute name="class" add="o_bank_reconciliation_kanban_renderer" separator=" "/>
+        </xpath>
+        <xpath expr="//t[@t-as='groupOrRecord']" position="before">
+            <BankRecStatementSummary
+                t-if="hasStatementLine > 1"
+                label="totalJournalLabel"
+                amount="globalState.totalJournalAmount"
+                action="() => this.actionOpenBankGL()"
+                journalId="globalState.journalId"
+                journalIsInvalid="globalState.totalIsInvalid"
+            />
+            <BankRecQuickCreate
+                t-if="isQuickCreateVisible"
+                resModel="globalState.resModel"
+                context="quickCreateContext"
+                quickCreateView="globalState.quickCreate.quickCreateView"
+                onValidate="(record, mode) => this.validateQuickCreate(record, mode)"
+                onCancel="() => this.cancelQuickCreate()"
+            />
+        </xpath>
+
+        <xpath expr="//t[@t-else='']/KanbanRecord" position="replace">
+            <BankRecStatementLine
+                archInfo="props.archInfo"
+                Compiler="props.Compiler"
+                canResequence="!isProcessing(groupOrRecord.record.id) and canResequenceRecords"
+                forceGlobalClick="props.forceGlobalClick"
+                groupByField="props.list.groupByField"
+                getSelection.bind="getSelection"
+                toggleSelection.bind="toggleSelection"
+                deleteRecord="props.deleteRecord"
+                archiveRecord="(record, active) => this.archiveRecord(record, active)"
+                openRecord="props.openRecord"
+                readonly="props.readonly"
+                record="groupOrRecord.record"
+                selectionAvailable="false"
+            />
+        </xpath>
+        <xpath expr="//t[@t-else='']/BankRecStatementLine" position="before">
+            <t t-set="recordData" t-value="statementGroups?.[groupOrRecord.record.data.id]"/>
+            <t t-if="recordData">
+                <BankRecStatementSummary
+                    label="recordData.name"
+                    amount="recordData.balance"
+                    action="() => this.actionOpenStatement(recordData.statementId)"
+                    isValid="recordData.isValid"
+                />
+            </t>
+        </xpath>
+
+        <xpath expr="//div[hasclass('o_kanban_renderer')]" position="after">
+            <div t-if="bankReconciliation.chatterState.visible and !ui.isSmall"
+                 class="o_bank_rec_widget_chatter_container o-mail-ChatterContainer h-100 o-aside d-flex flex-column border-start"
+            >
+                <BankRecChatter
+                    statementLine="bankReconciliation.chatterState.statementLine"
+                    threadId="bankReconciliation.statementLineMoveId"
+                    threadModel="'account.move'"
+                    isChatterAside="!ui.isSmall"
+                    hasParentReloadOnActivityChanged="true"
+                    hasParentReloadOnAttachmentsChanged="true"
+                    isAttachmentBoxVisibleInitially="true"
+                />
+            </div>
+        </xpath>
+    </t>
+</templates>

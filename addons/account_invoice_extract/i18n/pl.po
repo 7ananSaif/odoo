@@ -1,0 +1,453 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_invoice_extract
+#
+# Translators:
+# Judyta Kaźmierczak <judyta.kazmierczak@openglobe.pl>, 2022
+# Wojciech Warczakowski <w.warczakowski@gmail.com>, 2022
+# Maja Stawicka <mjstwck@wp.pl>, 2022
+# Piotr Szlązak <szlazakpiotr@gmail.com>, 2022
+# Andrzej Wiśniewski <a.wisniewski@hadron.eu.com>, 2022
+# zieloo <zieloo@gmail.com>, 2022
+# Martin Trigaux, 2022
+# Marcin Młynarczyk <mlynarczyk@gmail.com>, 2022
+# Piotr Cierkosz <piotr.w.cierkosz@gmail.com>, 2022
+# Piotr Strębski <strebski@gmail.com>, 2022
+# Maksym <ms@myodoo.pl>, 2022
+# Dariusz Żbikowski <darek@krokus.com.pl>, 2022
+# DanielDemedziuk <daniel.demedziuk@gmail.com>, 2022
+# Tadeusz Karpiński <tadeuszkarpinski@gmail.com>, 2023
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Marta (wacm)" <wacm@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-10-30 12:22+0000\n"
+"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
+"Language-Team: Polish <https://translate.odoo.com/projects/odoo-19/"
+"account_invoice_extract/pl/>\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && "
+"(n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
+"n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_needaction
+msgid "Action Needed"
+msgstr "Wymagane działanie"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_ir_attachment
+msgid "Attachment"
+msgstr "Załącznik"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_attachment_count
+msgid "Attachment Count"
+msgstr "Liczba załączników"
+
+#. module: account_invoice_extract
+#. odoo-python
+#: code:addons/account_invoice_extract/models/account_invoice.py:0
+msgid "Automatic OCR does not apply to this document."
+msgstr "Automatyczne OCR nie dotyczy tego dokumentu."
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_bank_statement_line__extract_can_show_banners
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_can_show_banners
+msgid "Can show the ocr banners"
+msgstr "Może pokazać banery ocr"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_can_show_send_button
+msgid "Can show the ocr send button"
+msgstr "Można wyświetlić przycisk wysyłania ocr"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_res_company
+msgid "Companies"
+msgstr "Firmy"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_res_config_settings
+msgid "Config Settings"
+msgstr "Ustawienia konfiguracji"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_res_partner
+msgid "Contact"
+msgstr "Kontakt"
+
+#. module: account_invoice_extract
+#. odoo-python
+#: code:addons/account_invoice_extract/models/account_invoice.py:0
+msgid "Couldn't reload AI data."
+msgstr "Nie można było przeładować danych AI."
+
+#. module: account_invoice_extract
+#. odoo-javascript
+#: code:addons/account_invoice_extract/static/src/js/invoice_extract_form.js:0
+msgid "Create"
+msgstr "Utwórz"
+
+#. module: account_invoice_extract
+#: model:ir.model,website_form_label:account_invoice_extract.model_res_partner
+msgid "Create a Customer"
+msgstr "Utwórz klienta"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__extract_out_invoice_digitalization_mode
+msgid "Customer Invoices"
+msgstr "Faktury klienta"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__extract_out_invoice_digitalization_mode
+msgid "Digitization mode on customer invoices"
+msgstr "Tryb digitalizacji na fakturach klientów"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__extract_in_invoice_digitalization_mode
+msgid "Digitization mode on vendor bills"
+msgstr "Tryb digitalizacji na rachunkach sprzedawców"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_in_invoice_digitalization_mode__auto_send
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_out_invoice_digitalization_mode__auto_send
+msgid "Digitize automatically"
+msgstr "Digitalizacja automatyczna"
+
+#. module: account_invoice_extract
+#: model_terms:ir.ui.view,arch_db:account_invoice_extract.view_move_form_inherit_ocr
+msgid "Digitize document"
+msgstr "Digitalizuj dokument"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_in_invoice_digitalization_mode__manual_send
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_out_invoice_digitalization_mode__manual_send
+msgid "Digitize on demand only"
+msgstr "Digitalizacja tylko na żądanie"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__display_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__display_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Nazwa wyświetlana"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_in_invoice_digitalization_mode__no_send
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_out_invoice_digitalization_mode__no_send
+msgid "Do not digitize"
+msgstr "Nie digitalizować"
+
+#. module: account_invoice_extract
+#: model_terms:ir.ui.view,arch_db:account_invoice_extract.res_config_settings_view_form
+msgid "Enable to get only one invoice line per tax"
+msgstr "Umożliwienie uzyskania tylko jednej linii faktury dla każdego podatku"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_error_message
+msgid "Error message"
+msgstr "Komunikat o błędzie"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_attachment_id
+msgid "Extract Attachment"
+msgstr "Wyciągnij załącznik"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_bank_statement_line__extract_detected_layout
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_detected_layout
+msgid "Extract Detected Layout Id"
+msgstr "Wyodrębnij wykryte ID układu"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_bank_statement_line__extract_partner_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_partner_name
+msgid "Extract Detected Partner Name"
+msgstr "Wyodrębnij wykrytą nazwę partnera"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_bank_statement_line__extract_prefill_data
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_prefill_data
+msgid "Extract Prefill Data"
+msgstr "Wyodrębnij wstępnie wypełnione dane"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_state_processed
+msgid "Extract State Processed"
+msgstr "Przetworzono status ekstrakcji"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_state
+msgid "Extract state"
+msgstr "Wyodbrębnij stan"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_status
+msgid "Extract status"
+msgstr "Status ekstrakcji"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extracted_dates
+msgid "Extracted Dates"
+msgstr "Wyodrębnione daty"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extracted_numbers
+msgid "Extracted Numbers"
+msgstr "Wyodrębnione liczby"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extracted_words
+msgid "Extracted Words"
+msgstr "Wyekstrahowane słowa"
+
+#. module: account_invoice_extract
+#: model_terms:ir.ui.view,arch_db:account_invoice_extract.view_move_form_inherit_ocr
+msgid "Extraction Information"
+msgstr "Informacje o ekstrakcji"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_follower_ids
+msgid "Followers"
+msgstr "Obserwujący"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Obserwujący (partnerzy)"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__has_message
+msgid "Has Message"
+msgstr "Ma wiadomość"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__id
+#: model:ir.model.fields,field_description:account_invoice_extract.field_ir_attachment__id
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__id
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__id
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_partner__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_document_uuid
+msgid "ID of the request to IAP-OCR"
+msgstr "ID wniosku do IAP-OCR"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Jeśli zaznaczone, nowe wiadomości wymagają twojej uwagi."
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_has_error
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+"Jeśli zaznaczone, niektóre wiadomości napotkały błędy podczas doręczenia."
+
+#. module: account_invoice_extract
+#: model:ir.actions.server,name:account_invoice_extract.ir_cron_update_ocr_status_ir_actions_server
+msgid "Invoice OCR: Update All Status"
+msgstr "Faktury OCR: Aktualizuj Wszystkie Statusy"
+
+#. module: account_invoice_extract
+#: model:ir.actions.server,name:account_invoice_extract.ir_cron_ocr_validate_ir_actions_server
+msgid "Invoice OCR: Validate Invoices"
+msgstr "OCR faktur: walidacja faktur"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_partner__is_created_by_ocr
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_users__is_created_by_ocr
+msgid "Is Created By Ocr"
+msgstr "Utworzone przez OCR"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_is_follower
+msgid "Is Follower"
+msgstr "Jest obserwatorem"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__is_in_extractable_state
+msgid "Is In Extractable State"
+msgstr "Jest w stanie ekstraktowalnym"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_account_move
+msgid "Journal Entry"
+msgstr "Zapis dziennika"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_main_attachment_id
+msgid "Main Attachment"
+msgstr "Główny załącznik"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_has_error
+msgid "Message Delivery error"
+msgstr "Błąd doręczenia wiadomości"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_ids
+msgid "Messages"
+msgstr "Wiadomości"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Liczba akcji"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_has_error_counter
+msgid "Number of errors"
+msgstr "Liczba błędów"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Liczba wiadomości wymagających akcji"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Liczba wiadomości z błędami przy doręczeniu"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__rating_ids
+msgid "Ratings"
+msgstr "Oceny"
+
+#. module: account_invoice_extract
+#: model_terms:ir.ui.view,arch_db:account_invoice_extract.view_move_form_inherit_ocr
+msgid "Reload AI Data"
+msgstr "Przeładowanie danych AI"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Błąd dostarczenia wiadomości SMS"
+
+#. module: account_invoice_extract
+#: model:ir.actions.server,name:account_invoice_extract.model_account_send_for_digitalization
+msgid "Send Bills for digitization"
+msgstr "Wyślij rachunki do digitalizacji"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__extract_single_line_per_tax
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__extract_single_line_per_tax
+msgid "Single Invoice Line Per Tax"
+msgstr "Jeden wiersz faktury na podatek"
+
+#. module: account_invoice_extract
+#: model:ir.model.constraint,message:account_invoice_extract.constraint_res_partner_ocr_name_uniq
+msgid "The OCR can't create multiple partners with the same name."
+msgstr "OCR nie może tworzyć wielu partnerów z tą samą nazwą."
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__extract_in_invoice_digitalization_mode
+msgid "Vendor Bills"
+msgstr "Faktury zakupu"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__website_message_ids
+msgid "Website Messages"
+msgstr "Wiadomości"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__website_message_ids
+msgid "Website communication history"
+msgstr "Historia komunikacji"
+
+#. module: account_invoice_extract
+#. odoo-python
+#: code:addons/account_invoice_extract/models/account_invoice.py:0
+msgid "You cannot send a expense that is not in draft state!"
+msgstr "Nie można wysłać wydatku, który nie jest w wersji roboczej!"
+
+#~ msgid ""
+#~ "All fields will be automated by Artificial Intelligence, it might take 5 "
+#~ "seconds."
+#~ msgstr ""
+#~ "Wszystkie pola zostaną zautomatyzowane przez sztuczną inteligencję, może "
+#~ "to zająć 5 sekund."
+
+#~ msgid "Bill is being Digitized"
+#~ msgstr "Rachunek jest w trakcie digitalizacji."
+
+#~ msgid "Created by"
+#~ msgstr "Utworzył(a)"
+
+#~ msgid "Created on"
+#~ msgstr "Data utworzenia"
+
+#~ msgid "Extract Word"
+#~ msgstr "Wyciągnij słowo"
+
+#~ msgid "Extracted words from invoice scan"
+#~ msgstr "Wyodrębnione słowa ze skanu faktury"
+
+#~ msgid "Field"
+#~ msgstr "Pole"
+
+#~ msgid "Invoice"
+#~ msgstr "Faktura"
+
+#~ msgid "Invoice OCR: Parse Invoices"
+#~ msgstr "OCR faktur: Parsowanie faktur"
+
+#~ msgid "Last Updated by"
+#~ msgstr "Ostatnio aktualizowane przez"
+
+#~ msgid "Last Updated on"
+#~ msgstr "Data ostatniej aktualizacji"
+
+#~ msgid "Ocr Selected"
+#~ msgstr "Ocr wybrane"
+
+#~ msgid "Send For Digitization"
+#~ msgstr "Wyślij do digitalizacji"
+
+#~ msgid ""
+#~ "The data extraction is not finished yet. The extraction usually takes "
+#~ "between 5 and 10 seconds."
+#~ msgstr ""
+#~ "Ekstrakcja danych nie została jeszcze zakończona. Ekstrakcja trwa "
+#~ "zazwyczaj od 5 do 10 sekund."
+
+#~ msgid "User Selected"
+#~ msgstr "Użytkownik wybrany"
+
+#~ msgid "Word Box Angle"
+#~ msgstr "Kąt Word Box"
+
+#~ msgid "Word Box Height"
+#~ msgstr "Wysokość Word Box"
+
+#~ msgid "Word Box Midx"
+#~ msgstr "Word Box Midx"
+
+#~ msgid "Word Box Midy"
+#~ msgstr "Word Box Midy"
+
+#~ msgid "Word Box Width"
+#~ msgstr "Szerokość Word Box"
+
+#~ msgid "Word Page"
+#~ msgstr "Strona Word"
+
+#~ msgid "Word Text"
+#~ msgstr "Tekst Word"
+
+#~ msgid "You don't have enough credit to extract data from your invoice."
+#~ msgstr "Nie masz wystarczających kredytów, aby wydobyć dane z faktury."

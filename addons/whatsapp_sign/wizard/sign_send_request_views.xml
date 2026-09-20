@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sign_send_request_view_form_inherit_whatsapp" model="ir.ui.view">
+        <field name="name">sign.send.request.view.form.inherit.whatsapp</field>
+        <field name="model">sign.send.request</field>
+        <field name="inherit_id" ref="sign.sign_send_request_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//footer/button[@name='send_request']" position="after">
+                <button string="Send via WhatsApp" name="send_via_whatsapp" type="object" class="btn-primary" invisible="context.get('sign_directly_without_mail',False) or not is_whatsapp_feature_enabled" data-hotkey="w"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

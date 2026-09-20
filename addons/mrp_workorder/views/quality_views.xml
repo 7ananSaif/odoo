@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="quality_point_view_form_inherit_mrp" model="ir.ui.view">
+        <field name="name">quality.point.view.form.inherit.mrp</field>
+        <field name="model">quality.point</field>
+        <field name="inherit_id" ref="quality.quality_point_view_form"/>
+        <field name="arch" type="xml">
+            <field name="test_type_id" position="after">
+                <field name="component_ids" invisible="1"/>
+                <field name="bom_product_ids" invisible="1"/>
+                <field name="component_id" invisible="not is_workorder_step or not operation_id or test_type not in ('register_byproducts', 'register_consumed_materials')" required="test_type in ('register_byproducts', 'register_consumed_materials')" domain="[('id', 'in', component_ids), '|', ('company_id', '=', company_id), ('company_id', '=', False)]"/>
+                <field name="test_report_type" widget="selection" invisible="test_type != 'print_label'"/>
+            </field>
+            <field name="picking_type_ids" position="after">
+                <field string="Work Order Operation" name="operation_id" invisible="not is_workorder_step" groups="mrp.group_mrp_routings" options="{'no_create': True}"/>
+                <field name="is_workorder_step" invisible="1"/>
+            </field>
+            <field name="product_category_ids" position="attributes">
+                <attribute name="invisible">is_workorder_step and operation_id</attribute>
+            </field>
+            <xpath expr="//page[@name='instructions']" position="after">
+                <page string="Worksheet" name="worksheet">
+                    <div invisible="worksheet_document" class="d-flex justify-content-center o_nocontent_help">
+                        <p class="o_view_nocontent_worksheet">No worksheet yet !</p>
+                    </div>
+                    <div style="width:calc(50% - 55px); height:1px; float:left;" invisible="worksheet_document"/> 
+                    <field name="worksheet_document" widget="pdf_viewer" style="flex-grow: 1"/>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="step_view_form" model="ir.ui.view">
+        <field name="name">quality.point.view.form.inherit.mrp</field>
+        <field name="model">quality.point</field>
+        <field name="inherit_id" ref="mrp_workorder.quality_point_view_form_inherit_mrp"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="picking_type_ids" position="replace">
+                <field name="picking_type_ids" widget="many2many_tags" domain="[('code', '=', 'mrp_operation'), ('company_id', '=', company_id)]"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="quality_point_routing_view_tree" model="ir.ui.view">
+        <field name="name">quality.point.routing.view.list</field>
+        <field name="model">quality.point</field>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="sequence" widget="handle"/>
+                <field name="title"/>
+                <field name="test_type_id" string="Type"/>
+                <field name="name"/>
+                <field name="worksheet_document" column_invisible="1"/>
+                <button name="action_view_worksheet_document" class="btn-link" string="Worksheet" type="object" invisible="not worksheet_document"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="quality_point_routing_view_form" model="ir.ui.view">
+        <field name="name">quality.point.routing.view.form</field>
+        <field name="model">quality.point</field>
+        <field name="inherit_id" ref="quality.quality_point_view_form"/>
+        <field name="mode">primary</field>
+        <field name="priority">10000</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="invisible">not id</attribute>
+            </xpath>
+            <xpath expr="//field[@name='product_category_ids']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+            <xpath expr="//field[@name='product_ids']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+            <xpath expr="//field[@name='picking_type_ids']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+            <xpath expr="//field[@name='operation_id']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+            <xpath expr="//field[@name='company_id']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="invisible">True</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="quality_point_worksheet_document_preview_form" model="ir.ui.view">
+        <field name="name">quality.point.worksheet.document.preview.form</field>
+        <field name="model">quality.point</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="worksheet_document" widget="pdf_viewer" nolabel="1" readonly="1"/>
+                </group>
+                <footer>
+                    <button string="Close" class="btn-primary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="quality_check_workorder_form" model="ir.ui.view">
+        <field name="name">quality.check.workorder.form</field>
+        <field name="model">quality.check</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="product_id" force_save="1"/>
+                    <field name="production_id" invisible="1"/>
+                    <field name="company_id" invisible="1"/>
+                    <field name="component_id" invisible="1"/>
+                    <field name="test_type" invisible="1" force_save="1"/>
+                    <field name="team_id" invisible="1" force_save="1"/>
+                    <field name="workorder_id" invisible="1" force_save="1"/>
+                    <field name="company_id" invisible="1"/>
+                    <field string="Type" name="test_type_id" options="{'no_open': True, 'no_create': True}"/>
+                    <field name="point_id"/>
+                    <field name="picture" widget="image" invisible="test_type != 'picture'"/>
+                    <field name="product_id" invisible="test_type not in ('register_consumed_materials', 'register_byproducts')"/>
+                    <field name="lot_ids" context="{'default_product_id': component_id, 'default_company_id': company_id, 'active_mo_id': production_id}" invisible="test_type not in ('register_consumed_materials', 'register_byproducts')" widget="many2many_tags"/>
+                </group>
+                <group>
+                    <field name="note"/>
+                    <field name="worksheet_document"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+    <record id="add_quality_check_from_tablet" model="ir.ui.view">
+        <field name="name">add.quality.check.from.tablet</field>
+        <field name="model">quality.check</field>
+        <field name="priority">200</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="company_id" invisible="1"/>
+                    <field name="product_id" invisible="1"/>
+                    <field name="workorder_id" invisible="1"/>
+                    <field name="test_type_id" domain="[('technical_name', 'not in', ['register_consumed_materials', 'register_byproducts'])]"/>
+                    <field name="title" string="Title"/>
+                    <field name="note" string="Instruction"/>
+                    <field name="worksheet_document" string="Document" options="{'accepted_file_extensions': '.pdf'}"/>
+                </group>
+                <footer>
+                    <button class="btn btn-primary" type="object" name="add_check_in_chain" string="Propose Change"/>
+                    <button class="btn btn-secondary" type="object" special="cancel" string="Discard"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="quality_alert_view_tree" model="ir.ui.view">
+        <field name="name">quality.alert.view.list.inherit.mrp.workorder</field>
+        <field name="model">quality.alert</field>
+        <field name="inherit_id" ref="quality.quality_alert_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='lot_ids']" position="after">
+                <field name="workcenter_id" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="quality_point_view_tree" model="ir.ui.view">
+        <field name="name">quality.point.view.list.inherit.mrp.workorder</field>
+        <field name="model">quality.point</field>
+        <field name="inherit_id" ref="quality.quality_point_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="picking_type_ids" position="after">
+                <field name="operation_id" optional="hide" string="Work Order Operation"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="quality_alert_view_search_inherit_mrp_workorder" model="ir.ui.view">
+            <field name="name">quality.alert.view.search.inherit.mrp.workorder</field>
+            <field name="model">quality.alert</field>
+            <field name="inherit_id" ref="quality.quality_alert_view_search"/>
+            <field name="arch" type="xml">
+                <field name="tag_ids" position="before">
+                    <field name="workcenter_id" string="Work Center"/>
+                </field>
+            </field>
+    </record>
+</odoo>

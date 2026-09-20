@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="edit_project_document_form_inherit" model="ir.ui.view">
+        <field name="name">project.project.form.inherit</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.edit_project"/>
+        <field name="priority">33</field>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='settings']//field[@name='privacy_visibility']" position="after">
+                <field name="documents_folder_id" widget="documents_folder_many2one"
+                    context="{'documents_project': True, 'default_company_id': company_id,
+                                'privacy_visibility': privacy_visibility, 'default_type': 'folder'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="project_embedded_action_documents" model="ir.embedded.actions">
+        <field name="name">Documents</field>
+        <field name="parent_res_model">project.project</field>
+        <field name="sequence">40</field>
+        <field name="parent_action_id" ref="project.act_project_project_2_project_task_all"/>
+        <field name="action_id" eval="False"/>
+        <field name="python_method">action_view_documents_project</field>
+    </record>
+
+    <record id="project_embedded_action_documents_dashboard" model="ir.embedded.actions">
+        <field name="name">Documents</field>
+        <field name="parent_res_model">project.project</field>
+        <field name="sequence">40</field>
+        <field name="parent_action_id" ref="project.project_update_all_action"/>
+        <field name="action_id" eval="False"/>
+        <field name="python_method">action_view_documents_project</field>
+    </record>
+
+    <record id="project_view_kanban_inherit_documents" model="ir.ui.view">
+        <field name="name">project.kanban.inherit.documents</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project.view_project_kanban"/>
+        <field name="priority">27</field>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='card_menu_view']" position="inside">
+                <div role="menuitem"
+                    invisible="documents_folder_id.user_permission == 'none'">
+                    <a name="action_view_documents_project" type="object">Documents</a>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

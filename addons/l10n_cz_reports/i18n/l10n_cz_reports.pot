@@ -1,0 +1,354 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_cz_reports
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 19:05+0000\n"
+"PO-Revision-Date: 2025-12-30 19:05+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields,help:l10n_cz_reports.field_account_move_line__l10n_cz_transaction_code
+#: model:ir.model.fields,help:l10n_cz_reports.field_product_product__l10n_cz_transaction_code
+#: model:ir.model.fields,help:l10n_cz_reports.field_product_template__l10n_cz_transaction_code
+msgid ""
+"\n"
+"    Transaction code:\n"
+"    0 - Supply of goods to another Member State to a person registered for tax in another Member State (Section 13(1) and (2) of the Act)\n"
+"    1 - Transfer of business assets by the taxpayer to another Member State (Article 13(6) of the Act)\n"
+"    2 - Supply of goods within the territory of the European Community in the form of triangular trade (Section 17 of the Act), this code is to be filled in by the middle person only\n"
+"    3 - Supply of a service with a place of supply in another Member State (Article 9(1) of the Act), if the recipient of the service is obliged to declare and pay the tax\n"
+"    Required in the line not marked as cancellation line.\n"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move__l10n_cz_scheme_code__0
+msgid "0 - Standard VAT regime"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_transaction_code__0
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_transaction_code__0
+msgid "0 Goods"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move__l10n_cz_scheme_code__1
+msgid "1 - Section 89 of VAT Act special scheme for a travel service"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_transaction_code__1
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_transaction_code__1
+msgid "1 Business asset"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move__l10n_cz_scheme_code__2
+msgid "2 - Section 90 of VAT Act margin scheme"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_transaction_code__2
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_transaction_code__2
+msgid "2 Triangular"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_transaction_code__3
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_transaction_code__3
+msgid "3 Service"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model,name:l10n_cz_reports.model_account_chart_template
+msgid "Account Chart Template"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__12
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__12
+msgid "Cereals and technical crops"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields,help:l10n_cz_reports.field_account_bank_statement_line__l10n_cz_scheme_code
+#: model:ir.model.fields,help:l10n_cz_reports.field_account_move__l10n_cz_scheme_code
+msgid ""
+"Code indicating special scheme, optionally used for VAT control report."
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_move_line__l10n_cz_supplies_code
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_product_product__l10n_cz_supplies_code
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_product_template__l10n_cz_supplies_code
+msgid "Code of Supply"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields,help:l10n_cz_reports.field_account_move_line__l10n_cz_supplies_code
+#: model:ir.model.fields,help:l10n_cz_reports.field_product_product__l10n_cz_supplies_code
+#: model:ir.model.fields,help:l10n_cz_reports.field_product_template__l10n_cz_supplies_code
+msgid "Code of subject of supply in the domestic reverse charge regime."
+msgstr ""
+
+#. module: l10n_cz_reports
+#. odoo-python
+#: code:addons/l10n_cz_reports/models/l10n_cz_reports_utils.py:0
+msgid "Company: %s"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__4
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__4
+msgid "Construction and assembly work"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__4a
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__4a
+msgid "Construction and assembly work - provision of workers"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model_terms:ir.ui.view,arch_db:l10n_cz_reports.view_product_template_form
+msgid "Czech Accounting"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model,name:l10n_cz_reports.model_l10n_cz_vat_control_report_handler
+msgid "Czech Report Custom Handler (Control Statement)"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model,name:l10n_cz_reports.model_l10n_cz_vies_summary_report_handler
+msgid "Czech Report Custom Handler (VIES Summary)"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.ui.menu,name:l10n_cz_reports.account_reports_cz_statements_menu
+msgid "Czech Republic"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model,name:l10n_cz_reports.model_l10n_cz_tax_report_handler
+msgid "Czech Tax Report Custom Handler"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__18
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__18
+msgid "Delivery of electricity certificates"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__20
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__20
+msgid "Delivery of gas through systems or networks to the trader"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__7
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__7
+msgid "Delivery of goods after transfer of retention of title"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__6
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__6
+msgid "Delivery of goods originally provided as a guarantee"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__3a
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__3a
+msgid "Delivery of immovable property in forced sale"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__3
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__3
+msgid "Delivery of immovable property, if tax is applied to this delivery"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_chart_template__display_name
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_move__display_name
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_tax__display_name
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_l10n_cz_tax_report_handler__display_name
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_l10n_cz_vat_control_report_handler__display_name
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_l10n_cz_vies_summary_report_handler__display_name
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_product_template__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model,name:l10n_cz_reports.model_account_tax
+msgid "ETA tax codes mixin"
+msgstr ""
+
+#. module: l10n_cz_reports
+#. odoo-python
+#: code:addons/l10n_cz_reports/models/l10n_cz_reports_utils.py:0
+msgid "Go to Company"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__1
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__1
+msgid "Gold"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__1a
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__1a
+msgid "Gold - brokering the delivery of investment gold"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__5
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__5
+msgid "Goods listed in Appendix No. 5"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_chart_template__id
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_move__id
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_move_line__id
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_tax__id
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_l10n_cz_tax_report_handler__id
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_l10n_cz_vat_control_report_handler__id
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_l10n_cz_vies_summary_report_handler__id
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_product_template__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields,help:l10n_cz_reports.field_account_tax__l10n_cz_reverse_charge
+msgid "Indicates if the tax is to be used with reverse charge transactions"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__15
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__15
+msgid "Integrated circuits"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_move_line__is_reverse_charge
+msgid "Is Reverse Charge"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model,name:l10n_cz_reports.model_account_move
+msgid "Journal Entry"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model,name:l10n_cz_reports.model_account_move_line
+msgid "Journal Item"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__13
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__13
+msgid "Metals"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__14
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__14
+msgid "Mobile Phones"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__11
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__11
+msgid "Permits for emissions according to Section 92f of the VAT Act"
+msgstr ""
+
+#. module: l10n_cz_reports
+#. odoo-python
+#: code:addons/l10n_cz_reports/models/l10n_cz_reports_utils.py:0
+msgid "Please first set a tax office and tax ID on your company."
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__16
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__16
+msgid "Portable devices for automated data processing"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model,name:l10n_cz_reports.model_product_template
+msgid "Product"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__21
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__21
+msgid "Provision of defined electronic communications services"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_tax__l10n_cz_reverse_charge
+msgid "Reverse Charge Tax"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_bank_statement_line__l10n_cz_scheme_code
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_move__l10n_cz_scheme_code
+msgid "Special scheme code"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__19
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__19
+msgid "Supply of electricity through systems or networks to a trader"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:account.return.type,name:l10n_cz_reports.cz_tax_return_type
+msgid "Tax"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_account_move_line__l10n_cz_transaction_code
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_product_product__l10n_cz_transaction_code
+#: model:ir.model.fields,field_description:l10n_cz_reports.field_product_template__l10n_cz_transaction_code
+msgid "Transaction code"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.actions.client,name:l10n_cz_reports.action_vies_summary_report
+#: model:ir.ui.menu,name:l10n_cz_reports.menu_action_vies_summary_report
+msgid "VIES summary report"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__account_move_line__l10n_cz_supplies_code__17
+#: model:ir.model.fields.selection,name:l10n_cz_reports.selection__product_template__l10n_cz_supplies_code__17
+msgid "Video game console"
+msgstr ""
+
+#. module: l10n_cz_reports
+#: model:ir.model.fields,help:l10n_cz_reports.field_account_move_line__is_reverse_charge
+msgid "Whether line contains a tax related to reverse charge transactions"
+msgstr ""
+
+#. module: l10n_cz_reports
+#. odoo-python
+#: code:addons/l10n_cz_reports/models/l10n_cz_vat_control_handler.py:0
+#: code:addons/l10n_cz_reports/models/l10n_cz_vies_summary_handler.py:0
+#: code:addons/l10n_cz_reports/models/tax_report_handler.py:0
+msgid "XML"
+msgstr ""

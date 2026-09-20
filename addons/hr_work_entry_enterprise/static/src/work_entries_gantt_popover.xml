@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="hr_work_entry_enterprise.WorkEntriesGanttPopover" t-inherit="web_gantt.GanttPopover">
+        <xpath expr="//div[hasclass('popover-header')]" position="attributes">
+            <attribute name="t-attf-class" separator=" " add="o_gantt_color_#{renderingContext.color}"/>
+        </xpath>
+        <xpath expr="//div[hasclass('popover-footer')]/div" position="attributes">
+            <attribute name="class" separator=" " add="w-100"/>
+        </xpath>
+    </t>
+</templates>

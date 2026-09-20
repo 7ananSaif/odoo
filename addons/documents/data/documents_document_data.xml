@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+
+    <!-- Folders -->
+
+    <record id="document_internal_folder" model="documents.document" forcecreate="0">
+        <field name="type">folder</field>
+        <field name="access_internal">view</field>
+        <field name="name">Admin</field>
+        <field name="sequence">55</field>
+    </record>
+
+    <record id="document_inbox_folder" model="documents.document" forcecreate="0">
+        <field name="type">folder</field>
+        <field name="access_internal">edit</field>
+        <field name="name">Inbox</field>
+        <field name="create_activity_type_id" ref="mail.mail_activity_data_todo"/>
+        <field name="create_activity_user_id" ref="base.user_root"/>
+        <field name="sequence">5</field>
+    </record>
+
+    <record id="document_finance_folder" model="documents.document" forcecreate="0">
+        <field name="type">folder</field>
+        <field name="access_internal">edit</field>
+        <field name="name">Finance</field>
+        <field name="sequence">10</field>
+    </record>
+
+    <record id="document_finance_social_folder" model="documents.document" forcecreate="0">
+        <field name="type">folder</field>
+        <field name="access_internal">edit</field>
+        <field name="folder_id" ref="document_finance_folder"/>
+        <field name="name">Social</field>
+        <field name="sequence">110</field>
+    </record>
+
+    <record id="document_finance_taxes_folder" model="documents.document" forcecreate="0">
+        <field name="type">folder</field>
+        <field name="access_internal">edit</field>
+        <field name="folder_id" ref="document_finance_folder"/>
+        <field name="name">Taxes</field>
+        <field name="sequence">120</field>
+    </record>
+
+    <record id="document_finance_annual_closing_folder" model="documents.document" forcecreate="0">
+        <field name="type">folder</field>
+        <field name="access_internal">edit</field>
+        <field name="folder_id" ref="document_finance_folder"/>
+        <field name="name">Annual Closing</field>
+        <field name="sequence">130</field>
+    </record>
+
+    <record id="document_finance_annual_closing_year_current_folder" model="documents.document" forcecreate="0">
+        <field name="type">folder</field>
+        <field name="access_internal">edit</field>
+        <field name="folder_id" ref="document_finance_annual_closing_folder"/>
+        <field name="name" eval="str(datetime.now().year)"/>
+        <field name="sequence">200</field>
+    </record>
+
+    <record id="document_marketing_folder" model="documents.document" forcecreate="0">
+        <field name="type">folder</field>
+        <field name="name">Marketing</field>
+        <field name="access_internal">edit</field>
+        <field name="sequence">30</field>
+    </record>
+
+    <record id="document_legal_folder" model="documents.document" forcecreate="0">
+        <field name="name">Legal</field>
+        <field name="type">folder</field>
+        <field name="access_internal">edit</field>
+        <field name="sequence">15</field>
+    </record>
+
+    <record id="document_insurances_folder" model="documents.document" forcecreate="0">
+        <field name="name">Insurances</field>
+        <field name="type">folder</field>
+        <field name="access_internal">edit</field>
+        <field name="folder_id" ref="document_legal_folder"/>
+        <field name="sequence">100</field>
+    </record>
+
+    <record id="document_loans_folder" model="documents.document" forcecreate="0">
+        <field name="name">Loans</field>
+        <field name="type">folder</field>
+        <field name="access_internal">edit</field>
+        <field name="folder_id" ref="document_legal_folder"/>
+        <field name="sequence">110</field>
+    </record>
+
+    <record id="document_registrations_folder" model="documents.document" forcecreate="0">
+        <field name="name">Registrations</field>
+        <field name="type">folder</field>
+        <field name="access_internal">edit</field>
+        <field name="folder_id" ref="document_legal_folder"/>
+        <field name="sequence">120</field>
+    </record>
+
+    <record id="document_contracts_folder" model="documents.document" forcecreate="0">
+        <field name="name">Contracts</field>
+        <field name="type">folder</field>
+        <field name="access_internal">edit</field>
+        <field name="folder_id" ref="document_legal_folder"/>
+        <field name="sequence">130</field>
+    </record>
+
+    <!-- base data -->
+    <record id="documents_attachment_video_documents" model="documents.document" forcecreate="0">
+        <field name="name">Video: Odoo Documents</field>
+        <field name="type">url</field>
+        <field name="url">https://youtu.be/Ayab6wZ_U1A</field>
+        <field name="folder_id" ref="documents.document_internal_folder"/>
+    </record>
+
+</data></odoo>

@@ -1,0 +1,8 @@
+.o-form-buttonbox { 
+  --o-stat-button-color: currentColor;
+  --o-stat-text-color: #{o-text-color('primary')};
+
+  .o_bottom_sheet & {
+    --o-stat-button-border-color: #{$o-gray-400};
+  }
+}

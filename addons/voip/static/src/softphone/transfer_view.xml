@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip.TransferView">
+    <div class="o-voip-TransferView d-flex flex-column h-100 w-100 overflow-hidden">
+        <t t-if="softphone.inCallView.transferView.activeView === 'keypad'">
+            <Keypad
+                state="props.state.keypad"
+                onClickBack.bind="onClickBack"
+                onClickFirstResult.bind="props.onClickTransferContact"
+                onClickTransferPhone.bind="props.onClickTransferPhone"
+            >
+                <t t-set-slot="primaryAction" t-slot-scope="scope">
+                    <ActionButton
+                        icon="'oi-transfer'"
+                        name.translate="Transfer"
+                        type="scope.isSmall ? 'outline-success' : 'success'"
+                        onClick="() => props.onClickTransferContact(scope.contact)"
+                        isSmall="scope.isSmall"
+                        hideLabel="scope.isSmall"
+                    />
+                </t>
+            </Keypad>
+        </t>
+        <t t-if="softphone.inCallView.transferView.activeView === 'contacts'">
+            <AddressBook contactsFilter="(contact) => contact.id !== userAgent.activeSession?.call?.partner_id?.id"
+                onClickBack.bind="onClickBack">
+                <t t-set-slot="primaryAction" t-slot-scope="scope">
+                    <ActionButton
+                        icon="'oi-transfer'"
+                        name.translate="Transfer"
+                        type="scope.isSmall ? 'outline-success' : 'success'"
+                        onClick="() => props.onClickTransferContact(scope.contact)"
+                        isSmall="scope.isSmall"
+                        hideLabel="scope.isSmall"
+                    />
+                </t>
+            </AddressBook>
+        </t>
+    </div>
+</t>
+</templates>

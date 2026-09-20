@@ -1,0 +1,294 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * helpdesk_stock
+#
+# Translators:
+# Martin Trigaux, 2022
+# Alina Lisnenko <alina.lisnenko@erp.co.ua>, 2023
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0beta+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:45+0000\n"
+"PO-Revision-Date: 2025-11-16 17:48+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Ukrainian <https://translate.odoo.com/projects/odoo-19/"
+"helpdesk_stock/uk/>\n"
+"Language: uk\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=4; plural=(n % 1 == 0 && n % 10 == 1 && n % 100 != "
+"11 ? 0 : n % 1 == 0 && n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % "
+"100 > 14) ? 1 : n % 1 == 0 && (n % 10 ==0 || (n % 10 >=5 && n % 10 <=9) || "
+"(n % 100 >=11 && n % 100 <=14 )) ? 2: 3);\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+msgid ""
+"\n"
+"                <p class=\"o_view_nocontent_smiling_face "
+"o_view_nocontent_stock\">No delivery orders yet. Let's create one!</p>\n"
+"                <p>Send customers a replacement for a lost, damaged, or "
+"returned item</p>\n"
+"            "
+msgstr ""
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/stock_picking.py:0
+msgid " Delivery %(status)s"
+msgstr ""
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/stock_picking.py:0
+msgid " Return %(status)s"
+msgstr ""
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.view_picking_form_helpdesk
+msgid "<span class=\"o_stat_text\">Ticket</span>"
+msgstr ""
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+msgid "Create Replacement Order"
+msgstr ""
+
+#. module: helpdesk_stock
+#: model:ir.model,website_form_label:helpdesk_stock.model_helpdesk_ticket
+msgid "Create a Ticket"
+msgstr ""
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__partner_id
+msgid "Customer"
+msgstr "Клієнт"
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.helpdesk_ticket_view_form_inherit_helpdesk_stock
+msgid "Deliveries"
+msgstr "Доставки"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+msgid "Delivery Orders"
+msgstr "Замовлення на доставку"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/stock_picking.py:0
+msgid "Delivery created"
+msgstr ""
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.view_stock_return_picking_form_inherit_helpdesk_stock
+msgid "Delivery to Return"
+msgstr "Доставка на повернення"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_sla_report_analysis__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket_report_analysis__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_picking__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking_line__display_name
+msgid "Display Name"
+msgstr "Назва для відображення"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,help:helpdesk_stock.field_helpdesk_ticket__tracking
+msgid "Ensure the traceability of a storable product in your warehouse."
+msgstr "Забезпечення відстеження товару, що зберігається, на вашому складі."
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__has_partner_picking
+msgid "Has Partner Picking"
+msgstr "Є вибір партнера"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_helpdesk_ticket
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_picking__ticket_id
+msgid "Helpdesk Ticket"
+msgstr "Заявка служби підтримки"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_sla_report_analysis__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket_report_analysis__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_picking__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__lot_id
+msgid "Lot/Serial Number"
+msgstr "Партія/серійний номер"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,help:helpdesk_stock.field_stock_picking__ticket_visibility
+msgid ""
+"People to whom this helpdesk team and its tickets will be visible.\n"
+"\n"
+"- Invited internal users: internal users can access the team and the tickets "
+"they are following. This access can be modified on each ticket individually "
+"by adding or removing the user as follower.\n"
+"A user with the helpdesk > administrator access right level can still access "
+"this team and its tickets, even if they are not explicitely part of the "
+"followers.\n"
+"\n"
+"- All internal users: all internal users can access the team and all of its "
+"tickets without distinction.\n"
+"\n"
+"- Invited portal users and all internal users: all internal users can access "
+"the team and all of its tickets without distinction.\n"
+"Portal users can only access the tickets they are following. This access can "
+"be modified on each ticket individually by adding or removing the portal "
+"user as follower."
+msgstr ""
+"Люди, яким буде доступна ця команда служби підтримки та її заявки.\n"
+"\n"
+"- Запрошені внутрішні користувачі: внутрішні користувачі можуть отримати "
+"доступ до команди та заявок, за якими вони стежать. Цей доступ можна змінити "
+"для кожної заявки окремо, додавши або вилучивши користувача як підписника.\n"
+"Користувач із служби підтримки > рівнем права доступу адміністратора все ще "
+"може отримати доступ до цієї команди та її заявок, навіть якщо він явно не є "
+"частиною підписників.\n"
+"\n"
+"- Усі внутрішні користувачі: усі внутрішні користувачі можуть отримати "
+"доступ до команди та всіх її заявок без жодних змін.\n"
+"\n"
+"- Запрошені користувачі порталу та всі внутрішні користувачі: усі внутрішні "
+"користувачі можуть отримати доступ до команди та всіх її заявок без жодних "
+"відмінностей.\n"
+"Користувачі порталу мають доступ лише до тих заявок, за якими вони стежать. "
+"Цей доступ можна змінити для кожної заявки окремо, додавши або видаливши "
+"користувача порталу як підписника."
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__picking_id
+msgid "Picking"
+msgstr "Комплектування"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_sla_report_analysis__product_id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__product_id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket_report_analysis__product_id
+msgid "Product"
+msgstr "Товар"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,help:helpdesk_stock.field_helpdesk_ticket__product_id
+msgid ""
+"Product this ticket is about. If selected, only the sales orders, deliveries "
+"and invoices including this product will be visible."
+msgstr ""
+"Товар, про який йдеться в цій заявці. Якщо вибрано, відображатимуться лише "
+"замовлення на продаж, доставка та рахунок-фактура, що включають цей товар."
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.helpdesk_ticket_view_form_inherit_stock_user
+msgid "Replace"
+msgstr "Замінити"
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.helpdesk_ticket_view_form_inherit_stock_user
+msgid "Return"
+msgstr "Повернути"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__picking_ids
+msgid "Return Orders"
+msgstr "Замовлення на повернення"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__pickings_count
+msgid "Return Orders Count"
+msgstr "Підрахунок замовлення на повернення"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_stock_return_picking
+msgid "Return Picking"
+msgstr "Повернути комплектування"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_stock_return_picking_line
+msgid "Return Picking Line"
+msgstr "Повернути рядок комплектування"
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.helpdesk_ticket_view_form_inherit_helpdesk_stock
+msgid "Returns"
+msgstr "Повернення"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_helpdesk_sla_report_analysis
+msgid "SLA Status Analysis"
+msgstr "Аналіз статусу SLA"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__sale_order_id
+msgid "Sales Order"
+msgstr "Замовлення на продаж"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__suitable_picking_ids
+msgid "Suitable Picking"
+msgstr "Зручне комплектування"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__suitable_sale_order_ids
+msgid "Suitable Sale Order"
+msgstr "Відповідне замовлення на продаж"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/stock_picking.py:0
+msgid "This transfer was created from the ticket"
+msgstr ""
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__ticket_id
+msgid "Ticket"
+msgstr "Заявка"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_helpdesk_ticket_report_analysis
+msgid "Ticket Analysis"
+msgstr "Аналіз заявки"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+#: code:addons/helpdesk_stock/wizard/stock_picking_return.py:0
+msgid "Ticket: %(ticket_name)s"
+msgstr ""
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__tracking
+msgid "Tracking"
+msgstr "Відстеження"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_stock_picking
+msgid "Transfer"
+msgstr "Переміщення"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+msgid "id"
+msgstr "id"
+
+#~ msgid "Suitable Product"
+#~ msgstr "ВІдповідний товар"

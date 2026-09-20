@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="sign.SignTemplateSidebarRoleItems">
+        <div t-attf-class="o_sign_sidebar_signer border-bottom {{ props.isCollapsed || props.hasSignRequests ? '' : 'o_sign_sidebar_signer_selected' }}" t-on-click="() => this.onExpandSigner(props.id)">
+            <div class="o_sign_sidebar_signer_header">
+                <div t-attf-class="{{ (props.hasSignRequests || props.isCollapsed || !state.canEditSignerName) ? 'd-none' : 'o_sign_sidebar_signer_header' }} d-flex flex-grow-1">
+                    <div class="o_sign_sidebar_role_input_container w-100 mx-1">
+                        <input type="text"
+                            t-att-data-role-id="props.roleId"
+                            t-att-value="state.roleName"
+                            t-attf-class="o_input form-control bg-transparent rounded-0 pe-1"
+                            t-on-change="ev => this.onChangeRoleName(ev.target.value)"
+                            t-on-blur="onSignerNameInputBlur"
+                            t-on-keyup="ev => props.onFieldNameInputKeyUp(ev)"
+                            t-ref="role_input"
+                        />
+                    </div>
+                </div>
+                <span 
+                    t-attf-class="{{ (props.hasSignRequests || props.isCollapsed || !state.canEditSignerName) ? '' : 'd-none' }} o_sign_sidebar_signer_name d-flex align-items-center gap-2"
+                    t-att-data-role-id="props.roleId"
+                >
+                    <span t-att-title="state.roleName" class="mx-1">
+                        <t t-esc="state.roleName"/>
+                    </span>
+                </span>
+                <div class="o_sign_item_container">
+                    <i
+                        t-if="!props.hasSignRequests &amp; !props.isCollapsed"
+                        class="fa fa-pencil me-2"
+                        t-on-click="onSignerNameTextClick"
+                    />
+                    <img
+                        t-att-src="this.state.profilePic"
+                        alt="User"
+                        class="o_sign_profile_pic"
+                        t-if="this.state.profilePic"
+                    />
+                    <div t-attf-class="{{ 'o_color_responsible_' + props.colorId}} o_sign_item_count">
+                        <t t-out="props.itemsCount" />
+                    </div>
+                </div>
+                <t t-if="!props.hasSignRequests">
+                    <div>
+                        <Dropdown>
+                            <button class="btn o_sign_sidebar_icon">
+                                <i class="oi oi-ellipsis-v"/>
+                            </button>
+                            <t t-set-slot="content">
+                                <DropdownItem onSelected="() => this.openSignRoleRecord()">
+                                    <i class="fa fa-edit fa-fw"/>
+                                    Edit
+                                </DropdownItem>
+                                <DropdownItem onSelected="() => this.onDeleteDialog()">
+                                    <i class="fa fa-trash-o fa-fw text-danger"/>
+                                    Delete
+                                </DropdownItem>
+                            </t>
+                        </Dropdown>
+                    </div>
+                </t>
+            </div>
+            <div t-attf-class="o_sign_sidebar_signer_content {{ props.isCollapsed || props.hasSignRequests? 'd-none' : ''}}">
+                <!-- Sign items for the selected role. -->
+                <div t-attf-class="o_sign_field_type_toolbar_items mt-1">
+                    <div class="o_sign_sidebar_item_grid">
+                        <t t-foreach="props.signItemTypes" t-as="itemType" t-key="itemType.id">
+                            <button
+                                type="button"
+                                class="o_sign_field_type_button btn btn-secondary border-0 small text-break"
+                                t-attf-class="{{ 'o_color_responsible_' + props.colorId }}"
+                                t-att-data-color-id="props.colorId"
+                                t-att-data-role-id="props.roleId"
+                                t-att-data-item-type-id="itemType.id"
+                                t-att-data-signer-id="props.id"
+                                t-att-data-role-name="state.roleName"
+                                title="Drag and Drop a field in the PDF">
+                                <span class="o_sign_field_type_button_content d-flex align-items-center justify-content-start gap-1">
+                                    <i t-attf-class="fa fa-fw #{itemType.icon ? itemType.icon : icon_type[itemType.item_type]} me-2" role="img"/>
+                                    <span class="text-start"><t t-esc="itemType.name"/></span>
+                                </span>
+                            </button>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

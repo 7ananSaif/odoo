@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <template id="l10n_mx_edi_cartaporte_report_delivery_document" inherit_id="stock.report_delivery_document">
+        <xpath expr="//th[@name='th_sml_product']" position="before">
+            <t t-if="o.l10n_mx_edi_cfdi_state == 'sent'">
+                <th name="th_sm_product_unspsc_code"><strong>Code</strong></th>
+            </t>
+        </xpath>
+        <xpath expr="//th[@name='th_sml_quantity']" position="before">
+            <t t-if="o.l10n_mx_edi_cfdi_state == 'sent' and o.l10n_mx_edi_transport_type == '01' and any(o.move_line_ids.product_id.mapped('l10n_mx_edi_hazardous_material_code_id'))">
+                <th name="th_sm_hazardous_material_code"><strong>Hazard Code</strong></th>
+                <th name="th_sm_hazard_package_type"><strong>Packaging</strong></th>
+            </t>
+        </xpath>
+        <xpath expr="//th[@name='th_sml_quantity']" position="after">
+            <t t-if="o.l10n_mx_edi_cfdi_state == 'sent'">
+                <th name="th_sm_uom_unspsc_code"><strong>UOM</strong></th>
+                <th name="th_sm_weight"><strong>Weight</strong></th>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="l10n_mx_edi_cartaporte_report_delivery_has_serial_move_line" inherit_id="stock.stock_report_delivery_has_serial_move_line">
+         <xpath expr="//td" position="before">
+            <t t-if="o.l10n_mx_edi_cfdi_state == 'sent'">
+                <td>
+                    <span t-field="move_line.product_id.unspsc_code_id.code"/>
+                </td>
+            </t>
+        </xpath>
+        <xpath expr="//td[@name='move_line_lot_quantity']" position="before">
+            <t t-if="o.l10n_mx_edi_cfdi_state == 'sent' and o.l10n_mx_edi_transport_type == '01' and any(o.move_line_ids.product_id.mapped('l10n_mx_edi_hazardous_material_code_id'))">
+                <td>
+                    <span t-esc="move_line.product_id.l10n_mx_edi_hazardous_material_code_id.code"/>
+                </td>
+                <td>
+                    <span t-esc="move_line.product_id.l10n_mx_edi_hazard_package_type"/>
+                </td>
+            </t>
+        </xpath>
+        <xpath expr="//td[@name='move_line_lot_quantity']" position="after">
+            <t t-if="o.l10n_mx_edi_cfdi_state == 'sent'">
+                <td>
+                    <span t-field="move_line.product_uom_id.unspsc_code_id.code"/>
+                </td>
+                <td>
+                    <span t-field="move_line.l10n_mx_edi_weight"/>
+                    <span t-field="o.weight_uom_name"/>
+                </td>
+            </t>
+        </xpath>
+    </template>
+
+    <template id="l10n_mx_edi_cartaporte_report_delivery_aggregated_move_lines" inherit_id="stock.stock_report_delivery_aggregated_move_lines">
+        <xpath expr="//td" position="before">
+            <t t-if="o.l10n_mx_edi_cfdi_state == 'sent'">
+                <td>
+                    <span t-esc="aggregated_lines[line]['product'].unspsc_code_id.code"/>
+                </td>
+            </t>
+        </xpath>
+        <xpath expr="//td[@name='move_line_aggregated_quantity']" position="before">
+            <t t-if="o.l10n_mx_edi_cfdi_state == 'sent' and o.l10n_mx_edi_transport_type == '01' and any(o.move_line_ids.product_id.mapped('l10n_mx_edi_hazardous_material_code_id'))">
+                <td>
+                    <span t-esc="aggregated_lines[line]['product'].l10n_mx_edi_hazardous_material_code_id.code"/>
+                </td>
+                <td>
+                    <span t-esc="aggregated_lines[line]['product'].l10n_mx_edi_hazard_package_type"/>
+                </td>
+            </t>
+        </xpath>
+        <xpath expr="//td[@name='move_line_aggregated_quantity']" position="after">
+            <t t-if="o.l10n_mx_edi_cfdi_state == 'sent'">
+                <td>
+                    <span t-esc="aggregated_lines[line]['product_uom'].unspsc_code_id.code"/>
+                </td>
+                <td>
+                    <span t-esc="aggregated_lines[line]['weight']" t-options='{"widget": "float", "decimal_precision": "Stock Weight"}'/>
+                    <span t-field="o.weight_uom_name"/>
+                </td>
+            </t>
+        </xpath>
+    </template>
+</odoo>

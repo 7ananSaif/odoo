@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<odoo>
+    <template id="report_emp_employement_cert">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <t t-call="l10n_tr_hr_payroll.hr_employee_employement_certificate"/>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <template id="hr_employee_employement_certificate" >
+        <t t-set="curr_ver" t-value="o.current_version_id"/>
+        <div class="container fs-5">
+            <div class="position-relative text-center mb-4">
+                <h5>To Whom It May Concern,</h5>
+                <h5 class="position-absolute end-0 top-0">
+                    <t t-out="datetime.date.today().strftime('%b %d, %Y')">Aug 08, 2025</t>
+                </h5>
+            </div>
+
+            <h5 class="text-center mb-5">
+                This is to certify that the person whose identity details are given below <br/>
+                has been employed by our company in the capacity of:
+            </h5>
+
+            <table class="table table-bordered">
+                <tbody>
+                    <tr>
+                        <th class="fw-bold px-2">Name</th>
+                        <td colspan="2"><t t-out="o.name">Deniz Hasim</t></td>
+                    </tr>
+                    <t t-if="o.l10n_tr_is_current_turkey_citizen">
+                        <tr>
+                            <th class="fw-bold px-2">T.C Identity No.</th>
+                            <td colspan="2"><t t-out="curr_ver.identification_id">26784950368</t></td>
+                        </tr>
+                    </t>
+                    <t t-if="not o.l10n_tr_is_current_turkey_citizen">
+                        <tr>
+                            <th class="fw-bold px-2">Nationality</th>
+                            <td colspan="2"><t t-out="curr_ver.country_id.name">Türkiye</t></td>
+                        </tr>
+                    </t>
+                    <tr>
+                        <th class="fw-bold px-2">Passport No.</th>
+                        <td colspan="2"><t t-out="curr_ver.passport_id if curr_ver.passport_id else ''">U45678923</t></td>
+                    </tr>
+                    <t t-if="not o.l10n_tr_is_current_turkey_citizen">
+                        <tr>
+                            <th class="fw-bold px-2">Work Permit No.</th>
+                            <td colspan="2"><t t-out="o.permit_no">2025-WP-TR-849302</t></td>
+                        </tr>
+                        <tr>
+                            <th class="fw-bold px-2">Permit Expiry</th>
+                            <td colspan="2">
+                                <t t-out="o.work_permit_expiration_date.strftime('%m/%Y')">11/2025</t>
+                            </td>
+                        </tr>
+                    </t>
+                    <tr>
+                        <th t-att-rowspan="len(o.version_ids) + 1" class="fw-bold px-2">Occupation</th>
+                        <th class="fw-bold px-2">Position</th>
+                        <th class="fw-bold px-2">Duration</th>
+                    </tr>
+                    <t t-foreach="o.version_ids" t-as="version">
+                        <tr t-if="version.contract_date_start">
+                            <td class="px-2"><t t-out="version.job_id.name"/></td>
+                            <td>
+                                <t t-out="version.contract_date_start.strftime('%m/%Y')"/>
+                                To:
+                                <t t-out="version.contract_date_end.strftime('%m/%Y') if version.contract_date_end else 'Present'"/>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+            <div class="my-5">
+                Should you require any further information please contact our Human Resource Department on:
+                <t t-out="env.user.phone">+90 532 764 2185</t>
+            </div>
+            <div>Sincerely,</div>
+            <t t-out="env.user.name">Mitchell Admin</t>
+        </div>
+    </template>
+</odoo>

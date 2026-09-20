@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="l10n_au_stp_view_form" model="ir.ui.view">
+        <field name="name">l10n_au.stp.form</field>
+        <field name="model">l10n_au.stp</field>
+        <field name="inherit_id" ref="l10n_au_hr_payroll_account.l10n_au_stp_form_wizard"/>
+        <field name="arch" type="xml">
+            <button name="l10n_au_hr_payroll_account.l10n_au_action_submit_stp" position="attributes">
+                <attribute name="invisible" add="xml_validation_state != 'done'" separator=" or "/>
+            </button>
+            <button name="action_replace_file" position="after">
+                <!-- Pre Testing  -->
+                <button name="action_pre_submit" string="Test Submission"
+                  type="object" class="btn btn-primary"
+                  invisible="state != 'draft' or xml_validation_state == 'done'"/>
+                <button name="l10n_au_hr_payroll_account.l10n_au_action_submit_stp" string="Submit to ATO" type="action"
+                        class="btn-secondary" invisible="state in ['sent'] or xml_validation_state == 'done'"/>
+                <!-- Post Testing -->
+                <button name="action_pre_submit" string="Test Submission"
+                  type="object" class="btn btn-secondary"
+                  invisible="state != 'draft' or xml_validation_state != 'done'"/>
+                <button name="action_draft" string="Reset to Draft"
+                  type="object" class="btn btn-secondary o_form_button_cancel"
+                  invisible="state == 'draft' or ato_status != 'failed'"/>
+                <button name="update_status" string="Update Status"
+                  type="object" class="btn btn-secondary o_form_button_cancel"
+                  invisible="state == 'draft' or ato_status not in ['sent', 'ato_ack']"/>
+            </button>
+            <xpath expr="//sheet/div" position="before">
+                <widget name="web_ribbon" title="Submitted"
+                        bg_color="bg-info"
+                        invisible="state != 'sent' or ato_status != 'sent'"
+                        tooltip="This submission has been submitted and awaiting response from ATO."/>
+                <widget name="web_ribbon" title="ATO Pending"
+                        bg_color="bg-info"
+                        invisible="state != 'sent' or ato_status != 'ato_ack'"
+                        tooltip="This STP have been recieved by ATO."/>
+                <widget name="web_ribbon" title="Accepted"
+                        invisible="state != 'sent' or ato_status != 'accepted'"/>
+                <widget name="web_ribbon" title="Submission Failed"
+                        bg_color="bg-danger"
+                        invisible="ato_status != 'failed'"
+                        tooltip="This submission has not been accepted. Please reset to draft, make the corrections, and retry."/>
+            </xpath>
+            <xpath expr="//notebook" position="before">
+                <div invisible="state != 'draft' or xml_validation_state == 'normal'"
+                    class="d-flex flex-row align-items-center" colspan="8">
+                    <span class="badge text-bg-success">
+                                STP Validation Passed
+                    </span>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="l10n_au_stp_view_list" model="ir.ui.view">
+        <field name="name">l10n_au.stp.tree</field>
+        <field name="model">l10n_au.stp</field>
+        <field name="inherit_id" ref="l10n_au_hr_payroll_account.l10n_au_stp_view_tree"/>
+        <field name="arch" type="xml">
+            <list position="inside">
+                <field name="ato_status" widget="badge"
+                    decoration-success="ato_status == 'accepted'"
+                    decoration-info="ato_status == 'sent'"
+                    decoration-danger="ato_status == 'failed'" />
+            </list>
+        </field>
+    </record>
+</odoo>

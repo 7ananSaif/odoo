@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_blackbox_be.CashierClockButtons">
+        <t t-if="this.pos.useBlackBoxBe()">
+            <div t-on-click.stop="">
+                <t t-set="clockIn" t-value="isClockedIn(employee)"/>
+                <button class="btn btn-lg position-relative"
+                        t-att-class="{'btn-danger': clockIn, 'btn-secondary': !clockIn, 'disabled': isClockDisabled, 'ms-3': isCachier }"
+                        t-on-click.stop="()=>{ this.clock(employee, !clockIn)}">
+                    <t t-set="isLoading" t-value="isClockLoading(employee)"/>
+                    <div t-if="isLoading" class="position-absolute top-50 start-50 translate-middle">
+                        <i class="fa fa-spin fa-circle-o-notch"/>
+                    </div>
+                    <span t-att-class="{'invisible': isLoading}" class="text-nowrap">
+                        <t t-if="clockIn">Clock out</t><t t-else="">Clock In</t>
+                    </span>
+                </button>
+            </div>
+        </t>
+    </t>
+
+    <t t-name="pos_blackbox_be.CashierSelectionPopup" t-inherit="pos_hr.CashierSelectionPopup" t-inherit-mode="extension">
+        <xpath expr="//span[hasclass('current-cashier-name')]" position="after">
+            <t t-if="this.pos.useBlackBoxBe()">
+                <t t-set="cClockinDate" t-value="this.cashierClockinDate"/>
+                <span t-if="cClockinDate" class="small" t-out="cClockinDate"/>
+            </t>
+        </xpath>
+
+         <xpath expr="//button[hasclass('btn-cashier-lock')]" position="after">
+            <t t-if="this.pos.useBlackBoxBe()">
+                <t t-set="employee" t-value="cashier"/>
+                <t t-set="isCachier" t-value="true"/>
+                <t t-call="pos_blackbox_be.CashierClockButtons"/>
+            </t>
+        </xpath>
+
+        <xpath expr="//i[hasclass('oi-chevron-right')]" position="replace">
+            <t t-if="this.pos.useBlackBoxBe() and pos.employeeIsAdmin">
+                <t t-set="isCachier" t-value="false"/>
+                <t t-call="pos_blackbox_be.CashierClockButtons"/>
+            </t>
+        </xpath>
+
+        <xpath expr="//button[hasclass('btn-outline-secondary')]" position="attributes">
+            <t t-if="this.pos.useBlackBoxBe()">
+                <attribute name="class" add="blackbox_be_cachier_sel_btn" separator=" "/>
+            </t>
+        </xpath>
+    </t>
+</templates>

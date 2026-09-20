@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates xml:space="preserve">
+
+    <t t-name="pos_restaurant_appointment.KanbanRecord" t-inherit="web.KanbanRecord" t-inherit-mode="primary">
+        <xpath expr="//article" position="attributes">
+            <attribute name="t-custom-click">(ev) => this.onInfoClick(ev)</attribute>
+        </xpath>
+    </t>
+
+    <t t-name="pos_restaurant_appointment.PosAppointmentKanbanPopover">
+        <div class="appointment-card">
+            <t t-set="data" t-value="props.record.data"/>
+            <div class="popover-header d-flex justify-content-between pe-2">
+                <h4 class="pt-1"><t t-out="data.name"/></h4>
+                <span class="ms-4 mt-1 me-2 cursor-pointer" t-on-click="() => props.close()">
+                    <i class="fa fa-close" />
+                </span>
+            </div>
+
+            <div class="popover-body">
+                <li>
+                    <strong>Start Date: </strong> <t t-out="data.start.toFormat('f')"/>
+                </li>
+                <t t-set="hours" t-value="Math.floor(data.duration)"/>
+                <t t-set="minutes" t-value="Math.floor((data.duration - hours) * 60)"/>
+                <li>
+                    <strong>Duration: </strong> <t t-out="hours"/>:<t t-out="(minutes+'').padStart(2, '0')"/> hours
+                </li>
+                <li t-if="data.phone_number">
+                    <strong>Phone: </strong> <t t-out="data.phone_number"/>
+                </li>
+                <li t-if="!isHtmlEmpty(data.description)">
+                    <br/>
+                    <t t-out="data.description"/>
+                </li>
+            </div>
+
+            <div class="popover-footer d-flex justify-content-between">
+                <div class="p-3 d-flex gap-1">
+                    <button class="btn btn-sm btn-primary"
+                            t-on-click="onClickEdit"
+                    >Edit</button>
+                    <t t-foreach="buttons" t-as="btn" t-key="btn.status">
+                        <button class="btn btn-sm"
+                                t-att-class="btn.extraClass"
+                                t-attf-class="{{ this.getButtonClass(btn.status) }}"
+                                t-on-click="() => this.onclickAppointmentStatus(btn.status)">
+                            <t t-esc="btn.label" />
+                        </button>
+                    </t>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

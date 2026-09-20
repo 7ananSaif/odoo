@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<templates>
+    <t t-inherit="voip.History" t-inherit-mode="extension">
+        <xpath expr="//t[hasclass('o-voip-History-xpathTarget')]" position="before">
+            <ApplicantButton t-if="call.partner_id?.applicant_ids?.length > 0" contact="call.partner_id"/>
+        </xpath>
+    </t>
+</templates>

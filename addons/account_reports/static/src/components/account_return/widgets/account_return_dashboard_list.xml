@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="account_reports.account_return_dashboard_list">
+        <table>
+            <t t-foreach="accountReturns" t-as="accountReturn" t-key="accountReturn.id">
+                <tr>
+                    <td class="px-1 text-start">
+                        <a t-att-title="accountReturn.name"
+                            href="#"
+                            role="button"
+                            class="me-2"
+                            t-on-click="() => this.openTaxReturn(accountReturn)"
+                            t-out="accountReturn.name"/>
+                    </td>
+                    <td class="px-1 text-end" t-att-class="accountReturn.deadlineClass">
+                        <t t-out="accountReturn.deadlineDisplay"/>
+                    </td>
+                </tr>
+            </t>
+        </table>
+    </t>
+</templates>

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mod111_submission_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_es_reports_2025.mod111.submission.wizard.form</field>
+            <field name="model">l10n_es_reports_2025.mod111.submission.wizard</field>
+            <field name="inherit_id" ref="account_reports.return_submission_wizard_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="instructions" position="replace">
+                    <group>
+                        <group id="instructions">
+                            <ol colspan="2">
+                                <li>
+                                    <div class="d-inline-block align-top">
+                                        <span>Download your Withholdings Declaration (Modelo 111).</span><br/>
+                                        <button string="Download File (Modelo 111)" name="export_boe" type="object" class="btn-secondary"/>
+                                    </div>
+                                </li>
+                                <field name="submission_instructions"/>
+                            </ol>
+                        </group>
+                    </group>
+                </field>
+            </field>
+        </record>
+
+        <record id="mod115_submission_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_es_reports_2025.mod115.submission.wizard.form</field>
+            <field name="model">l10n_es_reports_2025.mod115.submission.wizard</field>
+            <field name="inherit_id" ref="account_reports.return_submission_wizard_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="instructions" position="replace">
+                    <group>
+                        <group id="instructions">
+                            <ol colspan="2">
+                                <li>
+                                    <div class="d-inline-block align-top">
+                                        <span>Download your Rent Withholdings Declaration (Modelo 115).</span><br/>
+                                        <button string="Download File (Modelo 115)" name="export_boe" type="object" class="btn-secondary"/>
+                                    </div>
+                                </li>
+                                <field name="submission_instructions"/>
+                            </ol>
+                        </group>
+                    </group>
+                </field>
+            </field>
+        </record>
+
+        <record id="mod130_submissionwizard_form" model="ir.ui.view">
+            <field name="name">l10n_es_reports_2025.mod130.submission.wizard.form</field>
+            <field name="model">l10n_es_reports_2025.mod130.submission.wizard</field>
+            <field name="inherit_id" ref="account_reports.return_submission_wizard_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="instructions" position="replace">
+                    <group>
+                        <group id="instructions">
+                            <ol colspan="2">
+                                <li>
+                                    <div class="d-inline-block align-top">
+                                        <span>Download your IRPF Installment Payment form (Modelo 130).</span><br/>
+                                        <button string="Download File (Modelo 130)" name="export_boe" type="object" class="btn-secondary"/>
+                                    </div>
+                                </li>
+                                <field name="submission_instructions"/>
+                            </ol>
+                        </group>
+                    </group>
+                </field>
+            </field>
+        </record>
+
+        <record id="mod303_submission_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_es_reports_2025.mod303.submission.wizard.form</field>
+            <field name="model">l10n_es_reports_2025.mod303.submission.wizard</field>
+            <field name="inherit_id" ref="account_reports.return_submission_wizard_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="instructions" position="replace">
+                    <group>
+                        <group id="instructions">
+                            <ol colspan="2">
+                                <li>
+                                    <div class="d-inline-block align-top">
+                                        <span>Download your Quarterly VAT Declaration (Modelo 303).</span><br/>
+                                        <button string="Download File (Modelo 303)" name="export_boe" type="object" class="btn-secondary"/>
+                                    </div>
+                                </li>
+                                <field name="submission_instructions"/>
+                            </ol>
+                        </group>
+                    </group>
+                </field>
+            </field>
+        </record>
+
+        <record id="mod347_submission_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_es_reports_2025.mod347.submission.wizard.form</field>
+            <field name="model">l10n_es_reports_2025.mod347.submission.wizard</field>
+            <field name="inherit_id" ref="account_reports.return_submission_wizard_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="instructions" position="replace">
+                    <group>
+                        <group id="instructions">
+                            <ol colspan="2">
+                                <li>
+                                    <div class="d-inline-block align-top">
+                                        <span>Download your Annual Operations Declaration (Modelo 347).</span><br/>
+                                        <button string="Download File (Modelo 347)" name="export_boe" type="object" class="btn-secondary"/>
+                                    </div>
+                                </li>
+                                <field name="submission_instructions"/>
+                            </ol>
+                        </group>
+                    </group>
+                </field>
+            </field>
+        </record>
+
+        <record id="mod349_submission_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_es_reports_2025.mod349.submission.wizard.form</field>
+            <field name="model">l10n_es_reports_2025.mod349.submission.wizard</field>
+            <field name="inherit_id" ref="account_reports.return_submission_wizard_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="instructions" position="replace">
+                    <group>
+                        <group id="instructions">
+                            <ol colspan="2">
+                                <li>
+                                    <div class="d-inline-block align-top">
+                                        <span>Download your EC Sales List (Modelo 349).</span><br/>
+                                        <button string="Download XML (Modelo 349)" name="export_boe" type="object" class="btn-secondary"/>
+                                    </div>
+                                </li>
+                                <field name="submission_instructions"/>
+                            </ol>
+                        </group>
+                    </group>
+                </field>
+            </field>
+        </record>
+
+        <record id="mod390_submission_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_es_reports_2025.mod390.submission.wizard.form</field>
+            <field name="model">l10n_es_reports_2025.mod390.submission.wizard</field>
+            <field name="inherit_id" ref="account_reports.return_submission_wizard_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="instructions" position="replace">
+                    <group>
+                        <group id="instructions">
+                            <ol colspan="2">
+                                <li>
+                                    <div class="d-inline-block align-top">
+                                        <span>Download your Annual VAT Summary (Modelo 390).</span><br/>
+                                        <button string="Download File (Modelo 390)" name="export_boe" type="object" class="btn-secondary"/>
+                                    </div>
+                                </li>
+                                <field name="submission_instructions"/>
+                            </ol>
+                        </group>
+                    </group>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

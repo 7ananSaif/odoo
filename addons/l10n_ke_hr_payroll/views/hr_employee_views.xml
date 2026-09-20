@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="payroll_hr_employee_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.view.form.inherit.l10n.ke.hr.payroll</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='citizenship']" position="inside">
+                <field name="l10n_ke_kra_pin" invisible="company_country_code != 'KE'"/>
+                <field name="l10n_ke_helb_number" invisible="company_country_code != 'KE'"/>
+                <field name="l10n_ke_mortgage" invisible="company_country_code != 'KE' or l10n_ke_is_secondary"/>
+                <field name="l10n_ke_nssf_number" invisible="company_country_code != 'KE'"/>
+                <field name="l10n_ke_nhif_number" invisible="company_country_code != 'KE'"/>
+                <field name="l10n_ke_shif_number" invisible="company_country_code != 'KE'"/>
+            </xpath>
+            <group name="payroll_group" position="inside">
+                <group string="Tax Deduction" name="l10n_ke_tax_deduction" class="o_form_fw_labels" invisible="country_code != 'KE'">
+                    <field name="l10n_ke_is_secondary"/>
+                    <field name="l10n_ke_tier_2_remit" string="TIER 2 Remit To"
+                           invisible="l10n_ke_is_secondary or not l10n_ke_pension_contribution"/>
+                    <label for="l10n_ke_pension_contribution" invisible="wage_type == 'hourly' or l10n_ke_is_secondary"/>
+                    <div class="o_row" invisible="wage_type == 'hourly' or l10n_ke_is_secondary">
+                        <field name="l10n_ke_pension_contribution" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <field name="l10n_ke_pension_remit" string="Pension Remit To"
+                           invisible="l10n_ke_is_secondary or not l10n_ke_pension_contribution"/>
+
+                    <separator string="Allowances"/>
+                    <label for="l10n_ke_food_allowance" string="Food"/>
+                    <div class="o_row">
+                        <field name="l10n_ke_food_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ke_airtime_allowance" string="Airtime"/>
+                    <div class="o_row">
+                        <field name="l10n_ke_airtime_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ke_pension_allowance" string="Pension"/>
+                    <div class="o_row">
+                        <field name="l10n_ke_pension_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ke_commuter_allowance" string="Commuter"/>
+                    <div class="o_row">
+                        <field name="l10n_ke_commuter_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ke_housing_allowance_fixed" string="Housing"/>
+                    <div class="o_row">
+                        <field name="l10n_ke_housing_allowance_fixed" class="o_hr_narrow_field"
+                               invisible="l10n_ke_housing_allowance_unit != 'fixed'"/>
+                        <field name="l10n_ke_housing_allowance_percentage" class="o_hr_narrow_field"
+                               invisible="l10n_ke_housing_allowance_unit != 'percentage'" widget="percentage"/>
+                        <field name="l10n_ke_housing_allowance_unit" class="o_hr_narrow_field"/>
+                    </div>
+
+                    <separator string="Insurance" invisible="l10n_ke_is_secondary"/>
+                    <label for="l10n_ke_voluntary_medical_insurance" invisible="l10n_ke_is_secondary"/>
+                    <div class="o_row" invisible="l10n_ke_is_secondary">
+                        <field name="l10n_ke_voluntary_medical_insurance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ke_life_insurance" invisible="l10n_ke_is_secondary"/>
+                    <div class="o_row" invisible="l10n_ke_is_secondary">
+                        <field name="l10n_ke_life_insurance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <field name="l10n_ke_is_li_managed_by_employee" invisible="not l10n_ke_life_insurance or l10n_ke_is_secondary"/>
+                    <label for="l10n_ke_education" invisible="l10n_ke_is_secondary"/>
+                    <div class="o_row" invisible="l10n_ke_is_secondary">
+                        <field name="l10n_ke_education" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

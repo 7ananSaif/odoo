@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="base.partner_demo_company_tr" model="res.partner" forcecreate="1">
+        <field name="name">My Turkish Company</field>
+        <field name="country_id" ref="base.tr"/>
+        <field name="vat"></field>
+    </record>
+
+    <record id="base.demo_company_tr" model="res.company" forcecreate="1">
+        <field name="name">My Turkish Company</field>
+        <field name="partner_id" ref="base.partner_demo_company_tr"/>
+        <field name="currency_id" ref="base.TRY"/>
+        <field name="street">Turkish Street</field>
+        <field name="zip">34430</field>
+        <field name="city">Istanbul</field>
+        <field name="country_id" ref="base.tr"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std" />
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_tr'))]"/>
+    </record>
+
+    <record id="base.user_demo" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_tr'))]"/>
+    </record>
+
+    <record id="tr_hr_department_marketing" model="hr.department">
+        <field name="name">Marketing TR</field>
+        <field name="company_id" ref="base.demo_company_tr"/>
+    </record>
+    <record id="tr_hr_department_accounting" model="hr.department">
+        <field name="name">Admin TR</field>
+        <field name="company_id" ref="base.demo_company_tr"/>
+    </record>
+
+    <record id="res_partner_deniz" model="res.partner">
+        <field name="name">Deniz Hasim</field>
+        <field name="street">İstiklal Caddesi</field>
+        <field name="city">Istanbul</field>
+        <field name="zip">34430</field>
+        <field name="state_id" ref="base.state_tr_34"/><!-- Istanbul region -->
+        <field name="country_id" ref="base.tr"/>
+        <field name="phone">0999-1234567</field>
+        <field name="company_id" ref="base.demo_company_tr"/>
+    </record>
+    <record id="res_partner_deniz" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_tr_hr_payroll.res_partner_deniz')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_narin" model="res.partner">
+        <field name="name">Narin Emre</field>
+        <field name="street">Atatürk Bulvarı</field>
+        <field name="city">Ankara</field>
+        <field name="zip">06570</field>
+        <field name="state_id" ref="base.state_tr_06"/><!-- Ankara region -->
+        <field name="country_id" ref="base.tr"/>
+        <field name="phone">0999-6543210</field>
+        <field name="company_id" ref="base.demo_company_tr"/>
+    </record>
+    <record id="res_partner_narin" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_tr_hr_payroll.res_partner_narin')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="user_narin" model="res.users">
+        <field name="partner_id" ref="l10n_tr_hr_payroll.res_partner_narin"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_narin')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_narin')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_tr_hr_payroll.res_partner_narin')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_tr'))]"/>
+        <field name="company_id" ref="base.demo_company_tr"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_mit-image.jpg"/>
+    </record>
+
+    <record id="tr_res_bank_ziraat" model="res.bank">
+        <field name="name">Ziraat Bankası</field>
+        <field name="bic">TCZBTR2AXXX</field>
+        <field name="street">Ulus Mahallesi</field>
+        <field name="city">Ankara</field>
+        <field name="zip">06050</field>
+        <field name="state" ref="base.state_tr_06"/>
+        <field name="country" ref="base.tr"/>
+        <field name="phone">0999-5842000</field>
+    </record>
+    <record id="tr_res_bank_ziraat" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_tr_hr_payroll.tr_res_bank_ziraat')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="tr_res_bank_turkiye" model="res.bank">
+        <field name="name">Türkiye İş Bankası</field>
+        <field name="bic">ISBKTRISXXX</field>
+        <field name="street">İş Kuleleri</field>
+        <field name="city">Istanbul</field>
+        <field name="zip">34330</field>
+        <field name="state" ref="base.state_tr_34"/>
+        <field name="country" ref="base.tr"/>
+        <field name="phone">0999-3160000</field>
+    </record>
+    <record id="tr_res_bank_turkiye" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_tr_hr_payroll.tr_res_bank_turkiye')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_deniz" model="res.partner.bank">
+        <field name="acc_number">TR330001000123456789012345</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_tr_hr_payroll.tr_res_bank_ziraat"/>
+        <field name="partner_id" ref="l10n_tr_hr_payroll.res_partner_deniz"/>
+        <field name="company_id" ref="base.demo_company_tr"/>
+        <field name="currency_id" ref="base.TRY"/>
+    </record>
+
+    <record id="res_partner_bank_account_narin" model="res.partner.bank">
+        <field name="acc_number">TR750006400000123456789012</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_tr_hr_payroll.tr_res_bank_turkiye"/>
+        <field name="partner_id" ref="l10n_tr_hr_payroll.res_partner_narin"/>
+        <field name="company_id" ref="base.demo_company_tr"/>
+        <field name="currency_id" ref="base.TRY"/>
+    </record>
+
+    <record id="hr_employee_deniz" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_deniz')).name"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_tr_hr_payroll.tr_hr_department_marketing"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_al-image.jpg"/>
+        <field name="work_phone">0999-1230001</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_deniz')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="work_contact_id" ref="l10n_tr_hr_payroll.res_partner_deniz"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Asia/Istanbul</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_deniz')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_deniz')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_deniz')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_deniz')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_deniz')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_deniz')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_deniz')).phone"/>
+        <field name="distance_home_work">1</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_deniz')).country_id"/>
+        <field name="identification_id">98765432109</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1996, 7, 3).date()"/>
+        <field name="place_of_birth">Istanbul</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_deniz')).country_id"/>
+        <field name="emergency_contact">Ahmet Hasim</field>
+        <field name="emergency_phone">0999-1122334</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Digital Communication</field>
+        <field name="study_school">Boğaziçi University </field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_tr_hr_payroll.res_partner_bank_account_deniz'))]"/>
+        <field name="department_id" ref="l10n_tr_hr_payroll.tr_hr_department_marketing"/>
+        <field name="company_id" ref="base.demo_company_tr"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">15000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="DateTime.today() + relativedelta(months=-4, days=-10)"/>
+        <field name="date_version" eval="DateTime.today() + relativedelta(months=-4, days=-10)"/>
+        <field name="contract_type_id" ref="hr.contract_type_temporary"/>
+        <field name="structure_type_id" ref="structure_type_employee_tr"/>
+    </record>
+
+    <record id="hr_employee_narin" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_narin')).name"/>
+        <field name="job_id" ref="hr.job_consultant"/>
+        <field name="department_id" ref="l10n_tr_hr_payroll.tr_hr_department_accounting"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_mit-image.jpg"/>
+        <field name="work_phone">0999-1230002</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_narin')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="parent_id" ref="l10n_tr_hr_payroll.hr_employee_deniz"/>
+        <field name="user_id" ref="l10n_tr_hr_payroll.user_narin"/>
+        <field name="company_id" ref="base.demo_company_tr"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Asia/Istanbul</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_narin')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_narin')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_narin')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_narin')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_narin')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_narin')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_narin')).phone"/>
+        <field name="distance_home_work">3</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_narin')).country_id"/>
+        <field name="identification_id">12345678901</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1999, 3, 28).date()"/>
+        <field name="place_of_birth">Ankara</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_tr_hr_payroll.res_partner_narin')).country_id"/>
+        <field name="emergency_contact">Elif Emre</field>
+        <field name="emergency_phone">0999-9876543</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Accountancy</field>
+        <field name="study_school">Middle East Technical University (METU)</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_tr_hr_payroll.res_partner_bank_account_narin'))]"/>
+        <field name="department_id" ref="l10n_tr_hr_payroll.tr_hr_department_accounting"/>
+        <field name="company_id" ref="base.demo_company_tr"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">20000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="DateTime(DateTime.today().year-3,month=2,day=25)"/>
+        <field name="date_version" eval="DateTime(DateTime.today().year-3,month=2,day=25)"/>
+        <field name="contract_type_id" ref="hr.contract_type_full_time"/>
+        <field name="structure_type_id" ref="structure_type_employee_tr"/>
+    </record>
+</odoo>

@@ -1,0 +1,441 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * documents_project
+#
+# Translators:
+# Martin Trigaux, 2023
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0beta+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:44+0000\n"
+"PO-Revision-Date: 2025-10-20 08:49+0000\n"
+"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"documents_project/it/>\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
+"0) ? 1 : 2);\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_ir_attachment
+msgid "Attachment"
+msgstr "Allegato"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_res_company
+msgid "Companies"
+msgstr "Aziende"
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+#: code:addons/documents_project/models/res_company.py:0
+msgid "Company Project Folders cannot be linked to another company.%s"
+msgstr ""
+"Le cartelle del progetto aziendale non possono essere collegate a un'altra "
+"azienda.%s"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_res_config_settings
+msgid "Config Settings"
+msgstr "Opzioni di configurazione"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.project_1_document_1
+msgid "Daily Meeting Notes (today)"
+msgstr "Appunti riunione giornaliera (oggi)"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.project_1_document_2
+msgid "Daily Meeting Notes (yesterday)"
+msgstr "Appunti riunione giornaliera (ieri)"
+
+#. module: documents_project
+#: model_terms:ir.ui.view,arch_db:documents_project.res_config_settings_view_form_inherit_documents_project
+msgid "Default Project Folder"
+msgstr "Cartella progetto predefinita"
+
+#. module: documents_project
+#: model:ir.model.fields,field_description:documents_project.field_documents_document__display_name
+#: model:ir.model.fields,field_description:documents_project.field_documents_tag__display_name
+#: model:ir.model.fields,field_description:documents_project.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:documents_project.field_project_project__display_name
+#: model:ir.model.fields,field_description:documents_project.field_res_company__display_name
+#: model:ir.model.fields,field_description:documents_project.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "Nome visualizzato"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_documents_document
+msgid "Document"
+msgstr "Documento"
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/project_project.py:0
+#: model:ir.embedded.actions,name:documents_project.project_embedded_action_documents
+#: model:ir.embedded.actions,name:documents_project.project_embedded_action_documents_dashboard
+#: model_terms:ir.ui.view,arch_db:documents_project.project_view_kanban_inherit_documents
+msgid "Documents"
+msgstr "Documenti"
+
+#. module: documents_project
+#: model:ir.model.fields,field_description:documents_project.field_project_project__documents_folder_id
+msgid "Documents Folder"
+msgstr "Cartella documenti"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.project_1_document_3
+msgid "First Floor Plan"
+msgstr "Mappa primo piano"
+
+#. module: documents_project
+#: model_terms:ir.ui.view,arch_db:documents_project.res_config_settings_view_form_inherit_documents_project
+msgid "Folder"
+msgstr "Cartella"
+
+#. module: documents_project
+#: model:ir.model.fields,help:documents_project.field_project_project__documents_folder_id
+msgid ""
+"Folder in which all of the documents of this project will be categorized."
+msgstr ""
+"Cartella in cui verranno categorizzati tutti i documenti di questo progetto."
+
+#. module: documents_project
+#: model_terms:ir.ui.view,arch_db:documents_project.res_config_settings_view_form_inherit_documents_project
+msgid "Folder where new projects are created"
+msgstr "Cartella dove vengono creati nuovi progetti"
+
+#. module: documents_project
+#: model:ir.model.fields,field_description:documents_project.field_documents_document__id
+#: model:ir.model.fields,field_description:documents_project.field_documents_tag__id
+#: model:ir.model.fields,field_description:documents_project.field_ir_attachment__id
+#: model:ir.model.fields,field_description:documents_project.field_project_project__id
+#: model:ir.model.fields,field_description:documents_project.field_res_company__id
+#: model:ir.model.fields,field_description:documents_project.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.project_1_document_4
+msgid "Important Customer Letter"
+msgstr "Lettera cliente importante"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_project_project
+msgid "Project"
+msgstr "Progetto"
+
+#. module: documents_project
+#: model:ir.model.fields,field_description:documents_project.field_res_company__documents_project_folder_id
+#: model:ir.model.fields,field_description:documents_project.field_res_config_settings__documents_project_folder_id
+msgid "Project Folder"
+msgstr "Cartella progetti"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.document_project_folder
+#: model:ir.model.fields,field_description:documents_project.field_documents_document__project_ids
+msgid "Projects"
+msgstr "Progetti"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_documents_tag
+msgid "Tag"
+msgstr "Tag"
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/project_project.py:0
+msgid ""
+"The \"%(folder)s\" folder should either be in the \"%(company)s\" company "
+"like this project or be open to all companies."
+msgstr ""
+"La cartella \"%(folder)s\" dovrebbe far parte dell'azienda \"%(company)s\" "
+"come questo progetto o essere aperto a tutte le aziende."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid ""
+"The \"%s\" folder is required by the Project application and cannot be "
+"archived."
+msgstr ""
+"La cartella \"%s\" è richiesta dall'applicazione Progetti e non può essere "
+"archiviata."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid ""
+"This action can't be performed, as it would remove the folders used by the "
+"following projects:\n"
+"%(projects)s\n"
+"To continue, choose different folders for these projects."
+msgstr ""
+"Quest'azione non può essere eseguita perché rimuoverà le cartelle usate per "
+"i seguenti progetti:\n"
+"%(projects)s\n"
+"Per continuare, scegli cartelle diverse per i progetti interessati."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid ""
+"This folder should remain in the same company as the \"%(project)s\" project "
+"to which it is linked. Please update the company of the \"%(project)s\" "
+"project, or leave the company of this folder empty."
+msgstr ""
+"La cartella dovrebbe restare nella stessa azienda del progetto \"%"
+"(project)s\" al quale è collegata. Aggiorna l'azienda del progetto \"%"
+"(project)s\" o lascia il campo vuoto."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid ""
+"This folder should remain in the same company as the following projects to "
+"which it is linked:\n"
+"%s\n"
+"\n"
+"Please update the company of those projects, or leave the company of this "
+"folder empty."
+msgstr ""
+"La cartella deve restare nella stessa azienda come i seguenti progetti ai "
+"quali è collegata:\n"
+"%s\n"
+"\n"
+"Aggiorna l'azienda dei progetti oppure lascia il campo vuoto."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid "Uh-oh! The project app needs the \"%s\" folder, so you can’t delete it."
+msgstr ""
+"Oh oh! L'app Progetti necessita della cartella \"%s\", quindi non puoi "
+"eliminarla."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid "You cannot archive the project base folder (%s)."
+msgstr "Non puoi archiviare la cartella di base del progetto (%s)."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/project_project.py:0
+msgid ""
+"You cannot change the company of this project, because its folder is linked "
+"to the other following projects that are still in the \"%(other_company)s\" "
+"company:\n"
+"%(other_folders)s\n"
+"\n"
+"Please update the company of all projects so that they remain in the same "
+"company as their folder, or leave the company of the \"%(folder)s\" folder "
+"blank."
+msgstr ""
+"Non è possibile modificare l'azienda di questo progetto perché la sua "
+"cartella è collegata ad altri progetti ancora assegnati all'azienda \"%"
+"(other_company)s\":\n"
+"%(other_folders)s\n"
+"\n"
+"Aggiorna l'azienda di tutti i progetti così che abbiano la stessa azienda e "
+"la stessa cartella oppure non selezionare un'azienda per la cartella \"%"
+"(folder)s\"."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid "You cannot set a company on the %s folder."
+msgstr "Non puoi configurare un'azienda per la cartella %s."
+
+#~ msgid "%(project_name)s's Documents"
+#~ msgstr "Documenti relativi a %(project_name)s"
+
+#~ msgid ""
+#~ "A set of condition and actions which will be available to all attachments "
+#~ "matching the conditions"
+#~ msgstr ""
+#~ "Una serie di condizioni e azioni che saranno disponibili per tutti gli "
+#~ "allegati che soddisfano i requisiti"
+
+#~ msgid "Ask for Validation"
+#~ msgstr "Richiedi convalida"
+
+#~ msgid "Categorize and share your documents with your customers"
+#~ msgstr "Categorizza e condividi i tuoi documenti con i clienti"
+
+#~ msgid "Category"
+#~ msgstr "Categoria"
+
+#~ msgid "Create"
+#~ msgstr "Crea"
+
+#~ msgid "Create a Task"
+#~ msgstr "Creare un'attività"
+
+#~ msgid "Default Tags"
+#~ msgstr "Etichette predefinite"
+
+#~ msgid "Deprecate"
+#~ msgstr "Disattiva"
+
+#~ msgid "Deprecated"
+#~ msgstr "Non attivo"
+
+#~ msgid "Documents &amp; Analytics"
+#~ msgstr "Documenti e analitiche"
+
+#~ msgid "Documents Workspace"
+#~ msgstr "Spazio di lavoro documenti"
+
+#~ msgid "Draft"
+#~ msgstr "Bozza"
+
+#~ msgid "Invalid project search"
+#~ msgstr "RIcerca progetto non valida"
+
+#~ msgid "Invalid task search"
+#~ msgstr "Ricerca lavoro non valida"
+
+#~ msgid "Is Shared"
+#~ msgstr "È condiviso"
+
+#~ msgid "Mark As Draft"
+#~ msgstr "Segna come Bozza"
+
+#~ msgid "Merged Workspace"
+#~ msgstr "Spazio di lavoro unito"
+
+#~ msgid "New task from Documents"
+#~ msgstr "Nuova attività da Documenti"
+
+#~ msgid "Number of documents in Project"
+#~ msgstr "Numero di documenti nel progetto"
+
+#~ msgid "Number of documents in Task"
+#~ msgstr "Numero di documenti nel lavoro"
+
+#~ msgid "Shared Documents"
+#~ msgstr "Documenti condivisi"
+
+#~ msgid "Shared Documents Count"
+#~ msgstr "Numero di documenti condivisi"
+
+#~ msgid "Status"
+#~ msgstr "Stato"
+
+#~ msgid "Task"
+#~ msgstr "Lavoro"
+
+#~ msgid "Task created from document %s"
+#~ msgstr "Lavoro creato dal documento %s"
+
+#~ msgid "Task created from documents %s"
+#~ msgstr "Lavoro creato dai documenti %s"
+
+#~ msgid "Task's Documents"
+#~ msgstr "Documenti lavoro"
+
+#~ msgid ""
+#~ "The \"%s\" workspace is required by the Project application and cannot be "
+#~ "deleted."
+#~ msgstr ""
+#~ "Lo spazio di lavoro \"%s\" è richiesto dall'applicazione Progetti e non "
+#~ "può essere eliminato."
+
+#~ msgid ""
+#~ "The \"%s\" workspace should either be in the \"%s\" company like this "
+#~ "project or be open to all companies."
+#~ msgstr ""
+#~ "Lo spazio di lavoro \"%s\" dovrebbe essere presente nell'azienda \"%s\" "
+#~ "come questo progetto oppure essere aperto a tutte le aziende."
+
+#~ msgid ""
+#~ "This workspace should remain in the same company as the \"%s\" project to "
+#~ "which it is linked. Please update the company of the \"%s\" project, or "
+#~ "leave the company of this workspace empty."
+#~ msgstr ""
+#~ "Lo spazio di lavoro dovrebbe restare nella stessa azienda del progetto "
+#~ "\"%s\" al quale è collegato. Aggiorna l'azienda del progetto \"%s\" o "
+#~ "lascia il campo vuoto."
+
+#~ msgid ""
+#~ "This workspace should remain in the same company as the following "
+#~ "projects to which it is linked:\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Please update the company of those projects, or leave the company of this "
+#~ "workspace empty."
+#~ msgstr ""
+#~ "Lo spazio di lavoro deve restare nella stessa azienda come i seguenti "
+#~ "progetti ai quali è collegato:\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Aggiorna l'azienda dei progetti oppure lascia il campo vuoto."
+
+#~ msgid "To Validate"
+#~ msgstr "Da convalidare"
+
+#~ msgid ""
+#~ "Upload <span class=\"fw-normal\">a file or </span>drag <span class=\"fw-"
+#~ "normal\">it here.</span>"
+#~ msgstr ""
+#~ "Carica un <span class=\"fw-normal\">file</span> o trascinalo <span "
+#~ "class=\"fw-normal\">qui.</span>"
+
+#~ msgid "Use Documents"
+#~ msgstr "Usa Documenti"
+
+#~ msgid "Validate"
+#~ msgstr "Valida"
+
+#~ msgid "Validated"
+#~ msgstr "Validata"
+
+#~ msgid "Workspace"
+#~ msgstr "Spazio di lavoro"
+
+#~ msgid ""
+#~ "Workspace in which all of the documents of this project will be "
+#~ "categorized. All of the attachments of your tasks will be automatically "
+#~ "added as documents in this workspace as well."
+#~ msgstr ""
+#~ "Spazio di lavoro in cui verranno categorizzati tutti i documenti del "
+#~ "progetto. Tutti gli allegati dei tuoi lavori verranno aggiunti "
+#~ "automaticamente come documenti nello spazio di lavoro."
+
+#~ msgid ""
+#~ "You cannot change the company of this project, because its workspace is "
+#~ "linked to the other following projects that are still in the \"%s\" "
+#~ "company:\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Please update the company of all projects so that they remain in the same "
+#~ "company as their workspace, or leave the company of the \"%s\" workspace "
+#~ "blank."
+#~ msgstr ""
+#~ "Non è possibile modificare l'azienda di questo progetto perché il suo "
+#~ "spazio di lavoro è collegato ai progetti elencati di seguito che "
+#~ "appartengono ancora all'azienda \"%s\":\n"
+#~ "%s\n"
+#~ "\n"
+#~ "Aggiorna l'azienda per tutti i progetti in modo che abbiano lo stesso "
+#~ "riferimento come spazio di lavoro oppure non riempire il campo dello "
+#~ "spazio di lavoro \"%s\"."
+
+#~ msgid "You cannot set a company on the %s workspace."
+#~ msgstr "Non è possibile configurare un'azienda per lo spazio di lavoro %s."
+
+#~ msgid "documents shared"
+#~ msgstr "documenti condivisi"
+
+#~ msgid "new %s from %s"
+#~ msgstr "nuovo %s da %s"

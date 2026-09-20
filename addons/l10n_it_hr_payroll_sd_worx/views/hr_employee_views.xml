@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_form_l10n_it_hr_payroll_sd_worx" model="ir.ui.view">
+        <field name="name">hr.employee.inherit.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+        <field name="priority">45</field>
+        <field name="arch" type="xml">
+            <group name="external_codes" position="attributes">
+                <attribute name="invisible" add="company_country_code != 'IT'" separator="and"/>
+            </group>
+            <group name='external_codes' position="inside">
+                <field name="l10n_it_sdworx_code" invisible="company_country_code != 'IT'" placeholder="Provide a 7 characters code"/>
+            </group>
+        </field>
+    </record>
+</odoo>

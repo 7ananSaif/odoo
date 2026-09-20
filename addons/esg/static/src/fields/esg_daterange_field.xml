@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="esg.EsgDateTimeField" t-inherit="web.DateTimeField" t-inherit-mode="primary">
+        <xpath expr="//t[@t-if='endDateField']/t[2]" position="attributes">
+            <attribute name="t-elif">!isEmpty(startDateField) and isEmpty(endDateField)</attribute>
+        </xpath>
+    </t>
+</templates>

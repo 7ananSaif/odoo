@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <t t-name="equity.ValuationChart">
+        <div class="d-flex flex-row h-100 gap-4 align-items-center mt-auto">
+            <div class="d-flex flex-column gap-3" t-if="this.props.stats">
+                <div class="p-3 rounded text-white bg-primary bg-opacity-75">
+                    <div class="fs-4 fw-bold" t-out="this.totalValuation"/>
+                    <div>Valuation</div>
+                </div>
+                <div class="p-3 rounded text-white bg-primary bg-opacity-75">
+                    <div class="fs-4 fw-bold" t-out="this.yourValuation"/>
+                    <div class="text-nowrap">
+                        <t t-out="this.ownership"/> Ownership
+                        <sup class="fw-bold" data-tooltip="= Your shares / Total number of shares (i.e., options not taken into account)">?</sup>
+                    </div>
+                </div>
+                <div class="p-3 rounded text-white bg-primary bg-opacity-75">
+                    <div class="fs-4 fw-bold" t-out="this.votingRights"/>
+                    <div>Voting Rights</div>
+                </div>
+            </div>
+
+            <div class="canvas-container flex-grow-1">
+                <canvas t-ref="canvas" class="w-100"/>
+            </div>
+        </div>
+    </t>
+</odoo>

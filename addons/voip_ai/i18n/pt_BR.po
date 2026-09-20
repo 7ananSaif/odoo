@@ -1,0 +1,162 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * voip_ai
+#
+# "Maitê Dietze (madi)" <madi@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:48+0000\n"
+"PO-Revision-Date: 2025-11-14 11:44+0000\n"
+"Last-Translator: \"Maitê Dietze (madi)\" <madi@odoo.com>\n"
+"Language-Team: Portuguese (Brazil) <https://translate.odoo.com/projects/"
+"odoo-19/voip_ai/pt_BR/>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: voip_ai
+#. odoo-javascript
+#: code:addons/voip_ai/static/src/session_patch.js:0
+msgid "Call successfully scheduled for transcription."
+msgstr "Chamada agendada com sucesso para transcrição."
+
+#. module: voip_ai
+#: model_terms:ir.ui.view,arch_db:voip_ai.voip_call_view_form_transcript
+msgid "Call transcript..."
+msgstr "Transcrição da chamada..."
+
+#. module: voip_ai
+#. odoo-javascript
+#: code:addons/voip_ai/static/src/session_patch.js:0
+msgid "Can't transcribe the call: Upload failed."
+msgstr "Não é possível transcrever a chamada: falha no upload."
+
+#. module: voip_ai
+#: model:ir.model.fields.selection,name:voip_ai.selection__voip_provider__transcription_policy__disabled
+msgid "Disable"
+msgstr "Desativar"
+
+#. module: voip_ai
+#: model:ir.model.fields,field_description:voip_ai.field_res_users__display_name
+#: model:ir.model.fields,field_description:voip_ai.field_voip_call__display_name
+#: model:ir.model.fields,field_description:voip_ai.field_voip_provider__display_name
+msgid "Display Name"
+msgstr "Exibir nome"
+
+#. module: voip_ai
+#: model:ir.model.fields.selection,name:voip_ai.selection__voip_call__transcription_status__done
+msgid "Done"
+msgstr "Concluído"
+
+#. module: voip_ai
+#: model:ir.model.fields.selection,name:voip_ai.selection__voip_call__transcription_status__error
+msgid "Error"
+msgstr "Erro"
+
+#. module: voip_ai
+#: model:ir.model.fields.selection,name:voip_ai.selection__voip_provider__transcription_policy__always
+msgid "Force for all users"
+msgstr "Forçar para todos os usuários"
+
+#. module: voip_ai
+#: model:ir.model.fields,field_description:voip_ai.field_res_users__id
+#: model:ir.model.fields,field_description:voip_ai.field_voip_call__id
+#: model:ir.model.fields,field_description:voip_ai.field_voip_provider__id
+msgid "ID"
+msgstr "Identificação"
+
+#. module: voip_ai
+#: model:ir.model.fields.selection,name:voip_ai.selection__voip_call__transcription_status__no_audio
+msgid "No audio"
+msgstr "Sem áudio"
+
+#. module: voip_ai
+#: model:ir.model.fields.selection,name:voip_ai.selection__voip_call__transcription_status__pending
+msgid "Pending"
+msgstr "Pendente"
+
+#. module: voip_ai
+#: model:ir.model,name:voip_ai.model_voip_call
+msgid "Phone call"
+msgstr "Ligação telefônica"
+
+#. module: voip_ai
+#: model:ir.model.fields.selection,name:voip_ai.selection__voip_call__transcription_status__queued
+msgid "Queued"
+msgstr "Na fila"
+
+#. module: voip_ai
+#: model:ir.model.fields,field_description:voip_ai.field_voip_call__summary
+#: model_terms:ir.ui.view,arch_db:voip_ai.voip_call_view_form_summary
+msgid "Summary"
+msgstr "Resumo"
+
+#. module: voip_ai
+#. odoo-javascript
+#: code:addons/voip_ai/static/src/in_call_view_patch.xml:0
+msgid "This call will be transcribed when it's done"
+msgstr "Esta chamada será transcrita quando terminar"
+
+#. module: voip_ai
+#: model:ir.model.fields.selection,name:voip_ai.selection__voip_call__transcription_status__too_big_to_process
+msgid "Too long to process"
+msgstr "Longo demais para processar"
+
+#. module: voip_ai
+#: model:ir.actions.server,name:voip_ai.ir_cron_transcribe_recent_voip_call_ir_actions_server
+msgid "Transcribe Recent VoIP Calls"
+msgstr "Transcrever chamadas VoIP recentes"
+
+#. module: voip_ai
+#: model:ir.model.fields,help:voip_ai.field_voip_provider__transcription_policy
+msgid "Transcribe the call into text with OpenAI."
+msgstr "Transcrever a chamada para texto com o OpenAI."
+
+#. module: voip_ai
+#. odoo-javascript
+#: code:addons/voip_ai/static/src/in_call_view_patch.xml:0
+msgid "Transcribing"
+msgstr "Transcrevendo"
+
+#. module: voip_ai
+#: model:ir.model.fields,field_description:voip_ai.field_voip_call__transcript
+#: model_terms:ir.ui.view,arch_db:voip_ai.voip_call_view_form_transcript
+msgid "Transcript"
+msgstr "Transcrição"
+
+#. module: voip_ai
+#: model_terms:ir.ui.view,arch_db:voip_ai.voip_provider_tree_view
+#: model_terms:ir.ui.view,arch_db:voip_ai.voip_provider_view_form
+msgid "Transcription"
+msgstr "Transcrição"
+
+#. module: voip_ai
+#: model:ir.model.fields,field_description:voip_ai.field_voip_provider__transcription_policy
+msgid "Transcription Policy"
+msgstr "Política de transcrição"
+
+#. module: voip_ai
+#: model:ir.model.fields,field_description:voip_ai.field_voip_call__transcription_status
+msgid "Transcription Status"
+msgstr "Status da transcrição"
+
+#. module: voip_ai
+#. odoo-javascript
+#: code:addons/voip_ai/static/src/components/transcription_status_banner_field/transcription_status_banner_field.js:0
+msgid "Transcription Status Banner"
+msgstr "Banner de status da transcrição"
+
+#. module: voip_ai
+#: model:ir.model,name:voip_ai.model_res_users
+msgid "User"
+msgstr "Usuário"
+
+#. module: voip_ai
+#: model:ir.model,name:voip_ai.model_voip_provider
+msgid "VoIP Provider"
+msgstr "Provedor de VoIP"

@@ -1,0 +1,199 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="view_move_line_tree" model="ir.ui.view">
+        <field name="name">account.move.line.list</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_tree"/>
+        <field name="mode">extension</field>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="js_class">account_move_line_list</attribute>
+            </xpath>
+            <xpath expr="//list" position="inside">
+               <header>
+                    <button name="action_reconcile" type="object" string="Reconcile" groups="account.group_account_user" data-hotkey="r"/>
+                </header>
+                <field name="is_account_reconcile" column_invisible="True"/>
+                <field name="has_deferred_moves" column_invisible="True"/>
+            </xpath>
+            <xpath expr="//list/field[@name='name']" position="after">
+                <field name="deferred_start_date" string="Deferred Date" widget="daterange" options="{'end_date_field': 'deferred_end_date', 'always_range': True}" optional="hide" readonly="has_deferred_moves"/>
+                <field name="deferred_end_date" required="deferred_start_date" column_invisible="1"/>
+            </xpath>
+            <xpath expr="//list/field[@name='matching_number']" position="attributes">
+                <attribute name="widget">matching_link_widget</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_move_line_payment_tree" model="ir.ui.view">
+        <field name="name">account.move.line.payment.list</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_payment_tree"/>
+        <field name="mode">extension</field>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_payment_items_register_payment']" position="after">
+                <button name="action_reconcile" type="object" string="Reconcile" groups="account.group_account_user"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_move_form_inherit" model="ir.ui.view">
+        <field name="name">account.move.form.inherit</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@id='other_tab']//field[@name='fiscal_position_id']" position="after">
+                <field name="inalterable_hash" groups="base.group_no_one"/>
+            </xpath>
+            <xpath expr="//page[@id='other_tab_entry']//field[@name='company_id']" position="after">
+                <field name="inalterable_hash" groups="base.group_no_one"/>
+            </xpath>
+            <xpath expr="//page[@id='invoice_tab']//list/field[@name='analytic_distribution']" position="after">
+                <field name="deferred_start_date" string="Deferred Date" widget="daterange" options="{'end_date_field': 'deferred_end_date', 'always_range': True}" optional="hide" decoration-warning="has_abnormal_deferred_dates"/>
+                <field name="deferred_end_date" required="deferred_start_date" column_invisible="1"/>
+            </xpath>
+            <xpath expr="//page[@id='aml_tab']//list/field[@name='analytic_distribution']" position="after">
+                <field name="deferred_start_date" string="Deferred Date" widget="daterange" options="{'end_date_field': 'deferred_end_date', 'always_range': True}" optional="hide" decoration-warning="has_abnormal_deferred_dates"/>
+                <field name="deferred_end_date" required="deferred_start_date" column_invisible="1"/>
+            </xpath>
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_bank_reconciliation_widget_statement"
+                        class="oe_stat_button"
+                        icon="fa-bars"
+                        type="object"
+                        invisible="not statement_id or state == 'cancel'">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">Bank Statement</span>
+                        </div>
+                </button>
+                <button name="action_open_bank_reconciliation_widget"
+                        class="oe_stat_button"
+                        icon="fa-bars"
+                        type="object"
+                        invisible="move_type != 'entry' or not id or not statement_line_id or state == 'cancel'">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">1 Bank Transaction</span>
+                        </div>
+                </button>
+                <field name="deferred_move_ids" invisible="1"/>
+                <field name="deferred_original_move_ids" invisible="1"/>
+                <field name="deferred_entry_type" invisible="1"/>
+                <button name="open_deferred_entries"
+                        class="oe_stat_button"
+                        icon="fa-bars"
+                        type="object"
+                        invisible="not deferred_move_ids"
+                        string="Deferral Entries">
+                </button>
+                <button name="open_deferred_original_entry"
+                        class="oe_stat_button"
+                        icon="fa-bars"
+                        type="object"
+                        invisible="deferred_entry_type != 'expense' or not deferred_original_move_ids"
+                        string="Related Purchase(s)">
+                </button>
+                <button name="open_deferred_original_entry"
+                        class="oe_stat_button"
+                        icon="fa-bars"
+                        type="object"
+                        invisible="deferred_entry_type != 'revenue' or not deferred_original_move_ids"
+                        string="Related Sale(s)">
+                </button>
+                <button name="open_deferred_original_entry"
+                        class="oe_stat_button"
+                        icon="fa-bars"
+                        type="object"
+                        invisible="deferred_entry_type != 'misc' or not deferred_original_move_ids"
+                        string="Related Entries">
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_bank_rec_edit_line" model="ir.ui.view">
+        <field name="name">account.move.line.bank.rec.edit.line</field>
+        <field name="model">account.move.line</field>
+        <field name="arch" type="xml">
+            <form string="Journal Item" js_class="bankrec_edit_line">
+                <sheet>
+                    <field name="has_invalid_analytics" invisible="1"/>
+                    <div invisible="not has_invalid_analytics" class="alert alert-warning mb-3" role="alert">
+                        This line requires analytic distribution.
+                    </div>
+                    <group>
+                        <group name="left_group">
+                            <field name="move_id" invisible="1"/>
+                            <field name="amount_currency" invisible="1"/> <!-- Needed so that the onchange has the amount currency everytime -->
+                            <label for="balance"/>
+                            <div class="d-flex justify-space-between">
+                                <field name="balance" no_label="1"/>
+                                <field name="company_currency_id" invisible="1"/>
+                                <field name="currency_id" groups="base.group_multi_currency" class="ms-2" invisible="not is_same_currency" options="{'no_create': True, 'no_open': True}"/>
+                                <div invisible="is_same_currency" groups="base.group_multi_currency" class="d-flex gap-2">
+                                    (
+                                    <field name="amount_currency" class="w-50"/>
+                                    <field name="currency_id" no_label="1" class="w-50" placeholder="secondary currency" options="{'no_create': True, 'no_open': True}"/>
+                                    )
+                                </div>
+                            </div>
+                            <field name="full_amount_switch_html" string="" widget="apply_amount_html" invisible="not reconciled_lines_excluding_exchange_diff_ids"/>
+                            <field name="account_id" readonly="reconciled_lines_excluding_exchange_diff_ids or tax_line_id"/>
+                            <field name="partner_id" readonly="reconciled_lines_excluding_exchange_diff_ids or tax_line_id"/>
+                            <field name="name" readonly="reconciled_lines_excluding_exchange_diff_ids"/>
+                        </group>
+                        <group name="right_group">
+                            <field name="date" readonly="True"/>
+                            <field name="tax_ids" widget="many2many_tags" invisible="reconciled_lines_excluding_exchange_diff_ids or tax_line_id" context="{'append_fields': ['type_tax_use']}"/>
+                            <field name="analytic_distribution" groups="analytic.group_analytic_accounting" widget="analytic_distribution"
+                                   options="{'account_field': 'account_id', 'business_domain': 'general'}"
+                            />
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_deferred_entries_tree" model="ir.ui.view">
+        <field name="name">account.move.line.deferral.entries.list</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_tree"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="default_order">date</attribute>
+            </xpath>
+            <xpath expr="//field[@name='partner_id']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='tax_ids']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='amount_currency']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='analytic_distribution']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='matching_number']" position="attributes">
+                <attribute name="optional">hide</attribute>
+            </xpath>
+            <xpath expr="//field[@name='discount_date']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='discount_amount_currency']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='date_maturity']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='amount_residual']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='amount_residual_currency']" position="attributes">
+                <attribute name="column_invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

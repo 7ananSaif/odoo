@@ -1,0 +1,445 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_invoice_extract
+#
+# Translators:
+# Martin Trigaux, 2022
+# Ryoko Tsuda <ryoko@quartile.co>, 2023
+# Andy Yiu, 2023
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Junko Augias (juau)" <juau@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-11-21 06:33+0000\n"
+"Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"account_invoice_extract/ja/>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_needaction
+msgid "Action Needed"
+msgstr "要アクション"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_ir_attachment
+msgid "Attachment"
+msgstr "添付ファイル"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_attachment_count
+msgid "Attachment Count"
+msgstr "添付数"
+
+#. module: account_invoice_extract
+#. odoo-python
+#: code:addons/account_invoice_extract/models/account_invoice.py:0
+msgid "Automatic OCR does not apply to this document."
+msgstr "このドキュメントには自動 OCR は適用されていません。"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_bank_statement_line__extract_can_show_banners
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_can_show_banners
+msgid "Can show the ocr banners"
+msgstr "OCRバナー表示可"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_can_show_send_button
+msgid "Can show the ocr send button"
+msgstr "OCR送信ボタン表示可"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_res_company
+msgid "Companies"
+msgstr "会社"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_res_config_settings
+msgid "Config Settings"
+msgstr "構成設定"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_res_partner
+msgid "Contact"
+msgstr "連絡先"
+
+#. module: account_invoice_extract
+#. odoo-python
+#: code:addons/account_invoice_extract/models/account_invoice.py:0
+msgid "Couldn't reload AI data."
+msgstr "AIデータを再読込できません。"
+
+#. module: account_invoice_extract
+#. odoo-javascript
+#: code:addons/account_invoice_extract/static/src/js/invoice_extract_form.js:0
+msgid "Create"
+msgstr "作成"
+
+#. module: account_invoice_extract
+#: model:ir.model,website_form_label:account_invoice_extract.model_res_partner
+msgid "Create a Customer"
+msgstr "顧客を作成"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__extract_out_invoice_digitalization_mode
+msgid "Customer Invoices"
+msgstr "顧客請求書"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__extract_out_invoice_digitalization_mode
+msgid "Digitization mode on customer invoices"
+msgstr "顧客請求書でのデジタル化モード"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__extract_in_invoice_digitalization_mode
+msgid "Digitization mode on vendor bills"
+msgstr "仕入先請求書でのデジタル化モード"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_in_invoice_digitalization_mode__auto_send
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_out_invoice_digitalization_mode__auto_send
+msgid "Digitize automatically"
+msgstr "自動的にデジタル化する"
+
+#. module: account_invoice_extract
+#: model_terms:ir.ui.view,arch_db:account_invoice_extract.view_move_form_inherit_ocr
+msgid "Digitize document"
+msgstr "ドキュメントデジタル化"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_in_invoice_digitalization_mode__manual_send
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_out_invoice_digitalization_mode__manual_send
+msgid "Digitize on demand only"
+msgstr "必要な時のみデジタル化する"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__display_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__display_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_partner__display_name
+msgid "Display Name"
+msgstr "表示名"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_in_invoice_digitalization_mode__no_send
+#: model:ir.model.fields.selection,name:account_invoice_extract.selection__res_company__extract_out_invoice_digitalization_mode__no_send
+msgid "Do not digitize"
+msgstr "デジタル化しない"
+
+#. module: account_invoice_extract
+#: model_terms:ir.ui.view,arch_db:account_invoice_extract.res_config_settings_view_form
+msgid "Enable to get only one invoice line per tax"
+msgstr "有効にして、税毎に一つの請求明細のみ所得します"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_error_message
+msgid "Error message"
+msgstr "エラーメッセージ"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_attachment_id
+msgid "Extract Attachment"
+msgstr "添付ファイルを抽出"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_bank_statement_line__extract_detected_layout
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_detected_layout
+msgid "Extract Detected Layout Id"
+msgstr "検知されたレイアウトIDを抽出"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_bank_statement_line__extract_partner_name
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_partner_name
+msgid "Extract Detected Partner Name"
+msgstr "検知された取引先名を抽出"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_bank_statement_line__extract_prefill_data
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_prefill_data
+msgid "Extract Prefill Data"
+msgstr "事前入力データを抽出"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_state_processed
+msgid "Extract State Processed"
+msgstr "処理済ステータスを抽出"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_state
+msgid "Extract state"
+msgstr "抽出ステータス"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_status
+msgid "Extract status"
+msgstr "抽出ステータス"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extracted_dates
+msgid "Extracted Dates"
+msgstr "抽出された日付"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extracted_numbers
+msgid "Extracted Numbers"
+msgstr "抽出された番号"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extracted_words
+msgid "Extracted Words"
+msgstr "抽出された語句"
+
+#. module: account_invoice_extract
+#: model_terms:ir.ui.view,arch_db:account_invoice_extract.view_move_form_inherit_ocr
+msgid "Extraction Information"
+msgstr "抽出情報"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_follower_ids
+msgid "Followers"
+msgstr "フォロワー"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "フォロワー (取引先)"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__has_message
+msgid "Has Message"
+msgstr "メッセージあり"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__id
+#: model:ir.model.fields,field_description:account_invoice_extract.field_ir_attachment__id
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__id
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__id
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_partner__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__extract_document_uuid
+msgid "ID of the request to IAP-OCR"
+msgstr "IAP-OCRへの要求のID"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "チェックした場合は、新しいメッセージに注意が必要です。"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_has_error
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "選択されている場合、一部のメッセージで配信エラーが発生しています。"
+
+#. module: account_invoice_extract
+#: model:ir.actions.server,name:account_invoice_extract.ir_cron_update_ocr_status_ir_actions_server
+msgid "Invoice OCR: Update All Status"
+msgstr "請求書OCR: 全ステータスを更新"
+
+#. module: account_invoice_extract
+#: model:ir.actions.server,name:account_invoice_extract.ir_cron_ocr_validate_ir_actions_server
+msgid "Invoice OCR: Validate Invoices"
+msgstr "請求書OCR: 請求書を確認"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_partner__is_created_by_ocr
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_users__is_created_by_ocr
+msgid "Is Created By Ocr"
+msgstr "OCRによって作成"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_is_follower
+msgid "Is Follower"
+msgstr "フォロー中"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__is_in_extractable_state
+msgid "Is In Extractable State"
+msgstr "抽出可能"
+
+#. module: account_invoice_extract
+#: model:ir.model,name:account_invoice_extract.model_account_move
+msgid "Journal Entry"
+msgstr "仕訳"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_main_attachment_id
+msgid "Main Attachment"
+msgstr "主要添付"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_has_error
+msgid "Message Delivery error"
+msgstr "メッセージ配信エラー"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_ids
+msgid "Messages"
+msgstr "メッセージ"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_needaction_counter
+msgid "Number of Actions"
+msgstr "アクション数"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_has_error_counter
+msgid "Number of errors"
+msgstr "エラー数"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "対応が必要なメッセージ数"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "配信エラーが発生されたメッセージ数"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__rating_ids
+msgid "Ratings"
+msgstr "評価"
+
+#. module: account_invoice_extract
+#: model_terms:ir.ui.view,arch_db:account_invoice_extract.view_move_form_inherit_ocr
+msgid "Reload AI Data"
+msgstr "AIデータを再読込"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "SMS送信エラー"
+
+#. module: account_invoice_extract
+#: model:ir.actions.server,name:account_invoice_extract.model_account_send_for_digitalization
+msgid "Send Bills for digitization"
+msgstr "デジタル化のために請求書を送信"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_company__extract_single_line_per_tax
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__extract_single_line_per_tax
+msgid "Single Invoice Line Per Tax"
+msgstr "税毎に一つの請求明細"
+
+#. module: account_invoice_extract
+#: model:ir.model.constraint,message:account_invoice_extract.constraint_res_partner_ocr_name_uniq
+msgid "The OCR can't create multiple partners with the same name."
+msgstr "OCRは同じ名前で複数のパートナーを作ることはできません。"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_res_config_settings__extract_in_invoice_digitalization_mode
+msgid "Vendor Bills"
+msgstr "仕入先請求書"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,field_description:account_invoice_extract.field_account_move__website_message_ids
+msgid "Website Messages"
+msgstr "ウェブサイトメッセージ"
+
+#. module: account_invoice_extract
+#: model:ir.model.fields,help:account_invoice_extract.field_account_move__website_message_ids
+msgid "Website communication history"
+msgstr "ウェブサイト通信履歴"
+
+#. module: account_invoice_extract
+#. odoo-python
+#: code:addons/account_invoice_extract/models/account_invoice.py:0
+msgid "You cannot send a expense that is not in draft state!"
+msgstr "ドラフト状態でない経費を送信することはできません！"
+
+#~ msgid ""
+#~ "<i class=\"oi oi-fw o_button_icon oi-arrow-right\"/>\n"
+#~ "                        Buy credits"
+#~ msgstr ""
+#~ "<i class=\"oi oi-fw o_button_icon oi-arrow-right\"/>\n"
+#~ "                        クレジットを購入する"
+
+#~ msgid ""
+#~ "All fields will be automated by Artificial Intelligence, it might take 5 "
+#~ "seconds."
+#~ msgstr ""
+#~ "全てのフィールドは人工知能によって完成されます。5秒かかる場合があります。"
+
+#~ msgid "Bill is being Digitized"
+#~ msgstr "請求書はデジタル化中です"
+
+#~ msgid "Created by"
+#~ msgstr "作成者"
+
+#~ msgid "Created on"
+#~ msgstr "作成日"
+
+#~ msgid "Extract Word"
+#~ msgstr "Wordを抽出"
+
+#~ msgid "Extracted words from invoice scan"
+#~ msgstr "請求書スキャンから文字を抽出"
+
+#~ msgid "Field"
+#~ msgstr "項目"
+
+#~ msgid "Invoice"
+#~ msgstr "請求書"
+
+#~ msgid "Invoice OCR: Parse Invoices"
+#~ msgstr "請求書OCR: 請求書解析"
+
+#~ msgid "Last Updated by"
+#~ msgstr "最終更新者"
+
+#~ msgid "Last Updated on"
+#~ msgstr "最終更新日"
+
+#~ msgid "Ocr Selected"
+#~ msgstr "Ocrは選択されました"
+
+#~ msgid "Send For Digitization"
+#~ msgstr "送信してデジタル化します"
+
+#~ msgid ""
+#~ "The data extraction is not finished yet. The extraction usually takes "
+#~ "between 5 and 10 seconds."
+#~ msgstr ""
+#~ "データ抽出はまだ完成されていません。抽出は5-10秒かかる場合があります。"
+
+#~ msgid "User Selected"
+#~ msgstr "ユーザーは選択されました"
+
+#~ msgid "Word Box Angle"
+#~ msgstr "文字ボックス角度"
+
+#~ msgid "Word Box Height"
+#~ msgstr "文字ボックス高さ"
+
+#~ msgid "Word Box Midx"
+#~ msgstr "文字ボックスMidx"
+
+#~ msgid "Word Box Midy"
+#~ msgstr "文字ボックスMixy"
+
+#~ msgid "Word Box Width"
+#~ msgstr "文字ボックス幅"
+
+#~ msgid "Word Page"
+#~ msgstr "Wordのページ"
+
+#~ msgid "Word Text"
+#~ msgstr "Wordのテキスト"
+
+#~ msgid "You don't have enough credit to extract data from your invoice."
+#~ msgstr "請求書からデータを抽出するには、クレジットが足りません。"

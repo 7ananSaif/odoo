@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="pos_urban_piper_test_order_wizard_view_form" model="ir.ui.view">
+        <field name="name">pos_test_order.wizard.form</field>
+        <field name="model">pos.urbanpiper.test.order.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <group>
+                        <field name="product_id" required="1"/>
+                        <field name="quantity" required="1"/>
+                        <field name="delivery_provider_id" required="1" domain="[('id', 'in', context.get('delivery_provider_ids'))]" options="{'no_open': True, 'no_create': True}"/>
+                        <field name="delivery_instruction"/>
+                    </group>
+                    <group>
+                        <field name="discount_amount"/>
+                        <field name="packaging_charge"/>
+                        <field name="delivery_charge"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="make_test_order" string="Place Order" type="object" class="btn-primary" />
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

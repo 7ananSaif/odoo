@@ -1,0 +1,523 @@
+<odoo>
+    <!--anniversary coupon campaign-->
+    <template id="mailing_anniversary_arch">
+   <div class="o_layout oe_unremovable oe_unmovable o_empty_theme bg-o-color-3" data-name="Mailing"><style id="design-element">
+.o_layout .o_mail_wrapper .o_mail_wrapper_td {
+  --link-color: rgb(17, 24, 39);
+  --text-color: rgb(17, 24, 39);
+  --h1-color: rgb(17, 24, 39);
+  --h2-color: rgb(17, 24, 39);
+  --h3-color: rgb(17, 24, 39);
+  --text-font-family: Georgia, Times, "Times New Roman", serif !important;
+  --h1-font-family: Georgia, Times, "Times New Roman", serif !important;
+  --h2-font-family: Georgia, Times, "Times New Roman", serif !important;
+  --h3-font-family: Georgia, Times, "Times New Roman", serif !important;
+}
+</style>
+<div class="container o_mail_wrapper oe_unremovable o_mail_small">
+    <div class="row">
+        <div class="col o_mail_no_options o_mail_wrapper_td bg-white oe_structure o_editable theme_selection_done">
+            <section class="s_picture o_mail_snippet_general o_cc o_cc2 pt16 pb16" style="padding-left: 15px; padding-right: 15px;" data-snippet="s_picture" data-name="Picture">
+                <div class="container s_allow_columns" style="text-align: center;">
+                    <p><br/></p>
+                    <div class="o_not_editable">
+                        <img
+                            src="/html_editor/shape/marketing_automation_website_sale/anniversary/big-cake.svg?c1=%23714B67&amp;unique=c21752e3"
+                            class="mx-auto d-block mw-100 img img-fluid o_we_custom_image o_editable_media"
+                            style="padding: 10px; width: 50% !important;"
+                            data-mimetype="image/svg+xml"
+                            loading=""
+                        />
+                    </div>
+                </div>
+            </section>
+            <section class="s_text_block o_mail_snippet_general o_cc o_cc3 w-100 bg-o-color-4 pb0 pt8" data-snippet="s_text_block" data-name="Text Highlight">
+                <div class="container s_allow_columns" style="text-align: center;">
+                    <h2><span style="font-size: 3.5rem;">Happy Non-birthday!</span></h2>
+                    <h3><span style="font-size: 1rem;">You've been with us for a whole year—thank you for being here! 🎈</span></h3>
+                    <p class="mb-0">To celebrate, here's a little something for you.</p>
+                    <p class="o_default_snippet_text" style="text-align: center;">
+                        <span style="font-size: 0.857143rem;"><font style="color: inherit;"><strong>BUY YOURSELF A GIFT</strong></font></span><span style="font-size: 0.857143rem;">&#xA0;!</span><br />
+                    </p>
+                    <table style="border-collapse: collapse; border-style: dashed !important;" class="border border-black" align="center" cellspacing="0" cellpadding="0" border="0">
+                        <tbody>
+                            <tr>
+                                <td style="width: 50px !important; min-width: 50px; max-width: 5.6rem; text-align: center;"
+                                    class="o_mail_no_options mx-auto o_cc o_cc3 bg-o-color-1" align="center" height="50" width="50">
+                                    <i class="fa fa-birthday-cake fa-2x"></i>
+                                </td>
+                                <td style="font-size: 15px; line-height: 22px; font-weight: 700; min-width: 150px; width: 200px; text-align: center;"
+                                    class="o_cc bg-o-color-3" align="center" height="50" width="200">
+                                    <p class="mb0"><font class="text-o-color-1">HBD20</font></p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br />
+                    <p style="text-align: center;">
+                        <a class="o_default_snippet_text btn btn-secondary" href="#" role="button" target="_blank">Redeem coupon now</a>
+                    </p>
+                </div>
+            </section>
+            <blockquote class="s_mail_blockquote blockquote o_mail_snippet_general o_cc o_cc2 pt16 pb16 mb-0 w-100" data-snippet="s_blockquote" data-name="Blockquote">
+                <div class="container" style="text-align: center;">
+                    <div class="row">
+                        <div class="col-md-10">
+                            <div>
+                                <p><em>" Cheers to more great years ahead!</em><br />"</p>
+                                <div>
+                                    <div class="o_not_editable col-md-1 col-2">
+                                      <img
+                                          src="/html_editor/image_shape/mass_mailing.s_company_team_default_image_2/html_builder/geometric_round/geo_round_circle.svg"
+                                          style="width: 40px;"
+                                          class="img me-2 o_editable_media"
+                                          data-shape="html_builder/geometric_round/geo_round_circle"
+                                          data-file-name="team_member_2-circle.svg"
+                                          data-shape-colors=";;;;"
+                                          data-format-mimetype="image/png"
+                                          data-mimetype="image/svg+xml"
+                                          data-attachment-id="454"
+                                          data-original-id="454"
+                                          data-original-src="/mass_mailing/static/src/img/theme_default/s_default_image_team_member_2.png"
+                                          data-mimetype-before-conversion="image/png"
+                                          loading=""
+                                      />
+                                    </div>
+                                    <div class="s_blockquote_author col-md-11 col-10">
+                                      <p><span style="font-size: 14px"><strong>John DOE</strong> • CEO of MyCompany</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </blockquote>
+            <section class="s_footer_social o_mail_block_footer_social o_mail_footer_social_center o_mail_snippet_general bg-o-color-3 pt0" data-snippet="s_mail_block_footer_social" data-name="Footer Center">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-md o_mail_footer_social" style="text-align: center;">
+                            <a aria-label="Facebook" title="Facebook" href="https://www.facebook.com/Odoo">
+                                <span class="fa fa-facebook"></span>
+                            </a>
+                            &#xA0;&#xA0;
+                            <a style="margin-left: 10px;" aria-label="LinkedIn" title="LinkedIn" href="https://www.linkedin.com/company/odoo">
+                                <span class="fa fa-linkedin"></span>
+                            </a>
+                            &#xA0;&#xA0;
+                            <a style="margin-left: 10px;" aria-label="X" title="X" href="https://twitter.com/Odoo">
+                                <span class="fa fa-twitter"></span>
+                            </a>
+                            &#xA0;&#xA0;
+                            <a style="margin-left: 10px;" aria-label="Instagram" title="Instagram" href="https://www.instagram.com/explore/tags/odoo/">
+                                <span class="fa fa-instagram"></span>
+                            </a>
+                            &#xA0;&#xA0;
+                            <a style="margin-left: 10px;" aria-label="TikTok" title="TikTok" href="https://www.tiktok.com/@odoo">
+                                <span class="fa fa-tiktok"></span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md o_mail_footer_links" style="text-align: center;">
+                            <p>
+                              <a role="button" href="/unsubscribe_from_list" class="btn btn-link">Unsubscribe</a>
+                              | <a role="button" href="/contactus" class="btn btn-link">Contact</a>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md">
+                            <p style="text-align: center;">
+                                © 2024 All Rights Reserved
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+</div>
+    </template>
+
+    <!--followup campaign-->
+    <template id="mailing_purchase_followup_arch">
+<div class="o_layout oe_unremovable oe_unmovable bg-200 o_newsletter_theme" style="background-color: rgb(255, 255, 255) !important" data-name="Mailing">
+  <style id="design-element">
+    .o_layout .o_mail_wrapper .o_mail_wrapper_td {
+      --h1-color: rgb(206, 0, 0);
+      --h1-font-size: 54px;
+      --h2-font-weight: bolder;
+      --h3-font-size: 16px;
+      --h3-font-weight: bolder;
+      --text-font-size: 16px;
+      --link-text-decoration-line: underline;
+      --link-color: rgb(33, 37, 41);
+      --btn-primary-background-color: rgb(206, 0, 0);
+      --btn-primary-border-color: rgb(206, 0, 0);
+      --btn-secondary-color: rgb(206, 0, 0);
+      --btn-secondary-background-color: rgb(255, 255, 255);
+      --btn-secondary-border-color: rgb(206, 0, 0);
+    }
+  </style>
+  <div class="container o_mail_wrapper oe_unremovable o_mail_regular">
+    <div class="row">
+      <div class="col o_mail_no_options o_mail_wrapper_td bg-white oe_structure o_editable theme_selection_done">
+        <div class="o_snippet_view_in_browser o_mail_snippet_general pt16 pb0" style="text-align: left; padding-left: 15px; padding-right: 15px; color: rgb(183, 191, 199) !important;" data-snippet="s_mail_block_header_view" data-name="View Online">
+          <p>
+            <a href="/view" target="_blank">View Online</a> -
+            <span style="color: rgb(183, 191, 199); font-size: 12.25px">September 10 2024</span>
+          </p>
+        </div>
+        <section class="s_title o_mail_snippet_general pt24 pb24" data-snippet="s_title" data-name="Title" style="background-color: rgb(255, 255, 255) !important">
+          <div class="container s_allow_columns">
+            <h1 style="text-align: center">
+              <font style="color: rgb(0, 0, 255)">How's everything going?</font>
+            </h1>
+          </div>
+        </section>
+        <section class="s_subtitle o_mail_snippet_general px-3 pb0 pt0" data-snippet="s_subtitle" data-name="Subtitle">
+          <div class="container s_allow_columns">
+            <h2>
+              <span style="font-size: 1.28571rem">Hey <t t-out='name_dynamic_expression'/>! It's been a few days since your purchase. We hope you like&#xA0;it!</span>
+            </h2>
+          </div>
+        </section>
+        <section class="s_text_block o_mail_snippet_general px-3 pt16 pb24" data-snippet="s_text_block" data-name="Text">
+          <div class="container s_allow_columns">
+            <p>Thank you again for choosing us!</p>
+            <p>
+              We sincerely hope that you are delighted with your recent
+              purchase.&#xA0;Your satisfaction is our top priority, and we are
+              here to assist you with any questions or concerns you may
+              have.&#xA0;
+            </p>
+          </div>
+        </section>
+        <section class="s_picture o_mail_snippet_general pt0 pb0" data-snippet="s_picture" data-name="Picture">
+          <div class="o_not_editable">
+            <img src="/html_editor/shape/marketing_automation_website_sale/purchase_followup/wavybuddies-support-call-center-customer-ecommerce-retail-order-question-simple.svg?c2=%238595A2&amp;c4=%23FFFFFF&amp;c1=%230000FF&amp;unique=a237383d"
+            class="img-fluid w-100 mx-auto img o_we_custom_image o_editable_media" data-mimetype="image/svg+xml" style="width: 50% !important"/>
+          </div>
+        </section>
+        <section class="s_subtitle o_mail_snippet_general px-3 pb0 pt0" data-snippet="s_subtitle" data-name="Subtitle">
+          <div class="container s_allow_columns">
+            <h3>Need anything?</h3>
+          </div>
+        </section>
+        <section class="s_text_block o_mail_snippet_general px-3 pt16 pb24" data-snippet="s_text_block" data-name="Text">
+          <div class="container s_allow_columns">
+          <div class="row">
+            <p>
+                If you need a hand or have any questions, please don't hesitate to
+                get in touch with our awesome customer service team. They are here
+                to help you with any inquiries or concerns you may have. Just
+                reach out to them, and they will be more than happy to assist you.
+              </p>
+              <p>Cheers,</p>
+              <p>John Doe, from all of us at MyCompany</p>
+            </div>
+
+          </div>
+        </section>
+        <section class="s_footer_social o_mail_block_footer_social o_mail_footer_social_center o_mail_snippet_general o_cc o_cc1 pt0 pb0" data-snippet="s_mail_block_footer_social" data-name="Footer Center">
+          <div class="container">
+            <div class="col-md-12 o_mail_footer_social pt0 pb0" style="text-align: center">
+              <a aria-label="Facebook" class="text-white" target="_blank" href="https://www.facebook.com/Odoo" data-original-title="Facebook" rel="noreferrer">
+                <img class="img-fluid o_we_custom_image" src="/mass_mailing_themes/static/src/img/theme_newsletter/social-facebook.png" data-mimetype="image/png" style="width: 30px" width="30" loading=""/>
+              </a>&#xA0;&#xA0;
+              <a class="text-white" aria-label="X" target="_blank" href="https://twitter.com/Odoo" data-original-title="X" rel="noreferrer">
+                <img class="img-fluid o_we_custom_image" src="/mass_mailing_themes/static/src/img/theme_newsletter/social-twitter.png" data-mimetype="image/png" style="width: 30px" width="30" loading=""/>
+              </a>&#xA0;&#xA0;
+              <a class="text-white" aria-label="Instagram" target="_blank" href="https://www.linkedin.com/company/odoo" data-original-title="Linkedin" rel="noreferrer">
+                <img class="img-fluid o_we_custom_image" src="/mass_mailing_themes/static/src/img/theme_newsletter/social-linkedin.png" data-mimetype="image/png" style="width: 30px" width="30" loading=""/>
+              </a>
+            </div>
+          </div>
+        </section>
+        <section class="s_hr o_mail_snippet_general pt16 pb16" data-snippet="s_hr" data-name="Separator">
+          <hr class="s_hr_1px s_hr_solid" style="border-top-color: rgb(108, 117, 125) !important"/>
+        </section>
+        <section class="s_footer_social o_mail_block_footer_social o_mail_footer_social_center o_mail_snippet_general o_cc o_cc1 pt0 pb0" data-snippet="s_mail_block_footer_social" data-name="Footer Center">
+          <div class="container" style="text-align: center; color: rgb(183, 191, 199) !important">
+            <span style="font-size: 12px">
+              <font style="color: rgb(183, 191, 199)">8000 Marina Blvd, Suite 300</font></span>
+            <br/>
+            <span style="font-size: 12px"><font style="color: rgb(183, 191, 199)">Brisbane, California 94005</font></span>
+            <br/>
+            <span style="font-size: 12px">
+              <font style="color: rgb(183, 191, 199)">You received this email from</font>
+            </span>
+            <a href="mailto:" target="_blank">
+              <span style="font-size: 12px"><font style="color: rgb(183, 191, 199)">info@mycompany.com</font></span></a>
+            <br/>
+            <span style="font-size: 12px">
+              <font style="color: rgb(183, 191, 199)">To unsubscribe,</font></span>
+              <a href="/unsubscribe_from_list" target="_blank">
+                <span style="font-size: 12px"><font style="color: rgb(183, 191, 199)">click here</font></span>
+              </a>
+              <span style="font-size: 12px"><font style="color: rgb(183, 191, 199)">.</font></span>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+    </template>
+
+    <!-- repeat customer campaign -->
+    <template id="mailing_repeat_customer_new_arrivals_arch">
+<div class="o_layout oe_unremovable oe_unmovable bg-200 o_bignews_theme" data-name="Mailing">
+  <style id="design-element">
+    .o_layout .o_mail_wrapper .o_mail_wrapper_td {
+      --h1-font-size:36px;
+      --h1-font-weight:bolder;
+      --h1-font-style:italic;
+      --h1-color:rgb(186, 0, 19);
+      --h2-font-size:14px;
+      --h2-font-weight:bolder;
+      --h3-font-size:18px;
+      --h3-font-weight:bolder;
+      --text-color:rgb(108, 117, 125);
+      --link-color:rgb(186, 0, 19);
+      --btn-primary-background-color:rgb(186, 0, 19);
+      --btn-primary-border-color:rgb(186, 0, 19);
+    }
+  </style>
+  <div class="container o_mail_wrapper o_mail_regular oe_unremovable">
+    <div class="row">
+      <div class="col o_mail_no_options o_mail_wrapper_td bg-white oe_structure o_editable theme_selection_done">
+        <section class="s_header_logo o_mail_block_header_logo o_mail_snippet_general pt16 pb16 bg-200" data-snippet="s_mail_block_header_logo" data-name="Header Logo">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-4"></div>
+              <div class="col-md-4 pt16 pb16" style="text-align: center">
+                <p>
+                  <a style="text-decoration: none" href="http://www.example.com">
+                    <img src="/logo" width="70" style="height: auto; max-width: 100%; width: 70px" class="img-fluid" loading=""/>
+                  </a>
+                </p>
+              </div>
+              <div class="col-md-4" style="text-align: right"></div>
+            </div>
+          </div>
+        </section>
+        <section class="s_title o_mail_snippet_general pt32 pb16" data-snippet="s_title" data-name="Title">
+          <div class="container s_allow_columns">
+            <h1 style="text-align: center">CHECK OUT OUR LATEST ARRIVALS</h1>
+          </div>
+        </section>
+        <section class="s_cover o_mail_snippet_general pt0" data-snippet="s_cover" data-name="Cover">
+          <div class="o_not_editable">
+            <img src="/html_editor/shape/marketing_automation_website_sale/repeat_customer/product-tour.svg?c1=%23FF0000&amp;unique=08e60e72"
+                class="img-fluid w-100 mx-auto img o_we_custom_image o_editable_media" style="padding: 15px; width: 50% !important" data-mimetype="image/svg+xml"/>
+          </div>
+        </section>
+        <section class="s_text_block o_mail_snippet_general pt32 pb32" data-snippet="s_text_block" data-name="Text" style="padding-left: 15px; padding-right: 15px">
+          <div class="container s_allow_columns">
+            <p>&#xA0;🌟 Exciting News Alert! 🌟</p>
+            <p>
+              We are thrilled to announce that we have just received some
+              amazing new arrivals in our store that we know you're going to
+              love! 🎉 From trendy fashion pieces to must-have accessories,
+              we've got something special just for you. Come on in and check out
+              our latest collection - we can't wait to see you! Happy shopping!
+              🛍️✨
+            </p>
+            <p><br /></p>
+            <p style="text-align: center">
+              <a role="button" href="/shop" class="btn btn-primary"><strong>VISIT STORE</strong></a>&#xA0;<br/>
+            </p>
+          </div>
+        </section>
+        <section class="s_footer_social o_mail_block_footer_social o_mail_footer_social_center o_mail_snippet_general bg-200 pt16 pb16" data-snippet="s_mail_block_footer_social" data-name="Footer Center">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12" style="text-align: center">
+                <a aria-label="Facebook" title="Facebook" href="https://www.facebook.com/Odoo">
+                  <span class="fa fa-facebook" style="color: rgb(186, 0, 19) !important"></span>
+                </a>&#xA0;&#xA0;
+                <a style="margin-left: 10px" aria-label="LinkedIn" title="LinkedIn" href="https://www.linkedin.com/company/odoo">
+                  <span class="fa fa-linkedin" style="color: rgb(186, 0, 19) !important"></span>
+                </a>&#xA0;&#xA0;
+                <a style="margin-left: 10px" aria-label="X" title="X" href="https://twitter.com/Odoo">
+                  <span class="fa fa-twitter" style="color: rgb(186, 0, 19) !important"></span>
+                </a>&#xA0;&#xA0;
+                <a style="margin-left: 10px" aria-label="Instagram" title="Instagram" href="https://www.instagram.com/explore/tags/odoo/">
+                  <span class="fa fa-instagram" style="color: rgb(186, 0, 19) !important"></span>
+                </a>&#xA0;&#xA0;
+                <a style="margin-left: 10px" aria-label="TikTok" title="TikTok" href="https://www.tiktok.com/@odoo">
+                  <span class="fa fa-tiktok" style="color: rgb(186, 0, 19) !important"></span>
+                </a>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12 o_mail_footer_links pt8 pb8" style="text-align: center">
+                <a role="button" href="/unsubscribe_from_list" class="btn btn-link">Unsubscribe</a>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <p style="text-align: center">© 2024 All Rights Reserved</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+    </template>
+
+    <template id="mailing_repeat_customer_new_purchase_arch">
+<div class="o_layout oe_unremovable oe_unmovable bg-200 o_bignews_theme" data-name="Mailing">
+  <style id="design-element">
+    .o_layout .o_mail_wrapper .o_mail_wrapper_td {
+      --h1-font-size:36px;
+      --h1-font-weight:bolder;
+      --h1-font-style:italic;
+      --h1-color:rgb(186, 0, 19);
+      --h2-font-size:14px;
+      --h2-font-weight:bolder;
+      --h3-font-size:18px;
+      --h3-font-weight:bolder;
+      --text-color:rgb(108, 117, 125);
+      --link-color:rgb(186, 0, 19);
+      --btn-primary-background-color:rgb(186, 0, 19);
+      --btn-primary-border-top-color:rgb(186, 0, 19);
+      --btn-primary-border-right-color:rgb(186, 0, 19);
+      --btn-primary-border-bottom-color:rgb(186, 0, 19);
+      --btn-primary-border-left-color:rgb(186, 0, 19);
+    }
+  </style>
+  <div class="container o_mail_wrapper o_mail_regular oe_unremovable">
+    <div class="row">
+      <div class="col o_mail_no_options o_mail_wrapper_td bg-white oe_structure o_editable theme_selection_done">
+        <section class="s_header_logo o_mail_block_header_logo o_mail_snippet_general pt16 pb16 bg-200" data-snippet="s_mail_block_header_logo" data-name="Header Logo">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-4"><p><br/></p></div>
+              <div class="col-md-4 pt16 pb16" style="text-align: center">
+                <p><a style="text-decoration: none" href="http://www.example.com">
+                  <img src="/logo" width="70" style="height: auto; max-width: 100%; width: 70px" class="img-fluid" loading=""/>
+                </a></p>
+              </div>
+              <div class="col-md-4" style="text-align: right"><p><br/></p></div>
+            </div>
+          </div>
+        </section>
+        <section class="s_title o_mail_snippet_general pt32 pb16" data-snippet="s_title" data-name="Title">
+          <div class="container s_allow_columns">
+            <h1 style="text-align: center">
+              <font style="color: rgb(255, 0, 0)">THANK YOU FOR CHOOSING US</font>
+            </h1>
+          </div>
+        </section>
+        <section class="s_picture o_mail_snippet_general o_cc o_cc2 bg-o-color-4 pt4 pb4" data-vxml="001" style="padding-left: 15px; padding-right: 15px" data-snippet="s_picture" data-name="Picture">
+          <div class="container s_allow_columns">
+            <h2 style="text-align: center">&#xA0;<br /></h2>
+            <div class="o_not_editable">
+              <img src="/html_editor/shape/marketing_automation_website_sale/repeat_customer/celebration.svg?c1=%23FF0000&amp;unique=7403313f"
+                 class="mx-auto d-block mw-100 img img-fluid o_we_custom_image o_editable_media" style="padding: 10px; width: 50% !important"
+                 data-mimetype="image/svg+xml"/>
+            </div>
+            <h2 style="text-align: center">
+              <span style="font-size: 1.07143rem">THANKS FOR YOUR PURCHASE</span>
+            </h2>
+          </div>
+        </section>
+        <section class="s_text_block o_mail_snippet_general pt4 pb4" style="padding-left: 15px; padding-right: 15px" data-snippet="s_text_block" data-name="Text">
+          <div class="container s_allow_columns">
+            <p>
+              We’re absolutely thrilled to welcome you to the MyCompany family.
+              We can’t wait for you to experience our product/service and hear
+              how it went! Don’t hesitate to share your thoughts online using
+              our hashtag #MyCompany. We’re genuinely excited to see what you
+              have to say. After all,&#xA0;making people happy is what drives us
+              at MyCompany.&#xA0;
+            </p>
+          </div>
+        </section>
+        <section class="s_picture o_mail_snippet_general o_cc o_cc2 pt0 bg-o-color-4 pb8" style="padding-left: 15px; padding-right: 15px" data-snippet="s_picture" data-name="Picture">
+          <div class="container s_allow_columns">
+            <p><br/></p>
+            <div class="o_not_editable"><img
+              src="/html_editor/shape/marketing_automation_website_sale/repeat_customer/winners.svg?c1=%23FF0000&amp;unique=f98df402"
+              class="mx-auto d-block mw-100 img img-fluid o_we_custom_image o_editable_media"
+              style="padding: 10px; width: 50% !important"
+              data-mimetype="image/svg+xml"
+            /></div>
+            <h2 style="text-align: center">
+              <span style="font-size: 1.07143rem">YOU MAKE OUR SUCCESS POSSIBLE</span>
+              <font style="font-size: 12px"></font><br/>
+            </h2>
+          </div>
+        </section>
+        <section class="s_text_block o_mail_snippet_general pb32 pt0" data-snippet="s_text_block" data-name="Text" style="padding-left: 15px; padding-right: 15px">
+          <div class="container s_allow_columns">
+            <p>
+              What started as a small project in my garage has grown into a
+              global venture, shipping packages around the world. And what an
+              incredible journey it’s been... A journey that wouldn’t have been
+              possible without the support of customers like you.&#xA0;
+            </p>
+            <p>So...<strong>Thank you once again for choosing us</strong>.</p>
+            <p>
+              If you have any questions or concerns about your product, please
+              don’t hesitate to reach out. We’re always here to help.
+            </p>
+            <p>We look forward to seeing you again soon!</p>
+            <p>Warm regards,</p>
+            <p></p>
+            <div class="o_not_editable">
+              <img src="/mass_mailing_themes/static/src/img/theme_bignews/signature.png" style="width: 125px; margin-top: 8px; margin-bottom: -25px" alt="Signature" class="img-fluid o_editable_media" loading=""/>
+            </div>
+            <p>
+              Michael Fletcher<br />
+              <span style="font-size: 12px"><strong>CEO</strong></span>
+            </p>
+            <p style="text-align: center">
+              <a role="button" href="#" class="btn btn-primary">READ MORE</a>
+            </p>
+          </div>
+        </section>
+        <section class="s_footer_social o_mail_block_footer_social o_mail_footer_social_center o_mail_snippet_general bg-200 pt16 pb16" data-snippet="s_mail_block_footer_social" data-name="Footer Center">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-12" style="text-align: center">
+                <a aria-label="Facebook" title="Facebook" href="https://www.facebook.com/Odoo">
+                  <span class="fa fa-facebook" style="color: rgb(186, 0, 19) !important"></span>
+                </a>&#xA0;&#xA0;
+                <a style="margin-left: 10px" aria-label="LinkedIn" title="LinkedIn" href="https://www.linkedin.com/company/odoo">
+                  <span class="fa fa-linkedin" style="color: rgb(186, 0, 19) !important"></span>
+                </a>&#xA0;&#xA0;
+                <a style="margin-left: 10px" aria-label="X" title="X" href="https://twitter.com/Odoo">
+                  <span class="fa fa-twitter" style="color: rgb(186, 0, 19) !important"></span>
+                </a>&#xA0;&#xA0;
+                <a style="margin-left: 10px" aria-label="Instagram" title="Instagram" href="https://www.instagram.com/explore/tags/odoo/">
+                  <span class="fa fa-instagram" style="color: rgb(186, 0, 19) !important"></span>
+                </a>&#xA0;&#xA0;
+                <a style="margin-left: 10px" aria-label="TikTok" title="TikTok" href="https://www.tiktok.com/@odoo">
+                  <span class="fa fa-tiktok" style="color: rgb(186, 0, 19) !important"></span>
+                </a>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12 o_mail_footer_links pt8 pb8" style="text-align: center">
+                <a role="button" href="/unsubscribe_from_list" class="btn btn-link">Unsubscribe</a>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <p style="text-align: center">© 2024 All Rights Reserved</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+    </template>
+
+</odoo>

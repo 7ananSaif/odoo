@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_invoice_document" inherit_id="l10n_ar.report_invoice_document">
+
+        <div name="comment" position="before">
+            <p t-if="o.journal_id.l10n_ar_afip_ws == 'wsbfe'" >
+                THE PURCHASER ASSUMES THE COMMITMENT, IN THE NATURE OF AN AFFECTED DECLARATION, OF NOT EXPORTING THE PROPERTY DURING THE TERM OF THREE 3 YEARS FROM THE ACQUISITION<br/>
+            </p>
+        </div>
+
+        <!-- footer data -->
+        <div name="footer_left_column" position="inside">
+            <img t-if="o.l10n_ar_afip_qr_code" t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s&amp;quiet=%s' % ('QR', o.l10n_ar_afip_qr_code, 400, 400, 0)" alt="QR Code" style="height:100px"/>
+        </div>
+        <div name="pager" position="before">
+            <t t-if="o.journal_id.l10n_ar_afip_pos_system and o.journal_id.l10n_ar_afip_pos_system != 'II_IM'">
+                <div>
+                    CAE: <span t-field="o.l10n_ar_afip_auth_code"/>
+                </div>
+                <div>
+                    CAE Due Date: <span t-field="o.l10n_ar_afip_auth_code_due"/>
+                </div>
+            </t>
+        </div>
+
+    </template>
+
+    <template id="custom_header_inherit" inherit_id="l10n_ar.custom_header">
+        <xpath expr="//span[@id='withholding_legend']" position="inside">
+            <t t-if="document_type_code in ['1', '2', '3', '51', '52', '53'] and o.company_id.l10n_ar_show_withholding_legend">
+                <br/>
+                <span class="d-block small mt-1 lh-1">Operation Subject to Withholding</span>
+            </t>
+        </xpath>
+    </template>
+
+</odoo>

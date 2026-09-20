@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="annual_statements" model="account.report">
+        <field name="name">Annual Statements</field>
+        <field name="use_sections" eval="True"/>
+        <field name="section_report_ids"
+            eval="[Command.set([
+                ref('account_reports.balance_sheet'),
+                ref('account_reports.profit_and_loss'),
+                ref('account_reports.trial_balance_report'),
+            ])]"/>
+    </record>
+
+    <!--
+    The action is created here instead of in account_report_actions, because we need to create the report
+    after having created the action for its sections. Without that, the filter fields of the sections  would recompute
+    themselves to align on the composite report's.
+    -->
+    <record id="action_account_report_asr" model="ir.actions.client">
+        <field name="name">Annual Statements</field>
+        <field name="tag">account_report</field>
+        <field name="path">annual-statements</field>
+        <field name="context" eval="{'report_id': ref('account_reports.annual_statements')}"/>
+    </record>
+</odoo>

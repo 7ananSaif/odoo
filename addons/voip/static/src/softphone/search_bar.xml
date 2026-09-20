@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<templates>
+    <t t-name="voip.SearchBar">
+        <div class="d-flex align-items-center py-2 border-bottom">
+            <button t-if="props.onClickBack" title="Back" class="btn btn-secondary d-flex p-2 me-2 ms-3" t-on-click="() => props.onClickBack()">
+                <i class="oi oi-arrow-left" aria-hidden="true"/>
+            </button>
+            <input id="o-voip-Tab-searchInput" class="form-control flex-grow-1 border-0" placeholder="Search…" t-model="props.state.searchInputValue" t-on-input="props.onInputSearch" t-ref="searchInput"/>
+            <t t-slot="right" t-if="props.slots?.right"/>
+            <label for="o-voip-Tab-searchInput" class="px-3" t-else="">
+                <i t-att-class="searchBarIcon" aria-hidden="true"/>
+            </label>
+        </div>
+    </t>
+</templates>

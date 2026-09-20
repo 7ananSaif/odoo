@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sale_commission_plan_inherit_payroll" model="ir.ui.view">
+        <field name="name">sale.commission.plan.inherit.payroll</field>
+        <field name="model">sale.commission.plan</field>
+        <field name="priority" eval="45"/>
+        <field name="inherit_id" ref="sale_commission.sale_commission_plan_view_form"/>
+        <field name="arch" type="xml">
+            <field name="company_id" position="after">
+                <field name="commission_payroll_input"/>
+            </field>
+        </field>
+    </record>
+</odoo>

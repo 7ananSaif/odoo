@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+        <record id="mrp_workcenter_view_inherit" model="ir.ui.view">
+            <field name="name">mrp.workcenter.form.inherit</field>
+            <field name="model">mrp.workcenter</field>
+            <field name="inherit_id" ref="mrp.mrp_workcenter_view"/>
+            <field name="arch" type="xml">
+                <group name="costing" position="inside">
+                    <field name="analytic_distribution" widget="analytic_distribution"
+                           groups="analytic.group_analytic_accounting"
+                           options="{'product_field': 'product_id'}"
+                    />
+                </group>
+            </field>
+        </record>
+
+        <record id="mrp_workcenter_tree_view_inherited" model="ir.ui.view">
+            <field name="name">mrp.workcenter.list.inherited</field>
+            <field name="model">mrp.workcenter</field>
+            <field name="inherit_id" ref="mrp.mrp_workcenter_tree_view" />
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='costs_hour']" position="after">
+                    <field name="analytic_distribution" widget="analytic_distribution"
+                           groups="analytic.group_analytic_accounting"
+                           options="{'product_field': 'product_id'}"
+                           optional="hide"
+                    />
+                </xpath>
+            </field>
+        </record>
+
+</odoo>

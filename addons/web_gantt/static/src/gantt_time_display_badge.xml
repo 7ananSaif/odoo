@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="web_gantt.GanttTimeDisplayBadge">
+        <span
+            t-if="props.reactive.position"
+            class="o_gantt_pill_time_display_badge badge rounded-pill bg-view position-fixed"
+            t-attf-class="{{props.reactive.class}}"
+            t-att-style="positionStyle"
+            t-esc="props.reactive.text"
+        />
+    </t>
+
+</templates>

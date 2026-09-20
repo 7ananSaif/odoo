@@ -1,0 +1,254 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * sign_emsigner
+#
+# "Maitê Dietze (madi)" <madi@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:47+0000\n"
+"PO-Revision-Date: 2025-11-27 16:40+0000\n"
+"Last-Translator: \"Maitê Dietze (madi)\" <madi@odoo.com>\n"
+"Language-Team: Portuguese (Brazil) <https://translate.odoo.com/projects/"
+"odoo-19/sign_emsigner/pt_BR/>\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: sign_emsigner
+#: model_terms:ir.ui.view,arch_db:sign_emsigner.sign_request_logs_user
+msgid ""
+"<br/>\n"
+"                        Reference Number:"
+msgstr ""
+"<br/>\n"
+"                        Número de referência:"
+
+#. module: sign_emsigner
+#: model_terms:ir.ui.view,arch_db:sign_emsigner.sign_request_logs_user
+msgid ""
+"<br/>\n"
+"                        Transaction Number:"
+msgstr ""
+"<br/>\n"
+"                        Número da transação:"
+
+#. module: sign_emsigner
+#: model_terms:ir.ui.view,arch_db:sign_emsigner.sign_request_logs_user
+msgid ""
+"<small>The signatory has provided this identity through emSigner</small>"
+msgstr ""
+"<small>O signatário forneceu esta identidade através do emSigner.</small>"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/backend_components/sign_template_action.js:0
+msgid ""
+"Aadhaar Sign works only with a single signer and document. Adding more will "
+"switch to the standard eSignature."
+msgstr ""
+"O Aadhaar Sign funciona apenas com um único signatário e documento. Se "
+"adicionar mais, passará para assinatura eletrônica padrão."
+
+#. module: sign_emsigner
+#: model:iap.service,description:sign_emsigner.iap_service_emsigner_proxy
+msgid ""
+"Ask document signatories in Odoo Sign to provide their identity using the "
+"emSigner aadhaar esign. By combining Odoo Sign with emSigner, you can add an "
+"identification step in your signature flows and ask signatories to provide "
+"their identity through the emSigner platform using aadhaar card number. "
+"Available in India."
+msgstr ""
+"No Odoo Assinar, solicite que os signatários de documentos forneçam prova de "
+"identidade usando o emSigner aadhaar esign. Ao combinar o Odoo Assinar com o "
+"emSigner, você pode adicionar uma etapa de identificação nos fluxos de "
+"assinatura e solicitar aos signatários que forneçam a identidade pela "
+"plataforma emSigner, usando o número do cartão aadhaar. Disponível na Índia."
+
+#. module: sign_emsigner
+#: model_terms:ir.ui.view,arch_db:sign_emsigner.sign_request_logs_user
+msgid "Authenticated with emSigner"
+msgstr "Autenticado com o emSigner"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/dialogs/emsigner_dialog.xml:0
+msgid "Continue"
+msgstr "Continuar"
+
+#. module: sign_emsigner
+#: model:iap.service,unit_name:sign_emsigner.iap_service_emsigner_proxy
+msgid "Credits"
+msgstr "Créditos"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_item_role__display_name
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request__display_name
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request_item__display_name
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_send_request__display_name
+msgid "Display Name"
+msgstr "Exibir Nome"
+
+#. module: sign_emsigner
+#. odoo-python
+#: code:addons/sign_emsigner/controllers/main.py:0
+msgid "ERROR: Invalid PDF file! %s"
+msgstr "ERRO: Arquivo PDF inválido! %s"
+
+#. module: sign_emsigner
+#. odoo-python
+#: code:addons/sign_emsigner/controllers/main.py:0
+msgid "Emsigner only supports signing a single document at a time."
+msgstr "O Emsigner só permite assinar um único documento de cada vez."
+
+#. module: sign_emsigner
+#. odoo-python
+#: code:addons/sign_emsigner/wizard/sign_send_request.py:0
+msgid ""
+"Emsigner role cannot be signed first. Please keep emsigner as last signer."
+msgstr ""
+"A função Emsigner não pode ser assinada primeiro. Mantenha o emsigner como "
+"último signatário."
+
+#. module: sign_emsigner
+#. odoo-python
+#: code:addons/sign_emsigner/models/sign_request.py:0
+msgid ""
+"Emsigner role cannot be used for signing directly. Please send the request "
+"instead."
+msgstr ""
+"A função Emsigner não pode ser usada para assinar diretamente. Envie a "
+"solicitação em vez disso."
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/components/document_signable.js:0
+msgid "Error"
+msgstr "Erro"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_item_role__auth_method
+msgid "Extra Authentication Step"
+msgstr "Etapa adicional de autenticação"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,help:sign_emsigner.field_sign_item_role__auth_method
+msgid "Force the signatory to identify using a second authentication method"
+msgstr ""
+"Forçar o signatário a se identificar usando um segundo método de autenticação"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_item_role__id
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request__id
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request_item__id
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_send_request__id
+msgid "ID"
+msgstr "ID"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/backend_components/sign_template_action.js:0
+msgid "Ok"
+msgstr "Ok"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/dialogs/emsigner_dialog.xml:0
+msgid "Proceed to eSign"
+msgstr "Prossiga para a assinatura eletrônica"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/dialogs/emsigner_dialog.xml:0
+msgid "Redirecting to complete the Aadhaar eSign process."
+msgstr ""
+"Redirecionando para concluir o processo de assinatura eletrônica do Aadhaar."
+
+#. module: sign_emsigner
+#. odoo-python
+#: code:addons/sign_emsigner/models/sign_request_item.py:0
+msgid "Sign request item is not validated yet."
+msgstr "O item de solicitação de assinatura ainda não foi validado."
+
+#. module: sign_emsigner
+#: model:ir.model,name:sign_emsigner.model_sign_send_request
+msgid "Sign send request"
+msgstr "Enviar solicitação de assinatura"
+
+#. module: sign_emsigner
+#: model:ir.model,name:sign_emsigner.model_sign_item_role
+msgid "Signature Item Role"
+msgstr "Função do item de assinatura"
+
+#. module: sign_emsigner
+#: model:ir.model,name:sign_emsigner.model_sign_request
+msgid "Signature Request"
+msgstr "Solicitar assinatura"
+
+#. module: sign_emsigner
+#: model:ir.model,name:sign_emsigner.model_sign_request_item
+msgid "Signature Request Item"
+msgstr "Item de solicitação de assinatura"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/backend_components/sign_template_action.js:0
+msgid "Signer Edition"
+msgstr "Edição do signatário"
+
+#. module: sign_emsigner
+#: model_terms:ir.ui.view,arch_db:sign_emsigner.sign_request_logs_user
+msgid "Status:"
+msgstr "Status:"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/components/document_signable.js:0
+msgid ""
+"The emSigner identification data could not be forwarded to Odoo, the "
+"signature could not be saved."
+msgstr ""
+"Os dados de identificação do emSigner não puderam ser encaminhados para o "
+"Odoo, a assinatura não pôde ser salva."
+
+#. module: sign_emsigner
+#: model:ir.model.fields.selection,name:sign_emsigner.selection__sign_item_role__auth_method__emsigner
+msgid "Via Aadhar eSign"
+msgstr "Através do Aadhar eSign"
+
+#. module: sign_emsigner
+#. odoo-javascript
+#: code:addons/sign_emsigner/static/src/backend_components/sign_template_action.js:0
+msgid "Warning"
+msgstr "Aviso"
+
+#. module: sign_emsigner
+#. odoo-python
+#: code:addons/sign_emsigner/controllers/main.py:0
+msgid "emSigner IAP service could not be found."
+msgstr "O serviço IAP do emSigner não pôde ser encontrado."
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request_item__emsigner_reference_number
+msgid "emSigner Reference Number"
+msgstr "Número de referência do emSigner"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request_item__emsigner_status
+msgid "emSigner Status"
+msgstr "Status do emSigner"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request_item__emsigner_transaction_number
+msgid "emSigner Transaction Number"
+msgstr "Número da transação do emSigner"
+
+#. module: sign_emsigner
+#: model:ir.model.fields,field_description:sign_emsigner.field_sign_request_item__emsigner_return_value
+msgid "emSigner Values"
+msgstr "Valores do emSigner"

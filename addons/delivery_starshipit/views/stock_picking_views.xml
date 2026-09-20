@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_picking_form_inherit_stock" model="ir.ui.view">
+        <field name="name">stock.picking.form.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <header position="after">
+                <field name="carrier_price" invisible="1"/>
+                <div class="alert alert-info" role="alert" invisible="delivery_type != 'starshipit' or state != 'done' or carrier_price">
+                    The Shipping Cost is being fetched in the background.
+                </div>
+            </header>
+        </field>
+    </record>
+
+    <record id="action_print_starshipit_labels" model="ir.actions.server">
+        <field name="name">Print Starshipit Labels</field>
+        <field name="model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_model_id" ref="stock.model_stock_picking"/>
+        <field name="binding_view_types">list,kanban,form</field>
+        <field name="binding_type">report</field>
+        <field name="state">code</field>
+        <field name="code">
+        if records:
+            action = records.action_print_starshipit_labels()
+        </field>
+    </record>
+</odoo>

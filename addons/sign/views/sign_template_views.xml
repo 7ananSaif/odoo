@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Signature Request Template Views -->
+    <record id="sign_template_view_kanban" model="ir.ui.view">
+        <field name="name">sign.template.kanban</field>
+        <field name="model">sign.template</field>
+        <field name="arch" type="xml">
+            <kanban quick_create="false" highlight_color="color" class="o_sign_template_kanban" default_order="create_date desc" sample="1" js_class="sign_kanban" action="go_to_custom_template" type="object">
+                <field name="active"/>
+                <field name="favorited_ids"/>
+                <field name="responsible_count"/>
+                <field name="create_uid"/>
+                <field name="is_sharing"/>
+                <field name="create_date"/>
+                <templates>
+                    <div t-name="menu">
+                        <a role="menuitem" type="object" name="go_to_custom_template" class="d-none d-md-block dropdown-item">Edit</a>
+                        <a role="menuitem" type="object" name="stop_sharing" class="dropdown-item" invisible="not is_sharing">Stop Sharing</a>
+                        <a role="menuitem" type="object" name="action_duplicate" class="dropdown-item">Duplicate</a>
+                        <a role="menuitem" type="object" name="action_archive" class="dropdown-item" t-if="record.active.raw_value">Archive</a>
+                        <a role="menuitem" type="object" name="action_unarchive" class="dropdown-item" t-if="!record.active.raw_value">Restore</a>
+                        <a role="menuitem" type="object" name="action_template_configuration" class="dropdown-item">Configuration</a>
+                        <div role="separator" class="dropdown-divider"/>
+                        <div role="separator" class="dropdown-item-text">Color</div>
+                        <field name="color" widget="kanban_color_picker"/>
+                    </div>
+                    <t t-name="card" t-att-class="o_sign_kanban_card align-item-center">
+                        <div class="row mx-0">
+                            <div class="col-lg-4 col-sm-12 py-0 my-2 my-lg-0">
+                                <div class="d-flex flex-row mt-2">
+                                    <t t-if="record.favorited_ids.raw_value.indexOf(context.uid) &lt; 0">
+                                        <a type="object" name="toggle_favorited" aria-label="Set as favorite" title="Set as favorite"
+                                            class="fa fa-lg fa-star-o favorite_sign_button"/>
+                                    </t>
+                                    <t t-else="">
+                                        <a type="object" name="toggle_favorited" aria-label="Remove from favorites" title="Remove from favorites"
+                                            class="fa fa-lg fa-star favorite_sign_button_enabled favorite_sign_button"/>
+                                    </t>
+                                    <field name="display_name" class="ms-4 fw-bold text-truncate"/>
+                                </div>
+                                <span class="d-flex align-items-center">
+                                    <field name="user_id" widget="many2one_avatar_user"
+                                        options="{'display_avatar_name': True}"/>
+                                        <span class="mx-1"/>
+                                    <em>
+                                        <t t-esc="luxon.DateTime.fromISO(record.create_date.raw_value).toFormat('MMM yyyy')"/>
+                                    </em>
+                                </span>
+                            </div>
+                            <div class="col-lg-1 col-sm-6 my-3 py-0">
+                                <span class="badge rounded-pill text-bg-success" title="Shared" invisible="not is_sharing">
+                                    Shared
+                                </span>
+                            </div>
+                            <div class="col-lg-2 col-sm-8 d-sm-block col-12 my-3 py-0">
+                                <div class="d-flex flex-column">
+                                    <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                </div>
+                            </div>
+                            <div t-attf-class="col-lg-1 col-sm-8 col-6 py-0 my-2">
+                                <div class="d-flex flex-column">
+                                    <a type="object" name="get_action_in_progress_requests">
+                                        <field name="in_progress_count" class="fw-bold fs-4"/>
+                                        <div class="me-2 text-dark" title="Number of documents in progress for this template.">
+                                            <span>In Progress</span>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div t-attf-class="col-lg-1 col-sm-4 col-6 py-0 my-2 me-auto">
+                                <div class="d-flex flex-column">
+                                    <a type="object" name="get_action_signed_requests">
+                                        <field name="signed_count" class="fw-bold fs-4"/>
+                                        <div class="me-2 text-dark" title="Number of documents signed for this template.">
+                                            <span>Signed</span>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-12 col-12 my-3 py-0 o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left float-lg-end">
+                                    <button
+                                        name="open_sign_send_dialog"
+                                        type="object"
+                                        class="btn btn-primary me-1"
+                                        context="{'sign_directly_without_mail': 0, 'show_email': 1}">
+                                        Send
+                                    </button>
+                                    <button
+                                        name="open_sign_send_dialog"
+                                        type="object"
+                                        class="btn btn-primary me-1"
+                                        context="{'sign_directly_without_mail': 1}">
+                                        Sign Now
+                                    </button>
+                                    <button
+                                        name="open_shared_sign_request"
+                                        type="object"
+                                        class="btn btn-secondary"
+                                        invisible="not active or responsible_count &gt; 1">
+                                        Share
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="sign_template_view_tree" model="ir.ui.view">
+        <field name="name">sign.template.list</field>
+        <field name="model">sign.template</field>
+        <field name="arch" type="xml">
+            <list sample="1" js_class="sign_list" action="go_to_custom_template" type="object">
+                <field name="name"/>
+                <field name="tag_ids" string="Tags" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="create_date" optional="hide"/>
+                <field name="responsible_count" string="Signees" optional="hide"/>
+                <field name="document_ids"/>
+                <field name="sign_item_ids" string="Signature fields" optional="hide"/>
+                <field name="active" column_invisible="True"/>
+                <field name="signed_count" string="Signed documents" optional="hide" width="125px"/>
+                <button name="open_sign_send_dialog" string="Send" type="object" context="{'sign_directly_without_mail': 0, 'show_email': 1}"/>
+                <button name="open_sign_send_dialog" string="Sign Now" type="object" context="{'sign_directly_without_mail': 1}"/>
+                <button name="open_shared_sign_request" string="Share" type="object" invisible="is_sharing or not active or responsible_count &gt; 1"/>
+                <button name="stop_sharing" string="Stop sharing" type="object" invisible="not is_sharing"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="sign_template_view_inherit_tree" model="ir.ui.view">
+        <field name="name">sign.template.primary.inherit.list</field>
+        <field name="model">sign.template</field>
+        <field name="inherit_id" ref="sign.sign_template_view_tree"/>
+        <field name="mode">primary</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <!-- hide Upload PDF button from external views -->
+            <xpath expr="//list" position="attributes">
+                <attribute name="js_class"></attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="sign_template_view_form" model="ir.ui.view">
+        <field name="name">sign.template.form</field>
+        <field name="model">sign.template</field>
+        <field name="arch" type="xml">
+            <form create="false">
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" name="open_requests" class="oe_stat_button" icon="fa-pencil-square-o" >
+                            <div class="o_field_widget o_stat_info">
+                                <span class="o_stat_value">
+                                    <field name="signed_count"/>
+                                </span>
+                                <span class="o_stat_text">Signed Document</span>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <h1>
+                            <div class="o_row">
+                                <field name="name"  placeholder="Name of the file" nolabel="1"/>
+                            </div>
+                        </h1>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="active" invisible="1"/>
+                            <field name="responsible_count" invisible="1"/>
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" placeholder="Tags"/>
+                            <field name="model_id"/>
+                            <field name="redirect_url" widget="url"/>
+                            <field name="redirect_url_text"  invisible="not redirect_url" required="bool(redirect_url)"/>
+                        </group>
+                        <group>
+                            <field name="authorized_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                            <field name="group_ids" groups="sign.manage_template_access" widget="many2many_tags" />
+                            <field name="user_id" domain="[('share', '=', False)]" groups="sign.manage_template_access" options="{'no_open': True}"/>
+                            <label for="signature_request_validity" string="Valid for"/>
+                            <div class="o_row" name="signature_request_validity">
+                                <field name="signature_request_validity" class="oe_inline o_hr_narrow_field" nolabel="1"/>
+                                <div class="mb-3" name="signature_request_validity_unit_label"> days</div>
+                            </div>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="Communication" string="Communication">
+                            <field name="message" class="oe-bordered-editor" placeholder="Optional Message..."/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sign_template_tag_view_tree" model="ir.ui.view">
+        <field name="name">sign.template.tag.view.list</field>
+        <field name="model">sign.template.tag</field>
+        <field name="arch" type="xml">
+            <list string="Tags" editable="bottom" sample="1">
+                <field name="name"/>
+                <field name="color" widget="color_picker" />
+            </list>
+        </field>
+    </record>
+
+    <record id="sign_template_tag_view_form" model="ir.ui.view">
+        <field name="name">sign.template.tag.view.form</field>
+        <field name="model">sign.template.tag</field>
+        <field name="arch" type="xml">
+            <form string="Tags">
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="Type tag name here"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="color" widget="color_picker"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sign_template_view_search" model="ir.ui.view">
+        <field name="name">sign.template.search</field>
+        <field name="model">sign.template</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name" string="Template Name"/>
+                <filter name="my_templates" string="My Templates" domain="[('user_id', '=', uid)]"/>
+                <filter name="favorite" string="My Favorites" domain="[('favorited_ids', 'in', uid)]"/>
+                <filter string="Archived" name="inactive" domain="[('active', '=', False)]"/>
+                <searchpanel class="searchpanel-xs-hide">
+                    <field name="tag_ids" select="multi" icon="fa-tag" enable_counters="1"/>
+                </searchpanel>
+                <group>
+                    <filter string="Model" name="group_by_model" domain="[]" context="{'group_by': 'model_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="sign_template_tour_trigger_action" model="ir.actions.server">
+        <field name="name">Template Sample Contract.pdf trigger</field>
+        <field name="model_id" ref="sign.model_sign_template"/>
+        <field name="state">code</field>
+        <field name="code">action = model.trigger_template_tour()</field>
+    </record>
+
+    <record id="sign_template_action" model="ir.actions.act_window">
+        <field name="name">Templates</field>
+        <field name="path">sign</field>
+        <field name="res_model">sign.template</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="search_view_id" ref="sign_template_view_search"/>
+        <field name="view_ids" eval="[Command.clear(),
+                Command.create({'view_mode': 'kanban'}),
+                Command.create({'view_mode': 'list', 'view_id': ref('sign.sign_template_view_tree')}),
+                Command.create({'view_mode': 'form'})]"/>
+        <field name="context">{'search_default_favorite': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No template yet
+            </p>
+            <p>
+                You're one click away from automating your signature process!
+            </p>
+            <p>Upload a PDF file to create your first template</p>
+            <p>- or -</p>
+            <a type="action" name="%(sign.sign_template_tour_trigger_action)d" class="btn btn-primary o_sign_sample">Try our sample document</a>
+        </field>
+    </record>
+
+    <!-- Signature Item Views -->
+    <record id="sign_item_view_tree" model="ir.ui.view">
+        <field name="name">sign.item.list</field>
+        <field name="model">sign.item</field>
+        <field name="arch" type="xml">
+            <list default_order="page,posY,posX,id" editable="bottom">
+                <field name="type_id"/>
+                <field name="required"/>
+                <field name="responsible_id"/>
+                <field name="page" string="Page"/>
+                <field name="posX" optional="hide"/>
+                <field name="posY" optional="hide"/>
+                <field name="width" optional="hide"/>
+                <field name="height" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="sign_item_view_form" model="ir.ui.view">
+        <field name="name">sign.item.form</field>
+        <field name="model">sign.item</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group string="Information">
+                            <field name="type_id"/>
+                            <field name="required"/>
+                            <field name="responsible_id"/>
+                        </group>
+
+                        <group string="Display">
+                            <field name="page"/>
+                            <field name="posX"/>
+                            <field name="posY"/>
+                            <field name="width"/>
+                            <field name="height"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Signature Item Type Views -->
+    <record id="sign_item_type_view_tree" model="ir.ui.view">
+        <field name="name">sign.item.type.list</field>
+        <field name="model">sign.item.type</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="item_type"/>
+                <field name="model_id" groups="base.group_system"/>
+                <field name="auto_field" groups="base.group_system"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="sign_item_type_view_form" model="ir.ui.view">
+        <field name="name">sign.item.type.form</field>
+        <field name="model">sign.item.type</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="active" invisible="true"/>
+                <sheet>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="item_type"/>
+                            <field name="placeholder"/>
+                            <field name="tip"/>
+                            <field name="field_size" invisible="item_type not in ['text']"/>
+                        </group>
+                        <group>
+                            <field name="model_id" groups="base.group_system" invisible="item_type not in ['text', 'textarea']"/>
+                            <field name="auto_field" widget="field_selector"
+                                options="{'model': 'model_name'}"
+                                invisible="item_type not in ['text', 'textarea'] or not model_name"
+                                groups="base.group_system"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sign_item_type_view_search" model="ir.ui.view">
+        <field name="name">sign.item.type.search</field>
+        <field name="model">sign.item.type</field>
+        <field name="arch" type="xml">
+            <search string="Sign Item Type Search">
+                <filter string="Archived" name="inactive" domain="[('active','=',False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="sign_item_type_action" model="ir.actions.act_window">
+        <field name="name">Signature Fields</field>
+        <field name="res_model">sign.item.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <record id="sign_item_option_action" model="ir.actions.act_window">
+        <field name="name">Signature Item Options</field>
+        <field name="res_model">sign.item.option</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <!-- Signature Item Role Views -->
+    <record id="sign_item_role_view_form" model="ir.ui.view">
+        <field name="name">sign.item.role.form</field>
+        <field name="model">sign.item.role</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name" placeholder="e.g. Employee"/>
+                        <field name="auth_method" string="Authentication" placeholder="By Email"/>
+                        <field name="change_authorized" string="Can delegate"/>
+                        <field name="assign_to" string="Assign to"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="sign_template_tag_action" model="ir.actions.act_window">
+        <field name="name">Tags</field>
+        <field name="res_model">sign.template.tag</field>
+        <field name="view_id" ref="sign_template_tag_view_tree"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create Sign Tags
+            </p>
+            <p>
+                Use Tags to manage your Sign Templates and Sign Requests
+            </p>
+        </field>
+    </record>
+
+     <record id="sign_settings_action" model="ir.actions.act_window">
+        <field name="name">Settings</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="context">{'module' : 'sign', 'bin_size': False}</field>
+    </record>
+
+    <record id="sign_report_green_savings_action" model="ir.actions.report">
+        <field name="name">Ecological Savings by using Electronic Signatures</field>
+        <field name="model">sign.template</field>
+        <field name="report_type">qweb-html</field>
+        <field name="report_name">sign.green_savings_report</field>
+        <field name="report_file">sign.green_savings_report</field>
+        <field name="multi" eval="True"/>
+        <field name="paperformat_id" ref="base.paperformat_batch_deposit"/>
+        <field name="binding_model_id" ref="model_sign_template"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Menus -->
+    <menuitem id="menu_document" name="Sign" web_icon="sign,static/description/icon.png" sequence="180"/>
+    <menuitem id="sign_request_menu" name="Documents" parent="menu_document" sequence="10"/>
+    <menuitem id="sign_template_menu" name="Templates" parent="menu_document" action="sign_template_action" sequence="20"/>
+    <menuitem id="sign_reports" name="Reports" parent="menu_document" sequence="99"/>
+    <menuitem id="menu_sign_configuration" sequence="100" name="Configuration" parent="menu_document"/>
+    <!-- Menus -->
+    <menuitem id="sign.sign_item_settings_menu" name="Settings" parent="sign.menu_sign_configuration" action="sign_settings_action" groups="sign.group_sign_manager"/>
+    <menuitem id="sign.sign_item_type_menu" name="Fields" parent="sign.menu_sign_configuration" action="sign_item_type_action"/>
+    <menuitem id="sign.sign_template_tag_menu" name="Tags" parent="sign.menu_sign_configuration" action="sign_template_tag_action" groups="sign.group_sign_manager"/>
+    <menuitem id="sign_report_green_savings" name="Green Savings" parent="sign_reports" action="sign.sign_report_green_savings_action"/>
+    <menuitem id="sign_request_my_documents" name="My Documents" parent="sign_request_menu" action="sign_request_action" sequence="10"/>
+    <menuitem id="sign_request_documents" name="All Documents" parent="sign_request_menu" action="sign_all_request_action" sequence="20"/>
+</odoo>

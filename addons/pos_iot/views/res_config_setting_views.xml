@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_view_form_inherit_pos_iot" model="ir.ui.view">
+        <field name="name">res.config.form.inherit.pos.iot</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="point_of_sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('pos_iot_config')]" position="replace">
+                <div class="content-group pos_iot_config" invisible="not pos_is_posbox">
+                    <div class="row">
+                        <label string="Receipt Printer" for="pos_iface_printer_id" class="col-lg-5 o_light_label"/>
+                        <field name="pos_iface_printer_id" placeholder="none"/>
+                    </div>
+                    <div class="row" invisible="not pos_iface_printer_id">
+                        <label string="Cashdrawer" for="pos_iface_cashdrawer" class="col-lg-5 o_light_label"/>
+                        <div class="col-lg-7">
+                            <field name="pos_iface_cashdrawer"/>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label string="Customer Display" for="pos_iface_display_id" class="col-lg-5 o_light_label"/>
+                        <field name="pos_iface_display_id" placeholder="none"/>
+                    </div>
+                    <div class="row iot_barcode_scanner">
+                        <label string="Barcode Scanners/Card Readers" for="pos_iface_scanner_ids" class="col-lg-5 o_light_label"/>
+                        <field name="pos_iface_scanner_ids" widget="many2many_tags" placeholder="none"/>
+                    </div>
+                    <div class="row" name="row_scale">
+                        <label string="Electronic Scale" for="pos_iface_scale_id" class="col-lg-5 o_light_label"/>
+                        <field name="pos_iface_scale_id" placeholder="none"/>
+                    </div>
+                    <div>
+                        <button name="%(iot.iot_device_action)d" icon="oi-arrow-right" type="action" string="IoT Devices" class="btn-link mt8"/>
+                    </div>
+                </div>
+            </xpath>
+            <block id="pos_payment_terminals_section" position="inside">
+                <setting title="The transactions are processed by Ingenico via an IoT box. Setup your terminal on the related payment method." string="Ingenico (BENELUX)" documentation="/applications/sales/point_of_sale/payment_methods/terminals/ingenico.html" help="Accept payments with an Ingenico payment terminal">
+                    <field name="module_pos_iot_ingenico"/>
+                    <button name="open_payment_method_form" icon="oi-arrow-right" type="object" string="Payment method" class="btn-link"
+                        context="{'selection': 'ingenico', 'config_ids': [pos_config_id], 'provider_name': 'Ingenico'}" invisible="not module_pos_iot_ingenico" />
+                </setting>
+                <setting title="The transactions are processed by Worldline via an IoT box. Setup your terminal on the related payment method." string="Worldline (BENELUX)" help="Accept payments with a Worldline payment terminal"
+                         documentation="/applications/sales/point_of_sale/payment_methods/terminals/worldline.html">
+                    <field name="module_pos_iot_worldline"/>
+                    <button name="open_payment_method_form" icon="oi-arrow-right" type="object" string="Payment method" class="btn-link"
+                        context="{'selection': 'worldline', 'config_ids': [pos_config_id], 'provider_name': 'Worldline'}" invisible="not module_pos_iot_worldline" />
+                </setting>
+                <setting title="The transactions are processed by Six via an IoT box. Setup your terminal on the related payment method." string="Six" documentation="/applications/sales/point_of_sale/payment_methods/terminals/six.html" help="Accept payments with a Six payment terminal">
+                    <field name="module_pos_iot_six"/>
+                    <button name="open_payment_method_form" icon="oi-arrow-right" type="object" string="Payment method" class="btn-link"
+                        context="{'selection': 'six_iot', 'config_ids': [pos_config_id], 'provider_name': 'SIX'}" invisible="not module_pos_iot_six" />
+                </setting>
+            </block>
+        </field>
+    </record>
+</odoo>

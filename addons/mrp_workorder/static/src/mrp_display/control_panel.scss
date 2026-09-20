@@ -1,0 +1,22 @@
+.o_work_centers_container {
+    .o_work_center_dropdown_toggle, .o_work_center_dropdown_toggle_mobile {
+        &:after {
+            content: none;
+        }
+    }
+
+    //TODO remove and add active class on dropdown-toggle instead
+    .o_work_center_dropdown_toggle:has(+ .dropdown-menu .dropdown-item.active) {
+        background-color: var(--btn-active-bg);
+        border-color: var(--btn-active-border-color);
+    }
+
+    .vr.dropdown-item {
+        display: none;
+    }
+
+    .o_work_center_btn.dropdown-item.active {
+        background-color: var(--btn-active-bg);
+        color: var(--btn-active-color);
+    }
+}

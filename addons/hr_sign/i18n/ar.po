@@ -1,0 +1,436 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * hr_contract_sign
+#
+# Translators:
+# Martin Trigaux, 2022
+# Malaz Abuidris <msea@odoo.com>, 2023
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:45+0000\n"
+"PO-Revision-Date: 2025-11-16 17:49+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/hr_sign/"
+"ar/>\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: hr_sign
+#. odoo-python
+#: code:addons/hr_sign/wizard/hr_contract_sign_document_wizard.py:0
+msgid "%(employee)s and %(responsible)s are the signatories."
+msgstr "%(employee)s و %(responsible)s هم الأطراف الموقِّعة."
+
+#. module: hr_sign
+#. odoo-python
+#: code:addons/hr_sign/wizard/hr_contract_sign_document_wizard.py:0
+msgid "%(user_name)s requested a new signature on the following documents:"
+msgstr "%(user_name)s طلب توقيعاً جديداً للمستندات التالية:"
+
+#. module: hr_sign
+#. odoo-python
+#: code:addons/hr_sign/wizard/hr_contract_sign_document_wizard.py:0
+msgid "%s does not have a private email set."
+msgstr "ليس لـ%s بريد إلكتروني خاص."
+
+#. module: hr_sign
+#. odoo-python
+#: code:addons/hr_sign/wizard/hr_contract_sign_document_wizard.py:0
+msgid "%s does not have a work email set."
+msgstr "ليس لـ%s بريد إلكتروني للعمل."
+
+#. module: hr_sign
+#: model_terms:ir.ui.view,arch_db:hr_sign.hr_employee_public_view_form
+#: model_terms:ir.ui.view,arch_db:hr_sign.hr_employee_sign_view_form
+msgid "<span class=\"o_stat_text\">Signature Requests</span>"
+msgstr "<span class=\"o_stat_text\">طلبات التوقيع</span>"
+
+#. module: hr_sign
+#: model:ir.model,name:hr_sign.model_mail_activity_plan_template
+msgid "Activity plan template"
+msgstr "قالب خطة النشاط"
+
+#. module: hr_sign
+#: model:ir.model,name:hr_sign.model_mail_activity_schedule
+msgid "Activity schedule plan Wizard"
+msgstr "معالج خطة جدول الأنشطة"
+
+#. module: hr_sign
+#: model_terms:ir.ui.view,arch_db:hr_sign.view_hr_contract_sign
+msgid "Attach a file"
+msgstr "إرفاق ملف"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__attachment_ids
+msgid "Attachment"
+msgstr "مرفق"
+
+#. module: hr_sign
+#: model:sign.template,redirect_url_text:hr_sign.template_sign_termination
+msgid "Close"
+msgstr "إغلاق"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__version_id
+msgid "Contract"
+msgstr "العقد"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__cc_partner_ids
+msgid "Copy to"
+msgstr "نسخ إلى"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__create_date
+msgid "Created on"
+msgstr "أنشئ في"
+
+#. module: hr_sign
+#: model:sign.item.role,name:hr_sign.sign_item_role_default
+msgid "Customer"
+msgstr "العميل"
+
+#. module: hr_sign
+#: model_terms:ir.ui.view,arch_db:hr_sign.view_hr_contract_sign
+msgid "Discard"
+msgstr "إهمال"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__display_name
+#: model:ir.model.fields,field_description:hr_sign.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:hr_sign.field_hr_employee_public__display_name
+#: model:ir.model.fields,field_description:hr_sign.field_hr_version__display_name
+#: model:ir.model.fields,field_description:hr_sign.field_mail_activity_plan_template__display_name
+#: model:ir.model.fields,field_description:hr_sign.field_mail_activity_schedule__display_name
+#: model:ir.model.fields,field_description:hr_sign.field_res_users__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: hr_sign
+#: model:ir.actions.act_window,name:hr_sign.sign_contract_wizard_action
+msgid "Document Signature"
+msgstr "توقيع المستند"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_mail_activity_plan_template__sign_template_id
+msgid "Document to sign"
+msgstr "المستند للتوقيع عليه"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__sign_template_ids
+msgid "Documents to sign"
+msgstr "المستندات لتوقيعها"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__mail_to
+msgid "Email"
+msgstr "البريد الإلكتروني"
+
+#. module: hr_sign
+#: model:ir.model.fields,help:hr_sign.field_hr_contract_sign_document_wizard__mail_to
+msgid ""
+"Email used to send the signature request.\n"
+"                - Work takes the email defined in \"work email\"\n"
+"                - Private takes the email defined in Private Information\n"
+"                - If the selected email is not defined, the available one "
+"will be used."
+msgstr ""
+"البريد الإلكتروني المستخدم لإرسال طلب التوقيع.\n"
+"                - يأخذ العمل عنوان البريد الإلكتروني المحدد في \"البريد "
+"الإلكتروني للعمل\"\n"
+"                - خاص تأخذ عنوان البريد الإلكتروني المحدد في المعلومات "
+"الخاصة\n"
+"                - إذا كان البريد الإلكتروني المختار غير محدد، سيتم استخدام "
+"المتاح منها."
+
+#. module: hr_sign
+#: model:ir.model,name:hr_sign.model_hr_employee
+#: model:sign.item.role,name:hr_sign.sign_item_role_employee_signatory
+msgid "Employee"
+msgstr "الموظف"
+
+#. module: hr_sign
+#: model:ir.model,name:hr_sign.model_hr_version
+msgid "Employee Contract"
+msgstr "عقد الموظف"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__employee_role_id
+#: model:ir.model.fields,field_description:hr_sign.field_mail_activity_plan_template__employee_role_id
+msgid "Employee Role"
+msgstr "دور الموظف"
+
+#. module: hr_sign
+#: model:ir.model.fields,help:hr_sign.field_hr_contract_sign_document_wizard__employee_role_id
+#: model:ir.model.fields,help:hr_sign.field_mail_activity_plan_template__employee_role_id
+msgid ""
+"Employee's role on the templates to sign. The same role must be present in "
+"all the templates"
+msgstr ""
+"دور الموظف في القوالب لتوقيعها. يجب أن يكون نفس الدور موجوداً في كافة القوالب"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__employee_ids
+msgid "Employees"
+msgstr "الموظفون"
+
+#. module: hr_sign
+#: model:sign.item.role,name:hr_sign.sign_item_role_job_responsible
+msgid "HR Responsible"
+msgstr "مسؤول الموارد البشرية"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__has_both_template
+msgid "Has Both Template"
+msgstr "يحتوي على كلا القالبين"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__id
+#: model:ir.model.fields,field_description:hr_sign.field_hr_employee__id
+#: model:ir.model.fields,field_description:hr_sign.field_hr_employee_public__id
+#: model:ir.model.fields,field_description:hr_sign.field_hr_version__id
+#: model:ir.model.fields,field_description:hr_sign.field_mail_activity_plan_template__id
+#: model:ir.model.fields,field_description:hr_sign.field_mail_activity_schedule__id
+#: model:ir.model.fields,field_description:hr_sign.field_res_users__id
+msgid "ID"
+msgstr "المُعرف"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_mail_activity_plan_template__is_signature_request
+msgid "Is Signature Request"
+msgstr "طلب توقيع"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__write_date
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__mail_displayed
+msgid "Mail Displayed"
+msgstr "البريد الإلكتروني المعروض"
+
+#. module: hr_sign
+#: model_terms:ir.ui.view,arch_db:hr_sign.view_hr_contract_sign
+msgid "Mail Options"
+msgstr "خيارات البريد"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__message
+msgid "Message"
+msgstr "رسالة"
+
+#. module: hr_sign
+#. odoo-python
+#: code:addons/hr_sign/wizard/hr_contract_sign_document_wizard.py:0
+msgid "No documents templates on the database."
+msgstr "لا توجد قوالب منتجات في قاعدة البيانات."
+
+#. module: hr_sign
+#: model_terms:ir.ui.view,arch_db:hr_sign.view_hr_contract_sign
+msgid "No template available"
+msgstr "لا توجد قوالب"
+
+#. module: hr_sign
+#. odoo-python
+#: code:addons/hr_sign/wizard/hr_contract_sign_document_wizard.py:0
+msgid "Only %s has to sign."
+msgstr "وحده %s عليه التوقيع."
+
+#. module: hr_sign
+#: model_terms:ir.ui.view,arch_db:hr_sign.view_hr_contract_sign
+msgid "Optional Message..."
+msgstr "رسالة اختيارية..."
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__possible_template_ids
+msgid "Possible Template"
+msgstr "القالب المحتمل"
+
+#. module: hr_sign
+#: model:ir.model.fields.selection,name:hr_sign.selection__hr_contract_sign_document_wizard__mail_to__private
+msgid "Private"
+msgstr "خاص"
+
+#. module: hr_sign
+#: model:ir.model,name:hr_sign.model_hr_employee_public
+msgid "Public Employee"
+msgstr "موظف في القطاع العام"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_employee__sign_request_ids
+#: model:ir.model.fields,field_description:hr_sign.field_hr_version__sign_request_ids
+msgid "Requested Signatures"
+msgstr "التوقيعات المطلوبة"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__responsible_id
+msgid "Responsible"
+msgstr "المسؤول"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_mail_activity_plan_template__responsible_count
+msgid "Responsible Count"
+msgstr "عدد المسؤولين"
+
+#. module: hr_sign
+#: model:ir.model.fields,help:hr_sign.field_hr_contract_sign_document_wizard__sign_template_ids
+msgid ""
+"Select only documents with either 1 or 2 different signatories.\n"
+"        Documents with 1 signatory require only the employee's signature, "
+"while those with 2 signatories require signatures from both the employee and "
+"the HR responsible.\n"
+"        "
+msgstr ""
+"حدد فقط المستندات التي تحتوي إما على طرف مُوقّع واحد أو طرفين مختلفين.\n"
+"        تتطلب المستندات التي تحتوي على طرف موقِّع واحد أن يوقِّع عليها الموظف "
+"فقط، بينما تتطلب المستندات التي تحتوي على طرفين موقِّعين توقيع كل من الموظف "
+"ومسؤول الموارد البشرية.\n"
+"        "
+
+#. module: hr_sign
+#: model_terms:ir.ui.view,arch_db:hr_sign.view_hr_contract_sign
+msgid "Send"
+msgstr "إرسال"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_employee_public__sign_request_ids
+msgid "Sign Request"
+msgstr "طلب توقيع"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_employee__sign_request_count
+#: model:ir.model.fields,field_description:hr_sign.field_hr_employee_public__sign_request_count
+#: model:ir.model.fields,field_description:hr_sign.field_hr_version__sign_request_count
+msgid "Sign Request Count"
+msgstr "عدد طلبات التوقيع"
+
+#. module: hr_sign
+#: model_terms:ir.ui.view,arch_db:hr_sign.view_hr_contract_sign
+msgid "Sign Request Options"
+msgstr "خيارات طلب التوقيع"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__sign_template_responsible_ids
+#: model:ir.model.fields,field_description:hr_sign.field_mail_activity_plan_template__sign_template_responsible_ids
+msgid "Sign Template Responsible"
+msgstr "المسؤول عن قالب التوقيع"
+
+#. module: hr_sign
+#: model:ir.model,name:hr_sign.model_hr_contract_sign_document_wizard
+msgid "Sign document in contract"
+msgstr "توقيع المستند في العقد"
+
+#. module: hr_sign
+#. odoo-python
+#: code:addons/hr_sign/models/hr_employee.py:0
+#: code:addons/hr_sign/wizard/mail_activity_schedule.py:0
+#: model:ir.actions.server,name:hr_sign.action_signature_request_multi
+#: model_terms:ir.ui.view,arch_db:hr_sign.hr_employee_sign_view_form
+#: model_terms:ir.ui.view,arch_db:hr_sign.view_hr_contract_sign
+msgid "Signature Request"
+msgstr "طلب التوقيع"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__subject
+msgid "Subject"
+msgstr "الموضوع"
+
+#. module: hr_sign
+#: model:ir.model.fields,field_description:hr_sign.field_hr_contract_sign_document_wizard__template_warning
+msgid "Template Warning"
+msgstr "تحذير القالب"
+
+#. module: hr_sign
+#: model_terms:ir.ui.view,arch_db:hr_sign.view_hr_contract_sign
+msgid "Upload a PDF to set a new one."
+msgstr "قم بتحميل ملف PDF لتعيين ملف جديد."
+
+#. module: hr_sign
+#: model:ir.model,name:hr_sign.model_res_users
+msgid "User"
+msgstr "المستخدم"
+
+#. module: hr_sign
+#: model:ir.model.fields.selection,name:hr_sign.selection__hr_contract_sign_document_wizard__mail_to__work
+msgid "Work"
+msgstr "العمل"
+
+#. module: hr_sign
+#: model_terms:ir.ui.view,arch_db:hr_sign.view_hr_contract_sign
+msgid "Write email or search contact..."
+msgstr "اكتب رسالة بريد إلكتروني أو ابحث عن جهة الاتصال..."
+
+#. module: hr_sign
+#. odoo-python
+#: code:addons/hr_sign/models/hr_version.py:0
+msgid ""
+"You can't delete a contract linked to a signed document, archive it instead."
+msgstr "لا يمكنك حذف عقد مرتبط بمستند مُوقع. قم بأرشفته عوضاً عن ذلك."
+
+#~ msgid "%s and %s are the signatories."
+#~ msgstr "%s و %s هي الأطراف الموقعة. "
+
+#~ msgid "Contract history"
+#~ msgstr "سِجل العقد "
+
+#~ msgid ""
+#~ "Documents to sign. Only documents with 1 or 2 different responsible are "
+#~ "selectable.\n"
+#~ "        Documents with 1 responsible will only have to be signed by the "
+#~ "employee while documents with 2 different responsible will have to be "
+#~ "signed by both the employee and the responsible.\n"
+#~ "        "
+#~ msgstr ""
+#~ "المستندات لتوقيعها. وحدها المستندات التي لها مسؤول 1 أو 2 يتم تحديدها.\n"
+#~ "        يجب أن تُوقّع المستندات ذات المسؤول الواحد من قِبَل الموظف، بينما "
+#~ "تُوقّع المستندات ذات المسؤولَين المختلفين من قِبَل الموظف والمسؤول معاً.\n"
+#~ "        "
+
+#~ msgid ""
+#~ "No appropriate template could be found, please make sure you configured "
+#~ "them properly."
+#~ msgstr "لم يتم العثور على أي قالب مناسب. يرجى التأكد من تهيئتها بشكل صحيح. "
+
+#~ msgid "Open Link"
+#~ msgstr "فتح الرابط "
+
+#~ msgid "Plan Wizard"
+#~ msgstr "تخطيط المعالج "
+
+#~ msgid "Plan activity type"
+#~ msgstr "تخطيط نوع النشاط "
+
+#~ msgid "Signature Request - %s"
+#~ msgstr "طلب التوقيع - %s"
+
+#~ msgid ""
+#~ "This sign request has been canceled due to the cancellation of the "
+#~ "related contract."
+#~ msgstr "لقد تم إلغاء طلب التوقيع بسبب إلغاء العقد ذو الصلة. "
+
+#~ msgid "document"
+#~ msgstr "مستند"
+
+#~ msgid "documents"
+#~ msgstr "المستندات "

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="accountant_knowledge.WysiwygArticleHelper" t-inherit="knowledge.WysiwygArticleHelper" t-inherit-mode="extension">
+        <xpath expr="//a[hasclass('o_knowledge_add_item_kanban')]" position="attributes">
+            <attribute name="t-if">!props.record.data.inherited_audit_report_id?.records.length</attribute>
+        </xpath>
+        <xpath expr="//a[hasclass('o_knowledge_add_item_list')]" position="attributes">
+            <attribute name="t-if">!props.record.data.inherited_audit_report_id?.records.length</attribute>
+        </xpath>
+        <xpath expr="//a[hasclass('o_knowledge_add_item_calendar')]" position="attributes">
+            <attribute name="t-if">!props.record.data.inherited_audit_report_id?.records.length</attribute>
+        </xpath>
+    </t>
+</templates>

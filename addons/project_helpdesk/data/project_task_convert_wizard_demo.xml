@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="task_to_ticket_wizard" model="project.task.convert.wizard">
+            <field name="team_id" ref="helpdesk.helpdesk_team1"/>
+            <field name="stage_id" ref="helpdesk.stage_new"/>
+        </record>
+
+        <function model="project.task.convert.wizard" name="action_convert" context="{'to_convert': [ref('project_helpdesk_task_1')]}">
+            <value model="project.task.convert.wizard" eval="obj().env.ref('project_helpdesk.task_to_ticket_wizard').id"/>
+        </function>
+    </data>
+</odoo>

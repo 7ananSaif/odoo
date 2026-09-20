@@ -1,0 +1,171 @@
+/*                      Backend Helper
+ **********************************************************/
+.o_appointment_helper {
+    .o_appointment_helper_templates {
+        pointer-events: auto;
+    }
+    .o_nocontent_help {
+        margin-top: 10vh;
+    }
+}
+
+/*                 Backend Template Cards
+ **********************************************************/
+.o_appointment_template_picker, .o_appointment_helper {
+    .o_appointment_template_card {
+        min-height: 15vh;
+
+        &:hover {
+            background: var(--AppointmentTemplate-background-hover, #{$o-gray-200});
+        }
+    }
+}
+
+/*                      Kanban view
+ **********************************************************/
+.o_appointment_kanban .o_kanban_renderer {
+    &.o_kanban_grouped {
+        .o_appointment_kanban_card > div {
+            margin-right: 0 !important;
+        }
+        .o_kanban_group:not(.o_column_folded){
+            @include media-breakpoint-up(sm) {
+                min-width: 380px;
+            }
+        }
+        .row:not(.o_appointment_helper_templates):not(.o_appointment_template_card) > div {
+            flex: 1 1 100% !important;
+            max-width: 100% !important;
+            margin: 5px 0 !important;
+            &.col-6 {
+                flex: 1 1 50% !important;
+                max-width: 50% !important;
+            }
+            &.d-none {
+                display: none !important; //forcing the d-none to override the d-lg or d-sm classes for grouped view
+            }
+            > .w-50 {
+                width: 50% !important;
+            }
+            > div.me-3 {
+                margin-right: 24px !important;
+            }
+            &.o_appointment_kanban_buttons {
+                margin-top: 16px !important;
+                .o_widget_appointment_quick_share_button {
+                    margin-left: 0px !important;
+                }
+            }
+        }
+    }
+
+    &.o_kanban_ungrouped {
+        // ungrouped layout as list re-used form survey_survey
+        padding: 0;
+        margin-top: -0.25rem;
+
+        .o_kanban_record {
+            width: 100%;
+            margin: 0px;
+            .o_appointment_kanban_card {
+                margin: 0;
+                border-top: 0 !important;
+            }
+        }
+        .o_m2m_avatar {
+            width: 32px;
+            height: 32px;
+        }
+        .o_m2m_avatar_empty {
+            width: 20px;
+            height: 20px;
+            margin-top: auto;
+            margin-bottom: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: var(--Tag-font-size, #{$font-size-sm});
+            background-color: lightgray;
+        }
+        .o_field_many2many_avatar_user .o_m2m_avatar_empty {
+            margin-top: 0;
+        }
+    }
+    // Ungrouped specific
+    .o_appointment_kanban_card > div.row {
+        @include media-breakpoint-up(sm) {
+            margin-right: 4rem;
+        }
+        min-height: 4rem;
+        .o_widget_web_ribbon {
+            position: absolute;
+            width: var(--Ribbon-wrapper-width, var(--Ribbon-wrapper-width-default));
+            right: 0;
+            top: 0;
+            bottom: 0;
+            .ribbon {
+                --Ribbon-wrapper-height: 100%;
+                margin-top: 0;
+            }
+        }
+        .text-large {
+            &.o_appointment_kanban_name {
+                font-size: 120%;
+            }
+            line-height: 1.1em;
+            font-size: 105%;
+            font-weight: 300;
+            @include media-breakpoint-down(lg) {
+                font-size: 120%;
+            }
+        }
+    }
+
+    .o_appointment_kanban_boxes {
+        flex-flow: row nowrap;
+
+        &.o_dashboard_bottom_grey {
+            border: 1px solid #d8dadd;
+            background-color: #e7e9ed;
+        }
+
+        .o_appointment_kanban_box {
+            flex: 1 1 auto;
+            flex-flow: row nowrap;
+            &:first-child {
+                justify-content: flex-start;
+                padding-left: 16px;
+            }
+            div:last-child {
+                justify-content: flex-end;
+                text-align: right;
+            }
+
+        }
+    }
+}
+
+/*                      Form View
+ **********************************************************/
+.o_appointment_slots_list {
+    th.o_list_button {
+        width: 2.4em!important;
+    }
+
+    button.fa-long-arrow-right {
+        pointer-events: none;
+    }
+}
+
+.o_appointment_capacity input:not(:focus){
+    border-color: $o-input-border-required;
+}
+
+.o_appointment_booking_gantt_view {
+    .o_view_nocontent {
+        top: 200px !important;
+    }
+    .o_nocontent_help {
+        @include gradient-radial($white, rgba($white, 0.2));
+    }
+}

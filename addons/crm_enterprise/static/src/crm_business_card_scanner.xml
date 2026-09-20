@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="crm_enterprise.CrmBusinessCardScanner">
+        <FileUploader
+            multiUpload="true"
+            onUploaded.bind="onFileUploaded"
+            onUploadComplete.bind="onUploadComplete">
+            <t t-set-slot="toggler">
+                <i class="fa fa-camera me-1"/>
+                <span t-if="isMobileOS">Scan Business Cards</span>
+                <span t-else="">Import Business Cards</span>
+            </t>
+            <t t-slot="default"/>
+        </FileUploader>
+    </t>
+</templates>

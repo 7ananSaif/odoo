@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="esg_project.InitiativesBox">
+        <div class="card p-3">
+            <div class="d-flex justify-content-start mb-2">
+                <a href="#" class="fs-4 fw-bold" t-on-click="openViewProject">
+                    Initiatives
+                </a>
+            </div>
+
+            <div class="d-flex justify-content-start mb-2 pt-2 gap-1">
+                <button class="btn btn-primary" t-on-click="openTaskForm">
+                    Create Initiative
+                </button>
+            </div>
+
+            <div class="d-flex justify-content-around mt-auto">
+                <t t-foreach="props.data.tasks_per_stage_label" t-as="stageData" t-key="stageData_index">
+                    <t t-set="stageName" t-value="stageData.name"/>
+                    <t t-set="stageCount" t-value="stageData.count"/>
+                    <a class="d-flex flex-column align-items-center fs-4">
+                        <span class="fw-bold">
+                            <t t-out="stageCount"/>
+                        </span>
+                        <span class="text-muted text-truncate mw-100"><t t-out="stageName"/></span>
+                    </a>
+                </t>
+                <a class="d-none d-sm-flex flex-column align-items-center fs-4">
+                    <span class="fw-bold">
+                        <t t-out="props.data.tasks_total_count"/>
+                    </span>
+                    <span class="text-muted text-truncate mw-100">Total</span>
+                </a>
+            </div>
+        </div>
+    </t>
+</templates>

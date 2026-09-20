@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="reimbursement_lines_company_rule" model="ir.rule">
+        <field name="name">Reimbursement Line multi-company</field>
+        <field name="model_id" ref="model_l10n_ec_reimbursement" />
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+    <record id="account_move_withholding_rule_portal" model="ir.rule">
+        <field name="name">Portal Personal Withholdings</field>
+        <field name="model_id" ref="account.model_account_move"/>
+        <field name="domain_force">[('l10n_ec_withhold_type', 'in', ('in_withhold', 'out_withhold')), ('partner_id', 'child_of', [user.commercial_partner_id.id])]</field>
+        <field name="groups" eval="[(4, ref('base.group_portal'))]"/>
+    </record>
+</odoo>

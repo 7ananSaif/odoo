@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="knowledge.OptionsDropdown">
+        <Dropdown beforeOpen.bind="beforeOpen" menuClass="'o_knowledge_options_dropdown'">
+            <button class="btn btn-light text-muted" data-hotkey="p" title="More actions">
+                <i class="oi oi-fw fs-6 oi-ellipsis-v"/>
+            </button>
+            <t t-set-slot="content">
+                <t t-if="props.record.data.active">
+                    <t t-if="props.record.data.user_can_write">
+                        <t t-if="!props.record.data.is_locked">
+                            <DropdownItem class="'d-md-none'" onSelected="env.toggleFavorite">
+                                <i t-attf-class="fa fa-fw fa-lg #{props.record.data.is_user_favorite ? 'fa-star' : 'fa-star-o'} me-2"/>
+                                <t t-if="props.record.data.is_user_favorite">Remove From Favorites</t>
+                                <t t-else="">Add to Favorites</t>
+                            </DropdownItem>
+                            <DropdownItem t-if="isInternalUser" class="'d-md-none'" onSelected="env.toggleChatter">
+                                <i class="fa fa-fw fa-lg fa-comments-o me-2"/>
+                                <t t-if="chatterPanelState.isDisplayed">Hide Chatter</t>
+                                <t t-else="">Show Chatter</t>
+                            </DropdownItem>
+                            <DropdownItem t-if="isInternalUser and commentsState.hasComments" class="'d-md-none'" onSelected="env.toggleComments">
+                                <i class="fa fa-fw fa-lg fa-commenting-o me-2"/>
+                                <t t-if="commentsState.isDisplayed">Hide Comments</t>
+                                <t t-else="">Show Comments</t>
+                            </DropdownItem>
+                            <DropdownItem t-if="props.record.data.article_properties.some((prop) => !prop.definition_deleted)" class="'d-md-none'" onSelected="env.toggleProperties">
+                                <i class="fa fa-fw fa-lg fa-cogs me-2"/>
+                                <t t-if="propertiesPanelState.isDisplayed">Hide Properties</t>
+                                <t t-else="">Show Properties</t>
+                            </DropdownItem>
+                            <DropdownItem t-if="props.record.data.icon" onSelected.bind="removeIcon">
+                                <i class="fa fa-fw fa-lg fa-times-circle-o me-2"/>Remove Icon
+                            </DropdownItem>
+                            <DropdownItem t-else="" onSelected.bind="addIcon">
+                                <i class="oi fa-fw fa-lg oi-smile-add me-2"/>Add Icon
+                            </DropdownItem>
+                            <t t-if="isInternalUser">
+                                <DropdownItem t-if="props.record.data.cover_image_id" onSelected.bind="removeCover">
+                                    <i class="fa fa-fw fa-lg fa-times me-2"/>Remove Cover
+                                </DropdownItem>
+                                <DropdownItem t-else="" onSelected.bind="addCover">
+                                    <i class="fa fa-fw fa-lg fa-picture-o me-2"/>Add Cover
+                                </DropdownItem>
+                                <t t-set="title">Properties are fields that can only be added on articles that have a parent.</t>
+                                <DropdownItem t-if="!props.record.data.parent_id and isInternalUser" class="'text-muted o_disabled_option'" onSelected="() => {}" attrs="{title}" closingMode="'none'">
+                                    <i class="fa fa-fw fa-lg fa-cogs me-2"/>Add Properties
+                                </DropdownItem>
+                                <DropdownItem t-elif="!props.record.data.article_properties.some((prop) => !prop.definition_deleted) and !propertiesPanelState.isDisplayed and isInternalUser" onSelected.bind="() => this.env.toggleProperties(true)">
+                                    <i class="fa fa-fw fa-lg fa-cogs me-2"/>Add Properties
+                                </DropdownItem>
+                            </t>
+                        </t>
+                        <DropdownItem onSelected.bind="toggleFullWidth" class="'d-inline-flex align-items-start'" closingMode="'none'">
+                            <div class="pe-3">
+                                <i class="me-2 oi oi-fw oi-large oi-arrows-h"/>Full Width
+                            </div>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" id="full_width_input" type="checkbox" role="switch" t-att-checked="props.record.data.full_width"/>
+                            </div>
+                        </DropdownItem>
+                        <hr class="dropdown-divider"/>
+                    </t>
+                    <DropdownItem t-if="isInternalUser and props.record.data.user_can_write and !props.record.data.is_article_item" onSelected.bind="moveArticle">
+                        <i class="fa fa-fw fa-lg fa-angle-double-right me-2"/>Move To
+                    </DropdownItem>
+                    <DropdownItem t-if="props.record.data.user_can_write" onSelected.bind="toggleLock">
+                        <t t-if="props.record.data.is_locked">
+                            <i class="fa fa-fw fa-lg fa-unlock me-2"/>Unlock
+                        </t>
+                        <t t-else="">
+                            <i class="fa fa-fw fa-lg fa-lock me-2"/>Lock Content
+                        </t>
+                    </DropdownItem>
+                    <DropdownItem t-if="canCreateArticle" onSelected.bind="copy">
+                        <i class="fa fa-fw fa-lg fa-copy me-2"/>Create a Copy
+                    </DropdownItem>
+                    <DropdownItem t-if="isInternalUser and props.record.data.user_can_write and !this.creationDate.equals(this.lastEditionDate)" onSelected.bind="openHistory">
+                        <i class="fa fa-fw fa-lg fa-history me-2"/>Open Version History
+                    </DropdownItem>
+                    <DropdownItem t-if="!props.record.data.is_article_item and props.record.data.user_can_write and props.record.data.parent_id" onSelected.bind="toggleItem">
+                        <i class="fa fa-fw fa-lg fa-tasks me-2"/>Convert into Article Item
+                    </DropdownItem>
+                    <DropdownItem t-elif="props.record.data.is_article_item and props.record.data.user_can_write and !data.has_item_parent" onSelected.bind="toggleItem">
+                        <i class="fa fa-fw fa-lg fa-sitemap me-2"/>Convert into Article
+                    </DropdownItem>
+                    <DropdownItem onSelected.bind="export" attrs="{ 'name': 'export' }">
+                        <i class="fa fa-fw fa-lg fa-download me-2"/>Download PDF
+                    </DropdownItem>
+                    <DropdownItem t-if="props.record.data.user_can_write and isInternalUser" onSelected.bind="toggleIsListedInTemplatesGallery">
+                        <i class="me-2 fa fa-fw fa-lg fa-paint-brush"/>
+                        <t t-if="data.is_listed_in_templates_gallery">Remove from Templates</t>
+                        <t t-else="">Add to Templates</t>
+                    </DropdownItem>
+                    <DropdownItem t-if="props.record.data.user_can_write and (isInternalUser or props.record.data.category === 'private')" onSelected.bind="sendToTrash">
+                        <i class="fa fa-fw fa-lg fa-trash me-2"/>Send to Trash
+                    </DropdownItem>
+                </t>
+                <t t-elif="props.record.data.user_can_write">
+                    <DropdownItem t-if="props.record.data.to_delete and (isInternalUser or props.record.data.category === 'private')" onSelected.bind="unarchive">
+                        <i class="fa fa-fw fa-lg fa-trash-o me-2"/>Restore from Trash
+                    </DropdownItem>
+                    <DropdownItem t-else="" onSelected.bind="unarchive">
+                        <i class="fa fa-fw fa-lg fa-archive me-2"/>Unarchive
+                    </DropdownItem>
+                </t>
+                <hr class="dropdown-divider"/>
+                <div t-if="lastEditionDate" class="o_knowledge_options_dropdown_section">
+                    <div class="text-muted ps-1" t-att-title="formatDateTime(this.lastEditionDate)">
+                        Last Edited · <t t-out="this.lastEditionDate.toRelative()"/>
+                    </div>
+                    <div class="d-flex">
+                        <div class="o_knowledge_options_dropdown_image d-flex align-items-center justify-content-center me-2">
+                            <img t-if="isInternalUser" class="rounded cursor-pointer"
+                                t-att-src="lastEditorAvatarUrl" t-on-click="onLastEditorClick" t-att-title="lastEditor"/>
+                            <img t-else="" class="d-block rounded"
+                                t-att-src="lastEditorAvatarUrl" t-att-title="lastEditor"/>
+                        </div>
+                        <div class="flex-grow-1 text-truncate text-muted" t-out="lastEditor"/>
+                    </div>
+                </div>
+            </t>
+        </Dropdown>
+    </t>
+</templates>

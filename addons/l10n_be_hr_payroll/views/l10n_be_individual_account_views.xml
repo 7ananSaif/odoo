@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_be_individual_account_view_form" model="ir.ui.view">
+        <field name="name">l10n_be.individual.account.form</field>
+        <field name="model">l10n_be.individual.account</field>
+        <field name="inherit_id" ref="hr_payroll.hr_payroll_declaration_mixin_view_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <form position="attributes">
+                <attribute name="string">Individual Accounts</attribute>
+            </form>
+            <field name="year" position="after">
+                <field name="name"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="l10n_be_individual_account_view_tree" model="ir.ui.view">
+        <field name="name">l10n_be.individual.account.tree</field>
+        <field name="model">l10n_be.individual.account</field>
+        <field name="inherit_id" ref="hr_payroll.hr_payroll_declaration_mixin_view_list"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="string">HR Individual Account Report By Employee</attribute>
+            </list>
+            <field name="year" position="replace">
+                <field name="name"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="l10n_be_individual_account_action" model="ir.actions.act_window">
+        <field name="name">Individual Accounts</field>
+        <field name="res_model">l10n_be.individual.account</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+
+    <menuitem
+        id="menu_l10n_be_individual_account"
+        name="Individual Accounts"
+        action="l10n_be_individual_account_action"
+        parent="l10n_be_hr_payroll.menu_reporting_l10n_be"
+        sequence="505"/>
+</odoo>

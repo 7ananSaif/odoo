@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="hr_esic_report_view_list" model="ir.ui.view">
+        <field name="model">l10n.in.hr.payroll.esic.report</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="month"/>
+                <field name="year" options="{'type': 'number'}"/>
+                <field name="export_report_type"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_esic_report_view_form" model="ir.ui.view">
+        <field name="model">l10n.in.hr.payroll.esic.report</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <button name="action_export_xlsx" string="Export XLSX File" type="object" class="btn-primary" invisible="xlsx_file or not period_has_payslips"/>
+                    <button name="action_export_xlsx" string="Export XLSX File" type="object" class="btn-secondary" invisible="not xlsx_file or not period_has_payslips"/>
+                </header>
+                <sheet>
+                    <div role="alert" class="alert alert-warning text-center" invisible="period_has_payslips">
+                        There is no payslips with an ESIC amount on the selected period.
+                    </div>
+                    <group>
+                        <group>
+                            <field name="year" class="o_hr_narrow_field" options="{'type': 'number'}"/>
+                            <field name="month" class="o_hr_narrow_field"/>
+                            <field name="export_report_type"/>
+                            <field name="xlsx_filename" invisible="1"/>
+                            <field name="xlsx_file" readonly="1" filename="xlsx_filename" invisible="not xlsx_filename"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_in_hr_esic_report_action" model="ir.actions.act_window">
+        <field name="name">ESI Report</field>
+        <field name="res_model">l10n.in.hr.payroll.esic.report</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="hr_esic_report_view_list"/>
+        <field name="domain">[('company_id', 'in', allowed_company_ids)]</field>
+    </record>
+
+    <menuitem
+        id="l10n_in_hr_esic_report_menu"
+        name="ESI Report"
+        action="l10n_in_hr_esic_report_action"
+        parent="l10n_in_hr_payroll.menu_reporting_l10n_in"
+        sequence="6"/>
+</odoo>

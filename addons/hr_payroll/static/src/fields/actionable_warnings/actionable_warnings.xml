@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="hr_payroll.ActionableWarnings">
+        <t t-if="this.props.record.data[this.props.name]">
+            <t t-if="this.props.firstOnly">
+                <t t-set="warning" t-value="this.firstWarning"/>
+                <div t-attf-class="text-{{warning['level']}}">
+                    <t t-out="warning.message"/>
+                    <a class="fw-bold"
+                       t-if="warning.action"
+                       href="#"
+                       t-on-click.stop="() => this.handleOnClick(warning)"
+                    >
+                        <i class="oi oi-arrow-right ms-1"/>
+                        <span class="ms-1" t-out="warning.action_text"/>
+                        <i t-if="warning.critical" class="fa fa-warning ms-1"/>
+                    </a>
+                </div>
+            </t>
+            <t t-else="">
+                <t t-set="warnings" t-value="this.warningsByLevel"/>
+                <t t-foreach="['danger', 'warning', 'info']" t-as="level" t-key="level">
+                    <div t-if="warnings[level].length" class="alert mb-2 px-3 py-2" role="alert" t-attf-class="alert-{{level}}">
+                        <t t-foreach="warnings[level]" t-as="warning" t-key="warning.id">
+                            <div>
+                                <t t-out="warning.message"/>
+                                <a class="fw-bold"
+                                   t-if="warning.action"
+                                   href="#"
+                                   t-on-click.stop="() => this.handleOnClick(warning)"
+                                >
+                                    <i class="oi oi-arrow-right ms-1"/>
+                                    <span class="ms-1" t-out="warning.action_text"/>
+                                    <i t-if="warning.critical" class="fa fa-warning ms-1"/>
+                                </a>
+                            </div>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </t>
+</templates>

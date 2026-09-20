@@ -1,0 +1,75 @@
+$wo-border-separation: $border-width solid $border-color;
+
+.o_tablet_popups {
+
+    &.o_unblock {
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 100;
+        background-color: rgba(60, 60, 60, 0.4);
+
+        .popup {
+            z-index: 1200;
+            top: 5%;
+            left: 20%;
+            width: 60%;
+            position: fixed;
+            background: $o-gray-100;
+        }
+    }
+
+    .popup {
+        .body.traceback {
+            height: 238px;
+            overflow: auto;
+            font-size: 14px;
+            white-space: pre-wrap;
+            text-align: left;
+            font-family: 'Inconsolata';
+            -webkit-user-select: text;
+            -moz-user-select: text;
+                    user-select: text;
+        }
+
+        @include media-breakpoint-down(sm) {
+            top: 0;
+            left: 0;
+            width: auto;
+            max-height: 100%;
+            overflow: auto;
+        }
+
+        &.popup-selection .selection {
+            line-height: 50px;
+
+            &-item {
+                background: $o-gray-100;
+                cursor: pointer;
+                text-align: left;
+                padding: 0 16px;
+                color: $o-black;
+
+                &:nth-child(odd) {
+                    background: $o-view-background-color;
+                }
+                &.selected {
+                    background: #6EC89B;
+                }
+            }
+        }
+        .popup-input {
+            height: 4rem;
+
+            .popup-input-text {
+                font-size: 4rem;
+            }
+        }
+        .popup-numpad {
+            grid-template-columns: repeat(3, 1fr);
+            width: 70%;
+        }
+    }
+}

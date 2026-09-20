@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="spreadsheet_edition.SpreadsheetSelectorDialog">
+        <Dialog title="title">
+            <div class="o-spreadsheet-templates-dialog">
+                <div class="o-sp-dialog-meta-name o-sp-dialog-row align-items-center">
+                    <label for="name" class="o-sp-dialog-meta-name-label fs-5 fw-medium">
+                        <t t-esc="nameLabel"/>
+                    </label>
+                    <input id="name" type="text" class="o_input form-control fs-5" t-model="state.name"/>
+                </div>
+                <div t-if="props.type === 'LIST'" class="o-sp-dialog-meta-threshold o-sp-dialog-row align-items-center">
+                    <label for="threshold" class="o-sp-dialog-meta-name-label fs-5 fw-medium" title="Number of records to insert into the spreadsheet">
+                        Records
+                    </label>
+                    <input id="threshold" type="number" class="o-sp-dialog-meta-threshold-input o_input form-control fs-5" t-model="state.threshold"/>
+                </div>
+                <div class="o-sp-dialog-spreadsheets mt-4">
+                    <Notebook pages="noteBookPages" />
+                </div>
+                <t t-set-slot="footer">
+                    <button class="btn btn-primary" t-att-disabled="state.confirmationIsPending" t-on-click="_onInsert">Insert</button>
+                    <button class="btn btn-secondary" t-on-click="_onDiscard">Discard</button>
+                </t>
+            </div>
+        </Dialog>
+    </t>
+</templates>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="demo_equity_valuation_1" model="equity.valuation">
+        <field name="event">transaction</field>
+        <field name="date" eval="datetime.today() + relativedelta(months=-7, day=29)"/>
+        <field name="share_price">10</field>
+    </record>
+
+    <record id="demo_equity_valuation_2" model="equity.valuation">
+        <field name="event">audit</field>
+        <field name="date" eval="datetime.today() + relativedelta(months=-6, day=27)"/>
+        <field name="valuation">200</field>
+    </record>
+
+    <record id="demo_equity_valuation_3" model="equity.valuation">
+        <field name="event">transaction</field>
+        <field name="date" eval="datetime.today() + relativedelta(months=-4, day=29)"/>
+        <field name="valuation">400</field>
+    </record>
+
+    <record id="demo_equity_valuation_4" model="equity.valuation">
+        <field name="event">audit</field>
+        <field name="date" eval="datetime.today() + relativedelta(months=-2, day=29)"/>
+        <field name="share_price">30</field>
+    </record>
+
+    <record id="demo_equity_valuation_other_partner_1" model="equity.valuation">
+        <field name="event">audit</field>
+        <field name="partner_id" ref="base.res_partner_12"/>
+        <field name="date" eval="datetime.today() + relativedelta(months=-1, day=29)"/>
+        <field name="share_price">30</field>
+    </record>
+
+    <record id="demo_equity_valuation_other_partner_2" model="equity.valuation">
+        <field name="event">transaction</field>
+        <field name="partner_id" ref="base.res_partner_12"/>
+        <field name="date" eval="datetime.today() + relativedelta(months=-2, day=29)"/>
+        <field name="share_price">45</field>
+    </record>
+</odoo>

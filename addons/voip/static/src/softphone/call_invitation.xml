@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip.CallInvitation">
+    <div class="o-voip-CallInvitation h-100 d-flex flex-column gap-3 p-3">
+        <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 gap-3">
+            <ContactInfo contact="props.call?.partner_id" phoneNumber="props.call.phone_number"/>
+            <div class="d-flex justify-content-center gap-3">
+                <ActionButton
+                    t-if="props.call.partner_id"
+                    name.translate="Contact"
+                    title.translate="View caller information"
+                    icon="'oi-user'"
+                    onClick.bind="onClickContact"
+                />
+                <t class="o-voip-CallInvitation-xpathTarget"/>
+                <ActionButton
+                    name.translate="Activity"
+                    title.translate="Schedule an activity"
+                    icon="'oi-activity-plus'"
+                    onClick.bind="onClickActivity"
+                />
+            </div>
+        </div>
+        <div class="d-flex justify-content-center gap-5 py-4">
+            <ActionButton
+                name.translate="Reject the call"
+                hideLabel="true"
+                type="'danger'"
+                icon="'oi-close fa-2x'"
+                onClick.bind="onClickReject"
+            />
+            <ActionButton
+                name.translate="Accept the call"
+                hideLabel="true"
+                type="'success'"
+                icon="'fa-phone fa-2x'"
+                onClick.bind="onClickAccept"
+            />
+        </div>
+    </div>
+</t>
+</templates>

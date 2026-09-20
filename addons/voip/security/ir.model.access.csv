@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_voip_call_user,voip_call_user,voip.model_voip_call,base.group_user,1,0,0,0
+access_voip_call_officer,voip_call_officer,voip.model_voip_call,voip.group_voip_officer,1,1,1,1
+access_voip_call_voip_admin,voip_call_voip_admin,voip.model_voip_call,voip.group_voip_admin,1,1,1,1
+access_voip_provider_user,voip_provider_user,voip.model_voip_provider,base.group_user,1,0,0,0
+access_voip_provider_officer,voip_provider_officer,voip.model_voip_provider,voip.group_voip_officer,1,0,0,0
+access_voip_provider_voip_admin,voip_provider_voip_admin,voip.model_voip_provider,voip.group_voip_admin,1,1,1,1

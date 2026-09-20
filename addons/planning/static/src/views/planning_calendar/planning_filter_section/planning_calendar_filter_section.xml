@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="planning.PlanningCalendarFilterSection.filter" t-inherit="web.CalendarFilterSection.filter" t-inherit-mode="primary">
+        <xpath expr="//input[@class='o_cw_filter_input_bg form-check-input']" position="attributes">
+            <attribute name="t-attf-class">{{ getNoColor(filter) }}</attribute>
+        </xpath>
+        <xpath expr="//t[@t-if='section.hasAvatar and filter.hasAvatar']" position="replace">
+            <t t-if="section.hasAvatar and filter.hasAvatar">
+                <t t-if="filter.resourceType == 'user'">
+                    <img
+                        class="o_cw_filter_avatar o_avatar rounded"
+                        t-attf-src="/web/image/{{ section.avatar.model }}/{{ filter.value }}/{{ section.avatar.field }}"
+                        alt="Avatar"
+                    />
+                </t>
+                <t t-elif="filter.resourceType == 'material'">
+                    <i t-attf-class="o_cw_filter_avatar o_avatar rounded fa fa-wrench"/>
+                </t>
+            </t>
+        </xpath>
+    </t>
+
+    <t t-name="planning.PlanningCalendarFilterSection" t-inherit="web.CalendarFilterSection" t-inherit-mode="primary">
+        <xpath expr="//t[@t-if='optionScope.data.id and section.avatar.field']" position="replace">
+            <t t-if="optionScope.data.id and section.avatar.field">
+                <t t-if="optionScope.data.isHumanResource">
+                    <img class="rounded me-1 o_avatar" t-attf-src="/web/image/{{ section.avatar.model }}/{{ optionScope.data.id }}/{{ section.avatar.field }}"/>
+                </t>
+                <t t-else="">
+                    <i t-attf-class="me-1 o_cw_filter_avatar o_avatar rounded fa fa-wrench"/>
+                </t>
+            </t>
+        </xpath>
+    </t>
+</templates>

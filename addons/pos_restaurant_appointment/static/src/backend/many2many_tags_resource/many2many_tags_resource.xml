@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="pos_restaurant_appointment.FieldMany2ManyTagsResource" t-inherit="web.Many2ManyTagsField" t-inherit-mode="primary">
+        <xpath expr="//Many2XAutocomplete" position="attributes">
+            <attribute name="specification">this.specification</attribute>
+            <attribute name="event_start_time">this.props.record.data.start</attribute>
+            <attribute name="event_end_time">this.props.record.data.stop</attribute>
+            <attribute name="context">this.context</attribute>
+        </xpath>
+    </t>
+    <t t-name="pos_restaurant_appointment.FieldMany2ManyTagsResourceMany2XAutocomplete" t-inherit="web.Many2XAutocomplete" t-inherit-mode="primary">
+        <xpath expr="//t[@t-set-slot='option']/t" position="after">
+            <t t-if="optionScope.data.record">
+                <t t-set="people_count" t-value="this.getPeopleCount(optionScope.data.record)"/>
+                <span t-if="people_count" class="text-muted ms-3 fst-italic">
+                    <t t-out="people_count"/>p
+                </span>
+            </t>
+        </xpath>
+    </t>
+</templates>

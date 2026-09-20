@@ -1,0 +1,356 @@
+<odoo>
+    <data>
+        <record id="hr_payroll_structure_tr_employee_salary_ytdgross" model="hr.salary.rule">
+            <field name="category_id" ref="l10n_tr_hr_payroll.l10n_tr_category_ntg_calculation"/>
+            <field name="name">Previous Months Gross</field>
+            <field name="sequence">1</field>
+            <field name="code">YTDGROSS</field>
+            <field name="appears_on_employee_cost_dashboard" eval="False"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = payslip.l10n_tr_ytd_gross
+            </field>
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="l10n_tr_hr_payroll_structure_tr_employee_salary_year_to_date_deducted_tax_amount_salary_rule" model="hr.salary.rule">
+            <field name="category_id" ref="hr_salary_rule_category_ytd_gross_tax"/>
+            <field name="name">Previous Months Paid Tax</field>
+            <field name="sequence">2</field>
+            <field name="code">ACTD</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = payslip.l10n_tr_ytd_tax
+            </field>
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="hr_payroll_structure_tr_employee_salary_gross_from_net" model="hr.salary.rule">
+            <field name="category_id" ref="l10n_tr_hr_payroll.l10n_tr_category_ntg_calculation"/>
+            <field name="name">Gross From Net</field>
+            <field name="sequence">3</field>
+            <field name="code">GFNET</field>
+            <field name="appears_on_employee_cost_dashboard" eval="False"/>
+            <field name="condition_select">python</field>
+            <field name="condition_python">
+result = version.l10n_tr_is_net_to_gross
+            </field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = payslip.l10n_tr_current_month_gross
+            </field>
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="l10n_tr_hr_payroll_structure_tr_employee_salary_basic_salary_rule" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.BASIC"/>
+            <field name="name">Basic Salary</field>
+            <field name="sequence">7</field>
+            <field name="code">BASIC</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = GFNET if version.l10n_tr_is_net_to_gross else payslip.paid_amount
+            </field>
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="turkey_salary_rule_ssie" model="hr.salary.rule">
+            <field name="name">SSI Employee Contribution</field>
+            <field name="category_id" ref="l10n_tr_hr_payroll.hr_salary_rule_category_tr_ssid"/>
+            <field name="code">SSIEDED</field>
+            <field name="sequence">10</field>
+            <field name="condition_select">python</field>
+            <field name="condition_python">
+result = categories['BASIC'] &gt; payslip._rule_parameter('l10n_tr_min_wage')
+            </field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = -min(categories['BASIC'], payslip._rule_parameter('l10n_tr_ssi_base_ceiling'))
+result_rate = 14
+            </field>
+            <field name="struct_id" ref="l10n_tr_hr_payroll.hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="turkey_salary_rule_ssie_unemployment" model="hr.salary.rule">
+            <field name="name">SSI (unemployment) Employee Contribution</field>
+            <field name="category_id" ref="l10n_tr_hr_payroll.hr_salary_rule_category_tr_ssid" />
+            <field name="code">SSIDED</field>
+            <field name="sequence">20</field>
+            <field name="condition_select">python</field>
+            <field name="condition_python">
+result = categories['BASIC'] &gt; payslip._rule_parameter('l10n_tr_min_wage')
+            </field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = -min(categories['BASIC'], payslip._rule_parameter('l10n_tr_ssi_base_ceiling'))
+result_rate = 1
+            </field>
+            <field name="struct_id" ref="l10n_tr_hr_payroll.hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="turkey_ssi_company_contribution" model="hr.salary.rule">
+            <field name="name">SSI Company Contribution</field>
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="code">SSICDED</field>
+            <field name="sequence">30</field>
+            <field name="amount_select">code</field>
+            <field name="condition_select">python</field>
+            <field name="condition_python">
+result = categories['BASIC'] &gt; payslip._rule_parameter('l10n_tr_min_wage')
+            </field>
+            <field name="amount_python_compute">
+result = min(categories['BASIC'], payslip._rule_parameter('l10n_tr_ssi_base_ceiling'))
+result_rate = payslip._rule_parameter('l10n_tr_ssi_company_contribution_rates')
+            </field>
+            <field name="struct_id" ref="l10n_tr_hr_payroll.hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="turkey_ssi_unemployment_company_contribution" model="hr.salary.rule">
+            <field name="name">SSI (unemployment) Company Contribution</field>
+            <field name="category_id" ref="hr_payroll.COMP"/>
+            <field name="code">SSIUCDED</field>
+            <field name="sequence">40</field>
+            <field name="amount_select">code</field>
+            <field name="condition_select">python</field>
+            <field name="condition_python">
+result = categories['BASIC'] &gt; payslip._rule_parameter('l10n_tr_min_wage')
+            </field>
+            <field name="amount_python_compute">
+result = min(categories['BASIC'], payslip._rule_parameter('l10n_tr_ssi_base_ceiling'))
+result_rate = 2
+            </field>
+            <field name="struct_id" ref="l10n_tr_hr_payroll.hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="l10n_tr_hr_payroll_structure_tr_employee_salary_gross_salary_rule" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.GROSS"/>
+            <field name="name">Taxable Salary</field>
+            <field name="sequence">60</field>
+            <field name="code">GROSS</field>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW'] + categories['SSID'] + YTDGROSS
+            </field>
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="hr_payroll_structure_tr_employee_salary_curtaxable" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.NET"/>
+            <field name="name">Current Month Taxable Salary</field>
+            <field name="sequence">70</field>
+            <field name="code">CURTAXABLE</field>
+            <field name="appears_on_employee_cost_dashboard" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = categories['BASIC'] + categories['SSID']
+            </field>
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="turkey_tax_bracket_base" model="hr.salary.rule">
+            <field name="name">Tax Bracket Base</field>
+            <field name="category_id" ref="l10n_tr_hr_payroll.hr_salary_rule_category_tr_taxbase"/>
+            <field name="code">TAXB</field>
+            <field name="sequence">80</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = GROSS
+            </field>
+            <field name="struct_id" ref="l10n_tr_hr_payroll.hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="turkey_tax_bracket_total" model="hr.salary.rule">
+            <field name="name">TAX Bracket Deduction</field>
+            <field name="category_id" ref="l10n_tr_hr_payroll.hr_salary_rule_category_tr_taxded"/>
+            <field name="code">TOTTB</field>
+            <field name="sequence">90</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = payslip._l10n_tr_get_tax(TAXB)
+            </field>
+            <field name="struct_id" ref="l10n_tr_hr_payroll.hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="l10n_tr_hr_payroll_structure_tr_employee_salary_attachment_of_salary_rule" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="name">Attachment of Salary</field>
+            <field name="sequence">100</field>
+            <field name="code">ATTACH_SALARY</field>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = 'ATTACH_SALARY' in inputs</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = -inputs['ATTACH_SALARY'].amount
+result_name = inputs['ATTACH_SALARY'].name
+            </field>
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="l10n_tr_hr_payroll_structure_tr_employee_salary_assignment_of_salary_rule" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="name">Assignment of Salary</field>
+            <field name="sequence">110</field>
+            <field name="code">ASSIG_SALARY</field>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = 'ASSIG_SALARY' in inputs</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = -inputs['ASSIG_SALARY'].amount
+result_name = inputs['ASSIG_SALARY'].name
+            </field>
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="l10n_tr_hr_payroll_structure_tr_employee_salary_child_support" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="name">Child Support</field>
+            <field name="code">CHILD_SUPPORT</field>
+            <field name="amount_select">code</field>
+            <field name="sequence">120</field>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = 'CHILD_SUPPORT' in inputs</field>
+            <field name="amount_python_compute">
+result = -inputs['CHILD_SUPPORT'].amount
+result_name = inputs['CHILD_SUPPORT'].name
+            </field>
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="turkey_net_tax_btaxnet_deduction" model="hr.salary.rule">
+            <field name="name">Current Month Actual Deducted Tax (Pre Exempt)</field>
+            <field name="category_id" ref="l10n_tr_hr_payroll.hr_salary_rule_category_tr_net_taxded"/>
+            <field name="code">BTAXNET</field>
+            <field name="sequence">130</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = result_rules['TOTTB']['total'] - result_rules['ACTD']['total']
+            </field>
+            <field name="struct_id" ref="l10n_tr_hr_payroll.hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="turkey_net_tax_deduction" model="hr.salary.rule">
+            <field name="name">Current Month Actual Deducted Tax (Post Exempt)</field>
+            <field name="category_id" ref="l10n_tr_hr_payroll.hr_salary_rule_category_tr_net_taxded"/>
+            <field name="code">BTNET</field>
+            <field name="sequence">135</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = min(-result_rules['BTAXNET']['total'] + payslip._rule_parameter('l10n_tr_tax_exempt'), 0)
+            </field>
+            <field name="struct_id" ref="l10n_tr_hr_payroll.hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="l10n_tr_hr_payroll_structure_tr_employee_salary_deduction_salary_rule" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.DED"/>
+            <field name="name">Deduction</field>
+            <field name="sequence">150</field>
+            <field name="code">DEDUCTION</field>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = 'DEDUCTION' in inputs</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = -inputs['DEDUCTION'].amount
+result_name = inputs['DEDUCTION'].name
+            </field>
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="l10n_tr_hr_payroll_structure_tr_employee_salary_reimbursement_salary_rule" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.ALW"/>
+            <field name="name">Reimbursement</field>
+            <field name="sequence">155</field>
+            <field name="code">REIMBURSEMENT</field>
+            <field name="condition_select">python</field>
+            <field name="condition_python">result = 'REIMBURSEMENT' in inputs</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = inputs['REIMBURSEMENT'].amount
+result_name = inputs['REIMBURSEMENT'].name
+            </field>
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="turkey_stamp_tax_deduction" model="hr.salary.rule">
+            <field name="name">Stamp Tax Deduction</field>
+            <field name="category_id" ref="l10n_tr_hr_payroll.hr_salary_rule_category_tr_stamp_tax"/>
+            <field name="code">STAX</field>
+            <field name="sequence">160</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+tax_amount = categories['BASIC'] * payslip._rule_parameter('l10n_tr_stamp_tax_pcnt')
+tax_exemption = payslip._rule_parameter('l10n_tr_stamp_tax_exempt')
+result = -max(tax_amount - tax_exemption, 0.0)
+            </field>
+            <field name="struct_id" ref="l10n_tr_hr_payroll.hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="turkey_tax_deduction_net" model="hr.salary.rule">
+            <field name="name">Tax Deduction Net</field>
+            <field name="category_id" ref="l10n_tr_hr_payroll.hr_salary_rule_category_tax_deduction_net"/>
+            <field name="code">NETTAX</field>
+            <field name="sequence">165</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = categories['STAXD'] + result_rules['BTNET']['total']
+            </field>
+            <field name="struct_id" ref="l10n_tr_hr_payroll.hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="l10n_tr_hr_payroll_structure_tr_employee_salary_expected_net_salary" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.NET"/>
+            <field name="name">Expected Net Salary</field>
+            <field name="sequence">200</field>
+            <field name="code">EXPNET</field>
+            <field name="appears_on_employee_cost_dashboard" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW'] + categories['DED']
+            </field>
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="l10n_tr_hr_payroll_structure_tr_employee_salary_manual_deduction" model="hr.salary.rule">
+            <field name="category_id" ref="l10n_tr_category_other_deductions"/>
+            <field name="name">Manual Deductions</field>
+            <field name="sequence">210</field>
+            <field name="code">MANDED</field>
+            <field name="condition_select">input</field>
+            <field name="condition_other_input_id" ref="l10n_tr_hr_payroll.input_manual_deduction"/>
+            <field name="amount_select">input</field>
+            <field name="amount_other_input_id" ref="l10n_tr_hr_payroll.input_manual_deduction" />
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="l10n_tr_hr_payroll_structure_tr_employee_salary_manual_addition" model="hr.salary.rule">
+            <field name="category_id" ref="l10n_tr_category_other_allowance"/>
+            <field name="name">Manual Additions</field>
+            <field name="sequence">220</field>
+            <field name="code">MANADD</field>
+            <field name="condition_select">input</field>
+            <field name="condition_other_input_id" ref="l10n_tr_hr_payroll.input_manual_addition"/>
+            <field name="amount_select">input</field>
+            <field name="amount_other_input_id" ref="l10n_tr_hr_payroll.input_manual_addition" />
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+
+        <record id="l10n_tr_hr_payroll_structure_tr_employee_salary_net_salary" model="hr.salary.rule">
+            <field name="category_id" ref="hr_payroll.NET"/>
+            <field name="name">Actual Net Salary</field>
+            <field name="sequence">300</field>
+            <field name="code">NET</field>
+            <field name="appears_on_employee_cost_dashboard" eval="True"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = EXPNET - categories['OTHERDED'] + categories['OTHERALW']
+            </field>
+            <field name="struct_id" ref="hr_payroll_structure_tr_employee_salary"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ir_cron_remove_simulation_offers" model="ir.cron">
+        <field name="name">Payroll Salary Configurator: Remove Simulation Offers</field>
+        <field name="model_id" ref="model_hr_contract_salary_offer"/>
+        <field name="state">code</field>
+        <field name="code">model.action_cron_remove_simulation_offers()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+    </record>
+</odoo>

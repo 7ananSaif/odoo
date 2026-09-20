@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="hr_payroll.GeneratePdfsCogMenu">
+        <span t-if="draftRecords()" t-on-mouseenter="highlightDraftRecords" t-on-mouseleave="unhighlightDraftRecords">
+            <DropdownItem onSelected.bind="generatePdfs">
+                <i class="fa fa-spinner fa-fw"/> Generate PDFs
+            </DropdownItem>
+        </span>
+    </t>
+</templates>

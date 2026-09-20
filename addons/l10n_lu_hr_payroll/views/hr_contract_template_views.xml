@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_contract_template_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.template.view.form.inherit.l10_lu_hr_payroll</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+            <group name="salary_info" position="inside">
+                <group string="Benefits in Kind" invisible="country_code != 'LU'">
+                    <label for="l10n_lu_bik_vehicle" string="Vehicle"/>
+                    <div class="o_row">
+                        <field name="l10n_lu_bik_vehicle" class="o_hr_narrow_field"/>
+                        <span class="me-3">/ month</span>
+                        <field name="l10n_lu_bik_vehicle_vat_included"/>
+                        <span>VAT Included</span>
+                    </div>
+                    <label for="l10n_lu_bik_other_benefits"/>
+                    <div class="o_row">
+                        <field name="l10n_lu_bik_other_benefits" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+
+                    <separator string="Allowances"/>
+                    <label for="l10n_lu_alw_vehicle" string="Vehicle Package"/>
+                    <div class="o_row">
+                        <field name="l10n_lu_alw_vehicle" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+
+                    <separator string="Meal Vouchers"/>
+                    <label for="l10n_lu_meal_voucher_amount" string="Daily Amount"/>
+                    <div class="o_row">
+                        <field name="l10n_lu_meal_voucher_amount" class="o_hr_narrow_field"/>
+                        <span>/ worked day</span>
+                    </div>
+                    <label for="l10n_lu_meal_voucher_employer_cost" string="Employer Contribution"/>
+                    <div class="o_row">
+                        <field name="l10n_lu_meal_voucher_employer_cost" class="o_hr_narrow_field"/>
+                        <span>/ worked day</span>
+                    </div>
+                    <field name="l10n_lu_meal_voucher_employee_computation" string="Employee Computation" widget="radio"/>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

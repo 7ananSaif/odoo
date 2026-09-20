@@ -1,0 +1,34 @@
+.s_appointments {
+    .s_appointments_picture_item {
+        --AppointmentMessage-line-clamp: 3;
+
+        .o_wappointment_message_intro {
+            font {
+                // This avoids readability issues when changing the color in the backend.
+                background: none !important;
+                color: $white !important;
+            }
+        }
+
+        &:where(:not(:hover):not(:focus-visible)) .s_appointments_picture_head {
+            transform: translate(0, 50%);
+        }
+    }
+
+    .s_appointments_list_item {
+        --DynamicSnippet__entry-maxWidth: auto;
+        --AppointmentMessage-line-clamp: 2;
+
+        .row {
+            --gutter-x: #{map-get($spacers, 3) * 2};
+        }
+
+        > div {
+            border: $border-width solid $border-color;
+
+            &:hover {
+                border-color: $primary;
+            }
+        }
+    }
+}

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="manual_reminder_view_form_inherit_whatsapp_followup" model="ir.ui.view">
+            <field name="name">account.followup.manual_reminder.view.form.inherit</field>
+            <field name="model">account_followup.manual_reminder</field>
+            <field name="inherit_id" ref="account_followup.manual_reminder_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//label[@for='email']" position="after">
+                    <field name="whatsapp" nolabel="1"/>
+                    <label for="whatsapp" string="WhatsApp"/>
+                </xpath>
+
+                <group name="attachments" position="after">
+                    <group string="WhatsApp" name="whatsapp" invisible="not whatsapp">
+                        <group>
+                            <field name="wa_template_id"
+                                options="{'no_create_edit': True, 'no_create': True}"
+                                domain="[('model', '=', 'res.partner'), ('status', '=', 'approved')]"/>
+                            <field name="phone"/>
+                            <field name="header_text_1" invisible="not is_header_free_text" required="is_header_free_text" readonly="0"/>
+                            <field name="free_text_1" invisible="number_of_free_text &lt; 1" required="number_of_free_text &gt;= 1" readonly="0"/>
+                            <field name="free_text_2" invisible="number_of_free_text &lt; 2" required="number_of_free_text &gt;= 2" readonly="0"/>
+                            <field name="free_text_3" invisible="number_of_free_text &lt; 3" required="number_of_free_text &gt;= 3" readonly="0"/>
+                            <field name="free_text_4" invisible="number_of_free_text &lt; 4" required="number_of_free_text &gt;= 4" readonly="0"/>
+                            <field name="free_text_5" invisible="number_of_free_text &lt; 5" required="number_of_free_text &gt;= 5" readonly="0"/>
+                            <field name="free_text_6" invisible="number_of_free_text &lt; 6" required="number_of_free_text &gt;= 6" readonly="0"/>
+                            <field name="free_text_7" invisible="number_of_free_text &lt; 7" required="number_of_free_text &gt;= 7" readonly="0"/>
+                            <field name="free_text_8" invisible="number_of_free_text &lt; 8" required="number_of_free_text &gt;= 8" readonly="0"/>
+                            <field name="free_text_9" invisible="number_of_free_text &lt; 9" required="number_of_free_text &gt;= 9" readonly="0"/>
+                            <field name="free_text_10" invisible="number_of_free_text &lt; 10" required="number_of_free_text &gt;= 10" readonly="0"/>
+                            <field name="button_dynamic_url_1" invisible="number_of_free_text_button &lt; 1" required="number_of_free_text_button &gt;= 1" readonly="0"/>
+                            <field name="button_dynamic_url_2" invisible="number_of_free_text_button &lt; 2" required="number_of_free_text_button &gt;= 2" readonly="0"/>
+                        </group>
+                        <group>
+                            <div colspan="2">
+                                <field name="preview_whatsapp" no_label="1" invisible="not preview_whatsapp"/>
+                            </div>
+                        </group>
+                    </group>
+                </group>
+            </field>
+        </record>
+    </data>
+</odoo>

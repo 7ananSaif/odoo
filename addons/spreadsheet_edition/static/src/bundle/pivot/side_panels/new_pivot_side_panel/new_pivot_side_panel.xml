@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <div
+        t-name="spreadsheet_edition.NewPivotSidePanel"
+        class="h-100 overflow-hidden d-flex justify-content-between flex-column o_new_pivot_side_panel">
+        <div class="h-100 position-relative overflow-x-hidden overflow-y-auto">
+            <Section title.translate="Model">
+                <ModelSelector value="state.model?.label" onModelSelected.bind="onModelSelected" autofocus="true"/>
+            </Section>
+            <Section>
+                <div class="o-sidePanelButtons">
+                    <button class="o-button" t-on-click="() => props.onCloseSidePanel()">
+                        Cancel
+                    </button>
+                    <button class="o-button primary" t-on-click="save" t-att-disabled="!isSaveAllowed">
+                        Save
+                    </button>
+                </div>
+            </Section>
+        </div>
+    </div>
+</templates>

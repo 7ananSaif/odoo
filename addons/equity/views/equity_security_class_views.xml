@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_equity_security_class_list" model="ir.ui.view">
+        <field name="name">equity.security.class.list</field>
+        <field name="model">equity.security.class</field>
+        <field name="arch" type="xml">
+            <list string="Security Classes">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="share_votes" width="150px"/>
+                <field name="dividend_payout" width="150px"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_equity_security_class_form" model="ir.ui.view">
+        <field name="name">equity.security.class.form</field>
+        <field name="model">equity.security.class</field>
+        <field name="arch" type="xml">
+            <form string="Security Class">
+                <sheet>
+                    <group>
+                        <field name="name" placeholder="e.g. Seed, Series A, ..." class="flex-grow-0 w-auto"/>
+                        <field name="class_type" widget="radio" options="{'horizontal': true}"/>
+                        <div class="o_td_label" invisible="class_type == 'options'">
+                            <label for="share_votes" string="Votes"/>
+                        </div>
+                        <div class="d-flex" invisible="class_type == 'options'">
+                            <field name="share_votes" class="flex-grow-0 w-auto"/>
+                            <span>per share</span>
+                        </div>
+                        <field name="dividend_payout" invisible="class_type == 'options'"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_equity_security_class" model="ir.actions.act_window">
+        <field name="name">Security Classes</field>
+        <field name="res_model">equity.security.class</field>
+        <field name="path">security-classes</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+</odoo>

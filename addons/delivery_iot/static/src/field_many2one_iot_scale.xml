@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="delivery_iot.FieldMany2OneIoTScale">
+        <div class="d-flex align-items-center gap-1">
+            <Many2One t-props="m2oProps" cssClass="'w-100'"/>
+            <div t-if="!props.readonly and showManualReadButton">
+                <button class="btn btn-primary" t-on-click="onClickReadWeight">
+                    Read weight
+                </button>
+            </div>
+        </div>
+    </t>
+
+</templates>

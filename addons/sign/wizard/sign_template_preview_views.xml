@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sign_template_preview_view_form" model="ir.ui.view">
+        <field name="name">sign.template.preview.view.form</field>
+        <field name="model">sign.template.preview</field>
+        <field name="arch" type="xml">
+            <form>
+                <group>
+                    <field name="pdf_data" widget="pdf_viewer" nolabel="1" readonly="1"/>
+                </group>
+                <footer>
+                    <button string="Close" class="btn-primary" special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

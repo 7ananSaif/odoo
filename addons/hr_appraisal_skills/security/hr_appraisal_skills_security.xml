@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="hr_appraisal_skill_rule_hr_user" model="ir.rule">
+        <field name="name">Employee skill: HR appraisal user: read all</field>
+        <field name="model_id" ref="model_hr_appraisal_skill"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4,ref('hr_appraisal.group_hr_appraisal_user'))]"/>
+    </record>
+
+    <record id="hr_appraisal_skill_rule_employee_update" model="ir.rule">
+        <field name="name">Appraisal skill: employee: create/write/unlink by manager</field>
+        <field name="model_id" ref="model_hr_appraisal_skill"/>
+        <field name="domain_force">[('manager_ids.user_id', 'in', user.ids)]</field>
+        <field name="perm_read" eval="False"/>
+        <field name="groups" eval="[(4,ref('base.group_user'))]"/>
+    </record>
+
+    <record id="hr_appraisal_goal_skill_rule_hr_user" model="ir.rule">
+        <field name="name">Appraisal Goal skill: HR appraisal user: read/create/write/unlink</field>
+        <field name="model_id" ref="model_hr_appraisal_goal_skill"/>
+        <field name="domain_force">[(1, '=', 1)]</field>
+        <field name="groups" eval="[(4,ref('hr_appraisal.group_hr_appraisal_user'))]"/>
+    </record>
+
+    <record id="hr_appraisal_goal_skill_rule_employee_create_write" model="ir.rule">
+        <field name="name">Appraisal Goal skill: employee: create/write by manager</field>
+        <field name="model_id" ref="model_hr_appraisal_goal_skill"/>
+        <field name="domain_force">[
+            ('goal_id', 'any', [
+                ('employee_ids', '!=', False),
+                '|',
+                    '|',
+                        '|',
+                            '|',
+                                ('is_manager', '=', True),
+                                ('employee_ids.user_id', '=', user.id),
+                            ('manager_ids.user_id', '=', user.id),
+                        '&amp;',
+                            ('employee_ids.parent_id', '!=', False),
+                            ('employee_ids.parent_id.user_id', '=', user.id),
+                    '&amp;',
+                        ('employee_ids.last_appraisal_id.manager_ids.user_id', '=', user.id),
+                        ('employee_ids.last_appraisal_id.state', 'in', ['1_new', '2_pending'])
+            ])
+        ]</field>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+        <field name="groups" eval="[(4,ref('base.group_user'))]"/>
+    </record>
+
+    <record id="hr_appraisal_goal_skill_own_delete" model="ir.rule">
+    <field name="name">Appraisal Goal skill: An employee can delete his own goals skills,if he created it, or his subordinates'</field>
+        <field name="model_id" ref="model_hr_appraisal_goal_skill"/>
+        <field name="domain_force">[
+            ('goal_id', 'any', [
+                ('employee_ids', '!=', False),
+                '|',
+                    '&amp;',
+                        ('employee_ids.user_id', '=', user.id),
+                        ('create_uid', '=', user.id),
+                    '|',
+                        '&amp;',
+                            ('employee_ids.user_id', '!=', user.id),
+                            ('employee_ids.parent_id.user_id', '=', user.id),
+                        '&amp;',
+                            ('employee_ids.last_appraisal_id.manager_ids.user_id', '=', user.id),
+                            ('employee_ids.last_appraisal_id.state', 'in', ['1_new', '2_pending']),
+            ])
+        ]</field>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_unlink" eval="True"/>
+        <field name="groups" eval="[(4, ref('base.group_user'))]"/>
+    </record>
+
+</odoo>

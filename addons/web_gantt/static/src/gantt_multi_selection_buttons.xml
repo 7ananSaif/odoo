@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="web_gantt.GanttMultiSelectionButtons" t-inherit="web.MultiSelectionButtons" t-inherit-mode="primary">
+        <button t-ref="addButton" position="after">
+            <button t-if="this.props.reactive.onPlan" class="btn btn-secondary" data-tooltip="Plan" t-on-click="() => this.props.reactive.onPlan()">
+                Plan
+            </button>
+        </button>
+    </t>
+
+</templates>

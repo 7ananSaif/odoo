@@ -1,0 +1,13 @@
+<templates id="template" xml:space="preserve">
+    <t t-name="knowledge.SearchBarMenu.FavoriteItem" t-inherit="web.SearchBarMenu.FavoriteItem" t-inherit-mode="extension">
+        <xpath expr="//CheckboxItem//i[hasclass('fa-pencil')]" position="attributes">
+            <attribute name="t-if">!env.isEmbeddedView</attribute>
+        </xpath>
+        <xpath expr="//CheckboxItem//i[hasclass('fa-pencil')]" position="after">
+            <i t-else="" class="ms-1 fa fa-trash-o"
+                title="Delete favorite"
+                t-on-click.stop="() => this.onDeleteKnowledgeFavoriteItem?.(item.id)"
+            />
+        </xpath>
+    </t>
+</templates>

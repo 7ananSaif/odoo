@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="account_accountant.BankRecLineToReconcile">
+        <div class="o_row" t-on-click.stop="onClickLine">
+            <div class="o_line_name d-flex align-items-center gap-1 text-truncate">
+                <a href="#" class="text-truncate fw-bold" t-esc="lineData.partner_id.display_name" t-on-click.stop="openPartner" role="button" t-att-title="lineData.partner_id.display_name" t-if="lineData.partner_id"/>
+                <span t-esc="lineData.account_id.display_name" class="text-truncate" t-att-class="lineData.partner_id ? 'ms-1' : undefined"/>
+                <div class="d-flex gap-2">
+                    <t t-foreach="lineDataTaxIds" t-as="tax_id" t-key="tax_id_index">
+                        <div class="o_tag d-inline-flex align-items-center badge rounded-pill o_tag_color_0 flex-shrink-0">
+                            <span class="o_tag_badge_text text-truncate" t-esc="tax_id.data.display_name"/>
+                            <i t-on-click.stop="() => this.deleteTax(tax_id_index)" class="ps-1 opacity-100-hover opacity-75 oi oi-close"/>
+                        </div>
+                    </t>
+                </div>
+            </div>
+            <span t-if="!!moveData.display_name and moveData.id !== statementLineData.move_id.id" class="d-none d-md-inline">
+                <a t-on-click.stop="openMove" href="#">
+                    <t t-esc="moveData.display_name"/>
+                </a>
+            </span>
+            <div class="o_line_amount d-flex align-items-center justify-content-between">
+                <span class="text-muted w-50 text-end" t-if="hasDifferentCurrencies">
+                    <span t-att-class="{'btn btn-link p-0' : showLineInfo}" t-ref="line-info-ref" t-on-click.stop="openLineInfoPopOver">
+                        <i t-if="showLineInfo" class="fa fa-info-circle me-2"/>
+                        <t t-out="formattedAmountCurrencyOfLine"/>
+                    </span>
+                </span>
+                <span class="text-end w-100" t-if="!hasDifferentCurrencies">
+                    <span t-att-class="{'btn btn-link p-0' : showLineInfo}" t-ref="line-info-ref" t-on-click.stop="openLineInfoPopOver">
+                        <i t-if="showLineInfo" class="fa fa-info-circle me-2"/>
+                        <t t-out="formattedAmountCurrencyOfStatementLine"/>
+                    </span>
+                </span>
+            </div>
+            <div class="o_line_to_reconcile_button d-none d-md-flex justify-content-end gap-2">
+                <button t-if="lineData.has_invalid_analytics" class="btn btn-link p-0 text-600" t-on-click.stop="toggleEditLine">
+                    <i class="fa fa-exclamation-triangle text-warning" data-tooltip="This line has invalid analytic distribution"/>
+                </button>
+                <button t-if="!lineData.has_invalid_analytics" class="btn btn-link p-0 text-600" t-on-click.stop="toggleEditLine">
+                    <i class="fa fa-pencil"/>
+                </button>
+                <button class="btn btn-link p-0 text-600" t-on-click.stop="deleteLine" t-if="!isTaxLine">
+                    <i class="fa fa-trash"/>
+                </button>
+            </div>
+        </div>
+    </t>
+</templates>

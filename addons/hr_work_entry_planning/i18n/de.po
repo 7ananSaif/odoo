@@ -1,0 +1,118 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * hr_work_entry_planning
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.4+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-09-15 21:16+0000\n"
+"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-19/"
+"hr_work_entry_planning/de/>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: hr_work_entry_planning
+#: model:ir.model.fields,help:hr_work_entry_planning.field_hr_employee__work_entry_source
+#: model:ir.model.fields,help:hr_work_entry_planning.field_hr_version__work_entry_source
+msgid ""
+"\n"
+"        Defines the source for work entries generation\n"
+"\n"
+"        Working Schedule: Work entries will be generated from the working "
+"hours below.\n"
+"        Attendances: Work entries will be generated from the employee's "
+"attendances. (requires Attendance app)\n"
+"        Planning: Work entries will be generated from the employee's "
+"planning. (requires Planning app)\n"
+"    "
+msgstr ""
+"\n"
+"        Definiert den Ursprung für die Erzeugung von Arbeitseinträgen\n"
+"\n"
+"        Arbeitsplan: Die Arbeitseinträge werden aus den unten stehenden "
+"Arbeitszeiten generiert.\n"
+"        Anwesenheiten: Die Arbeitseinträge werden aus den Anwesenheiten des "
+"Mitarbeiters generiert. (erfordert die Anwesenheiten-App)\n"
+"        Planung: Die Arbeitseinträge werden aus der Planung des Mitarbeiters "
+"generiert. (erfordert die Planungs-App)\n"
+"    "
+
+#. module: hr_work_entry_planning
+#: model:ir.model.fields,field_description:hr_work_entry_planning.field_hr_version__display_name
+#: model:ir.model.fields,field_description:hr_work_entry_planning.field_hr_work_entry__display_name
+#: model:ir.model.fields,field_description:hr_work_entry_planning.field_hr_work_entry_regeneration_wizard__display_name
+#: model:ir.model.fields,field_description:hr_work_entry_planning.field_planning_slot__display_name
+msgid "Display Name"
+msgstr "Anzeigename"
+
+#. module: hr_work_entry_planning
+#: model:ir.model,name:hr_work_entry_planning.model_hr_version
+msgid "Employee Contract"
+msgstr "Arbeitsvertrag"
+
+#. module: hr_work_entry_planning
+#: model:ir.model,name:hr_work_entry_planning.model_hr_work_entry
+msgid "HR Work Entry"
+msgstr "HR-Arbeitseintrag"
+
+#. module: hr_work_entry_planning
+#: model:ir.model.fields,field_description:hr_work_entry_planning.field_hr_version__id
+#: model:ir.model.fields,field_description:hr_work_entry_planning.field_hr_work_entry__id
+#: model:ir.model.fields,field_description:hr_work_entry_planning.field_hr_work_entry_regeneration_wizard__id
+#: model:ir.model.fields,field_description:hr_work_entry_planning.field_planning_slot__id
+msgid "ID"
+msgstr "ID"
+
+#. module: hr_work_entry_planning
+#: model:ir.model.fields.selection,name:hr_work_entry_planning.selection__hr_version__work_entry_source__planning
+msgid "Planning"
+msgstr "Planung"
+
+#. module: hr_work_entry_planning
+#: model:ir.model,name:hr_work_entry_planning.model_planning_slot
+msgid "Planning Shift"
+msgstr "Schicht der Planung"
+
+#. module: hr_work_entry_planning
+#: model:ir.model.fields,field_description:hr_work_entry_planning.field_hr_work_entry__planning_slot_id
+msgid "Planning Slot"
+msgstr "Planungszeitfenster"
+
+#. module: hr_work_entry_planning
+#: model:ir.model,name:hr_work_entry_planning.model_hr_work_entry_regeneration_wizard
+msgid "Regenerate Employee Work Entries"
+msgstr "Arbeitseinträge für Mitarbeiter neu generieren"
+
+#. module: hr_work_entry_planning
+#. odoo-python
+#: code:addons/hr_work_entry_planning/models/planning_slot.py:0
+msgid ""
+"This shift record is linked to a validated working entry. You can't delete "
+"it."
+msgstr ""
+"Dieser Schichteintrag ist mit einem validierten Arbeitseintrag verknüpft. "
+"Sie können ihn nicht löschen."
+
+#. module: hr_work_entry_planning
+#. odoo-python
+#: code:addons/hr_work_entry_planning/models/planning_slot.py:0
+msgid ""
+"This shift record is linked to a validated working entry. You can't modify "
+"it."
+msgstr ""
+"Dieser Schichteintrag ist mit einem validierten Arbeitseintrag verknüpft. "
+"Sie können ihn nicht bearbeiten."
+
+#. module: hr_work_entry_planning
+#: model:ir.model.fields,field_description:hr_work_entry_planning.field_hr_employee__work_entry_source
+#: model:ir.model.fields,field_description:hr_work_entry_planning.field_hr_version__work_entry_source
+msgid "Work Entry Source"
+msgstr "Quelle des Arbeitseintrags"

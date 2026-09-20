@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="documents.DocumentsKanbanView" t-inherit="web.KanbanView" t-inherit-mode="primary">
+        <xpath expr="//Layout" position="attributes">
+            <attribute name="className">(model.useSampleModel ? 'o_view_sample_data' : '')
+                + ' o_documents_content o_documents_kanban' + (env.isSmall ? ' overflow-hidden' : '')</attribute>
+        </xpath>
+        <xpath expr="//t[@t-set-slot='control-panel-create-button']" position="inside">
+            <t t-call="documents.DocumentsViews.ControlPanel"/>
+        </xpath>
+        <xpath expr="//Layout/t[@t-component='props.Renderer']" position="attributes">
+            <attribute name="previewStore">documentStates.previewStore</attribute>
+        </xpath>
+        <xpath expr="//div[@t-if='hasSelectedRecords']" position="attributes">
+            <attribute name="t-if">hasSelectedRecords and !rightPanelState.previewedDocument</attribute>
+        </xpath>
+        <xpath expr="//ActionMenus" position="attributes">
+            <attribute name="t-if">showActions</attribute>
+        </xpath>
+    </t>
+</templates>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="frontdesk" name="Frontdesk">
+        <t t-call="web.frontend_layout">
+            <t t-set="head">
+                <t t-call-assets="frontdesk.assets_frontdesk" lazy_load="True"/>
+                <script type="text/javascript">
+                    odoo.__session_info__ = <t t-out="json.dumps({
+                        'user_context': {'lang': current_lang},
+                    })"/>;
+                </script>
+            </t>
+            <t t-set="title" t-value="frontdesk.name"/>
+            <t t-set="body_classname" t-value="'o_frontdesk ' + ('bg-900 o_dark' if frontdesk.theme == 'dark' else 'o_light')"/>
+            <t t-set="no_header" t-value="1"/>
+            <t t-set="no_footer" t-value="1"/>
+            <t t-set="no_livechat" t-value="1"/>
+            <owl-component name="frontdesk" t-att-props="json.dumps({
+                'id': frontdesk.id,
+                'isMobile': is_mobile,
+                'currentLang': current_lang,
+            })"/>
+        </t>
+    </template>
+
+    <template id="frontdesk_visitor_check_out" name="Frontdesk">
+        <t t-call-assets="web.assets_frontend" lazy_load="True"/>
+        <div class="d-flex flex-column justify-content-lg-between vh-100 p-3 p-md-4">
+            <div class="my-5 text-center">
+                <h1 class="display-6 mb-0">
+                    <i class="fa fa-check-circle fa-3x d-block mb-3 text-success"/>
+                    The visitor has been successfully <br/> checked out
+                </h1>
+            </div>
+            <div class="col-lg-6 d-grid mx-lg-auto">
+                <button class="btn bg-200 fs-3" onclick="window.close()">Close</button>
+            </div>
+        </div>
+    </template>
+
+</odoo>

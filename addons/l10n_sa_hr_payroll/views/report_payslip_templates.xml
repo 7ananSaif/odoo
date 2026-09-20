@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<odoo>
+    <template id="report_payslip_sa" inherit_id="hr_payroll.report_payslip" primary="True">
+        <div id="employee_id" position="replace">
+            <strong class="me-2">SSN:</strong>
+            <span t-out="('XXX-XX-' + o.employee_id.ssnid[-4:]) if o.employee_id.ssnid else ''"/>
+        </div>
+
+        <div id="employee_email" position="replace"/>
+        <div id="employee_marital" position="replace"/>
+        <div id="employee_private_address" position="replace"/>
+        <div id="contract_type" position="replace"/>
+        <div id="working_schedule" position="replace"/>
+
+        <th id="work_days_header_name" position="replace">
+            <th id="work_days_header_name">Entries</th>
+        </th>
+        <th id="work_days_header_amount" position="replace"/>
+        <td id="worked_days_amount" position="replace"/>
+        <td id="worked_days_total_amount" position="replace"/>
+
+        <th id="line_header_amount" position="replace"/>
+        <th id="line_header_quantity" position="replace"/>
+        <th id="line_header_rate" position="replace"/>
+        <td id="payslip_line_amount" position="replace"/>
+        <td id="payslip_line_quantity" position="replace"/>
+        <td id="payslip_line_rate" position="replace"/>
+
+        <xpath expr="//div[@id='to_pay']" position="replace">
+            <div id="to_pay">
+                <t t-if="o.net_wage >= 0">
+                    <t t-set="allocations" t-value="o.compute_salary_allocations()"/>
+                    <t t-foreach="allocations.items()" t-as="alloc">
+                        <t t-set="bank" t-value="o.env['res.partner.bank'].browse(int(alloc[0]))"/>
+                        <p t-if="bank.acc_number">
+                            <span class="fw-bold" t-out="bank.acc_number"/> : 
+                            <span t-out="alloc[1]" t-options='{"widget": "monetary", "display_currency": o.currency_id}' class="fw-bold"/>
+                        </p>
+                    </t>
+                </t>
+                <p t-if="o.net_wage &lt; 0">
+                    The net amount will be recovered from the first positive remuneration established after this.
+                </p>
+            </div>
+        </xpath>
+
+    </template>
+
+    <template id="report_payslip_sa_lang">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="o" t-value="o.with_context(lang=o.employee_id.lang or o.env.lang)"/>
+                <t t-call="l10n_sa_hr_payroll.report_payslip_sa" t-lang="o.env.lang"/>
+            </t>
+        </t>
+    </template>
+
+    <template id="report_advance_and_loan" inherit_id="hr_payroll.report_payslip" primary="True">
+        <div id="worked_days_table" position="replace"/>
+    </template>
+    
+    <template id="report_advance_and_loan_lang">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="o" t-value="o.with_context(lang=o.employee_id.lang or o.env.lang)"/>
+                <t t-call="l10n_sa_hr_payroll.report_advance_and_loan" t-lang="o.env.lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>

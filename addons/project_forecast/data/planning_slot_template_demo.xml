@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="planning_template_management_morning" model="planning.slot.template">
+            <field name="role_id" ref="planning_role_tester"/>
+            <field name="start_time" eval="8"/>
+            <field name="end_time" eval="12"/>
+            <field name="duration_days" eval="1"/>
+            <field name="sequence">4</field>
+            <field name="project_id" ref="project.project_project_2"/>
+        </record>
+
+        <record id="planning_template_management_afternoon" model="planning.slot.template">
+            <field name="role_id" ref="planning_role_tester"/>
+            <field name="start_time" eval="13"/>
+            <field name="end_time" eval="17"/>
+            <field name="duration_days" eval="1"/>
+            <field name="sequence">8</field>
+            <field name="project_id" ref="project.project_project_2"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,31 @@
+<templates xml:space="preserve">
+    <t t-name="hr_expense_stripe.cardReceiveTermsViewDialog">
+        <Dialog size="'lg'" title.translate="Confirmation">
+            <div>
+                <p>By ticking the box, you agree:</p>
+                <h3>Card Reception</h3>
+                <p>
+                    You confirm you have received the physical expense card.
+                </p>
+                <h3>Card Liability</h3>
+                <p>
+                    You are responsible for all transactions made with your card,
+                    including unauthorized charges unless covered by law or Stripe’s policy.
+                </p>
+                <h3>Lost or Stolen Cards</h3>
+                <p>
+                    You must report lost or stolen cards immediately.
+                    You are responsible for monitoring usage and disputing unauthorized charges promptly.
+                </p>
+                <h3>Termination</h3>
+                <p>
+                    If your account or card is closed, you must stop using and destroy the card.
+                    You remain liable for any outstanding charges.
+                </p>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-secondary" t-on-click="props.close">Close</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

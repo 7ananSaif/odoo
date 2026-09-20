@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_salary_rule_benefit_selector_list" model="ir.ui.view">
+        <field name="name">hr.salary.rule.selector.list</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="arch" type="xml">
+            <list string="Select your benefits" js_class="hr_salary_rule_list" create="0" edit="0">
+                <field name="name"/>
+                <field name="input_description"/>
+                <field name="input_section"/>
+                <field name="input_default_value"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_salary_rule_list" model="ir.ui.view">
+        <field name="name">hr.salary.rule.list</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="arch" type="xml">
+            <list string="Salary Rules">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="category_id"/>
+                <field name="struct_id" column_invisible="True"/>
+                <field name="sequence" column_invisible="True"/>
+                <field name="partner_id"/>
+                <field name="country_id" optional="hidden"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_salary_rule_view_list_m2m" model="ir.ui.view">
+        <field name="name">hr.salary.rule.view.list.m2m</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="inherit_id" ref="hr_payroll.hr_salary_rule_list"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <field name="struct_id" position="attributes">
+                <attribute name="column_invisible">0</attribute>
+            </field>
+            <field name="partner_id" position="attributes">
+                <attribute name="optional">hidden</attribute>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_salary_rule_form" model="ir.ui.view">
+        <field name="name">hr.salary.rule.form</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="arch" type="xml">
+            <form string="Salary Rules">
+            <sheet>
+                <widget name="web_ribbon" title="Archived" bg_color="text-bg-danger" invisible="active"/>
+                <label for="name" string="Rule Name"/>
+                <h1><field name="name" placeholder="e.g. Net Salary"/></h1>
+                <field name="input_used_in_definition" invisible="1"/>
+                <group name="main_details">
+                    <group>
+                       <field name="code"/>
+                       <field name="category_id" placeholder="e.g. Net"/>
+                       <field name="struct_id" readonly="input_used_in_definition"/>
+                    </group>
+                    <group>
+                       <field name="sequence"/>
+                       <field name="appears_on_payslip"/>
+                       <field name="appears_on_employee_cost_dashboard"/>
+                    </group>
+                </group>
+                <notebook colspan="6">
+                    <page name="general" string="General">
+                        <group string="Conditions">
+                            <field name="condition_select" readonly="input_used_in_definition"/>
+                            <field name="condition_domain" invisible="condition_select != 'domain'" widget="domain" options="{'foldable': True,'model': 'hr.payslip'}"/>
+                            <field name="condition_other_input_id" invisible="condition_select != 'input'" required="condition_select == 'input'"/>
+
+                            <label for="input_usage_employee" string="Input on" invisible="condition_select != 'property_input'"/>
+                            <div name="property_usage" class="o_row" invisible="condition_select != 'property_input'">
+                                <span class="d-inline-flex">
+                                    <field name="input_usage_employee"/>
+                                    <label for="input_usage_employee" string="Employee"/>
+                                </span>
+                                <span class="d-inline-flex">
+                                    <field name="input_usage_payslip"/>
+                                    <label for="input_usage_payslip" string="Payslip"/>
+                                </span>
+                            </div>
+                            <field name="input_section" readonly="input_used_in_definition" invisible="condition_select != 'property_input'" required="condition_select == 'property_input'"/>
+                            <field name="input_unit" readonly="input_used_in_definition" invisible="condition_select != 'property_input'" widget="radio" options="{'horizontal': true}" required="condition_select == 'property_input'"/>
+                            <field name="input_description" placeholder="Explain when it's applicable..." invisible="condition_select != 'property_input'"/>
+                            <field name="input_default_boolean" invisible="input_unit != 'boolean' or condition_select != 'property_input'"/>
+                            <label for="input_default_value" invisible="input_unit == 'boolean' or condition_select != 'property_input'"/>
+                            <div class="o_row" invisible="input_unit == 'boolean' or condition_select != 'property_input'">
+                                <field name="input_default_value" class="o_hr_narrow_field" nolabel="1"/>
+                                <span invisible="input_unit != 'percentage'">%</span>
+                                <field name="input_suffix" class="o_hr_narrow_field" nolabel="1" placeholder="Suffix (e.g. per km)"/>
+                            </div>
+                            <field name="dependent_input_id" placeholder="None" invisible="condition_select != 'property_input'" readonly="input_used_in_definition" options="{'no_create': True}" string="Depends On"/>
+                        </group>
+                        <group colspan="4" invisible="condition_select != 'python'">
+                            <div class="w-100 d-flex flex-row gap-3" invisible="condition_select != 'python'" colspan="2">
+                                <field name="condition_python" class="w-50" widget="code" options="{'mode': 'python'}" required="condition_select == 'python'" />
+                                <div class="w-50 opacity-75 text-muted" colspan="2">
+                                    <span> Available variables: </span>
+                                    <ul>
+                                        <li><code>payslip</code>: hr.payslip object</li>
+                                        <li><code>employee</code>: hr.employee object</li>
+                                        <li><code>version</code>: hr.version object</li>
+                                        <li><code>result_rules</code>: dict containing the rules amounts, quantities, rates and totals (previously computed)</li>
+                                        <li><code>categories</code>: dict containing the computed salary rule categories (sum of amount of all rules belonging to that category).</li>
+                                        <li><code>worked_days</code>: dict containing the computed worked days</li>
+                                        <li><code>inputs</code>: dict containing the computed inputs.</li>
+                                    </ul>
+                                    <span>Output:</span>
+                                    <ul>
+                                        <li><code>result</code>: boolean True if the rule should be calculated, False otherwise</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </group>
+                        <group name="general_conditions" colspan="4">
+                            <group string="Computation" invisible="condition_select == 'property_input'">
+                                <field name="amount_select"/>
+                                <field name="amount_percentage_base" invisible="amount_select != 'percentage'" required="amount_select == 'percentage' and condition_select != 'property_input'"/>
+                                <field name="quantity" invisible="amount_select in ['code', 'input']" required="amount_select not in ['code', 'input']"/>
+                                <field name="amount_fix"  invisible="amount_select != 'fix'"  required="amount_select == 'fix'"/>
+                                <field name="amount_other_input_id"  invisible="amount_select != 'input'"  required="amount_select == 'input'"/>
+                                <field name="amount_percentage" invisible="amount_select != 'percentage'" required="amount_select == 'percentage'"/>
+                            </group>
+                            <group colspan="4" invisible="amount_select != 'code' or condition_select == 'property_input'">
+                                <div class="w-100 d-flex flex-row gap-3" invisible="amount_select != 'code'" colspan="2">
+                                    <field name="amount_python_compute" class="w-50" widget="code" options="{'mode': 'python'}" required="amount_select == 'code'" />
+                                    <div class="w-50 opacity-75 text-muted" colspan="2">
+                                        <span> Available variables: </span>
+                                        <ul>
+                                            <li><code>payslip</code>: hr.payslip object</li>
+                                            <li><code>employee</code>: hr.employee object</li>
+                                            <li><code>version</code>: hr.version object</li>
+                                            <li><code>result_rules</code>: dict containing the rules amounts, quantities, rates and totals (previously computed)</li>
+                                            <li><code>categories</code>: dict containing the computed salary rule categories (sum of amount of all rules belonging to that category).</li>
+                                            <li><code>worked_days</code>: dict containing the computed worked days</li>
+                                            <li><code>inputs</code>: dict containing the computed inputs.</li>
+                                        </ul>
+                                        <span>Output:</span>
+                                        <ul>
+                                            <li><code>result</code>: float, base amount of the rule</li>
+                                            <li><code>result_rate</code>: float, rate between -100.0 and 100.0, which defaults to 100.0 (%).</li>
+                                            <li><code>result_qty</code>: float, quantity, which defaults to 1.</li>
+                                            <li><code>result_name</code>: string, name of the line, which defaults to the name field of the salary rule (useful if the name depends or should depend on something computed in the rule).</li>
+                                            <li>The total returned by the salary rule is calculated as:</li>
+                                            <code>total = result * result_rate / 100 * result_qty</code>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </group>
+                            <group string="Company Contribution">
+                                <field name="partner_id"/>
+                            </group>
+                        </group>
+                    </page>
+                    <page name="display" string="Display">
+                        <group name="options">
+                            <group>
+                                <field name="color" widget="color"/>
+                                <field name="title"/>
+                                <field name="indented"/>
+                                <field name="space_above"/>
+                            </group>
+                            <group>
+                                <field name="bold"/>
+                                <field name="underline"/>
+                                <field name="italic"/>
+                            </group>
+                            <label for="note" string="Description" class="fw-bold text-900 opacity-100"/>
+                            <field name="note"/>
+                        </group>
+                        <group name="preview" string="Preview">
+                            <group>
+                                <div>
+                                    <field name="name" readonly="1" class="fs-4" widget="formatted_text_preview"/>
+                                    <field name="note" readonly="1" class="text-truncate fs-6"
+                                        widget="formatted_text_preview" invisible="not note"/>
+                                </div>
+                            </group>
+                        </group>
+                    </page>
+                </notebook>
+            </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_hr_rule_filter" model="ir.ui.view">
+        <field name="name">hr.salary.rule.select</field>
+        <field name="model">hr.salary.rule</field>
+        <field name="arch" type="xml">
+            <search string="Search Salary Rule">
+                <field name="name" string="Salary Rules" filter_domain="['|', ('name', 'ilike', self), ('code', 'ilike', self)]"/>
+                <field name="category_id"/>
+                <field name="struct_id"/>
+                <field name="amount_python_compute" string="Python Code" filter_domain="['|', ('amount_python_compute', 'ilike', self), ('condition_python', 'ilike', self)]"/>
+                <separator/>
+                <filter name="archived" string="Archived" domain="[('active', '=', False)]"/>
+                <group col="8" colspan="4">
+                    <filter string="Category" name="head" context="{'group_by': 'category_id'}"/>
+                    <filter string="Salary Structure" name="group_by_struct_id" context="{'group_by': 'struct_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_salary_rule_form" model="ir.actions.act_window">
+        <field name="name">Salary Rules</field>
+        <field name="res_model">hr.salary.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[]</field>
+        <field name="context">{'search_default_group_by_struct_id': 1}</field>
+        <field name="search_view_id" ref="view_hr_rule_filter"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new salary rule
+            </p>
+        </field>
+    </record>
+</odoo>

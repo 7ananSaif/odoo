@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_template_search_view_inherit_sale_subscription" model="ir.ui.view">
+        <field name="name">product.template.search.inherit</field>
+        <field name="model">product.template</field>
+        <field name="mode">extension</field>
+        <field name="inherit_id" ref="product.product_template_search_view"/>
+        <field name="arch" type="xml">
+            <filter name="filter_to_sell" position="after">
+                <filter name="filter_recurring" string="Subscriptions"
+                        domain="[('recurring_invoice', '=', True)]"/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="product_template_view_form_recurring" model="ir.ui.view">
+        <field name="name">sale.subscription.product.template.form.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="sale.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <page name="sales" position="attributes">
+                <attribute name="invisible">not sale_ok and not recurring_invoice</attribute>
+                <attribute name="class">page_sales</attribute>
+            </page>
+            <span name="sale_option" position="after">
+                <span class="d-inline-flex">
+                    <field name="recurring_invoice"/>
+                    <label for="recurring_invoice" string="Subscriptions"/>
+                </span>
+            </span>
+        </field>
+    </record>
+
+    <record id="product_template_only_view_form_recurring" model="ir.ui.view">
+        <field name="name">sale.subscription.product.template.only.form.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <page name="sales_price" position="attributes">
+                <attribute name="invisible" separator="or" add="(recurring_invoice and not allow_one_time_sale)"/>
+            </page>
+            <page name="sales_price" position="after">
+                <page string="Recurring prices" name="subscription_pricing" invisible="not recurring_invoice">
+                    <field
+                        name="subscription_rule_ids_fixed"
+                        context="{
+                            'form_view_ref': 'sale_subscription.product_pricelist_item_sale_subscription_view',
+                            'default_pricelist_id': False,
+                        }"
+                    >
+                        <list default_order="plan_id, pricelist_id, fixed_price" editable="bottom">
+                            <field name="product_id"
+                                   groups="product.group_product_variant"
+                                   domain="[('product_tmpl_id', '=', parent.id)]"
+                                   string="Product Variants"
+                                   column_invisible="parent.product_variant_count &lt; 2"/>
+                            <field name="plan_id"/>
+                            <field name="pricelist_id" groups="product.group_product_pricelist"/>
+                            <field name="fixed_price" string="Price"/>
+                            <field name="min_quantity" optional="hide"/>
+                            <field name="date_start" optional="hide"/>
+                            <field name="date_end" optional="hide"/>
+                            <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+
+                            <!-- Needed for rule edition & creation on product.product form -->
+                            <field name="product_tmpl_id" column_invisible="True"/>
+                        </list>
+                    </field>
+                    <group string="Options">
+                        <field name="allow_one_time_sale" invisible="not recurring_invoice"/>
+                        <field name="allow_prorated_price" invisible="not recurring_invoice or type == 'consu' or invoice_policy == 'delivery'"/>
+                    </group>
+                </page>
+            </page>
+        </field>
+    </record>
+
+    <record id="product_template_kanban_view_inherit_sale_subscription" model="ir.ui.view">
+        <field name="name">product.template.kanban.inherit</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_kanban_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='list_price']" position="replace">
+                <group groups="sales_team.group_sale_salesman">
+                    <field name="display_subscription_pricing" invisible="not display_subscription_pricing"/>
+                    <field name="list_price" widget="monetary" invisible="display_subscription_pricing" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                </group>
+                <group groups="!sales_team.group_sale_salesman">
+                    <field name="list_price" widget="monetary" options="{'currency_field': 'currency_id', 'field_digits': True}"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="product_action_subscription" model="ir.actions.act_window">
+        <field name="name">Products</field>
+        <field name="res_model">product.template</field>
+        <field name="view_mode">kanban,list,form,activity</field>
+        <field name="context">{
+            'default_recurring_invoice': True, 'search_default_filter_recurring': True, 'default_type': 'service'
+        }</field>
+        <field name="search_view_id" ref="product_template_search_view_inherit_sale_subscription"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new product
+            </p>
+            <p>
+                You must define a product for everything you sell or purchase,
+                whether it's a storable product, a consumable or a service.
+            </p>
+        </field>
+    </record>
+
+</odoo>

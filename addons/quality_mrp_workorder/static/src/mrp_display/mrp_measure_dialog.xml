@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="quality_mrp_workorder.MrpMeasureDialog">
+        <div class="o_tablet_popups">
+            <Dialog size="'sm'" title.translate="Measure" modalRef="modalRef">
+                <div class="d-flex">
+                    <FloatField name="'measure'" record="props.record"/>
+                    <span t-out="this.props.record.data.norm_unit" class="text-lowercase"/>
+                </div>
+                <t t-set-slot="footer">
+                    <button class="btn btn-lg btn-primary" t-on-click="_confirm">Save</button>
+                    <button class="btn btn-lg btn-secondary" t-on-click="_cancel">Discard</button>
+                </t>
+            </Dialog>
+        </div>
+    </t>
+</templates>

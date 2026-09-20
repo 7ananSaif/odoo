@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="documents.DocumentsListController" t-inherit="web.ListView" t-inherit-mode="primary">
+        <xpath expr="//Layout" position="attributes">
+            <attribute name="className">'o_documents_content'</attribute>
+        </xpath>
+        <xpath expr="//t[@t-set-slot='control-panel-create-button']" position="inside">
+            <t t-call="documents.DocumentsViews.ControlPanel"/>
+        </xpath>
+        <xpath expr="//Layout/t[@t-component='props.Renderer']" position="attributes">
+            <attribute name="previewStore">documentStates.previewStore</attribute>
+        </xpath>
+        <xpath expr="//div[@t-if='hasSelectedRecords']" position="attributes">
+            <attribute name="t-if">hasSelectedRecords and !rightPanelState.previewedDocument</attribute>
+        </xpath>
+        <xpath expr="//ActionMenus" position="attributes">
+            <attribute name="t-if">showActions</attribute>
+        </xpath>
+    </t>
+</templates>

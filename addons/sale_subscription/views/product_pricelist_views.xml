@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="product_pricelist_view" model="ir.ui.view">
+        <field name="name">sale.subscription.product.pricelist.form.inherit</field>
+        <field name="model">product.pricelist</field>
+        <field name="inherit_id" ref="product.product_pricelist_view"/>
+        <field name="arch" type="xml">
+            <page name="pricelist_rules" position="after">
+                <page name="subscription_pricelist_rules" string="Recurring Prices">
+                    <field
+                        name="subscription_item_ids"
+                        nolabel="1"
+                        context="{'form_view_ref': 'sale_subscription.product_pricelist_item_form_view_recurring'}"
+                    >
+                        <list string="Subscription Pricelist Rules">
+                            <field name="product_tmpl_id"/>
+                            <field name="product_id" groups="product.group_product_variant"/>
+                            <field name="plan_id"/>
+                            <field name="price"/>
+                            <field name="min_quantity" optional="hide"/>
+
+                            <field name="base" column_invisible="True"/>
+                            <field name="price_discount" column_invisible="True"/>
+                            <field name="compute_price" column_invisible="True"/>
+                        </list>
+                    </field>
+                </page>
+            </page>
+        </field>
+    </record>
+
+</odoo>

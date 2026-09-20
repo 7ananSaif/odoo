@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo auto_sequence="1">
+    <record id="carbon_report" model="account.report">
+        <field name="name">Carbon Footprint</field>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="filter_hide_0_lines">never</field>
+        <field name="default_opening_date_filter">this_year</field>
+        <field name="custom_handler_model_id" ref="model_esg_carbon_report_handler"/>
+        <field name="column_ids">
+            <record id="carbon_report_column_co2" model="account.report.column">
+                <field name="name">CO₂ (t)</field>
+                <field name="expression_label">co2</field>
+                <field name="figure_type">float</field>
+            </record>
+            <record id="carbon_report_column_ch4f" model="account.report.column">
+                <field name="name">Fossil Methane (CH₄) (t)</field>
+                <field name="expression_label">ch4f</field>
+                <field name="figure_type">float</field>
+            </record>
+            <record id="carbon_report_column_ch4b" model="account.report.column">
+                <field name="name">Biogenic Methane (CH₄) (t)</field>
+                <field name="expression_label">ch4b</field>
+                <field name="figure_type">float</field>
+            </record>
+            <record id="carbon_report_column_n2o" model="account.report.column">
+                <field name="name">Nitrous Oxide (N₂O) (t)</field>
+                <field name="expression_label">n2o</field>
+                <field name="figure_type">float</field>
+            </record>
+            <record id="carbon_report_column_hfc_134a" model="account.report.column">
+                <field name="name">HFC-134a (t)</field>
+                <field name="expression_label">CH2FCF3</field>
+                <field name="figure_type">float</field>
+            </record>
+            <record id="carbon_report_column_hfc_23" model="account.report.column">
+                <field name="name">HFC-23 (t)</field>
+                <field name="expression_label">hfc_23</field>
+                <field name="figure_type">float</field>
+            </record>
+            <record id="carbon_report_column_hfc_152a" model="account.report.column">
+                <field name="name">HFC-152a (t)</field>
+                <field name="expression_label">CH3CHF2</field>
+                <field name="figure_type">float</field>
+            </record>
+            <record id="carbon_report_column_cf4" model="account.report.column">
+                <field name="name">Carbon Tetrafluoride (CF₄) (t)</field>
+                <field name="expression_label">cf4</field>
+                <field name="figure_type">float</field>
+            </record>
+            <record id="carbon_report_column_c2f6" model="account.report.column">
+                <field name="name">Hexafluoroethane (C₂F₆) (t)</field>
+                <field name="expression_label">c2f6</field>
+                <field name="figure_type">float</field>
+            </record>
+            <record id="carbon_report_column_sf6" model="account.report.column">
+                <field name="name">Sulfur Hexafluoride (SF₆) (t)</field>
+                <field name="expression_label">sf6</field>
+                <field name="figure_type">float</field>
+            </record>
+            <record id="carbon_report_column_co2e" model="account.report.column">
+                <field name="name">Total (t CO₂e)</field>
+                <field name="expression_label">co2e</field>
+                <field name="figure_type">float</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="carbon_report_line" model="account.report.line">
+                <field name="name">Carbon Footprint</field>
+                <field name="groupby">carbon_report_source_scope, carbon_report_source_hierarchy, esg_emission_factor_id</field>
+                <field name="expression_ids">
+                    <record id="carbon_report_line_co2" model="account.report.expression">
+                        <field name="label">co2</field>
+                        <field name="engine">custom</field>
+                        <field name="formula">_report_custom_engine_carbon_report</field>
+                        <field name="subformula">co2</field>
+                        <field name="auditable" eval="False"/>
+                        <field name="green_on_positive" eval="False"/>
+                    </record>
+                    <record id="carbon_report_line_ch4f" model="account.report.expression">
+                        <field name="label">ch4f</field>
+                        <field name="engine">custom</field>
+                        <field name="formula">_report_custom_engine_carbon_report</field>
+                        <field name="subformula">ch4f</field>
+                        <field name="auditable" eval="False"/>
+                        <field name="green_on_positive" eval="False"/>
+                    </record>
+                    <record id="carbon_report_line_ch4b" model="account.report.expression">
+                        <field name="label">ch4b</field>
+                        <field name="engine">custom</field>
+                        <field name="formula">_report_custom_engine_carbon_report</field>
+                        <field name="subformula">ch4b</field>
+                        <field name="auditable" eval="False"/>
+                        <field name="green_on_positive" eval="False"/>
+                    </record>
+                    <record id="carbon_report_line_n2o" model="account.report.expression">
+                        <field name="label">n2o</field>
+                        <field name="engine">custom</field>
+                        <field name="formula">_report_custom_engine_carbon_report</field>
+                        <field name="subformula">n2o</field>
+                        <field name="auditable" eval="False"/>
+                        <field name="green_on_positive" eval="False"/>
+                    </record>
+                    <record id="carbon_report_line_hfc_134a" model="account.report.expression">
+                        <field name="label">hfc_134a</field>
+                        <field name="engine">custom</field>
+                        <field name="formula">_report_custom_engine_carbon_report</field>
+                        <field name="subformula">CH2FCF3</field>
+                        <field name="auditable" eval="False"/>
+                        <field name="green_on_positive" eval="False"/>
+                    </record>
+                    <record id="carbon_report_line_hfc_23" model="account.report.expression">
+                        <field name="label">hfc_23</field>
+                        <field name="engine">custom</field>
+                        <field name="formula">_report_custom_engine_carbon_report</field>
+                        <field name="subformula">hfc_23</field>
+                        <field name="auditable" eval="False"/>
+                        <field name="green_on_positive" eval="False"/>
+                    </record>
+                    <record id="carbon_report_line_hfc_152a" model="account.report.expression">
+                        <field name="label">hfc_152a</field>
+                        <field name="engine">custom</field>
+                        <field name="formula">_report_custom_engine_carbon_report</field>
+                        <field name="subformula">CH3CHF2</field>
+                        <field name="auditable" eval="False"/>
+                        <field name="green_on_positive" eval="False"/>
+                    </record>
+                    <record id="carbon_report_line_cf4" model="account.report.expression">
+                        <field name="label">cf4</field>
+                        <field name="engine">custom</field>
+                        <field name="formula">_report_custom_engine_carbon_report</field>
+                        <field name="subformula">cf4</field>
+                        <field name="auditable" eval="False"/>
+                        <field name="green_on_positive" eval="False"/>
+                    </record>
+                    <record id="carbon_report_line_c2f6" model="account.report.expression">
+                        <field name="label">c2f6</field>
+                        <field name="engine">custom</field>
+                        <field name="formula">_report_custom_engine_carbon_report</field>
+                        <field name="subformula">c2f6</field>
+                        <field name="auditable" eval="False"/>
+                        <field name="green_on_positive" eval="False"/>
+                    </record>
+                    <record id="carbon_report_line_sf6" model="account.report.expression">
+                        <field name="label">sf6</field>
+                        <field name="engine">custom</field>
+                        <field name="formula">_report_custom_engine_carbon_report</field>
+                        <field name="subformula">sf6</field>
+                        <field name="auditable" eval="False"/>
+                        <field name="green_on_positive" eval="False"/>
+                    </record>
+                    <record id="carbon_report_line_co2e" model="account.report.expression">
+                        <field name="label">co2e</field>
+                        <field name="engine">custom</field>
+                        <field name="formula">_report_custom_engine_carbon_report</field>
+                        <field name="subformula">co2e</field>
+                        <field name="auditable" eval="False"/>
+                        <field name="green_on_positive" eval="False"/>
+                    </record>
+                </field>
+            </record>
+        </field>
+    </record>
+
+    <record id="action_view_carbon_report" model="ir.actions.client">
+        <field name="name">Carbon Footprint</field>
+        <field name="tag">account_report</field>
+        <field name="path">esg-carbon-footprint-report</field>
+        <field name="context" eval="{'report_id': ref('esg.carbon_report')}"/>
+    </record>
+</odoo>

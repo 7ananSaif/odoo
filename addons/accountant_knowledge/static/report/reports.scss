@@ -1,0 +1,48 @@
+[data-embedded="accountReport"],
+[data-embedded="file"],
+[data-embedded="signatureInput"],
+[data-embedded="video"],
+[data-embedded="view"],
+[data-embedded="view_link"] {
+    display: none !important;
+}
+
+hr {
+    max-width: 60%;
+    margin-left: 0;
+}
+
+.o-cover {
+    h1 {
+        font-size: 60px;
+    }
+    img {
+        max-height: 125px;
+    }
+}
+
+.o-toc {
+    max-width: 80%;
+    margin: auto;
+    a {
+        display: -webkit-box;
+        -webkit-box-pack: justify;
+        padding: 8px;
+        text-decoration: none;
+        color: black;
+        page-break-inside: avoid;
+    }
+    .o-toc-title {
+        -webkit-box-flex: 1;
+    }
+    .o-toc-h1 {
+        font-weight: bold;
+        background-color: #eaf2fb;
+    }
+    .o-toc-h2 {
+        margin-left: 16px;
+    }
+    .o-toc-h3 {
+        margin-left: 32px;
+    }
+}

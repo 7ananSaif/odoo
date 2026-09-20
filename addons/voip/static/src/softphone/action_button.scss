@@ -1,0 +1,15 @@
+.o-voip-ActionButton {
+    &:not(.o-label-hidden):after {
+        content: '';
+        display: block;
+        position: absolute;
+        inset: 0;
+    }
+
+    .o-voip-ActionButton-icon {
+        // Force the size of icon to always be squared
+        width: 1em;
+        height: 1em;
+        line-height: 1em;
+    }
+}

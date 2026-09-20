@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="documents_add_widget_compose_message_wizard" model="ir.ui.view">
+        <field name="name">mail.compose.message.form.documents</field>
+        <field name="model">mail.compose.message</field>
+        <field name="inherit_id" ref="mail.email_compose_message_wizard_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@widget='html_composer_message']" position="attributes">
+                <attribute name="widget">documents_html_composer_message</attribute>
+            </xpath>
+            <xpath expr="//page/div/field[@widget='html_composer_message']" position="attributes">
+                <attribute name="widget">documents_html_composer_message</attribute>
+            </xpath>
+            <xpath expr="//field[@widget='mail_composer_attachment_selector']" position="after">
+                <widget name="mail_composer_document_selector" title="Select Documents"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

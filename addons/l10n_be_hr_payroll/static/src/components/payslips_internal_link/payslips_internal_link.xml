@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <div t-name="l10n_be_hr_payroll.PayslipsInternalLinkComponent">
+        <t t-if="props?.payslipsYear === 'n'" >
+            <button class="btn btn-link p-0 pb-1" t-on-click="openNPayslips">
+                <t t-esc="this.props.record.data.number_n_payslips_description"/>
+            </button>
+        </t>
+        <t t-else="">
+            <button class="btn btn-link p-0 pb-1" t-on-click="openN1Payslips">
+                <t t-esc="this.props.record.data.number_n1_payslips_description"/>
+            </button>
+        </t>
+    </div>
+</templates>

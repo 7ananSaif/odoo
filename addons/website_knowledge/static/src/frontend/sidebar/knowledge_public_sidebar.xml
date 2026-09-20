@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="website_knowledge.publicSidebar">
+        <Transition name="'o_slide'" visible="props.viewState.showSidebar" leaveDuration="150" t-slot-scope="transition">
+            <div class="o_knowledge_sidebar" t-att-class="transition.className">
+                <!-- initialWidth related to o_knowledge_sidebar_container min-width minus border (avoid flicker) -->
+                <ResizablePanel initialWidth="299" minWidth="200" class="'h-100'" handleRef="handleRef">
+                    <div class="d-flex flex-column h-100 bg-100 overflow-hidden">
+                        <div class="d-flex p-3 o_knowledge_header_line">
+                            <button class="o_public_search btn btn-light text-truncate flex-grow-1 py-1 ps-2 d-flex align-items-center"
+                                data-tooltip="Search for an article or a keyword"
+                                aria-label="Search for an article or a keyword"
+                                t-on-click="openSearchDialog">
+                                <i class="fa fa-fw fa-search"/><span class="ps-2">Search</span>
+                            </button>
+                            <button class="btn py-1 px-2 ms-2 o_toggle_public_sidebar"
+                                t-if="env.isSmall"
+                                t-on-click="() => this.env.toggleSidebar(false)">
+                                <i class="oi oi-lg oi-panel-right" title="Hide Sidebar"/>
+                            </button>
+                        </div>
+                        <ul class="o_tree o_tree_workspace m-0 ps-3 pe-1">
+                            <t t-call="website_knowledge.publicSidebarArticle">
+                                <t t-set="article" t-value="this.rootArticle"/>
+                            </t>
+                        </ul>
+                    </div>
+                </ResizablePanel>
+            </div>
+        </Transition>
+    </t>
+
+    <t t-name="website_knowledge.publicSidebarArticle">
+        <li class="o_article position-relative">
+            <div t-attf-class="o_article_handle d-flex #{article.id === record.resId ? 'o_article_active' : ''}">
+                <div class="o_article_icon position-relative p-1 cursor-pointer" t-on-click="() => article.toggleFold()">
+                    <div class="o_article_emoji" t-out="article.icon or '📄'"/>
+                    <div class="o_article_caret d-flex align-items-center justify-content-center">
+                        <i t-attf-class="fa fa-fw #{article.isUnfolded ? 'fa-caret-down' : 'fa-caret-right'}"/>
+                    </div>
+                </div>
+                <a href="#" type="button" t-on-click="() => this.env.openArticle(article.id)"
+                    class="o_article_name text-decoration-none text-black text-truncate flex-grow-1 p-1"
+                    t-att-class="{
+                        'fw-bold text-900': article.id === record.resId,
+                        'text-muted': article.id !== record.resId
+                    }">
+                    <t t-if="article.name" t-out="article.name"/>
+                    <t t-else="">Untitled</t>
+                </a>
+            </div>
+            <t t-if="article.isUnfolded">
+                <ul>
+                    <t t-foreach="article.children" t-as="article" t-key="article.id">
+                        <t t-call="website_knowledge.publicSidebarArticle"/>
+                    </t>
+                    <li t-if="!article.children.length" class="position-relative">
+                        <div class="text-muted text-truncate p-1">No Articles here</div>
+                    </li>
+                </ul>
+            </t>
+        </li>
+    </t>
+</templates>

@@ -1,0 +1,37 @@
+<templates xml:space="preserve">
+    <t t-name="hr_expense_stripe.issuingTermsViewDialog">
+        <Dialog size="'lg'" title.translate="Expense Cards Terms and Conditions">
+            <div>
+                <h3>Negative Balances</h3>
+                <p>
+                    You are fully liable for any negative balance on your Stripe Issuing account.
+                    Repayment is due immediately upon notice.
+                </p>
+                <h3>Compliance Obligation</h3>
+                <p>
+                    You must comply with all applicable laws and regulations and you are responsible
+                    for ensuring lawful use of funds and expense cards in your jurisdiction.
+                </p>
+                <h3>Indemnification</h3>
+                <p>
+                    You agree to indemnify and hold Odoo, its directors and officers, and affiliates harmless
+                    from any losses, claims, or liabilities related to your use of Stripe Issuing services, including misuse or violations.
+                </p>
+                <h3>Limitation of Liability</h3>
+                <p>
+                    Odoo cannot be held liable for any consequences arising from the use of
+                    your Stripe Issuing account, including lost funds, business interruption, or indirect damages.
+                </p>
+                <h3>Account Closure</h3>
+                <p>
+                    If you close your Stripe Issuing account, you must: transfer out all remaining funds before closure,
+                    resolve any pending transactions, ensure the account is fully settled. Odoo and Stripe are not responsible
+                    for any unwithdrawn funds.
+            </p>
+            </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-secondary" t-on-click="close">Close</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

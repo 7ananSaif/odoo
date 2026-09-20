@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="timesheet_grid.TimesheetTimerHeaderRecord">
+        <div name="display_timer" class="d-flex align-items-center ms-auto ms-sm-0 fs-4 fw-bold">
+            <TimesheetDisplayTimer
+                t-if="props.timesheet"
+                record="props.timesheet"
+                name="'unit_amount'"
+                timerRunning="true"
+                displayRed="false"
+                readonly="true"
+            />
+        </div>
+        <div
+            class="input_m2o d-grid w-100 w-xl-75 pt-2 pt-sm-0"
+            t-on-keydown="_onKeyDown"
+            t-attf-style="
+               grid-template-rows: {{ env.isSmall ? 'repeat(3, 1fr)' : '1fr' }};
+               grid-template-columns: {{ env.isSmall ? '1fr' : 'repeat(3, 1fr)' }};
+               grid-{{ env.isSmall ? 'row' : 'column' }}-gap: 1rem;
+               {{ env.isSmall ? 'grid-column: 1 / 4;' : '' }}
+            "
+        >
+            <t t-foreach="activeFieldNames" t-as="fieldName" t-key="fieldName_index">
+                <t t-set="fieldInfo" t-value="getFieldInfo(fieldName)"/>
+                <t t-if="fieldInfo.isVisible">
+                    <Field
+                        name="fieldName"
+                        record="props.timesheet"
+                        fieldInfo="fieldInfo"
+                        placeholder="fieldInfo.placeholder"
+                        class="fieldName === 'name' ? 'w-100' : ''"
+                    />
+                </t>
+            </t>
+        </div>
+    </t>
+</templates>

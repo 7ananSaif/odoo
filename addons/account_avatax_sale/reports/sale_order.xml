@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_saleorder_document" inherit_id="sale.report_saleorder_document">
+        <t t-set="display_taxes" position="attributes">
+            <attribute name="t-value" separator=" and " add="not doc.is_avatax"/>
+        </t>
+    </template>
+</odoo>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="project_helpdesk_task_1" model="project.task">
+            <field name="name">Install High-speed Internet</field>
+            <field name="project_id" ref="project.project_project_1"/>
+            <field name="stage_id" ref="project.project_stage_2"/>
+            <field name="state">1_done</field>
+            <field name="partner_id" ref="base.partner_demo_portal"/>
+        </record>
+
+        <record id="project_helpdesk_task_1_message_1" model="mail.message">
+            <field name="model">project.task</field>
+            <field name="res_id" ref="project_helpdesk_task_1"/>
+            <field name="body">Hello, the connection was working fine last week, but I'm having issues today.
+                Could you look into it? Thanks!
+            </field>
+            <field name="message_type">comment</field>
+            <field name="subtype_id" ref="mail.mt_comment"/>
+            <field name="author_id" ref="base.partner_demo_portal"/>
+        </record>
+
+        <record id="project_helpdesk_task_1_message_2" model="mail.message">
+            <field name="model">project.task</field>
+            <field name="res_id" ref="project_helpdesk_task_1"/>
+            <field name="body">Hello Joel Willis, I'm sorry to hear that your connection is net working.
+                I was unable to troubleshoot the issue remotely, but I will forward it to our technical support team and they will address it ASAP.
+            </field>
+            <field name="message_type">comment</field>
+            <field name="subtype_id" ref="mail.mt_comment"/>
+            <field name="author_id" ref="base.partner_demo"/>
+        </record>
+
+        <function model="project.task" name="write">
+            <value model="project.task" eval="obj().search([], order='id desc', limit=1).id"/>
+            <value eval="{'priority': '1'}"/>
+        </function>
+    </data>
+</odoo>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="es_mod111_tax_return_type" model="account.return.type">
+            <field name="name">Tax Return (Mod 111) (ES)</field>
+            <field name="report_id" ref="l10n_es.mod_111"/>
+            <field name="country_id" ref="base.es" />
+            <field name="default_deadline_days_delay">20</field>
+        </record>
+        <record id="es_mod115_tax_return_type" model="account.return.type">
+            <field name="name">Tax Return (Mod 115) (ES)</field>
+            <field name="report_id" ref="l10n_es.mod_115"/>
+            <field name="country_id" ref="base.es" />
+        </record>
+        <record id="es_mod130_tax_return_type" model="account.return.type">
+            <field name="name">Tax Return (Mod 130) (ES)</field>
+            <field name="report_id" ref="l10n_es.mod_130"/>
+            <field name="default_deadline_periodicity">trimester</field>
+            <field name="country_id" ref="base.es"/>
+        </record>
+        <record id="es_mod347_tax_return_type" model="account.return.type">
+            <field name="name">Tax Return (Mod 347) (ES)</field>
+            <field name="report_id" ref="l10n_es_reports.mod_347"/>
+            <field name="country_id" ref="base.es"/>
+            <field name="default_deadline_periodicity">year</field>
+            <field name="states_workflow">generic_state_review_submit</field>
+        </record>
+        <record id="es_mod349_tax_return_type" model="account.return.type">
+            <field name="name">Tax Return (Mod 349) (ES)</field>
+            <field name="report_id" ref="l10n_es_reports.mod_349"/>
+            <field name="country_id" ref="base.es"/>
+            <field name="default_deadline_days_delay">20</field>
+            <field name="states_workflow">generic_state_review_submit</field>
+        </record>
+        <record id="es_mod390_tax_return_type" model="account.return.type">
+            <field name="name">Tax Return (Mod 390) (ES)</field>
+            <field name="report_id" ref="l10n_es.mod_390"/>
+            <field name="default_deadline_periodicity">year</field>
+            <field name="country_id" ref="base.es"/>
+            <field name="states_workflow">generic_state_review_submit</field>
+        </record>
+    </data>
+</odoo>

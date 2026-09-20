@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mn_tax_return_type" model="account.return.type">
+            <field name="name">Tax</field>
+            <field name="report_id" ref="l10n_mn.account_report_vat_report"/>
+            <field name="country_id" ref="base.mn" />
+        </record>
+
+        <record id="mn_corporate_tax_return_type" model="account.return.type">
+            <field name="name">Corporate Revenue Tax</field>
+            <field name="report_id" ref="l10n_mn_reports.account_report_tax_report"/>
+            <field name="country_id" ref="base.mn" />
+            <field name="states_workflow">generic_state_review_submit</field>
+        </record>
+    </data>
+</odoo>

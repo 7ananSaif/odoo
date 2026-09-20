@@ -1,0 +1,40 @@
+@media (max-width: 1200px) {
+    .o_payrun_card {
+        grid-template-columns: repeat(5, 1fr) minmax(0, 1fr) !important;
+
+        .o_cell:nth-child(5) {
+            display: none !important;
+        }
+    }
+}
+
+@media (max-width: 992px) {
+    .o_payrun_card {
+        grid-template-columns: repeat(4, 1fr) minmax(0, 1fr) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .o_payrun_card {
+        grid-template-columns: repeat(1, 1fr) minmax(0, 1fr) !important;
+
+        .o_cell:nth-child(4), .o_cell:nth-child(3), .o_cell:nth-child(2) {
+            display: none !important;
+        }
+    }
+}
+
+.o_hr_payroll_payslip_list_view .o_content {
+    display: flex;
+    flex-direction: column;
+}
+
+.o_payrun_card {
+    display: grid !important;
+    grid-auto-flow: column;
+    grid-template-columns: repeat(6, 1fr) minmax(0, 1.5fr);
+
+    .o_payrun_info {
+        grid-column: span 2;
+    }
+}

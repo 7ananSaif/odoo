@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_be_dimona_relation_view_form" model="ir.ui.view">
+        <field name="name">l10n.be.dimona.relation.form</field>
+        <field name="model">l10n.be.dimona.relation</field>
+        <field name="arch" type="xml">
+            <form string="Dimona Relation">
+                <sheet>
+                    <div name="button_box" class="oe_button_box">
+                        <button name="action_open_periods"
+                            class="oe_stat_button"
+                            icon="fa-address-book"
+                            type="object"
+                            invisible="not period_count">
+                            <div class="o_stat_info">
+                                Dimona Periods
+                                <span class="o_stat_value">
+                                    <field name="period_count"/>
+                                </span>
+                            </div>
+                        </button>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name="employee_id"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                            <field name="content" groups="base.group_no_one"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_be_dimona_relation_view_tree" model="ir.ui.view">
+        <field name="name">l10n.be.dimona.relation.tree</field>
+        <field name="model">l10n.be.dimona.relation</field>
+        <field name="arch" type="xml">
+            <list string="Dimona Relations">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="period_ids"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_be_dimona_relation_view_search" model="ir.ui.view">
+        <field name="name">l10n.be.dimona.relation.search</field>
+        <field name="model">l10n.be.dimona.relation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="company_id"/>
+                <field name="employee_id"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="l10n_be_dimona_relation_action" model="ir.actions.act_window">
+        <field name="name">Dimona Relations</field>
+        <field name="res_model">l10n.be.dimona.relation</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+
+    <menuitem
+        id="menu_l10n_be_dimona_relation"
+        name="Dimona Relations"
+        action="l10n_be_dimona_relation_action"
+        parent="l10n_be_hr_payroll.menu_reporting_l10n_be"
+        sequence="505"/>
+</odoo>

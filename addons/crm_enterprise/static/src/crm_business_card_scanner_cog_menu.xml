@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="crm_enterprise.CrmBusinessCardsScannerCogMenu">
+        <div t-if="!isMobileOS" class="d-none o_crm_business_card_scanner">
+            <CrmBusinessCardScanner/>
+        </div>
+        <DropdownItem t-if="!isMobileOS" closingMode="'none'" class="'o_crm_business_card_scanner_menu'" onSelected.bind="onItemSelected">
+            <i class="fa fa-fw fa-camera me-1"/>Import Business Cards
+        </DropdownItem>
+    </t>
+</templates>

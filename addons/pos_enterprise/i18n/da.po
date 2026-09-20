@@ -1,0 +1,859 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * pos_enterprise
+#
+# Translators:
+# Martin Trigaux, 2022
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Kira Petersen François (peti)" <peti@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-02 18:43+0000\n"
+"PO-Revision-Date: 2025-11-13 13:11+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Danish <https://translate.odoo.com/projects/odoo-19/"
+"pos_enterprise/da/>\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "<span>Average time</span>"
+msgstr "<span>Gennemsnitlig tid</span>"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "<span>In progress</span>"
+msgstr "<span>Igangværende</span>"
+
+#. module: pos_enterprise
+#. odoo-python
+#: code:addons/pos_enterprise/models/pos_prep_display.py:0
+msgid "A preparation display must have a minimum of one step."
+msgstr "En klargøringsvisning skal have minimum et trin."
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Accept payments with a Tyro payment terminal"
+msgstr "Acceptér betalinger med en Tyro-betalingsterminal"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__access_token
+msgid "Access Token"
+msgstr "Adgangstoken"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "After"
+msgstr "Efter"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__alert_timer
+msgid "Alert timer (min)"
+msgstr "Alarmtimer (min)"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/stages/stages.xml:0
+msgid "All"
+msgstr "Alle"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "All PoS"
+msgstr "Alle POS-systemer"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "All categories"
+msgstr "Alle kategorier"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_reset_wizard
+msgid ""
+"Archive all preparation display's orders for a fresh start. This will not "
+"affect the PoS order history."
+msgstr ""
+"Arkiver alle klargøringsvisnings ordrer for en frisk start. Dette vil ikke "
+"påvirke PoS-ordrehistorikken."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__auto_clear
+msgid "Auto clear"
+msgstr "Automatisk rydning"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__avg_preparation_time
+msgid "Average Preparation Time"
+msgstr "Gennemsnitlig klargøringstid"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_order__avg_preparation_time
+msgid "Average preparation time of the order"
+msgstr "Gennemsnitlige klargøringstid for ordren"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_order__avg_service_time
+msgid "Average service time of the order"
+msgstr "Gennemsnitlig servicetid for ordren"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_display__average_time
+msgid "Average time of all order that not in a done stage."
+msgstr "Gennemsnitlig tid af alle ordrer, der ikke er færdige."
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_reset_wizard
+msgid "Check products"
+msgstr "Tjek produkter"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Clear All Filters"
+msgstr "Ryd alle filtre"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Close"
+msgstr "Luk"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__color
+msgid "Color"
+msgstr "Farve"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__combo_line_ids
+msgid "Combo Lines"
+msgstr "Kombinationslinjer"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__company_id
+msgid "Company"
+msgstr "Virksomhed"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__completion_time
+msgid "Completion Time"
+msgstr "Tidsforbrug"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_res_config_settings
+msgid "Config Settings"
+msgstr "Konfigurationsindstillinger"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "Configure"
+msgstr "Konfigurer"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__create_uid
+msgid "Created by"
+msgstr "Oprettet af"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__create_date
+msgid "Created on"
+msgstr "Oprettet den"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_order__pdis_general_customer_note
+msgid "Current general-customer-note displayed on preparation display"
+msgstr "Kundens generelle note vises på klargøringsskærmen"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_order__pdis_internal_note
+msgid "Current general-note displayed on preparation display"
+msgstr "Generelle note vises på klargøringsskærmen"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/order/order.xml:0
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__customer_note
+msgid "Customer Note"
+msgstr "Kundenote"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_line__customer_note
+msgid "Customer notes written at the time of the order"
+msgstr ""
+
+#. module: pos_enterprise
+#: model_terms:ir.actions.act_window,help:pos_enterprise.action_preparation_display
+msgid ""
+"Different products and categories are sent to different tablets and screens."
+msgstr ""
+"Forskellige produkter og kategorier sendes til forskellige tablets og skærme."
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_reset_wizard
+msgid "Discard"
+msgstr "Kassér"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_category__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_config__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_load_mixin__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order_line__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preset__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_session__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_attribute__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_product__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_template_attribute_value__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_resource_calendar_attendance__display_name
+msgid "Display Name"
+msgstr "Vis navn"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/order/order.xml:0
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Done"
+msgstr "Udført"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/backend/components/fields/duration_field.js:0
+msgid "Duration"
+msgstr "Varighed"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_preset
+msgid "Easily load a set of configuration options"
+msgstr "Nem indlæsning af et sæt konfigurationsindstillinger"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Explore demo data"
+msgstr "Udforsk demodata"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/override/point_of_sale/pos_store.js:0
+msgid "Failed in sending the changes to preparation display"
+msgstr "Kunne ikke sende ændringerne til klargøringsvisningen"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Filters"
+msgstr "Filtre"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Food Delivery Connector"
+msgstr "Transportfirma til levering af mad"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__pdis_general_customer_note
+msgid "General Customer Note"
+msgstr "Generel kundenote"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__pdis_internal_note
+msgid "General Note"
+msgstr "Generel note"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__order_hour
+msgid "Hour"
+msgstr "Time"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_category__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_config__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_load_mixin__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order_line__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preset__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_session__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_attribute__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_product__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_template_attribute_value__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_res_config_settings__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_resource_calendar_attendance__id
+msgid "ID"
+msgstr "ID"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_line__combo_parent_id
+msgid "Indicates the parent line if this is part of a combo"
+msgstr ""
+"Angiver den overordnede linje, hvis denne linje indgår i en kombination"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__internal_note
+msgid "Internal Note"
+msgstr "Intern note"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_line__internal_note
+msgid "Internal notes written at the time of the order"
+msgstr "Interne noter skrevet på tidspunktet for ordren"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__clear_time_interval
+msgid "Interval auto clear time"
+msgstr "Intervaltid for automatisk rydning"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_display__clear_time_interval
+msgid "Interval in minutes"
+msgstr "Interval i minutter"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_config__module_pos_iot
+msgid "IoT Box"
+msgstr "IoT-boks"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__contains_bar_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_search
+msgid "Is a Bar/Restaurant"
+msgstr "Er en bar/restaurant"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_config__module_pos_urban_piper
+msgid "Is an Urbanpiper"
+msgstr "Er en Urbanpiper"
+
+#. module: pos_enterprise
+#: model:ir.actions.server,name:pos_enterprise.action_pos_preparation_display_kitchen_display
+#: model:ir.ui.menu,name:pos_enterprise.menu_point_kitchen_display_root
+msgid "Kitchen Display"
+msgstr "Køkkenskærm"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_search
+msgid "Last 30 Days"
+msgstr "Seneste 30 dage"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__last_stage_change
+msgid "Last Stage Change"
+msgstr "Seneste faseændring"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Sidst opdateret af"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__write_date
+msgid "Last Updated on"
+msgstr "Sidst opdateret den"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/orderline/orderline.xml:0
+msgid "Line Customer Note"
+msgstr ""
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Loading..."
+msgstr "Indlæser..."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_res_config_settings__pos_module_pos_urban_piper
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Manage your online orders with Urban Piper."
+msgstr "Håndtér dine onlineordrer med UrbanPiper."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__name
+msgid "Name"
+msgstr "Navn"
+
+#. module: pos_enterprise
+#: model_terms:ir.actions.act_window,help:pos_enterprise.action_preparation_display
+msgid "Need a touchscreen interface to manage order ?"
+msgstr "Har du brug for en touchscreen-grænseflade til at administrere ordren?"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "No data available."
+msgstr "Ingen tilgængelige data."
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "Offer"
+msgstr "Tilbud"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__pos_order_id
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__order_id
+msgid "Order"
+msgstr "Ordre"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__create_date
+msgid "Order Date"
+msgstr "Ordredato"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__order_name
+msgid "Order Name"
+msgstr "Ordrenavn"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__average_time
+msgid "Order average time"
+msgstr "Ordre gennemsnitlig tid"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__order_count
+msgid "Order count"
+msgstr "Ordre antal"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__pos_order_line_id
+msgid "Original pos order line"
+msgstr "Oprindelige POS-ordrelinje"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_line__pos_order_line_uuid
+msgid "Original pos order line UUID"
+msgstr "Oprindelig UUID for POS-ordrelinje"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__pos_config_id
+msgid "POS Config"
+msgstr "POS-konfiguration"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_preparation_time_report
+msgid "POS Preparation Time Report"
+msgstr "POS-rapport om klargøringstid"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__combo_parent_id
+msgid "Parent Combo Line"
+msgstr "Overordnede kombinationsdele"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Payment method"
+msgstr "Betalingsform"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_load_mixin
+msgid "PoS data loading mixin"
+msgstr "POS-dataindlæsningsmixin"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__pos_config_ids
+msgid "Point of Sale"
+msgstr "POS"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_category
+msgid "Point of Sale Category"
+msgstr "POS kategori"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_config
+msgid "Point of Sale Configuration"
+msgstr "POS-konfiguration"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_order_line
+msgid "Point of Sale Order Lines"
+msgstr "POS-linjer"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_order
+msgid "Point of Sale Orders"
+msgstr "POS-ordrer"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_session
+msgid "Point of Sale Session"
+msgstr "POS-session"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__pos_order_line_uuid
+msgid "Pos Order Line Uuid"
+msgstr "UUID for POS-ordrelinje"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_display
+msgid "Pos Preparation Display"
+msgstr "POS-klargøringsdisplay"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_line
+msgid "Pos Preparation Line"
+msgstr "POS-klargøringslinje"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_order
+msgid "Pos Preparation Order"
+msgstr "POS-klargøringsordre"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_stage
+msgid "Pos Preparation Stage"
+msgstr "POS-klargøringsfase"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_state
+msgid "Pos Preparation State"
+msgstr "POS-klargøringsstatus"
+
+#. module: pos_enterprise
+#: model:ir.actions.act_url,name:pos_enterprise.action_pos_preparation_display_bar_restaurant_filter_link
+#: model:ir.actions.act_window,name:pos_enterprise.action_preparation_display
+#: model:ir.actions.act_window,name:pos_enterprise.action_preparation_display_bar_restaurant_filter
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_search
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_tree
+msgid "Preparation Display"
+msgstr "Klargøringsvisning"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__prep_line_ids
+msgid "Preparation Lines"
+msgstr "Klargøringslinjer"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__prep_order_id
+msgid "Preparation Order"
+msgstr "Klargøringsordre"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__prep_line_id
+msgid "Preparation Orderline"
+msgstr "Klargøringsordrelinje"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "Preparation Screen"
+msgstr "Klargøringskærm"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order__avg_preparation_time
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order_line__preparation_time
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__preparation_time
+#: model:ir.ui.menu,name:pos_enterprise.menu_report_preparation_time
+msgid "Preparation Time"
+msgstr "Klargøringstid"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_view_form
+msgid "Preparation Time Line"
+msgstr "Klargøringstidslinje"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_view_list
+msgid "Preparation Time Lines"
+msgstr "Klargøringstidslinjer"
+
+#. module: pos_enterprise
+#: model:ir.actions.act_window,name:pos_enterprise.pos_preparation_time_report_action
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_graph
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_search
+msgid "Preparation Time Report"
+msgstr "Rapport om klargøringstid"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__prep_display_id
+msgid "Preparation display"
+msgstr "Klargørelsesvisning"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Preset"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__product_id
+msgid "Product"
+msgstr "Produkt"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_product_attribute
+msgid "Product Attribute"
+msgstr "Produktattribut"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__product_id
+msgid "Product ID"
+msgstr "Produkt ID"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_product_template_attribute_value
+msgid "Product Template Attribute Value"
+msgstr "Egenskabsværdi for produktskabelon"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_product_product
+msgid "Product Variant"
+msgstr "Produktvariant"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__category_ids
+msgid "Product categories"
+msgstr "Produktkategorier"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_display__category_ids
+msgid "Product categories that will be displayed on this screen."
+msgstr "Produktkategorier, der vil blive vist på denne skærm."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__quantity
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__qty
+msgid "Quantity"
+msgstr "Mængde"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__cancelled
+msgid "Quantity of cancelled product"
+msgstr "Mængde af annulleret produkt"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Recall"
+msgstr "Tilbagekaldt"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/order/order.xml:0
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_reset_wizard
+msgid "Reset"
+msgstr "Nulstil"
+
+#. module: pos_enterprise
+#. odoo-python
+#: code:addons/pos_enterprise/models/pos_prep_display.py:0
+msgid "Reset Preparation Display"
+msgstr "Nulstil klargøringsvisning"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_preparation_display_reset_wizard
+msgid "Reset all current order in a preparation display"
+msgstr "Nulstil alle nuværende ordre i et klargøringsvisning"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "Reset all orders"
+msgstr "Nulstil alle ordrer"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Save this page and come back here to set up the feature."
+msgstr "Gem denne side, og kom tilbage hertil for at konfigurere funktionen."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__attribute_value_ids
+msgid "Selected Attributes"
+msgstr "Valgte attributter"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/override/point_of_sale/pos_store.js:0
+msgid "Send failed"
+msgstr "Send mislykkedes"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__sequence
+msgid "Sequence"
+msgstr "Sekvens"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order__avg_service_time
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order_line__service_time
+msgid "Service Time"
+msgstr "Servicetid"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__stage_id
+msgid "Stage"
+msgstr "Fase"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__stage_ids
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "Stages"
+msgstr "Faser"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__todo
+msgid "Status of the orderline"
+msgstr "Status for ordrelinjen"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/override/point_of_sale/navbar/navbar.xml:0
+msgid "Switch to Dark Mode"
+msgstr "Skift til mørk tilstand"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/override/point_of_sale/navbar/navbar.xml:0
+msgid "Switch to Light Mode"
+msgstr "Skift til lys tilstand"
+
+#. module: pos_enterprise
+#. odoo-python
+#: code:addons/pos_enterprise/models/pos_prep_display.py:0
+msgid "The interval auto clear time must be positive."
+msgstr "Intervaltiden for automatisk rydning skal være positiv."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_state__todo
+msgid "The status of a command line, todo or not"
+msgstr "Status for en kommandolinje, todo eller ej"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_res_config_settings__module_pos_tyro
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid ""
+"The transactions are processed by Tyro. Set your Tyro credentials on the "
+"related payment method."
+msgstr ""
+"Transaktionerne håndteres af Tyro. Sørg for at indtaste dine Tyro-"
+"legitimationsoplysninger i den tilhørende betalingsform."
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Time"
+msgstr "Tid"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_display__auto_clear
+msgid "Time after which ready order will be removed from Order Status Screen."
+msgstr ""
+"Angiver det tidspunkt, hvor en afsluttet ordre overføres til "
+"ordrestatusskærmen."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_order__completion_time
+msgid "Time in minutes to complete the order (preparation + service time)"
+msgstr "Tid i minutter til klargøring af ordren (klargøring + servicetid)"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_order_line__preparation_time
+msgid "Time to prepare the order line"
+msgstr "Tid til klargøring af ordrelinje"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_order_line__service_time
+msgid "Time to serve the order line"
+msgstr "Tid til at betjene ordrelinjen"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_stage__alert_timer
+msgid "Timer after which the order will be highlighted"
+msgstr "Timer, hvorefter ordren vil blive fremhævet"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Tyro"
+msgstr "Tyro"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_res_config_settings__module_pos_tyro
+msgid "Tyro Payment Terminal"
+msgstr "Tyro-betalingsterminal"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_res_config_settings__pos_module_pos_urban_piper
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Urban Piper"
+msgstr "UrbanPiper"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_resource_calendar_attendance
+msgid "Work Detail"
+msgstr "Arbejdsdetaljer"
+
+#. module: pos_enterprise
+#. odoo-python
+#: code:addons/pos_enterprise/models/pos_prep_display.py:0
+msgid ""
+"You cannot modify the stages of a preparation display that has an active "
+"sessions."
+msgstr ""
+"Faserne i et forberedelsesdisplay kan ikke redigeres, mens en session er "
+"aktiv."
+
+#. module: pos_enterprise
+#: model:ir.actions.server,name:pos_enterprise.preparation_display_delete_cron_ir_actions_server
+msgid "delete_preparation_order"
+msgstr "delete_preparation_order"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "minutes"
+msgstr "minutter"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "or simply wait for orders to be sent for preparation."
+msgstr "eller blot vente på, at ordrer sendes til klargøring."
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/order/order.xml:0
+msgid "products"
+msgstr "produkter"
+
+#~ msgid "Save"
+#~ msgstr "Gem"

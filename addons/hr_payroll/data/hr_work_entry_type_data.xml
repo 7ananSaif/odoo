@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="hr_work_entry.work_entry_type_leave" model="hr.work.entry.type">
+            <field name="round_days">HALF</field>
+            <field name="round_days_type">DOWN</field>
+        </record>
+
+        <record id="hr_work_entry.work_entry_type_compensatory" model="hr.work.entry.type">
+            <field name="round_days">HALF</field>
+            <field name="round_days_type">DOWN</field>
+        </record>
+
+        <record id="hr_work_entry.work_entry_type_home_working" model="hr.work.entry.type">
+            <field name="round_days">HALF</field>
+            <field name="round_days_type">DOWN</field>
+        </record>
+
+        <record id="hr_work_entry.work_entry_type_unpaid_leave" model="hr.work.entry.type">
+            <field name="round_days">HALF</field>
+            <field name="round_days_type">DOWN</field>
+        </record>
+
+        <record id="hr_work_entry.work_entry_type_sick_leave" model="hr.work.entry.type">
+            <field name="round_days">HALF</field>
+            <field name="round_days_type">DOWN</field>
+        </record>
+
+        <record id="hr_work_entry.work_entry_type_legal_leave" model="hr.work.entry.type">
+            <field name="round_days">HALF</field>
+            <field name="round_days_type">DOWN</field>
+        </record>
+
+        <record id="hr_work_entry.hr_work_entry_type_out_of_contract" model="hr.work.entry.type">
+            <field name="round_days">HALF</field>
+            <field name="round_days_type">HALF-UP</field>
+        </record>
+    </data>
+</odoo>

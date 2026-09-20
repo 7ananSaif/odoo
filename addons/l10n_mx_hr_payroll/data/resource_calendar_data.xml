@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<odoo>
+    <record id="resource_calendar_def_48h" model="resource.calendar">
+        <field name="name">Default 48 hours/week</field>
+        <field name="company_id" eval="False"/>
+        <field name="tz">America/Mexico_City</field>
+        <field name="attendance_ids" eval="
+            [
+                Command.clear(),
+                Command.create({'name': 'Monday Morning', 'dayofweek': '0', 'hour_from': 9, 'hour_to': 14, 'day_period': 'morning'}),
+                Command.create({'name': 'Monday Lunch', 'dayofweek': '0', 'hour_from': 14, 'hour_to': 15, 'day_period': 'lunch'}),
+                Command.create({'name': 'Monday Afternoon', 'dayofweek': '0', 'hour_from': 15, 'hour_to': 18, 'day_period': 'afternoon'}),
+                Command.create({'name': 'Tuesday Morning', 'dayofweek': '1', 'hour_from': 9, 'hour_to': 14, 'day_period': 'morning'}),
+                Command.create({'name': 'Tuesday Lunch', 'dayofweek': '1', 'hour_from': 14, 'hour_to': 15, 'day_period': 'lunch'}),
+                Command.create({'name': 'Tuesday Afternoon', 'dayofweek': '1', 'hour_from': 15, 'hour_to': 18, 'day_period': 'afternoon'}),
+                Command.create({'name': 'Wednesday Morning', 'dayofweek': '2', 'hour_from': 9, 'hour_to': 14, 'day_period': 'morning'}),
+                Command.create({'name': 'Wednesday Lunch', 'dayofweek': '2', 'hour_from': 14, 'hour_to': 15, 'day_period': 'lunch'}),
+                Command.create({'name': 'Wednesday Afternoon', 'dayofweek': '2', 'hour_from': 15, 'hour_to': 18, 'day_period': 'afternoon'}),
+                Command.create({'name': 'Thursday Morning', 'dayofweek': '3', 'hour_from': 9, 'hour_to': 14, 'day_period': 'morning'}),
+                Command.create({'name': 'Thursday Lunch', 'dayofweek': '3', 'hour_from': 14, 'hour_to': 15, 'day_period': 'lunch'}),
+                Command.create({'name': 'Thursday Afternoon', 'dayofweek': '3', 'hour_from': 15, 'hour_to': 18, 'day_period': 'afternoon'}),
+                Command.create({'name': 'Friday Morning', 'dayofweek': '4', 'hour_from': 9, 'hour_to': 14, 'day_period': 'morning'}),
+                Command.create({'name': 'Friday Lunch', 'dayofweek': '4', 'hour_from': 14, 'hour_to': 15, 'day_period': 'lunch'}),
+                Command.create({'name': 'Friday Afternoon', 'dayofweek': '4', 'hour_from': 15, 'hour_to': 18, 'day_period': 'afternoon'}),
+                Command.create({'name': 'Saturday Morning', 'dayofweek': '5', 'hour_from': 9, 'hour_to': 14, 'day_period': 'morning'}),
+                Command.create({'name': 'Saturday Lunch', 'dayofweek': '5', 'hour_from': 14, 'hour_to': 15, 'day_period': 'lunch'}),
+                Command.create({'name': 'Saturday Afternoon', 'dayofweek': '5', 'hour_from': 15, 'hour_to': 18, 'day_period': 'afternoon'}),
+            ]" />
+    </record>
+</odoo>

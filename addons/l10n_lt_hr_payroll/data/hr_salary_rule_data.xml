@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_lt_hr_payroll_structure_lt_employee_salary_basic_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.BASIC"/>
+        <field name="name">Basic Salary</field>
+        <field name="sequence">1</field>
+        <field name="code">BASIC</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = payslip.paid_amount
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <!-- 
+        Sources:
+        https://leinonen.eu/lt-en/business-in-lithuania/employment
+        https://www.activpayroll.com/global-insights/lithuania
+        https://boundlesshq.com/guides/lithuania/taxes/
+     -->
+    <record id="l10n_lt_employees_salary_bik" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="name">Benefit in Kind</field>
+        <field name="code">BIK</field>
+        <field name="sequence">10</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = version.l10n_lt_benefits_in_kind</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = version.l10n_lt_benefits_in_kind
+        </field>
+        <field name="struct_id" ref="l10n_lt_hr_payroll.hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_hr_payroll_structure_lt_employee_salary_gross_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.GROSS"/>
+        <field name="name">Taxable Salary</field>
+        <field name="sequence">100</field>
+        <field name="code">GROSS</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW']
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+        <record id="l10n_lt_employees_salary_taxable_amount" model="hr.salary.rule">
+        <field name="category_id" ref="l10n_lt_hr_payroll.hr_salary_rule_category_taxable_amount"/>
+        <field name="name">Taxable Amount</field>
+        <field name="code">TAXABLEAMOUNT</field>
+        <field name="sequence">108</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+taxable_amount = categories['GROSS']
+if not payslip.employee_id.is_non_resident:
+    low = payslip._rule_parameter('l10n_lt_tax_exempt_low')
+    high = payslip._rule_parameter('l10n_lt_tax_exempt_high')
+    basic = payslip._rule_parameter('l10n_lt_tax_exempt_basic')
+    rate = payslip._rule_parameter('l10n_lt_tax_exempt_rate')
+if taxable_amount &lt;= low:
+    taxable_amount -= basic
+elif taxable_amount &lt;= high:
+    taxable_amount -= basic - rate * (taxable_amount - low)
+
+if payslip.employee_id.l10n_lt_working_capacity == "0_25":
+    taxable_amount -= payslip._rule_parameter('l10n_lt_tax_exempt_0_25')
+elif payslip.employee_id.l10n_lt_working_capacity == "30_55":
+    taxable_amount -= payslip._rule_parameter('l10n_lt_tax_exempt_30_55')
+
+result = taxable_amount
+        </field>
+        <field name="appears_on_payslip" eval="False"/>
+        <field name="appears_on_employee_cost_dashboard" eval="False"/>
+        <field name="struct_id" ref="l10n_lt_hr_payroll.hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_employees_salary_sick_amount" model="hr.salary.rule">
+        <field name="category_id" ref="l10n_lt_hr_payroll.hr_salary_rule_category_sick_amount"/>
+        <field name="name">Sick Amount</field>
+        <field name="code">SICKAMOUNT</field>
+        <field name="sequence">109</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = sum(payslip.worked_days_line_ids.filtered(lambda wd: wd.code == 'LEAVE110').mapped('amount'))
+        </field>
+        <field name="appears_on_payslip" eval="False"/>
+        <field name="appears_on_employee_cost_dashboard" eval="False"/>
+        <field name="struct_id" ref="l10n_lt_hr_payroll.hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_employees_salary_pit" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Personal Income Tax (PIT)</field>
+        <field name="code">PIT</field>
+        <field name="sequence">110</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = max(result_rules["TAXABLEAMOUNT"]['total'] - result_rules["SICKAMOUNT"]['total'] , 0)
+result_rate = -payslip._rule_parameter('l10n_lt_pit_rate_low')
+        </field>
+        <field name="struct_id" ref="l10n_lt_hr_payroll.hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_employees_salary_pit_sick" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Personal Income Tax Sick Days (PIT)</field>
+        <field name="code">PITSICK</field>
+        <field name="sequence">111</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = min(result_rules['TAXABLEAMOUNT']['total'], result_rules["SICKAMOUNT"]['total'])
+
+result_rate = -payslip._rule_parameter('l10n_lt_pit_rate_sick')
+        </field>
+        <field name="struct_id" ref="l10n_lt_hr_payroll.hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_employees_salary_pit_last_year" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Personal Income Tax Last Year (PIT)</field>
+        <field name="code">PITLAST</field>
+        <field name="sequence">112</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'PITLAST' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = inputs['PITLAST'].amount
+result_name = inputs['PITLAST'].name
+result_rate = -payslip._rule_parameter('l10n_lt_pit_rate_high')
+        </field>
+        <field name="struct_id" ref="l10n_lt_hr_payroll.hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_employees_salary_social_contribution" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Social Security Contribution</field>
+        <field name="code">SSC</field>
+        <field name="sequence">115</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = max(result_rules["TAXABLEAMOUNT"]['total'] - result_rules["SICKAMOUNT"]['total'], 0)
+result_rate = -payslip._rule_parameter('l10n_lt_ssc_rate')
+        </field>
+        <field name="struct_id" ref="l10n_lt_hr_payroll.hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_employees_salary_pension" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Pension Scheme</field>
+        <field name="code">PENSION</field>
+        <field name="sequence">120</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = version.l10n_lt_pension</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = max(result_rules["TAXABLEAMOUNT"]['total'] - result_rules["SICKAMOUNT"]['total'], 0)
+result_rate = -payslip._rule_parameter('l10n_lt_pension_rate')
+        </field>
+        <field name="struct_id" ref="l10n_lt_hr_payroll.hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_hr_payroll_structure_lt_employee_salary_attachment_of_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Attachment of Salary</field>
+        <field name="sequence">174</field>
+        <field name="code">ATTACH_SALARY</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'ATTACH_SALARY' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['ATTACH_SALARY'].amount
+result_name = inputs['ATTACH_SALARY'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_hr_payroll_structure_lt_employee_salary_assignment_of_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Assignment of Salary</field>
+        <field name="sequence">174</field>
+        <field name="code">ASSIG_SALARY</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'ASSIG_SALARY' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['ASSIG_SALARY'].amount
+result_name = inputs['ASSIG_SALARY'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_hr_payroll_structure_lt_employee_salary_child_support" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Child Support</field>
+        <field name="code">CHILD_SUPPORT</field>
+        <field name="amount_select">code</field>
+        <field name="sequence">174</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'CHILD_SUPPORT' in inputs</field>
+        <field name="amount_python_compute">
+result = -inputs['CHILD_SUPPORT'].amount
+result_name = inputs['CHILD_SUPPORT'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_hr_payroll_structure_lt_employee_salary_deduction_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Deduction</field>
+        <field name="sequence">198</field>
+        <field name="code">DEDUCTION</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'DEDUCTION' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['DEDUCTION'].amount
+result_name = inputs['DEDUCTION'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_hr_payroll_structure_lt_employee_salary_reimbursement_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="name">Reimbursement</field>
+        <field name="sequence">199</field>
+        <field name="code">REIMBURSEMENT</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'REIMBURSEMENT' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = inputs['REIMBURSEMENT'].amount
+result_name = inputs['REIMBURSEMENT'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_hr_payroll_structure_lt_employee_salary_net_salary" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.NET"/>
+        <field name="name">Net Salary</field>
+        <field name="sequence">200</field>
+        <field name="code">NET</field>
+        <field name="appears_on_employee_cost_dashboard" eval="True"/>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW'] + categories['DED']
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+    <record id="l10n_lt_employees_salary_social_contribution_company" model="hr.salary.rule">
+        <field name="category_id" ref="l10n_lt_hr_payroll.hr_salary_rule_category_ssc_employer"/>
+        <field name="name">Social Contribution (Employer)</field>
+        <field name="code">SSCEMP</field>
+        <field name="sequence">300</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = max(result_rules["TAXABLEAMOUNT"]['total'] - result_rules["SICKAMOUNT"]['total'], 0)
+if version.l10n_lt_time_limited:
+    result_rate = payslip._rule_parameter('l10n_lt_sscemp_rate_high')
+else:
+    result_rate = payslip._rule_parameter('l10n_lt_sscemp_rate')
+        </field>
+        <field name="appears_on_employee_cost_dashboard" eval="True"/>
+        <field name="struct_id" ref="l10n_lt_hr_payroll.hr_payroll_structure_lt_employee_salary"/>
+    </record>
+
+</odoo>

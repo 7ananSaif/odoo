@@ -1,0 +1,69 @@
+<odoo>
+    <record id="hr_salary_rule_category_tr_ssid" model="hr.salary.rule.category">
+        <field name="name">SSI Deduction</field>
+        <field name="code">SSID</field>
+        <field name="parent_id" ref="hr_payroll.DED"/>
+        <field name="country_id" ref="base.tr"/>
+    </record>
+
+    <record id="hr_salary_rule_category_tr_taxded" model="hr.salary.rule.category">
+        <field name="name">Tax Deduction</field>
+        <field name="code">TAXDED</field>
+        <field name="country_id" ref="base.tr"/>
+    </record>
+
+    <record id="hr_salary_rule_category_tr_net_taxded" model="hr.salary.rule.category">
+        <field name="name">Net Tax Deduction</field>
+        <field name="code">BNETTAX</field>
+        <field name="country_id" ref="base.tr"/>
+    </record>
+
+    <record id="hr_salary_rule_category_tr_ssid_net" model="hr.salary.rule.category">
+        <field name="name">SSI Deduction Net</field>
+        <field name="code">SSIENET</field>
+        <field name="country_id" ref="base.tr"/>
+    </record>
+
+    <record id="hr_salary_rule_category_tr_taxbase" model="hr.salary.rule.category">
+        <field name="name">Tax Base</field>
+        <field name="code">TBASE</field>
+        <field name="country_id" ref="base.tr"/>
+    </record>
+
+    <record id="hr_salary_rule_category_tr_stamp_tax" model="hr.salary.rule.category">
+        <field name="name">Stamp Tax Deduction</field>
+        <field name="code">STAXD</field>
+        <field name="country_id" ref="base.tr"/>
+    </record>
+
+    <record id="hr_salary_rule_category_tax_deduction_net" model="hr.salary.rule.category">
+        <field name="name">Tax Deduction Net</field>
+        <field name="code">TNET</field>
+        <field name="parent_id" ref="hr_payroll.DED"/>
+        <field name="country_id" ref="base.tr"/>
+    </record>
+
+    <record id="hr_salary_rule_category_ytd_gross_tax" model="hr.salary.rule.category">
+        <field name="name">YTD Gross Tax</field>
+        <field name="code">YTDGROSSTAX</field>
+        <field name="country_id" ref="base.tr"/>
+    </record>
+
+    <record id="l10n_tr_category_ntg_calculation" model="hr.salary.rule.category">
+        <field name="name">NTG Calculation</field>
+        <field name="code">NTGCALC</field>
+        <field name="country_id" ref="base.tr"/>
+    </record>
+
+    <record id="l10n_tr_category_other_deductions" model="hr.salary.rule.category">
+        <field name="name">Other Deductions</field>
+        <field name="code">OTHERDED</field>
+        <field name="country_id" ref="base.tr"/>
+    </record>
+
+    <record id="l10n_tr_category_other_allowance" model="hr.salary.rule.category">
+        <field name="name">Other Allowance</field>
+        <field name="code">OTHERALW</field>
+        <field name="country_id" ref="base.tr"/>
+    </record>
+</odoo>

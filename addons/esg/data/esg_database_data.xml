@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="esg_database_ademe" model="esg.database">
+        <field name="name">ADEME</field>
+        <field name="url">https://www.ademe.fr/</field>
+        <field name="image" type="base64" file="esg/static/src/img/db_ademe.svg"/>
+        <field name="latest_version" eval="datetime(2006, 1, 1).date()"/>
+    </record>
+
+    <record id="esg_database_ipcc" model="esg.database">
+        <field name="name">IPCC</field>
+        <field name="url">https://www.ipcc-nggip.iges.or.jp/EFDB</field>
+        <field name="image" type="base64" file="esg/static/src/img/db_ipcc.jpg"/>
+        <field name="latest_version" eval="datetime(2006, 1, 1).date()"/>
+    </record>
+</odoo>

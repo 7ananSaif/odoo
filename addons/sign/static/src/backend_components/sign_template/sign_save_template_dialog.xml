@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="sign.SignSaveTemplateDialog">
+        <div t-if="this.state.isShown" class="o_sign_save_template_dialog_container">
+            <span t-attf-class="o_sign_notification_bar bg-warning rounded-start"/>
+            <div class="o_sign_save_template_dialog_div">
+                <span>This document has been used <t t-out="this.props.documentUsedTimesCounter"/> times.</span>
+            </div>
+            <div class="o_sign_save_template_dialog_div">
+                <a class="btn o_sign_save_template_save_button"
+                    t-on-click="() => { this.props.onTemplateSaveClick(); this.state.isShown = false; }">
+                    Create Template!
+                </a>
+            </div>
+            <div class="o_sign_save_template_close_button_div">
+                <button class="btn o_notification_close btn-close o_sign_save_template_close_button"
+                    t-on-click="() => { this.state.isShown = false; }"/>
+            </div>
+        </div>
+    </t>
+</templates>

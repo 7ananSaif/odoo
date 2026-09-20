@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<templates>
+    <t t-name="account_reports.account_return_check_kanban_renderer">
+        <div class="kanban_checks_view">
+            <div class="kanban_return_and_checks_cards">
+                <div class="kanban_return_card">
+                    <AccountReturnKanbanRecord
+                        archInfo="this.returnArchInfo"
+                        record="this.returnRecord"
+                    />
+                </div>
+                <div class="kanban_checks_cards">
+                    <t t-if="groups">
+                        <t t-foreach="groups" t-as="group" t-key="group.key">
+                            <t t-if="group.count > 0">
+
+                                <span class="ms-4 h5 return-group-header">
+                                    <t t-esc="group.displayName"/>
+                                </span>
+                                <t t-call="account_reports.return_check_list">
+                                    <t t-set="list" t-value="group.list"/>
+                                </t>
+                            </t>
+                        </t>
+                    </t>
+                    <t t-else="" t-call="account_reports.return_check_list">
+                        <t t-set="list" t-value="props.list"/>
+                    </t>
+                </div>
+            </div>
+
+            <div class="o_account_return_chatter o-mail-ChatterContainer h-100 w-100 o-aside d-flex flex-column">
+                <Chatter
+                    threadId="this.currentReturnId"
+                    threadModel="'account.return'"
+                    saveRecord="this.props.list.model.load.bind(this.props.list.model)"
+                    isAttachmentBoxVisibleInitially="this.props.list.context.open_attachments_in_chatter"
+                />
+            </div>
+        </div>
+    </t>
+
+    <t t-name="account_reports.return_check_list">
+        <t t-foreach="list.records" t-as="record" t-key="record.id">
+            <AccountReturnCheckKanbanRecord
+                record="record"
+                archInfo="props.archInfo"
+                Compiler="props.Compiler"
+                readonly="false"
+                forceGlobalClick="false"
+                openRecord.bind="openRecord"
+                canResequence="false"
+            />
+        </t>
+    </t>
+</templates>

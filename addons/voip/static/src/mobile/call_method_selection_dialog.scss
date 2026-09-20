@@ -1,0 +1,12 @@
+.o-voip-call-method {
+    .o-voip-call-method-label:hover {
+        --#{$prefix}border-color: #{$o-component-active-border};
+    }
+
+    input:checked + .o-voip-call-method-label {
+        --#{$prefix}border-color: #{$o-component-active-border};
+
+        background-color: $o-component-active-bg;
+        color: $o-component-active-border;
+    }
+}

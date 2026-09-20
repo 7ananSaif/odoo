@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_hk_ir56g_view_form" model="ir.ui.view">
+        <field name="name">l10n_hk_ir56g.view.form</field>
+        <field name="model">l10n_hk.ir56g</field>
+        <field name="inherit_id" ref="l10n_hk_hr_payroll.l10n_hk_ird_view_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <form position="attributes">
+                <attribute name="string">IR56G Sheet</attribute>
+            </form>
+            <header position="replace"/>
+            <div name="div_xml" position="replace"/>
+        </field>
+    </record>
+
+    <record id="l10n_hk_ir56g_view_tree" model="ir.ui.view">
+        <field name="name">l10n_hk.ir56g.view.list</field>
+        <field name="model">l10n_hk.ir56g</field>
+        <field name="inherit_id" ref="l10n_hk_hr_payroll.l10n_hk_ird_view_list"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="string">IR56G Sheets</attribute>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_hk_ir56g_action" model="ir.actions.act_window">
+        <field name="name">IR56G Sheet</field>
+        <field name="res_model">l10n_hk.ir56g</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+
+    <record id="view_l10n_hk_ir56g_line_form" model="ir.ui.view">
+        <field name="name">l10n_hk.ir56g.line.view.form</field>
+        <field name="model">l10n_hk.ir56g.line</field>
+        <field name="arch" type="xml">
+            <form string="IR56G Line">
+                <sheet>
+                    <h3 class="mb-3">
+                        <field name="employee_id" widget="many2one_avatar_employee" readonly="1"/>
+                    </h3>
+                    <div class="d-flex">
+                        <label class="mr16" for="leave_hk_date"/>
+                        <field name="leave_hk_date" />
+                    </div>
+                    <div class="d-flex">
+                        <label class="mr16" for="is_salary_tax_borne" string="Whether the employee's Salaries Tax will be borne by employer"/>
+                        <field name="is_salary_tax_borne" />
+                    </div>
+                    <div class="d-flex">
+                        <label class="mr16" for="has_money_payable_held_under_ird" string="Any money, including any money payable, held under section 52(7) of the Inland Revenue Ordinance"/>
+                        <field name="has_money_payable_held_under_ird" />
+                    </div>
+                    <div class="d-flex ml16" invisible="not has_money_payable_held_under_ird">
+                        <label class="mr16" for="amount_money_payable" string="- Estimated amount HK$"/>
+                        <field name="amount_money_payable" />
+                    </div>
+                    <div class="d-flex ml16" invisible="has_money_payable_held_under_ird">
+                        <label class="mr16" for="reason_no_money_payable" string="Reason"/>
+                        <field name="reason_no_money_payable" required="not has_money_payable_held_under_ird"/>
+                    </div>
+                    <div class="d-flex">
+                        <label class="mr16" for="reason_departure" string="Reason for departure"/>
+                        <field name="reason_departure" />
+                        <field class="ml16" name="other_reason_departure" placeholder="Other reason for departure" invisible="reason_departure != 'other'" required="reason_departure == 'other'"/>
+                    </div>
+                    <div class="d-flex">
+                        <label class="mr16" for="will_return_hk" string="Whether the employee would return to Hong Kong"/>
+                        <field name="will_return_hk" />
+                    </div>
+                    <div class="d-flex ml16" invisible="not will_return_hk">
+                        <label class="mr16" for="date_return" string="- Probable date of return is"/>
+                        <field name="date_return" required="will_return_hk"/>
+                    </div>
+                    <div class="d-flex">
+                        <label class="mr16" for="has_non_exercised_stock_options" string="Whether the employee has any share options granted by your company or any other corporation in respect of his/her employment with your company that are not yet exercised, assigned or released"/>
+                        <field name="has_non_exercised_stock_options" />
+                    </div>
+                    <div class="d-flex ml16 mt8" invisible="not has_non_exercised_stock_options">
+                        <label class="mr16" for="amount_non_exercised_stock_options" string="- No. of shares not yet exercised"/>
+                        <field name="amount_non_exercised_stock_options" />
+                    </div>
+                    <div class="d-flex ml16" invisible="not has_non_exercised_stock_options">
+                        <label class="mr16" for="date_grant" string="- Date of grant"/>
+                        <field name="date_grant" required="has_non_exercised_stock_options"/>
+                    </div>
+                </sheet>
+            </form>
+        </field>
+    </record>
+</odoo>

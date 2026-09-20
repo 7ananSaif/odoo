@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="product_product_view_goods_list" model="ir.ui.view">
+            <field name="name">product.product.view.list</field>
+            <field name="model">product.product</field>
+            <field name="arch" type="xml">
+                <list editable="top" multi_edit="1" default_order="is_favorite desc, default_code, name, id">
+                    <field name="default_code"/>
+                    <field name="name"/>
+                    <field name="l10n_br_source_origin"/>
+                    <field name="l10n_br_use_type"/>
+                    <field name="l10n_br_cest_code"/>
+                    <field name="l10n_br_ncm_code_id"/>
+                    <field name="l10n_br_sped_type"/>
+                    <button type="object" name="l10n_br_action_open_product_product" string="View"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="product_product_view_services_list" model="ir.ui.view">
+            <field name="name">product.product.view.list</field>
+            <field name="model">product.product</field>
+            <field name="arch" type="xml">
+                <list editable="top" multi_edit="1" default_order="is_favorite desc, default_code, name, id">
+                    <field name="default_code"/>
+                    <field name="name"/>
+                    <field name="l10n_br_source_origin"/>
+                    <field name="l10n_br_use_type"/>
+                    <field name="l10n_br_cest_code"/>
+                    <field name="l10n_br_property_service_code_origin_id"/>
+                    <button type="object" name="l10n_br_action_open_product_product" string="View"/>
+                </list>
+            </field>
+        </record>
+    </data>
+</odoo>

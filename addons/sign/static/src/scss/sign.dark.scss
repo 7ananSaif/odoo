@@ -1,0 +1,17 @@
+.o_web_client {
+    .o_sign_sidebar {
+        background-color: $o-gray-200;
+    }
+    .o_sign_sidebar_document_name, .o_sign_sidebar_signer {
+        background-color: $o-gray-200;
+        color: white;
+        border-color: $o-gray-300;
+        &:hover {
+            background-color: $o-gray-300;
+        }
+    }
+
+    .o_sign_sidebar_document_name_selected, .o_sign_sidebar_signer_selected {
+        background-color: $o-gray-300;
+    }
+}

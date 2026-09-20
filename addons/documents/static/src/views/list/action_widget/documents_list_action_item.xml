@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<templates id="template" xml:space="preserve">
+    <t t-name="documents.DocumentsListActionItem">
+        <i
+            t-if="isVisible"
+            t-attf-class="fa fa-fw #{icon} me-2"
+            t-att-title="description"
+            t-on-click="onActionClicked"
+        />
+    </t>
+</templates>

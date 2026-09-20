@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<odoo>
+    <data noupdate="1">
+        <record id="default_voip_provider" model="voip.provider">
+            <field name="name">Demo</field>
+            <field name="ws_server"></field>
+            <field name="pbx_ip"></field>
+            <field name="mode">demo</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="axivox_voip_provider" model="voip.provider">
+            <field name="name">Axivox</field>
+            <field name="ws_server">wss://pabx.axivox.com:3443</field>
+            <field name="pbx_ip">YOURACCOUNT.axivox.com</field>
+            <field name="mode">demo</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="didww_voip_provider" model="voip.provider">
+            <field name="name">DIDWW</field>
+            <field name="ws_server">wss://sip.phone.systems</field>
+            <field name="pbx_ip">sip.phone.systems</field>
+            <field name="mode">demo</field>
+            <field name="company_id" eval="False"/>
+        </record>
+        <record id="OnSIP_voip_provider" model="voip.provider">
+            <field name="name">OnSIP</field>
+            <field name="ws_server">wss://edge.sip.onsip.com</field>
+            <field name="pbx_ip">YOURACCOUNT.onsip.com</field>
+            <field name="mode">demo</field>
+            <field name="company_id" eval="False"/>
+        </record>
+    </data>
+</odoo>

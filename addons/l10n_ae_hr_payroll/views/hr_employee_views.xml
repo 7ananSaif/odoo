@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="hr_employee_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.view.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <group name="payroll_group" position="inside">
+                <group string="Allowances" invisible="country_code != 'AE'">
+                    <label for="l10n_ae_housing_allowance" string="Housing"/>
+                    <div class="o_row" name="l10n_ae_housing_allowance">
+                        <field name="l10n_ae_housing_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ae_transportation_allowance" string="Transportation"/>
+                    <div class="o_row" name="l10n_ae_transportation_allowance">
+                        <field name="l10n_ae_transportation_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ae_other_allowances" string="Other"/>
+                    <div class="o_row" name="l10n_ae_other_allowances">
+                        <field name="l10n_ae_other_allowances" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ae_total_salary"/>
+                    <div class="o_row" name="l10n_ae_total_salary">
+                        <field name="l10n_ae_total_salary" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+
+                    <separator string="Annual Leave Provision"/>
+                    <label for="l10n_ae_number_of_leave_days" string="Leaves"/>
+                    <div class="o_row" name="l10n_ae_number_of_leave_days">
+                        <field name="l10n_ae_number_of_leave_days" class="o_hr_narrow_field"/>
+                        <span>days</span>
+                    </div>
+
+                    <separator string="DEWS Benefits"/>
+                    <field name="l10n_ae_is_dews_applied"/>
+
+                    <separator string="End Of Service"/>
+                    <label for="l10n_ae_is_computed_based_on_daily_salary"/>
+                    <div name="o_row">
+                        <field name="l10n_ae_is_computed_based_on_daily_salary" class="me-1"/>
+                        <field name="l10n_ae_eos_daily_salary" invisible="not l10n_ae_is_computed_based_on_daily_salary" class="o_hr_narrow_field" widget="monetary"/>
+                        <span invisible="not l10n_ae_is_computed_based_on_daily_salary">/ day</span>
+                    </div>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

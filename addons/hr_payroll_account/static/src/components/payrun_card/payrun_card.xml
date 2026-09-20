@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="hr_payroll_account.PayRunCard" t-inherit="hr_payroll.PayRunCard" t-inherit-mode="extension">
+        <t t-set-slot="confirm" position="replace">
+            <t t-set-slot="confirm" isVisible="payrun.state == '01_ready' &amp;&amp; !payrun.empty_payslips">
+                <ViewButton className="'btn btn-primary'"
+                            clickParams="{type: 'object', name: 'action_validate', context: {payslip_generate_pdf: true}, confirm: 'Are you sure you want to proceed?'}"
+                            record="props.record"
+                            string.translate="Create Draft Entry"/>
+            </t>
+        </t>
+
+        <PayRunButtonBox position="inside">
+            <t t-set-slot="open_move" isVisible="payrun.move_id" isSmartButton="true" group="'account.group_account_readonly'">
+                <ViewButton className="'oe_stat_button'"
+                            icon="'fa-dollar'"
+                            clickParams="{type: 'object', name: 'action_open_move', help: 'Generated Journal Entries'}"
+                            record="props.record">
+                    <t t-set-slot="contents">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">
+                                Journal Entry <br/>
+                                <t t-if="payrun.move_state == 'draft'">(Draft)</t>
+                                <t t-elif="payrun.move_state == 'posted'">(Posted)</t>
+                                <t t-elif="payrun.move_state == 'cancel'">(Canceled)</t>
+                            </span>
+                        </div>
+                    </t>
+                </ViewButton>
+            </t>
+        </PayRunButtonBox>
+    </t>
+</templates>

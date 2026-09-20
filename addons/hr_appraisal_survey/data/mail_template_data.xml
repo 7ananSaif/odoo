@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="mail_template_appraisal_ask_feedback" model="mail.template">
+            <field name="name">HR: Ask Feedback 360</field>
+            <field name="model_id" ref="model_survey_user_input"/>
+            <field name="subject">Take part in {{ ctx.get('employee_id') and ctx['employee_id'].name or 'this' }} appraisal</field>
+            <field name="description">Sent to employees to gather appraisal feedback</field>
+            <field name="body_html" type="html">
+                <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                    Dear <t t-out="object.partner_id.name or 'participant'">[participant]</t>,
+                    <br/>
+                    As part of our 360° feedback process, <t t-out="ctx.get('logged_user')">[Current user]</t> would love
+                    to get your insights on <t t-out="ctx.get('employee')">[the employee]</t>'s performance.
+                    <br/>
+                    Your feedback is valuable in helping us recognize strengths and identify growth opportunities.
+                    <br/>
+                    It should only take a few minutes, and you can submit your feedback via the link below:
+                    <br/>
+                    <div class="text-center my-4">
+                        <a t-att-href="object.get_start_url()"
+                            t-attf-style="background-color: {{user.company_id.email_secondary_color or '#875A7B'}}; padding: 8px 16px 8px 16px; text-decoration: none; color: {{user.company_id.email_primary_color or '#FFFFFF'}}; border-radius: 5px; font-size:13px;">
+                            Give your feedback
+                        </a>
+                    </div>
+                    Please complete the survey before <t t-out="ctx.get('deadline')">[the specified deadline]</t>.
+                    <br/>
+                    Thank you for your time and honesty!
+                    <br/>
+                    <t t-if="ctx.get('user_body')">
+                        <div class="my-3 py-2 px-3 bg-secondary">
+                            <t t-out="ctx.get('user_body')">[Optional comment]</t>
+                        </div>
+                    </t>
+                </p>
+            </field>
+            <field name="auto_delete" eval="True"/>
+            <field name="use_default_to" eval="False"/>
+        </record>
+    </data>
+</odoo>

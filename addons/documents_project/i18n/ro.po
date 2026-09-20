@@ -1,0 +1,313 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * documents_project
+#
+# Translators:
+# Hongu Cosmin <cosmin513@gmail.com>, 2022
+# Martin Trigaux, 2022
+# Foldi Robert <foldirobert@nexterp.ro>, 2022
+# Dorin Hongu <dhongu@gmail.com>, 2023
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0beta+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:44+0000\n"
+"PO-Revision-Date: 2025-11-27 14:13+0000\n"
+"Last-Translator: Odoo Translation Bot <c3p@odoo.com>\n"
+"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-19/"
+"documents_project/ro/>\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
+"20)) ? 1 : 2;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_ir_attachment
+msgid "Attachment"
+msgstr "Atașament"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_res_company
+msgid "Companies"
+msgstr "Companii"
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+#: code:addons/documents_project/models/res_company.py:0
+msgid "Company Project Folders cannot be linked to another company.%s"
+msgstr ""
+"Dosarele de proiect ale companiei nu pot fi legate de o altă companie.%s"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_res_config_settings
+msgid "Config Settings"
+msgstr "Setări de configurare"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.project_1_document_1
+msgid "Daily Meeting Notes (today)"
+msgstr "Note de întâlnire zilnică (astăzi)"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.project_1_document_2
+msgid "Daily Meeting Notes (yesterday)"
+msgstr "Note de întâlnire zilnică (ieri)"
+
+#. module: documents_project
+#: model_terms:ir.ui.view,arch_db:documents_project.res_config_settings_view_form_inherit_documents_project
+msgid "Default Project Folder"
+msgstr "Dosar de Proiect Implicit"
+
+#. module: documents_project
+#: model:ir.model.fields,field_description:documents_project.field_documents_document__display_name
+#: model:ir.model.fields,field_description:documents_project.field_documents_tag__display_name
+#: model:ir.model.fields,field_description:documents_project.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:documents_project.field_project_project__display_name
+#: model:ir.model.fields,field_description:documents_project.field_res_company__display_name
+#: model:ir.model.fields,field_description:documents_project.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "Nume afișat"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_documents_document
+msgid "Document"
+msgstr "Document"
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/project_project.py:0
+#: model:ir.embedded.actions,name:documents_project.project_embedded_action_documents
+#: model:ir.embedded.actions,name:documents_project.project_embedded_action_documents_dashboard
+#: model_terms:ir.ui.view,arch_db:documents_project.project_view_kanban_inherit_documents
+msgid "Documents"
+msgstr "Documente"
+
+#. module: documents_project
+#: model:ir.model.fields,field_description:documents_project.field_project_project__documents_folder_id
+msgid "Documents Folder"
+msgstr "Dosar documente"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.project_1_document_3
+msgid "First Floor Plan"
+msgstr "Planul etajului întâi"
+
+#. module: documents_project
+#: model_terms:ir.ui.view,arch_db:documents_project.res_config_settings_view_form_inherit_documents_project
+msgid "Folder"
+msgstr "Dosar"
+
+#. module: documents_project
+#: model:ir.model.fields,help:documents_project.field_project_project__documents_folder_id
+msgid ""
+"Folder in which all of the documents of this project will be categorized."
+msgstr "Dosar în care vor fi clasificate toate documentele acestui proiect."
+
+#. module: documents_project
+#: model_terms:ir.ui.view,arch_db:documents_project.res_config_settings_view_form_inherit_documents_project
+msgid "Folder where new projects are created"
+msgstr "Dosar în care sunt create noi proiecte"
+
+#. module: documents_project
+#: model:ir.model.fields,field_description:documents_project.field_documents_document__id
+#: model:ir.model.fields,field_description:documents_project.field_documents_tag__id
+#: model:ir.model.fields,field_description:documents_project.field_ir_attachment__id
+#: model:ir.model.fields,field_description:documents_project.field_project_project__id
+#: model:ir.model.fields,field_description:documents_project.field_res_company__id
+#: model:ir.model.fields,field_description:documents_project.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.project_1_document_4
+msgid "Important Customer Letter"
+msgstr "Scrisoare importantă către client"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_project_project
+msgid "Project"
+msgstr "Proiect"
+
+#. module: documents_project
+#: model:ir.model.fields,field_description:documents_project.field_res_company__documents_project_folder_id
+#: model:ir.model.fields,field_description:documents_project.field_res_config_settings__documents_project_folder_id
+msgid "Project Folder"
+msgstr "Dosar proiect"
+
+#. module: documents_project
+#: model:documents.document,name:documents_project.document_project_folder
+#: model:ir.model.fields,field_description:documents_project.field_documents_document__project_ids
+msgid "Projects"
+msgstr "Proiecte"
+
+#. module: documents_project
+#: model:ir.model,name:documents_project.model_documents_tag
+msgid "Tag"
+msgstr "Etichetă"
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/project_project.py:0
+msgid ""
+"The \"%(folder)s\" folder should either be in the \"%(company)s\" company "
+"like this project or be open to all companies."
+msgstr ""
+"Folderul \"%(folder)s\" ar trebui să fie fie în compania \"%(company)s\" ca "
+"acest proiect, fie să fie deschis pentru toate companiile."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid ""
+"The \"%s\" folder is required by the Project application and cannot be "
+"archived."
+msgstr ""
+"Dosarul \"%s\" este necesar de aplicația Proiect și nu poate fi arhivat."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid ""
+"This action can't be performed, as it would remove the folders used by the "
+"following projects:\n"
+"%(projects)s\n"
+"To continue, choose different folders for these projects."
+msgstr ""
+"Această acțiune nu poate fi efectuată, deoarece ar elimina dosarele "
+"utilizate de următoarele proiecte:\n"
+"%(projects)s\n"
+"Pentru a continua, alegeți dosare diferite pentru aceste proiecte."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid ""
+"This folder should remain in the same company as the \"%(project)s\" project "
+"to which it is linked. Please update the company of the \"%(project)s\" "
+"project, or leave the company of this folder empty."
+msgstr ""
+"Acest dosar ar trebui să rămână în aceeași companie ca și proiectul \"%"
+"(project)s\" la care este legat. Vă rugăm să actualizați compania "
+"proiectului \"%(project)s\" sau să lăsați compania acestui dosar "
+"necompletată."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid ""
+"This folder should remain in the same company as the following projects to "
+"which it is linked:\n"
+"%s\n"
+"\n"
+"Please update the company of those projects, or leave the company of this "
+"folder empty."
+msgstr ""
+"Acest dosar ar trebui să rămână în aceeași companie ca și următoarele "
+"proiecte la care este legat:\n"
+"%s\n"
+"\n"
+"Vă rugăm să actualizați compania acelor proiecte sau să lăsați compania "
+"acestui dosar necompletată."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid "Uh-oh! The project app needs the \"%s\" folder, so you can’t delete it."
+msgstr ""
+"Ups! Aplicația de proiect are nevoie de dosarul \"%s\", deci nu îl puteți "
+"șterge."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid "You cannot archive the project base folder (%s)."
+msgstr "Nu puteți arhiva dosarul de bază al proiectului (%s)."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/project_project.py:0
+msgid ""
+"You cannot change the company of this project, because its folder is linked "
+"to the other following projects that are still in the \"%(other_company)s\" "
+"company:\n"
+"%(other_folders)s\n"
+"\n"
+"Please update the company of all projects so that they remain in the same "
+"company as their folder, or leave the company of the \"%(folder)s\" folder "
+"blank."
+msgstr ""
+"Nu puteți schimba compania acestui proiect, deoarece dosarul său este legat "
+"de celelalte proiecte următoare care sunt încă în compania \"%"
+"(other_company)s\":\n"
+"%(other_folders)s\n"
+"\n"
+"Vă rugăm să actualizați compania tuturor proiectelor astfel încât să rămână "
+"în aceeași companie ca și dosarul lor sau să lăsați compania dosarului \"%"
+"(folder)s\" necompletată."
+
+#. module: documents_project
+#. odoo-python
+#: code:addons/documents_project/models/documents_document.py:0
+msgid "You cannot set a company on the %s folder."
+msgstr "Nu puteți seta o companie pe folderul %s."
+
+#~ msgid ""
+#~ "A set of condition and actions which will be available to all attachments "
+#~ "matching the conditions"
+#~ msgstr ""
+#~ "Un set de condiții și acțiuni care vor fi disponibile tuturor "
+#~ "atașamentelor care corespund condițiilor"
+
+#~ msgid "Ask for Validation"
+#~ msgstr "Solicitați validarea"
+
+#~ msgid "Category"
+#~ msgstr "Categorie"
+
+#~ msgid "Create"
+#~ msgstr "Creează"
+
+#~ msgid "Default Tags"
+#~ msgstr "Etichete implicite"
+
+#~ msgid "Deprecate"
+#~ msgstr "Dezaprobare"
+
+#~ msgid "Deprecated"
+#~ msgstr "Depreciat"
+
+#~ msgid "Documents Workspace"
+#~ msgstr "Documente Spațiu Lucru"
+
+#~ msgid "Draft"
+#~ msgstr "Ciornă"
+
+#~ msgid "Mark As Draft"
+#~ msgstr "Marcare ca ciornă"
+
+#~ msgid "Shared Documents"
+#~ msgstr "Documente Distribuite"
+
+#~ msgid "Status"
+#~ msgstr "Stare"
+
+#~ msgid "Task"
+#~ msgstr "Sarcină"
+
+#~ msgid "To Validate"
+#~ msgstr "De validat"
+
+#~ msgid "Validate"
+#~ msgstr "Validează"
+
+#~ msgid "Validated"
+#~ msgstr "Validat"
+
+#~ msgid "Workspace"
+#~ msgstr "Spațiu de lucru"

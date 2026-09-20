@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="planning.PlannedDateRangeWithAllocatedHours" t-inherit="web.DateTimeField" t-inherit-mode="primary">
+        <xpath expr="//div[@t-ref='root']" position="inside">
+            <span class="text-muted ms-2 fw-normal">
+                <t t-if="props.record.data.allocated_hours and props.readonly">
+                    (<t t-out="allocatedHoursFormatted"/>)
+                </t>
+            </span>
+        </xpath>
+    </t>
+
+</templates>

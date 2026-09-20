@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_work_entry_type_view_form" model="ir.ui.view">
+        <field name="name">hr.work.entry.type.it.inherit.form</field>
+        <field name="model">hr.work.entry.type</field>
+        <field name="inherit_id" ref="hr_work_entry.hr_work_entry_type_view_form"/>
+        <field name="priority">40</field>
+        <field name="arch" type="xml">
+            <field name="external_code" position="after">
+                <field
+                    name="l10n_it_sdworx_code"
+                    invisible="country_code and country_code != 'IT'"
+                />
+            </field>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,21 @@
+<odoo>
+    <record id="res_config_settings_view_form_12" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.hr.payroll.holidays</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="50"/>
+        <field name="inherit_id" ref="hr_payroll.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='hr_payroll_time_off_settings']" position="inside">
+                <setting string="Annual Leave Time-off Type" invisible="company_country_code != 'EG'">
+                    <div class="content-group">
+                        <div class="row mt16 ms-2">
+                            <label string="Time-off Type" for="l10n_eg_annual_leave_type_id"
+                                class="col-md-6 p-0 m-0 o_light_label"/>
+                            <field name="l10n_eg_annual_leave_type_id" class="col-lg-6 p-0"/>
+                        </div>
+                    </div>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

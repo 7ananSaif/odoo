@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="base.partner_demo_company_pk" model="res.partner" forcecreate="1">
+        <field name="name">My Pakistan Company</field>
+        <field name="country_id" ref="base.id"/>
+    </record>
+
+    <record id="base.demo_company_pk" model="res.company" forcecreate="1">
+        <field name="name">My Pakistan Company</field>
+        <field name="partner_id" ref="base.partner_demo_company_pk"/>
+        <field name="currency_id" ref="base.PKR"/>
+        <field name="street">Pakistan Street</field>
+        <field name="zip">10110</field>
+        <field name="city">Karachi</field>
+        <field name="country_id" ref="base.pk"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std" />
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_pk'))]"/>
+    </record>
+
+    <record id="base.user_demo" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_pk'))]"/>
+    </record>
+
+    <record id="pk_hr_department_marketing" model="hr.department">
+        <field name="name">Marketing PK</field>
+        <field name="company_id" ref="base.demo_company_pk"/>
+    </record>
+    <record id="pk_hr_department_accounting" model="hr.department">
+        <field name="name">Admin PK</field>
+        <field name="company_id" ref="base.demo_company_pk"/>
+    </record>
+
+    <record id="pk_hr_job_marketing_manager" model="hr.job">
+        <field name="name">Marketing Manager PK</field>
+        <field name="department_id" ref="pk_hr_department_marketing"/>
+        <field name="company_id" ref="base.demo_company_pk"/>
+    </record>
+
+    <record id="pk_hr_job_accounting_manager" model="hr.job">
+        <field name="name">Accounting Manager PK</field>
+        <field name="department_id" ref="pk_hr_department_accounting"/>
+        <field name="company_id" ref="base.demo_company_pk"/>
+    </record>
+
+    <record id="res_partner_shahid" model="res.partner">
+        <field name="name">Shahid Manzoor</field>
+        <field name="street">Main Boulevard Gulberg</field>
+        <field name="city">Lahore</field>
+        <field name="zip">54000</field>
+        <field name="state_id" ref="base.state_pk_pb"/>
+        <field name="country_id" ref="base.pk"/>
+        <field name="phone">0999-8649723</field>
+        <field name="company_id" ref="base.demo_company_pk"/>
+    </record>
+    <record id="res_partner_shahid" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_pk_hr_payroll.res_partner_shahid')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_shazia" model="res.partner">
+        <field name="name">Shazia Imran</field>
+        <field name="street">Clifton Block 5</field>
+        <field name="city">Karachi</field>
+        <field name="zip">75500</field>
+        <field name="state_id" ref="base.state_pk_sd"/>
+        <field name="country_id" ref="base.pk"/>
+        <field name="phone">0999-3847298</field>
+        <field name="company_id" ref="base.demo_company_pk"/>
+    </record>
+    <record id="res_partner_shazia" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="user_shazia" model="res.users">
+        <field name="partner_id" ref="l10n_pk_hr_payroll.res_partner_shazia"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_pk'))]"/>
+        <field name="company_id" ref="base.demo_company_pk"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_mit-image.jpg"/>
+    </record>
+
+    <record id="pk_res_bank_habib_bank_ltd" model="res.bank">
+        <field name="name">Habib Bank Limited</field>
+        <field name="bic">HABBPKKAXXX</field>
+        <field name="street">Habib Bank Road</field>
+        <field name="city">Lahore</field>
+        <field name="zip">74000</field>
+        <field name="state" ref="base.state_pk_pb"/>
+        <field name="country" ref="base.pk"/>
+        <field name="phone">099-001122300</field>
+    </record>
+    <record id="pk_res_bank_habib_bank_ltd" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_pk_hr_payroll.pk_res_bank_habib_bank_ltd')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="pk_res_bank_united_bank_ltd" model="res.bank">
+        <field name="name">United Bank Limited</field>
+        <field name="bic">UNILPKKAXXX</field>
+        <field name="street">United Bank Limited Avenue</field>
+        <field name="city">Karachi</field>
+        <field name="zip">44000</field>
+        <field name="state" ref="base.state_pk_sd"/>
+        <field name="country" ref="base.pk"/>
+        <field name="phone">099-009974832</field>
+    </record>
+    <record id="pk_res_bank_united_bank_ltd" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_pk_hr_payroll.pk_res_bank_united_bank_ltd')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_shahid" model="res.partner.bank">
+        <field name="acc_number">99900012301234</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_pk_hr_payroll.pk_res_bank_habib_bank_ltd"/>
+        <field name="partner_id" ref="l10n_pk_hr_payroll.res_partner_shahid"/>
+        <field name="company_id" ref="base.demo_company_pk"/>
+        <field name="currency_id" ref="base.PKR"/>
+    </record>
+
+    <record id="res_partner_bank_account_shazia" model="res.partner.bank">
+        <field name="acc_number">99900078901234</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_pk_hr_payroll.pk_res_bank_united_bank_ltd"/>
+        <field name="partner_id" ref="l10n_pk_hr_payroll.res_partner_shazia"/>
+        <field name="company_id" ref="base.demo_company_pk"/>
+        <field name="currency_id" ref="base.PKR"/>
+    </record>
+
+    <record id="hr_employee_shahid" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shahid')).name"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_pk_hr_payroll.pk_hr_department_marketing"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_al-image.jpg"/>
+        <field name="work_phone">0999-1230001</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shahid')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="work_contact_id" ref="l10n_pk_hr_payroll.res_partner_shahid"/>
+        <field name="company_id" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shahid')).company_id"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Asia/Karachi</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shahid')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shahid')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shahid')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shahid')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shahid')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shahid')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shahid')).phone"/>
+        <field name="distance_home_work">1</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shahid')).country_id"/>
+        <field name="identification_id">99901-1234567-8</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1976, 11, 19).date()"/>
+        <field name="place_of_birth">Lahore</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shahid')).country_id"/>
+        <field name="emergency_contact">Ali Manzoor</field>
+        <field name="emergency_phone">0999-3792873</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Digital Communication</field>
+        <field name="study_school">Lahore University of Management Sciences (LUMS)</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_pk_hr_payroll.res_partner_bank_account_shahid'))]"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">250000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="DateTime.today() + relativedelta(months=-4, days=-10)"/>
+        <field name="date_version" eval="DateTime.today() + relativedelta(months=-4, days=-10)"/>
+        <field name="contract_type_id" ref="hr.contract_type_temporary"/>
+        <field name="structure_type_id" ref="l10n_pk_hr_payroll.structure_type_employee_pk"/>
+    </record>
+
+    <record id="hr_employee_shazia" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).name"/>
+        <field name="job_id" ref="hr.job_consultant"/>
+        <field name="department_id" ref="l10n_pk_hr_payroll.pk_hr_department_accounting"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_mit-image.jpg"/>
+        <field name="work_phone">0999-1230002</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="parent_id" ref="l10n_pk_hr_payroll.hr_employee_shahid"/>
+        <field name="user_id" ref="l10n_pk_hr_payroll.user_shazia"/>
+        <field name="company_id" ref="base.demo_company_pk"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Asia/Karachi</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).phone"/>
+        <field name="distance_home_work">3</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).country_id"/>
+        <field name="identification_id">99901-7893127-1</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1987, 7, 27).date()"/>
+        <field name="place_of_birth">Jakarta</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_pk_hr_payroll.res_partner_shazia')).country_id"/>
+        <field name="emergency_contact">Ayesha Imran</field>
+        <field name="emergency_phone">0999-9273842</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Accountancy</field>
+        <field name="study_school">National University of Sciences and Technology (NUST)</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_pk_hr_payroll.res_partner_bank_account_shazia'))]"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">200000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="DateTime(DateTime.today().year-3,month=2,day=25)"/>
+        <field name="date_version" eval="DateTime(DateTime.today().year-3,month=2,day=25)"/>
+        <field name="contract_type_id" ref="hr.contract_type_full_time"/>
+        <field name="structure_type_id" ref="l10n_pk_hr_payroll.structure_type_employee_pk"/>
+    </record>
+</odoo>

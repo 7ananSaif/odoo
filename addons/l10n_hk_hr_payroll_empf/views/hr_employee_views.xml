@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form" model="ir.ui.view">
+        <field name="name">hr.employee.form.inherit.l10n_hk_hr_payroll_empf</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="l10n_hk_hr_payroll.view_employee_form"/>
+        <field name="arch" type="xml">
+            <label for="visa_no" position="before">
+                <label for="l10n_hk_visa_issue_date" invisible="country_code != 'HK'"/>
+                <div class="o_wrap_label d-flex flex-row gap-3 align-items-baseline" invisible="country_code != 'HK'">
+                    <field name="l10n_hk_visa_issue_date" />
+                </div>
+            </label>
+            <group name="hr_birth_group" position="inside">
+                <field name="l10n_hk_previous_employment_date" invisible="country_code != 'HK'"/>
+            </group>
+            <field name="l10n_hk_mpf_manulife_account" position="before">
+                <field name="l10n_hk_mpf_exempt"/>
+                <field name="l10n_hk_mpf_scheme_id"/>
+            </field>
+            <field name="l10n_hk_mpf_manulife_account" position="after">
+                <field name="l10n_hk_payroll_group_id" required="l10n_hk_scheme_group_count &gt;= 2" options="{'no_create': True, 'no_open': True}"/>
+                <field name="l10n_hk_member_class_id" options="{'no_create': True, 'no_open': True}"/>
+                <field name="l10n_hk_mpf_registration_status" placeholder="Unregistered"/>
+                <field name="l10n_hk_mpf_contribution_start" invisible="l10n_hk_mpf_registration_status in [False, 'terminated']" required="l10n_hk_mpf_registration_status in ['next_contribution', 'registered']"/>
+                <field name="l10n_hk_mpf_scheme_join_date"/>
+            </field>
+            <field name="registration_number" position="after">
+                <field name="l10n_hk_staff_number" invisible="country_code != 'HK'"/>
+            </field>
+            <!-- The manulife account is not needed -->
+            <field name="l10n_hk_mpf_manulife_account" position="replace">
+                <field name="l10n_hk_mpf_account_number"/>
+            </field>
+            <!-- VC settings are now part of the member class -->
+            <field name="l10n_hk_mpf_vc_option" position="replace">
+            </field>
+            <field name="l10n_hk_mpf_vc_percentage" position="replace">
+            </field>
+        </field>
+    </record>
+
+    <record id="view_employee_tree" model="ir.ui.view">
+        <field name="name">hr.employee.tree.inherit.l10n_hk_hr_payroll_empf</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="arch" type="xml">
+            <field name="parent_id" position="after">
+                <field name="l10n_hk_mpf_scheme_id" optional="hide" options="{'no_create': True, 'no_open': True}"/>
+                <field name="l10n_hk_payroll_group_id" optional="hide" options="{'no_create': True, 'no_open': True}"/>
+            </field>
+        </field>
+    </record>
+</odoo>

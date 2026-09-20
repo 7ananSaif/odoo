@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<templates>
+    <t t-inherit="voip.Agenda" t-inherit-mode="extension">
+        <xpath expr="//t[hasclass('o-voip-Agenda-xpathTarget')]" position="before">
+            <button t-if="shouldShowLeadButton" class="btn btn-link ms-n2 px-2" t-on-click="() => this.onClickLead(activity)">
+                <i class="fa-fw me-1" t-att-class="activity.partner?.opportunity_count ? 'fa fa-star' : 'oi oi-star-plus'" aria-hidden="true"/>
+                <t t-esc="activity.partner?.opportunity_count ? 'Leads': 'Create Lead'"/>
+            </button>
+        </xpath>
+    </t>
+</templates>

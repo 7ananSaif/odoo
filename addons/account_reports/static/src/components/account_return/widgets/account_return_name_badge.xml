@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="account_reports.AccountReturnNameBadgeField" >
+        <input type="text" t-att-value="props.record.data.name" style="border: none" class="bg-transparent" t-on-blur="updateName" t-on-click="(e) => {e.stopPropagation();}"/>
+    </t>
+</templates>

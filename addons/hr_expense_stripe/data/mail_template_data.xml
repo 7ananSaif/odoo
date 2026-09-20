@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+
+    <record id="email_template_hr_expense_stripe_card_ordered" model="mail.template">
+        <field name="name">HR Expense Stripe Card Ordered</field>
+        <field name="model_id" ref="hr_expense_stripe.model_hr_expense_stripe_card"/>
+        <field name="subject">Your Expense Card has been Ordered</field>
+        <field name="email_from">{{ (object.company_id.email or object.ordered_by.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to"></field><!-- Set in the code  -->
+        <field name="email_cc"></field><!-- Set in the code  -->
+        <field name="use_default_to" eval="False"/>
+        <field name="description">Sent to the person that will handle the reception of the card</field>
+        <field name="auto_delete" eval="False"/>
+        <field name="body_html" type="html">
+            <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;"><tr><td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+            <tbody>
+            <!-- HEADER -->
+            <tr>
+                <td align="center" style="min-width: 590px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                    <tr><td valign="middle">
+                    <t t-set="company" t-value="object.company_id"/>
+                    <span style="font-size: 10px;">Card Shipment Notification</span><br/>
+                    <span style="font-size: 20px; font-weight: bold;">Your Card Has Been Ordered</span>
+                    </td></tr>
+                    <tr><td valign="middle" align="right" t-if="not company.uses_default_logo">
+                    <img t-attf-src="/logo.png?company={{ company.id }}" style="padding: 0px; margin: 0px; height: auto; width: 80px;" t-att-alt="company.name"/>
+                    </td></tr>
+                    <tr><td colspan="2" style="text-align:center;">
+                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin:16px 0px 16px 0px;"/>
+                    </td></tr>
+                </table>
+                </td>
+            </tr>
+            <!-- CONTENT -->
+            <tr>
+                <td align="center" style="min-width: 590px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                    <tr><td valign="top" style="font-size: 13px;">
+                    Hi <t t-out="ctx.get('recipient_name', object.user_id.name)">[Recipient Name]</t>,<br/><br/>
+                    Your company expense card has been ordered.
+                    We'll notify you as soon as it ships.<br/><br/>
+                    Best regards,<br/>
+                    <t t-out="company.name or ''">[Company Name]</t>
+                    </td></tr>
+                    <tr><td style="text-align:center;">
+                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                    </td></tr>
+                </table>
+                </td>
+            </tr>
+            <!-- FOOTER -->
+            <tr>
+                <td align="center" style="min-width: 590px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; font-size: 11px; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                    <tr><td valign="middle" align="left">
+                        <t t-out="company.name or ''">YourCompany</t>
+                    </td></tr>
+                    <tr><td valign="middle" align="left" style="opacity: 0.7;">
+                    <t t-if="company.phone">
+                        <t t-out="company.phone or ''">+1 650-123-4567</t> |
+                    </t>
+                    <t t-if="company.email">
+                        <a t-attf-href="'mailto:%s' % {{ company.email }}" style="text-decoration:none; color: #454748;" t-out="company.email or ''">info@yourcompany.com</a> |
+                    </t>
+                    <t t-if="company.website">
+                        <a t-attf-href="'%s' % {{ company.website }}" style="text-decoration:none; color: #454748;" t-out="company.website or ''">http://www.example.com</a>
+                    </t>
+                    </td></tr>
+                </table>
+                </td>
+            </tr>
+            </tbody>
+            </table>
+            </td></tr>
+            <!-- POWERED BY -->
+            <tr><td align="center" style="min-width: 590px;">
+            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: #F1F1F1; color: #454748; padding: 8px; border-collapse:separate;">
+            <tr><td style="text-align: center; font-size: 13px;">
+                Powered by <a target="_blank" href="https://www.odoo.com?utm_source=db&amp;utm_medium=mail" t-attf-style="color: {{company.email_secondary_color or '#875A7B'}};">Odoo</a>
+            </td></tr>
+            </table>
+            </td></tr>
+            </table>
+        </field>
+        <field name="lang">{{ object.user_id.lang }}</field>
+    </record>
+
+    <record id="email_template_hr_expense_stripe_card_assigned" model="mail.template">
+        <field name="name">HR Expense Stripe Card Assigned</field>
+        <field name="model_id" ref="hr_expense_stripe.model_hr_expense_stripe_card"/>
+        <field name="subject">Your Expense Card has been Assigned</field>
+        <field name="email_from">{{ (object.company_id.email or object.ordered_by.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to"></field><!-- Set in the code  -->
+        <field name="email_cc"></field><!-- Set in the code  -->
+        <field name="use_default_to" eval="False"/>
+        <field name="description">Sent to the person that will use the card</field>
+        <field name="auto_delete" eval="True"/>
+        <field name="body_html" type="html">
+            <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;"><tr><td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+            <tbody>
+            <!-- HEADER -->
+            <tr>
+                <td align="center" style="min-width: 590px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                    <tr><td valign="middle">
+                    <t t-set="company" t-value="object.company_id"/>
+                    <span style="font-size: 10px;">Card Shipment Notification</span><br/>
+                    <span style="font-size: 20px; font-weight: bold;">Your Card Has Been Assigned</span>
+                    </td></tr>
+                    <tr><td valign="middle" align="right" t-if="not company.uses_default_logo">
+                    <img t-attf-src="/logo.png?company={{ company.id }}" style="padding: 0px; margin: 0px; height: auto; width: 80px;" t-att-alt="company.name"/>
+                    </td></tr>
+                    <tr><td colspan="2" style="text-align:center;">
+                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin:16px 0px 16px 0px;"/>
+                    </td></tr>
+                </table>
+                </td>
+            </tr>
+            <!-- CONTENT -->
+            <tr>
+                <td align="center" style="min-width: 590px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                    <tr><td valign="top" style="font-size: 13px;">
+                    Hi <t t-out="ctx.get('recipient_name', object.user_id.name)">[Recipient Name]</t>,<br/><br/>
+                    We have assigned a company expense card to you.
+                    You can view and manage it anytime by going to My Profile and selecting the Cards section.<br/><br/>
+                    If you have any questions, feel free to reach out.<br/><br/>
+                    Best regards,<br/>
+                    <t t-out="object.ordered_by.name or ''">[Expense Administrator]</t>
+                    </td></tr>
+                    <tr><td style="text-align:center;">
+                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                    </td></tr>
+                </table>
+                </td>
+            </tr>
+            <!-- FOOTER -->
+            <tr>
+                <td align="center" style="min-width: 590px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; font-size: 11px; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                    <tr><td valign="middle" align="left">
+                        <t t-out="company.name or ''">YourCompany</t>
+                    </td></tr>
+                    <tr><td valign="middle" align="left" style="opacity: 0.7;">
+                    <t t-if="company.phone">
+                        <t t-out="company.phone or ''">+1 650-123-4567</t> |
+                    </t>
+                    <t t-if="company.email">
+                        <a t-attf-href="'mailto:%s' % {{ company.email }}" style="text-decoration:none; color: #454748;" t-out="company.email or ''">info@yourcompany.com</a> |
+                    </t>
+                    <t t-if="company.website">
+                        <a t-attf-href="'%s' % {{ company.website }}" style="text-decoration:none; color: #454748;" t-out="company.website or ''">http://www.example.com</a>
+                    </t>
+                    </td></tr>
+                </table>
+                </td>
+            </tr>
+            </tbody>
+            </table>
+            </td></tr>
+            <!-- POWERED BY -->
+            <tr><td align="center" style="min-width: 590px;">
+            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: #F1F1F1; color: #454748; padding: 8px; border-collapse:separate;">
+            <tr><td style="text-align: center; font-size: 13px;">
+                Powered by <a target="_blank" href="https://www.odoo.com?utm_source=db&amp;utm_medium=mail" t-attf-style="color: {{company.email_secondary_color or '#875A7B'}};">Odoo</a>
+            </td></tr>
+            </table>
+            </td></tr>
+            </table>
+        </field>
+        <field name="lang">{{ object.user_id.lang }}</field>
+    </record>
+
+    <record id="email_template_hr_expense_stripe_card_shipped" model="mail.template">
+        <field name="name">HR Expense Stripe Card Shipped</field>
+        <field name="model_id" ref="hr_expense_stripe.model_hr_expense_stripe_card"/>
+        <field name="subject">Your Expense Card Has Been Shipped</field>
+        <field name="email_from">{{ (object.company_id.email or object.ordered_by.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to"></field><!-- Set in the code  -->
+        <field name="email_cc"></field><!-- Set in the code  -->
+        <field name="use_default_to" eval="False"/>
+        <field name="description">Sent to the person that will handle the reception of the card</field>
+        <field name="auto_delete" eval="False"/>
+        <field name="body_html" type="html">
+            <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;"><tr><td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+            <tbody>
+            <!-- HEADER -->
+            <tr>
+                <td align="center" style="min-width: 590px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                    <tr><td valign="middle">
+                    <t t-set="company" t-value="object.company_id"/>
+                    <span style="font-size: 10px;">Card Shipment Notification</span><br/>
+                    <span style="font-size: 20px; font-weight: bold;">Your Card Has Been Shipped</span>
+                    </td></tr>
+                    <tr><td valign="middle" align="right" t-if="not company.uses_default_logo">
+                    <img t-attf-src="/logo.png?company={{ company.id }}" style="padding: 0px; margin: 0px; height: auto; width: 80px;" t-att-alt="company.name"/>
+                    </td></tr>
+                    <tr><td colspan="2" style="text-align:center;">
+                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin:16px 0px 16px 0px;"/>
+                    </td></tr>
+                </table>
+                </td>
+            </tr>
+            <!-- CONTENT -->
+            <tr>
+                <td align="center" style="min-width: 590px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                    <tr><td valign="top" style="font-size: 13px;">
+                    Hi <t t-out="ctx.get('recipient_name', object.user_id.name)">[Cardholder]</t>,<br/><br/>
+                    Your expense card is on the way!<br/><br/>
+                    <t t-if="object.tracking_number">
+                        <strong>Tracking Code:</strong> <t t-out="object.tracking_number">TRACK123</t><br/>
+                    </t>
+                    <t t-if="object.tracking_url">
+                        <strong>Track Shipment:</strong>
+                        <a t-att-href="object.tracking_url" style="color: #875A7B; text-decoration: underline;"><t t-out="object.tracking_url">[Link]</t></a><br/>
+                    </t>
+                    <t t-if="ctx.get('shipping_estimated_delivery', '')">
+                        <strong>ETA:</strong>
+                        <t t-out="ctx.get('shipping_estimated_delivery', '')">[2025-12-24]</t><br/><br/>
+                    </t>
+                    To activate once received:<br/><br/>
+                    1) Go to <a t-attf-href="{{ website_url }}/odoo/cards">see your cards</a><br/>
+                    2) Click on the card and follow the instructions<br/><br/>
+                    Best,<br/>
+                    <t t-out="company.name or ''">[Company Name]</t>
+                    </td></tr>
+                    <tr><td style="text-align:center;">
+                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                    </td></tr>
+                </table>
+                </td>
+            </tr>
+            <!-- FOOTER -->
+            <tr>
+                <td align="center" style="min-width: 590px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; font-size: 11px; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                    <tr><td valign="middle" align="left">
+                        <t t-out="company.name or ''">YourCompany</t>
+                    </td></tr>
+                    <tr><td valign="middle" align="left" style="opacity: 0.7;">
+                    <t t-if="company.phone">
+                        <t t-out="company.phone or ''">+1 650-123-4567</t> |
+                    </t>
+                    <t t-if="company.email">
+                        <a t-attf-href="'mailto:%s' % {{ company.email }}" style="text-decoration:none; color: #454748;" t-out="company.email or ''">info@yourcompany.com</a> |
+                    </t>
+                    <t t-if="company.website">
+                        <a t-attf-href="'%s' % {{ company.website }}" style="text-decoration:none; color: #454748;" t-out="company.website or ''">http://www.example.com</a>
+                    </t>
+                    </td></tr>
+                </table>
+                </td>
+            </tr>
+            </tbody>
+            </table>
+            </td></tr>
+            <!-- POWERED BY -->
+            <tr><td align="center" style="min-width: 590px;">
+            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: #F1F1F1; color: #454748; padding: 8px; border-collapse:separate;">
+            <tr><td style="text-align: center; font-size: 13px;">
+                Powered by <a target="_blank" href="https://www.odoo.com?utm_source=db&amp;utm_medium=mail" t-attf-style="color: {{company.email_secondary_color or '#875A7B'}};">Odoo</a>
+            </td></tr>
+            </table>
+            </td></tr>
+            </table>
+        </field>
+        <field name="lang">{{ object.user_id.lang }}</field>
+    </record>
+
+    <record id="email_template_hr_expense_stripe_card_canceled" model="mail.template">
+        <field name="name">HR Expense Stripe Card Shipment has been Cancelled</field>
+        <field name="model_id" ref="hr_expense_stripe.model_hr_expense_stripe_card"/>
+        <field name="subject">Your Expense Card Has Been Canceled</field>
+        <field name="email_from">{{ (object.company_id.email or object.ordered_by.email_formatted or user.email_formatted) }}</field>
+        <field name="email_to"></field><!-- Set in the code  -->
+        <field name="email_cc"></field><!-- Set in the code  -->
+        <field name="use_default_to" eval="False"/>
+        <field name="description">Sent to the person that will handle the reception of the card</field>
+        <field name="auto_delete" eval="False"/>
+        <field name="body_html" type="html">
+            <table border="0" cellpadding="0" cellspacing="0" style="padding-top: 16px; background-color: #F1F1F1; font-family:Verdana, Arial,sans-serif; color: #454748; width: 100%; border-collapse:separate;"><tr><td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" width="590" style="padding: 16px; background-color: white; color: #454748; border-collapse:separate;">
+            <tbody>
+            <!-- HEADER -->
+            <tr>
+                <td align="center" style="min-width: 590px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                    <tr><td valign="middle">
+                    <t t-set="company" t-value="object.company_id"/>
+                    <span style="font-size: 10px;">Card Shipment Notification</span><br/>
+                    <span style="font-size: 20px; font-weight: bold;">Your Card Has Been Canceled</span>
+                    </td></tr>
+                    <tr><td valign="middle" align="right" t-if="not company.uses_default_logo">
+                    <img t-attf-src="/logo.png?company={{ company.id }}" style="padding: 0px; margin: 0px; height: auto; width: 80px;" t-att-alt="company.name"/>
+                    </td></tr>
+                    <tr><td colspan="2" style="text-align:center;">
+                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin:16px 0px 16px 0px;"/>
+                    </td></tr>
+                </table>
+                </td>
+            </tr>
+            <!-- CONTENT -->
+            <tr>
+                <td align="center" style="min-width: 590px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                    <tr><td valign="top" style="font-size: 13px;">
+                    Hello <t t-out="ctx.get('recipient_name', object.user_id.name)">[Cardholder]</t>,<br/><br/>
+                    We’d like to inform you that your shipment has been cancelled.<br/>
+                    If you still wish to receive the card, please place a new order at your convenience.<br/><br/>
+                    If you have any questions or need assistance, our team will be happy to help.<br/><br/>
+                    Best,<br/>
+                    <t t-out="company.name or ''">[Company Name]</t>
+                    </td></tr>
+                    <tr><td style="text-align:center;">
+                    <hr width="100%" style="background-color:rgb(204,204,204);border:medium none;clear:both;display:block;font-size:0px;min-height:1px;line-height:0; margin: 16px 0px 16px 0px;"/>
+                    </td></tr>
+                </table>
+                </td>
+            </tr>
+            <!-- FOOTER -->
+            <tr>
+                <td align="center" style="min-width: 590px;">
+                <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: white; font-size: 11px; padding: 0px 8px 0px 8px; border-collapse:separate;">
+                    <tr><td valign="middle" align="left">
+                        <t t-out="company.name or ''">YourCompany</t>
+                    </td></tr>
+                    <tr><td valign="middle" align="left" style="opacity: 0.7;">
+                    <t t-if="company.phone">
+                        <t t-out="company.phone or ''">+1 650-123-4567</t> |
+                    </t>
+                    <t t-if="company.email">
+                        <a t-attf-href="'mailto:%s' % {{ company.email }}" style="text-decoration:none; color: #454748;" t-out="company.email or ''">info@yourcompany.com</a> |
+                    </t>
+                    <t t-if="company.website">
+                        <a t-attf-href="'%s' % {{ company.website }}" style="text-decoration:none; color: #454748;" t-out="company.website or ''">http://www.example.com</a>
+                    </t>
+                    </td></tr>
+                </table>
+                </td>
+            </tr>
+            </tbody>
+            </table>
+            </td></tr>
+            <!-- POWERED BY -->
+            <tr><td align="center" style="min-width: 590px;">
+            <table border="0" cellpadding="0" cellspacing="0" width="590" style="min-width: 590px; background-color: #F1F1F1; color: #454748; padding: 8px; border-collapse:separate;">
+            <tr><td style="text-align: center; font-size: 13px;">
+                Powered by <a target="_blank" href="https://www.odoo.com?utm_source=db&amp;utm_medium=mail" t-attf-style="color: {{company.email_secondary_color or '#875A7B'}};">Odoo</a>
+            </td></tr>
+            </table>
+            </td></tr>
+            </table>
+        </field>
+        <field name="lang">{{ object.user_id.lang }}</field>
+    </record>
+
+</data></odoo>

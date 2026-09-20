@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="employee_commuting_emissions_wizard_action" model="ir.actions.act_window">
+        <field name="name">Add Employee Commuting Emissions</field>
+        <field name="res_model">employee.commuting.emissions.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="employee_commuting_emissions_wizard_form" model="ir.ui.view">
+        <field name="name">employee.commuting.emissions.wizard.form</field>
+        <field name="model">employee.commuting.emissions.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <div role="alert" class="alert alert-warning text-center py-2 mb-2 w-100" invisible="not conflicting_emission_ids">
+                        <field name="conflicting_emission_ids" widget="conflicting_emission_ids"/>
+                    </div>
+                    <div class="o_title">
+                        Do you want to generate an Emitted Emission for Employee Commuting?
+                    </div>
+                </header>
+                <group>
+                    <group>
+                        <field name="date_start" widget="daterange" options="{'end_date_field': 'date_end', 'always_range': '1', 'warn_future': '1'}"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Save" class="btn btn-primary" name="action_save" type="object" data-hotkey="q"/>
+                    <button string="Discard" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

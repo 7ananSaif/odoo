@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_appraisal_form" model="ir.ui.view">
+        <field name="name">hr.appraisal.form.inherit.hr_appraisal_skills</field>
+        <field name="model">hr.appraisal</field>
+        <field name="inherit_id" ref="hr_appraisal.view_hr_appraisal_form"/>
+        <field name="arch" type="xml">
+            <field name="job_id" position="after">
+                <field name="target_job_id" placeholder="Challenge your skills to a target" invisible="state == '1_new'"/>
+            </field>
+            <xpath expr="//page[@name='appraisal']" position="after">
+                <page string="Skills" name="page_skills" invisible="state == '1_new' or (state == '2_pending' and uid == employee_user_id)">
+                    <div class="o_hr_skills_group o_group_skills">
+                        <field mode="list" nolabel="1" name="current_appraisal_skill_ids"
+                                widget="appraisal_skills_one2many"
+                                context="{'appraisal_state': state}"
+                                readonly="state != '2_pending' or not is_manager"
+                                class="o_appraisal_skill o_field_appraisal_skills_one2many">
+                            <list editable="bottom">
+                                <field name="skill_type_id" optional="hidden" options="{'no_create': True}"/>
+                                <field name="skill_id"
+                                        options="{'no_create': True}"
+                                        context="{'from_skill_dropdown': True}"/>
+                                <field name="skill_level_id"
+                                        domain="[('skill_type_id', '=', skill_type_id)]"
+                                        placeholder="Unknown"
+                                        options="{'no_create': True}"/>
+                                <field name="level_progress" widget="progressbar" string="Current" width="175px"/>
+                                <field name="target_job_skill_progress" widget="percentage"
+                                    width="100px" invisible="not target_job_skill_progress"
+                                    decoration-success="level_progress >= (target_job_skill_progress * 100)"
+                                    decoration-danger="level_progress &lt; (target_job_skill_progress * 100)"
+                                />
+                                <field name="justification" class="text-wrap"/>
+                                <field name="valid_from"
+                                    invisible="not is_certification"
+                                    optional="hidden"
+                                    width="100px"/>
+                                <field name="valid_to"
+                                    invisible="not is_certification"
+                                    placeholder="infinite"
+                                    optional="hidden"
+                                    width="100px"/>
+                                <field name="goals_completion_percentage" widget="goal_progressbar" invisible="not goal_ids" context="{'default_employee_id': employee_id}"/>
+                                <button name="action_open_recommend_goals" class="oe_link" type="object" string="Recommend Goals" invisible="not number_of_recommended_goals"/>
+                            </list>
+                        </field>
+                    </div>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_skill_type_action_appraisal" model="ir.actions.act_window">
+        <field name="name">Skills Type</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">hr.skill.type</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <menuitem
+        id="menu_hr_appraisal_surveys"
+        name="Skills"
+        action="hr_skill_type_action_appraisal"
+        parent="hr_appraisal.menu_hr_appraisal_configuration"
+        sequence="6"
+        groups="hr_appraisal.group_hr_appraisal_user"/>
+
+</odoo>

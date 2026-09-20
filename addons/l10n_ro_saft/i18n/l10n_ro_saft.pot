@@ -1,0 +1,496 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ro_saft
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 19:09+0000\n"
+"PO-Revision-Date: 2025-12-30 19:09+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ro_saft
+#: model_terms:ir.ui.view,arch_db:l10n_ro_saft.view_l10n_ro_saft_account_asset_form
+msgid ""
+"<span class=\"fa fa-exclamation-triangle\" style=\"color: orange;\" "
+"title=\"The depreciation duration is outside the boundaries delimited by the"
+" asset category\" invisible=\"not "
+"l10n_ro_saft_account_asset_category_warning\"/>"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,help:l10n_ro_saft.field_account_tax__l10n_ro_saft_tax_type_id
+msgid ""
+"A 3-digit number defined by ANAF to identify a type of tax in the D.406 "
+"export (e.g. 300 for VAT, 150 for withholding taxes on dividends...)"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,help:l10n_ro_saft.field_account_tax__l10n_ro_saft_tax_code
+msgid ""
+"A 6-digit number defined by ANAF to precisely identify taxes in the D.406 "
+"export (e.g. 310309 for domestic 19% VAT)"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields.selection,name:l10n_ro_saft.selection__res_company__l10n_ro_saft_tax_accounting_basis__a
+msgid "A: general commercial companies using the general CoA for businesses"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model,name:l10n_ro_saft.model_account_chart_template
+msgid "Account Chart Template"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_asset__l10n_ro_saft_account_asset_category_id
+msgid "Asset Category"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model,name:l10n_ro_saft.model_l10n_ro_saft_account_asset_category
+msgid "Asset categories for Romania's saft"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model,name:l10n_ro_saft.model_account_asset
+msgid "Asset/Revenue Recognition"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_account_asset_category__asset_ids
+#: model_terms:ir.ui.view,arch_db:l10n_ro_saft.account_asset_missing_l10n_ro_saft_account_asset_category
+msgid "Assets"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields.selection,name:l10n_ro_saft.selection__res_company__l10n_ro_saft_tax_accounting_basis__bank
+msgid ""
+"BANK: banks and financial instituttions using the CoA for financial "
+"institutions"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,help:l10n_ro_saft.field_account_bank_statement_line__l10n_ro_is_self_invoice
+#: model:ir.model.fields,help:l10n_ro_saft.field_account_move__l10n_ro_is_self_invoice
+msgid ""
+"Check this box to indicate that this bill is a self-invoice made to register"
+" a VAT event in the absence of an invoice received from a supplier."
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_account_asset_category__code
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_tax_type__code
+msgid "Code"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model,name:l10n_ro_saft.model_res_company
+msgid "Companies"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model,name:l10n_ro_saft.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_account_asset_category__create_uid
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_tax_type__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_account_asset_category__create_date
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_tax_type__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_account_asset_category__description
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_tax_type__description
+msgid "Description"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_asset__display_name
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_chart_template__display_name
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_general_ledger_report_handler__display_name
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_move__display_name
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_tax__display_name
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_account_asset_category__display_name
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_tax_type__display_name
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_res_company__display_name
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model,name:l10n_ro_saft.model_account_tax
+msgid "ETA tax codes mixin"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model,name:l10n_ro_saft.model_account_general_ledger_report_handler
+msgid "FEC Report Custom Handler"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields.selection,name:l10n_ro_saft.selection__res_company__l10n_ro_saft_tax_accounting_basis__i
+msgid ""
+"I: non-residents and taxpayers with obligation to submit a special VAT "
+"return"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_asset__id
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_chart_template__id
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_general_ledger_report_handler__id
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_move__id
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_tax__id
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_account_asset_category__id
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_tax_type__id
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_res_company__id
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_res_config_settings__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields.selection,name:l10n_ro_saft.selection__res_company__l10n_ro_saft_tax_accounting_basis__ifn
+msgid ""
+"IFN: non-bank financial institutions using the CoA of BNR Reg. no. 17/2015"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields.selection,name:l10n_ro_saft.selection__res_company__l10n_ro_saft_tax_accounting_basis__ifrs
+msgid ""
+"IFRS: general commercial companies using the CoA for companies applying IFRS"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields.selection,name:l10n_ro_saft.selection__res_company__l10n_ro_saft_tax_accounting_basis__insurance
+msgid "INSURANCE: insurance companies using the CoA for insurance companies"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid ""
+"In the Company settings, please set your company VAT number under `Tax ID` "
+"if registered for VAT, or your CUI number under `Company Registry`."
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Invalid Company/ies"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Invalid Partner(s)"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Invalid Product(s)"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model_terms:ir.ui.view,arch_db:l10n_ro_saft.view_move_form_l10n_ro
+msgid "Is self invoice (RO)?"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_bank_statement_line__l10n_ro_is_self_invoice
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_move__l10n_ro_is_self_invoice
+msgid "Is self invoice?"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model,name:l10n_ro_saft.model_account_move
+msgid "Journal Entry"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_account_asset_category__write_uid
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_tax_type__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_account_asset_category__write_date
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_tax_type__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_account_asset_category__depreciation_max
+msgid "Maximum Depreciation"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_l10n_ro_saft_account_asset_category__depreciation_min
+msgid "Minimum Depreciation"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Missing category on assets"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields.selection,name:l10n_ro_saft.selection__res_company__l10n_ro_saft_tax_accounting_basis__norma14
+msgid ""
+"NORMA14: private pension companies using the CoA of ASF Reg. no. 14/2015"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields.selection,name:l10n_ro_saft.selection__res_company__l10n_ro_saft_tax_accounting_basis__norma36
+msgid ""
+"NORMA36: insurance and/or reinsurance brokerage companies using the CoA of "
+"ASF Reg. no. 36/2015"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields.selection,name:l10n_ro_saft.selection__res_company__l10n_ro_saft_tax_accounting_basis__norma39
+msgid ""
+"NORMA39: leasing and financial companies using the IFRS CoA according to ASF"
+" Reg. no. 39/2015"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Partners should have a country"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Partners should have their city."
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Partners' VAT prefix should correspond to their country."
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Please define a `Bank Account` for your company."
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Please define a `Phone Number` for your company."
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Please set the company Tax Accounting Basis."
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Products with no commodity code"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_tax__l10n_ro_saft_tax_code
+msgid "Romanian SAF-T Tax Code"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model,name:l10n_ro_saft.model_l10n_ro_saft_tax_type
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_tax__l10n_ro_saft_tax_type_id
+msgid "Romanian SAF-T Tax Type"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model_terms:ir.ui.view,arch_db:l10n_ro_saft.res_config_settings_form_inherit_l10n_ro_saft
+msgid "Romanian localization"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "SAF-T (D406 Asset Declaration)"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "SAF-T (D406 Declaration)"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Set asset categories"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Settings"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid ""
+"Some partners have invalid VAT numbers. Example of a valid VAT: RO18547290"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Some partners have missing VAT numbers."
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid ""
+"Some partners have missing or invalid CUI numbers in `Company Registry`. "
+"Example of a valid CUI: 18547290"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid ""
+"Some products have duplicated `Internal Reference`, please make them unique."
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Some products have no `Internal Reference`."
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid ""
+"Some taxes are missing the \"Romanian SAF-T Tax Type\" and/or \"Romanian "
+"SAF-T Tax Code\" field(s)."
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model_terms:ir.ui.view,arch_db:l10n_ro_saft.res_config_settings_form_inherit_l10n_ro_saft
+msgid "Tax Accounting Basis"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_res_company__l10n_ro_saft_tax_accounting_basis
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_res_config_settings__l10n_ro_saft_tax_accounting_basis
+msgid "Tax Accounting Basis (RO)"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "Taxes missing Tax Type or Tax Code (RO)"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid ""
+"The CUI number for your company (under `Company Registry` in the Company "
+"settings) is incorrect."
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "The Intrastat code isn't set on some products."
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid ""
+"The SAF-T Asset Declaration cannot be generated if the currency of the "
+"company is not RON"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "The VAT numbers for the following partners failed the VIES check:"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,help:l10n_ro_saft.field_res_company__l10n_ro_saft_tax_accounting_basis
+#: model:ir.model.fields,help:l10n_ro_saft.field_res_config_settings__l10n_ro_saft_tax_accounting_basis
+#: model_terms:ir.ui.view,arch_db:l10n_ro_saft.res_config_settings_form_inherit_l10n_ro_saft
+msgid "The accounting regulations and Chart of Accounts used by this company"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.constraint,message:l10n_ro_saft.constraint_l10n_ro_saft_account_asset_category_code_unique
+msgid "The code of the asset category must be unique !"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.constraint,message:l10n_ro_saft.constraint_l10n_ro_saft_tax_type_code_unique
+msgid "The code of the tax type must be unique !"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "View Company/ies"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "View Partners"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "View Product(s)"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "View Settings"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "View Taxes"
+msgstr ""
+
+#. module: l10n_ro_saft
+#: model:ir.model.fields,field_description:l10n_ro_saft.field_account_asset__l10n_ro_saft_account_asset_category_warning
+msgid "Warning on account asset category"
+msgstr ""
+
+#. module: l10n_ro_saft
+#. odoo-python
+#: code:addons/l10n_ro_saft/models/account_general_ledger.py:0
+msgid "XML"
+msgstr ""

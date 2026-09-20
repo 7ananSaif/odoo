@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="ir_actions_server_view_form_documents" model="ir.ui.view">
+        <field name="name">ir.actions.server.view.form.documents</field>
+        <field name="model">ir.actions.server</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="base.view_server_action_form"/>
+         <field name="arch" type="xml">
+            <xpath expr="//button[@name='create_action']" position="replace"/>
+            <xpath expr="//button[@name='unlink_action']" position="replace"/>
+            <xpath expr="//field[@name='name']" position="replace">
+                <field name="name" placeholder="e.g. Mass archive"/>
+            </xpath>
+            <xpath expr="//field[@name='model_id']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='evaluation_type']" position="attributes">
+                <attribute name="widget">documents_server_action_evaluation_type_field</attribute>
+            </xpath>
+         </field>
+    </record>
+
+    <record id="ir_actions_server_action_search_documents" model="ir.ui.view">
+        <field name="name">ir.actions.server.search.documents</field>
+        <field name="inherit_id" ref="base.view_server_action_search"/>
+        <field name="model">ir.actions.server</field>
+        <field name="mode">primary</field>
+        <field name="priority">32</field>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='model_id']" position="replace"/>
+            <xpath expr="//filter[@name='toplevel_actions']" position="replace"/>
+            <xpath expr="//filter[@name='model']" position="replace"/>
+        </field>
+    </record>
+</odoo>

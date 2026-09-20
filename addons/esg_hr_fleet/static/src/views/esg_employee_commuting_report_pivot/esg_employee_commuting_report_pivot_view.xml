@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <t t-name="esg_hr_fleet.EsgEmployeeCommutingReportPivotView.Buttons" t-inherit="web.PivotView.Buttons" t-inherit-mode="primary">
+        <xpath expr="//div[hasclass('o_pivot_buttons')]/div[hasclass('btn-group')][1]" position="before">
+            <div class="btn-group" role="toolbar">
+                <button class="btn btn-primary" t-on-click="onAddEmissionsClicked">Add Emissions</button>
+            </div>
+        </xpath>
+    </t>
+</odoo>

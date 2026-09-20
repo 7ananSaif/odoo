@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Template -->
+    <template id="audit_report_front_cover">
+        &lt;!DOCTYPE html&gt;
+        <html>
+            <head>
+                <meta charset="UTF-8"/>
+                <base t-att-href="base_url"/>
+                <t t-call-assets="accountant_knowledge.report_assets" t-autoprefix="true"/>
+            </head>
+            <body>
+                <div class="o-cover">
+                    <div style="height: 350px"/>
+                    <h1 t-out="audit_report.title"/>
+                    <h2>Fiscal period from <t t-out="format_date(audit_report.start_date)"/> to <t t-out="format_date(audit_report.end_date)"/></h2>
+                    <div style="height: 35px"/>
+                    <hr/>
+                    <div style="height: 35px"/>
+                    <img t-if="audit_report.company_id.logo" t-att-src="image_data_uri(audit_report.company_id.logo)"/>
+                    <h3 t-out="audit_report.company_id.name"/>
+                    <t t-if="audit_report.company_id.vat">
+                        <p>VAT: <t t-out="audit_report.company_id.vat"/></p>
+                    </t>
+                    <p t-out="audit_report.company_id.street"/>
+                    <p><t t-out="audit_report.company_id.zip"/> <t t-out="audit_report.company_id.city"/></p>
+                </div>
+            </body>
+        </html>
+    </template>
+
+    <template id="audit_report_table_of_content">
+        &lt;!DOCTYPE html&gt;
+        <html>
+            <head>
+                <meta charset="UTF-8"/>
+                <base t-att-href="base_url"/>
+                <t t-call-assets="accountant_knowledge.report_assets" t-autoprefix="true"/>
+            </head>
+            <body>
+                <div class="o-toc">
+                    <h1>Table of content</h1>
+                    <t t-foreach="headings" t-as="heading">
+                        <a t-attf-class="o-toc-h#{heading['depth'] + 1}" href="http://odoo.com">
+                            <div class="o-toc-title" t-out="heading['outline']['/Title']"/>
+                            <div t-out="heading['outline']['/Page'] + 1 + heading['page_offset_in_body'] + offset"/>
+                        </a>
+                    </t>
+                </div>
+            </body>
+        </html>
+    </template>
+
+    <template id="audit_report_page_layout">
+        &lt;!DOCTYPE html&gt;
+        <html>
+            <head>
+                <meta charset="UTF-8"/>
+                <base t-att-href="base_url"/>
+                <t t-call-assets="accountant_knowledge.report_assets" t-autoprefix="true"/>
+            </head>
+            <body t-out="body"/>
+        </html>
+    </template>
+
+    <template id="audit_report_title_page">
+        <html>
+            <head>
+                <meta charset="UTF-8"/>
+                <base t-att-href="base_url"/>
+                <t t-call-assets="accountant_knowledge.report_assets" t-autoprefix="true"/>
+            </head>
+            <body>
+                <div style="height: 350px"/>
+                <h1 t-out="title"/>
+                <hr/>
+            </body>
+        </html>
+    </template>
+
+    <template id="audit_report_empty_document">
+        &lt;!DOCTYPE html&gt;
+        <html>
+            <head>
+                <meta charset="UTF-8"/>
+            </head>
+            <body>
+                <t t-foreach="range(number_of_pages)" t-as="k">
+                    <div style="page-break-before: always;">&#160;</div>
+                </t>
+            </body>
+        </html>
+    </template>
+
+    <template id="audit_report_footer">
+        &lt;!DOCTYPE html&gt;
+        <html>
+            <head>
+                <meta charset="UTF-8"/>
+                <style>
+                    .o-footer {
+                        text-align: right;
+                        padding: 16px 0;
+                    }
+                    .o-footer .o-pill {
+                        padding: 4px 6px;
+                        border-radius: 8px;
+                        background: #eaf2fb;
+                    }
+                </style>
+                <script>
+                    function subst() {
+                        var urlParams = document.location.search.substring(1).split('&amp;');
+                        urlParams.forEach(function (urlParam) {
+                            var parts = urlParam.split('=', 2);
+                            if (parts[0] === 'page' || parts[0] === 'topage') {
+                                var elements = document.querySelectorAll('.' + parts[0]);
+                                for (var k = 0; k &lt; elements.length; k++) {
+                                    elements[k].textContent = decodeURI(parts[1]);
+                                }
+                            }
+                        });
+                    }
+                </script>
+            </head>
+            <body onload="subst()">
+                <div class="o-footer">
+                    <span class="o-pill">
+                        <span class="page"></span>/<span class="topage"></span>
+                    </span>
+                </div>
+            </body>
+        </html>
+    </template>
+</odoo>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="remove_external_snippets" inherit_id="website_enterprise.external_snippets">
+    <xpath expr="//t[@id='appointment_snippet']" position="replace"/>
+</template>
+
+<template id="website_online_appointment_snippet" inherit_id="website.snippets">
+    <xpath expr="//snippets[@id='snippet_content']//t[@t-snippet][last()]" position="after">
+        <t t-snippet="website_appointment.s_online_appointment"
+           string="Appointment Button"
+           t-thumbnail="/website_enterprise/static/src/img/snippets_thumbs/s_appointment.svg"
+           t-grid-column-span="3"/>
+    </xpath>
+</template>
+
+<template id="s_online_appointment" name="Appointment">
+    <button type="button" class="btn btn-primary s_online_appointment mb-3 d-inline-block" data-display="inline"
+            data-target-types="all" data-appointment-types="[]" data-target-users="all" data-staff-users="[]">
+        Book an Appointment
+    </button>
+</template>
+
+</odoo>

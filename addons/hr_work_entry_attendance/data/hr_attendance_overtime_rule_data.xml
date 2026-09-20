@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="hr_attendance.hr_attendance_overtime_employee_schedule_rule" model="hr.attendance.overtime.rule" forcecreate="0">
+            <field name="work_entry_type_id" model="hr.attendance.overtime.rule" eval="obj()._get_default_work_entry_type_id()"/>
+        </record>
+
+        <record id="hr_attendance.hr_attendance_overtime_non_working_days_rule" model="hr.attendance.overtime.rule" forcecreate="0">
+            <field name="work_entry_type_id" model="hr.attendance.overtime.rule" eval="obj()._get_default_work_entry_type_id()"/>
+        </record>
+    </data>
+</odoo>

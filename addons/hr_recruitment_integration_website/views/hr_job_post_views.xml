@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_job_post_view_form_inherit" model="ir.ui.view">
+        <field name="name">hr.job.post.form</field>
+        <field name="model">hr.job.post</field>
+        <field name="inherit_id" ref="hr_recruitment_integration_base.hr_job_post_view_form"/>
+        <field name="arch" type="xml">
+            <field name="apply_vector" position="after">
+                <field name="apply_vector" string="Website" invisible="apply_method != 'redirect'"/>
+            </field>
+        </field>
+    </record>
+</odoo>

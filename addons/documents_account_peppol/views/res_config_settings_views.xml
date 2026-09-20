@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_documents_account_peppol" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account_peppol.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='peppol_journal_config']" position="before">
+                <field name="peppol_reception_mode" widget="radio"/>
+                <div invisible="peppol_reception_mode != 'documents'">
+                    <div class="row">
+                        <label
+                            string="Document Folder"
+                            for="documents_account_peppol_folder_id"
+                            class="col-lg-3"/>
+                        <field
+                            name="documents_account_peppol_folder_id"
+                            required="account_peppol_proxy_state in ('smp_registration', 'receiver') and peppol_reception_mode == 'documents'"
+                            />
+                    </div>
+                    <div class="row">
+                        <label
+                            string="Document Tags"
+                            for="documents_account_peppol_tag_ids"
+                            class="col-lg-3"/>
+                        <field
+                            name="documents_account_peppol_tag_ids"
+                            required="peppol_reception_mode == 'documents'"
+                            widget="many2many_tags"/>
+                    </div>
+                </div>
+            </xpath>
+            <xpath expr="//div[@name='peppol_journal_config']" position="attributes">
+                <attribute name="invisible">peppol_reception_mode != 'journal'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='account_peppol_purchase_journal_id']" position="attributes">
+                <attribute name="required" add="peppol_reception_mode == 'journal'" separator=" and " />
+            </xpath>
+        </field>
+    </record>
+</odoo>

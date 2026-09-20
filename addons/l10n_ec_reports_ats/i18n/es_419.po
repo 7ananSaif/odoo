@@ -1,0 +1,146 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * l10n_ec_reports_ats
+#
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.4a1+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 19:06+0000\n"
+"PO-Revision-Date: 2025-11-18 17:11+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
+"odoo-19-l10n/l10n_ec_reports_ats/es_419/>\n"
+"Language: es_419\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: l10n_ec_reports_ats
+#. odoo-python
+#: code:addons/l10n_ec_reports_ats/models/tax_report.py:0
+msgid "%(invoice)s: Import invoice lines should have at most one VAT tax."
+msgstr ""
+"%(invoice)s: Las líneas de una factura de importación deben tener como "
+"máximo un impuesto de IVA."
+
+#. module: l10n_ec_reports_ats
+#. odoo-python
+#: code:addons/l10n_ec_reports_ats/models/tax_report.py:0
+msgid "%(invoice)s: Invoice lines should have exactly one VAT tax."
+msgstr ""
+"%(invoice)s: Las líneas de factura deben tener exactamente un impuesto de "
+"IVA."
+
+#. module: l10n_ec_reports_ats
+#. odoo-python
+#: code:addons/l10n_ec_reports_ats/models/tax_report.py:0
+msgid ""
+"%(invoice)s: The credit (NCs) or debit (NDs) note doesn't have the invoice "
+"that modifies it. It must be created from the original invoice"
+msgstr ""
+"%(invoice)s: La nota de crédito (NCs) o débito (NDs) no tiene la factura que "
+"la modifica.Debe crearse a partir de la factura original."
+
+#. module: l10n_ec_reports_ats
+#. odoo-python
+#: code:addons/l10n_ec_reports_ats/models/tax_report.py:0
+msgid ""
+"%s: Each invoice line must include at least one IVA or ICE tax, and no more "
+"than one tax per VAT or ICE category."
+msgstr ""
+"%s: Cada línea de factura debe incluir al menos un impuesto de IVA o ICE, y "
+"no más de un impuesto por categoría de IVA o ICE."
+
+#. module: l10n_ec_reports_ats
+#. odoo-python
+#: code:addons/l10n_ec_reports_ats/models/tax_report.py:0
+msgid "%s: IR tax without 3 digit ats code"
+msgstr "%s: Impuesto IR sin codigo ats de 3 digitos"
+
+#. module: l10n_ec_reports_ats
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports_ats.ats_report_template
+msgid "0.00"
+msgstr "0.00"
+
+#. module: l10n_ec_reports_ats
+#. odoo-python
+#: code:addons/l10n_ec_reports_ats/models/tax_report.py:0
+msgid "ATS"
+msgstr "ATS"
+
+#. module: l10n_ec_reports_ats
+#: model:ir.model,name:l10n_ec_reports_ats.model_account_tax_report_handler
+msgid "Account Report Handler for Tax Reports"
+msgstr "Controlador personalizado de informe impuestos"
+
+#. module: l10n_ec_reports_ats
+#: model:ir.model.fields,field_description:l10n_ec_reports_ats.field_account_move__display_name
+#: model:ir.model.fields,field_description:l10n_ec_reports_ats.field_account_tax_report_handler__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: l10n_ec_reports_ats
+#. odoo-python
+#: code:addons/l10n_ec_reports_ats/models/tax_report.py:0
+msgid "Generate ATS"
+msgstr "Generar ATS"
+
+#. module: l10n_ec_reports_ats
+#: model:ir.model.fields,field_description:l10n_ec_reports_ats.field_account_move__id
+#: model:ir.model.fields,field_description:l10n_ec_reports_ats.field_account_tax_report_handler__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_ec_reports_ats
+#: model_terms:ir.ui.view,arch_db:l10n_ec_reports_ats.ats_report_template
+msgid "IVA"
+msgstr "IVA"
+
+#. module: l10n_ec_reports_ats
+#: model:ir.model,name:l10n_ec_reports_ats.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento contable"
+
+#. module: l10n_ec_reports_ats
+#. odoo-python
+#: code:addons/l10n_ec_reports_ats/models/tax_report.py:0
+msgid ""
+"The identification number of contact %s must have at least 3 characters."
+msgstr ""
+"El número de identificación del contacto %s debe tener al menos 3 caracteres."
+
+#. module: l10n_ec_reports_ats
+#. odoo-python
+#: code:addons/l10n_ec_reports_ats/models/tax_report.py:0
+msgid "This report is only available for Ecuadorian companies."
+msgstr "Este informe sólo está disponible para empresas ecuatorianas."
+
+#. module: l10n_ec_reports_ats
+#. odoo-python
+#: code:addons/l10n_ec_reports_ats/models/tax_report.py:0
+msgid ""
+"Valid types of identification for the ATS report are: Cédula, Ruc, Passport, "
+"Foreign ID. Contact %(partner)s has type \"%(type)s\"."
+msgstr ""
+"Los tipos de identificación válidos para el reporte ATS son: Cédula, Ruc, "
+"Pasaporte, Cédula Extranjera. El contacto %s tiene el tipo \"%s\"."
+
+#. module: l10n_ec_reports_ats
+#. odoo-python
+#: code:addons/l10n_ec_reports_ats/models/tax_report.py:0
+msgid ""
+"While preparing the data for the ATS export, we noticed the following "
+"missing or incorrect data."
+msgstr ""
+"Mientras preparábamos los datos para la exportación ATS, notamos que los "
+"siguientes datos faltan o eran incorrectos."
+
+#. module: l10n_ec_reports_ats
+#. odoo-python
+#: code:addons/l10n_ec_reports_ats/models/tax_report.py:0
+msgid "XML"
+msgstr "XML"

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_contract_template_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.template.view.form.inherit.l10_ke_hr_payroll</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+            <group name="salary_info" position="inside">
+                <group string="Tax Deduction" invisible="country_code != 'KE'">
+                    <label for="l10n_ke_pension_contribution"/>
+                    <div class="o_row">
+                        <field name="l10n_ke_pension_contribution" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <field name="l10n_ke_is_secondary"/>
+
+                    <separator string="Allowances"/>
+                    <label for="l10n_ke_food_allowance" string="Food"/>
+                    <div class="o_row">
+                        <field name="l10n_ke_food_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ke_airtime_allowance" string="Airtime"/>
+                    <div class="o_row">
+                        <field name="l10n_ke_airtime_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ke_pension_allowance" string="Pension"/>
+                    <div class="o_row">
+                        <field name="l10n_ke_pension_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+
+                    <separator string="Insurance"/>
+                    <label for="l10n_ke_voluntary_medical_insurance"/>
+                    <div class="o_row">
+                        <field name="l10n_ke_voluntary_medical_insurance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_ke_life_insurance"/>
+                    <div class="o_row">
+                        <field name="l10n_ke_life_insurance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <field name="l10n_ke_is_li_managed_by_employee" invisible="not l10n_ke_life_insurance"/>
+                    <label for="l10n_ke_education"/>
+                    <div class="o_row">
+                        <field name="l10n_ke_education" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

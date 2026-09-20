@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="res_config_settings_view_form_menu_iot" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.pos_self_order_iot.view</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="pos_self_order.res_config_settings_view_form_menu"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='self_ordering_section']/setting[1]" position="inside">
+                <div class="content-group row" invisible="pos_self_ordering_mode != 'kiosk'">
+                    <label for="pos_self_ordering_iot_available_iot_box_ids" class="col-lg-4" string="Launch on"/>
+                    <field name="pos_self_ordering_iot_available_iot_box_ids" widget="many2many_tags" options="{'no_create': True}" placeholder="no IoT Box"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

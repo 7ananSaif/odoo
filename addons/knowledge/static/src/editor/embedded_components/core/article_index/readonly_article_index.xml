@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="knowledge.ReadonlyEmbeddedArticleIndex">
+        <div class="d-flex justify-content-between flex-wrap">
+            <div class="o_embedded_articles_index_label px-2 py-1 fw-bold">Index</div>
+        </div>
+        <div class="o_embedded_articles_index_content">
+            <div t-if="(props.articles || []).length === 0" class="fst-italic p-1">
+                No article to display
+            </div>
+            <ul class="m-0 p-0">
+                <t t-foreach="props.articles" t-as="article" t-key="article_index">
+                    <t t-call="knowledge.ReadonlyArticleIndexNestedList">
+                        <t t-set="article" t-value="article"/>
+                    </t>
+                </t>
+            </ul>
+        </div>
+    </t>
+
+    <t t-name="knowledge.ReadonlyArticleIndexNestedList">
+        <li t-att-data-article-id="article.id">
+            <a class="d-flex text-reset cursor-pointer p-1"
+                t-attf-href="/knowledge/article/#{article.id}"
+                t-on-click.stop="(ev) => this.openArticle(article.id)">
+                <div class="flex-grow-1 text-truncate" t-out="article.name"/>
+            </a>
+            <ul class="m-0">
+                <t t-foreach="article.childIds" t-as="child_article" t-key="child_article_index">
+                    <t t-call="knowledge.ReadonlyArticleIndexNestedList">
+                        <t t-set="article" t-value="child_article"/>
+                    </t>
+                </t>
+            </ul>
+        </li>
+    </t>
+</templates>

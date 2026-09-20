@@ -1,0 +1,651 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+
+        <!-- Emissions Sources -->
+
+        <record id="esg_emission_source_direct_2_1" model="esg.emission.source">
+            <field name="name">Vehicle Type 1</field>
+            <field name="parent_id" ref="esg_emission_source_direct_2"/>
+            <field name="scope">direct</field>
+        </record>
+
+        <record id="esg_emission_source_direct_2_2" model="esg.emission.source">
+            <field name="name">Vehicle Type 2</field>
+            <field name="parent_id" ref="esg_emission_source_direct_2"/>
+            <field name="scope">direct</field>
+        </record>
+
+        <record id="esg_emission_source_indirect_1_1" model="esg.emission.source">
+            <field name="name">Electricity for Office</field>
+            <field name="parent_id" ref="esg_emission_source_indirect_1"/>
+            <field name="scope">indirect</field>
+        </record>
+
+        <record id="esg_emission_source_indirect_1_2" model="esg.emission.source">
+            <field name="name">Electricity for Cars</field>
+            <field name="parent_id" ref="esg_emission_source_indirect_1"/>
+            <field name="scope">indirect</field>
+        </record>
+
+        <!-- Activity Types -->
+        <record id="esg_activity_type_0" model="esg.activity.type">
+            <field name="name">Energy Consumption</field>
+        </record>
+
+        <record id="esg_activity_type_1" model="esg.activity.type">
+            <field name="name">Transportation and Logistics</field>
+        </record>
+
+        <record id="esg_activity_type_2" model="esg.activity.type">
+            <field name="name">Material Production</field>
+        </record>
+
+        <record id="esg_activity_type_3" model="esg.activity.type">
+            <field name="name">Waste Management</field>
+        </record>
+
+        <record id="esg_activity_type_4" model="esg.activity.type">
+            <field name="name">Product Usage and Disposal</field>
+        </record>
+
+        <record id="esg_activity_type_5" model="esg.activity.type">
+            <field name="name">Employee Commuting</field>
+        </record>
+
+        <record id="esg_activity_type_6" model="esg.activity.type">
+            <field name="name">Business Travel</field>
+        </record>
+
+        <record id="esg_activity_type_7" model="esg.activity.type">
+            <field name="name">IT Operations</field>
+        </record>
+
+        <record id="esg_activity_type_8" model="esg.activity.type">
+            <field name="name">Food Consumption</field>
+        </record>
+
+        <!-- 1. Diesel Transport Factor -->
+        <record id="esg_diesel_transport_factor" model="esg.emission.factor">
+            <field name="name">Diesel (Transport)</field>
+            <field name="source_id" ref="esg_emission_source_direct_2"/>
+            <field name="esg_uncertainty_value">0.5</field>
+            <field name="compute_method">physically</field>
+            <field name="uom_id" ref="uom.product_uom_litre"/>
+        </record>
+
+        <record id="esg_diesel_transport_gas_line_1" model="esg.emission.factor.line">
+            <field name="activity_type_id" ref="esg_activity_type_1"/>
+            <field name="esg_emission_factor_id" ref="esg_diesel_transport_factor"/>
+            <field name="quantity">2.68</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_diesel_transport_gas_line_2" model="esg.emission.factor.line">
+            <field name="activity_type_id" ref="esg_activity_type_1"/>
+            <field name="esg_emission_factor_id" ref="esg_diesel_transport_factor"/>
+            <field name="quantity">0.0001</field>
+            <field name="gas_id" ref="esg_gas_ch4f"/>
+        </record>
+
+        <record id="esg_diesel_transport_gas_line_3" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_diesel_transport_factor"/>
+            <field name="quantity">0.0003</field>
+            <field name="gas_id" ref="esg_gas_n2o"/>
+        </record>
+
+        <record id="esg_diesel_transport_gas_line_4" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_diesel_transport_factor"/>
+            <field name="quantity">0.00005</field>
+            <field name="gas_id" ref="esg_gas_hfc_134a"/>
+        </record>
+
+        <record id="esg_diesel_transport_gas_line_5" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_diesel_transport_factor"/>
+            <field name="quantity">0.00002</field>
+            <field name="gas_id" ref="esg_gas_pfc_cf4"/>
+        </record>
+
+        <record id="esg_diesel_transport_gas_line_6" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_diesel_transport_factor"/>
+            <field name="quantity">0.00001</field>
+            <field name="gas_id" ref="esg_gas_sf6"/>
+        </record>
+
+        <!-- 2. Grid Electricity (Warehouse Operations) Factor -->
+        <record id="esg_grid_electricity_warehouse_factor" model="esg.emission.factor">
+            <field name="name">Grid Electricity (Warehouse Operations)</field>
+            <field name="source_id" ref="esg_emission_source_indirect_1"/>
+            <field name="esg_uncertainty_value">0.3</field>
+            <field name="compute_method">monetary</field>
+            <field name="currency_id" ref="base.USD"/>
+        </record>
+
+        <record id="esg_grid_electricity_warehouse_gas_line_1" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_grid_electricity_warehouse_factor"/>
+            <field name="quantity">0.18</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_grid_electricity_warehouse_gas_line_2" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_grid_electricity_warehouse_factor"/>
+            <field name="quantity">0.000004</field>
+            <field name="gas_id" ref="esg_gas_ch4f"/>
+        </record>
+
+        <record id="esg_grid_electricity_warehouse_gas_line_3" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_grid_electricity_warehouse_factor"/>
+            <field name="quantity">0.000002</field>
+            <field name="gas_id" ref="esg_gas_n2o"/>
+        </record>
+
+        <!-- 3. Computers (Hardware Equipment Production) Factor -->
+        <record id="esg_computers_production_factor" model="esg.emission.factor">
+            <field name="name">Computers (Hardware Equipment Production)</field>
+            <field name="source_id" ref="esg_emission_source_upstream_1"/>
+            <field name="esg_uncertainty_value">0.15</field>
+            <field name="compute_method">physically</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <record id="esg_computers_production_gas_line_1" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_computers_production_factor"/>
+            <field name="quantity">0.5</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_computers_production_gas_line_2" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_computers_production_factor"/>
+            <field name="quantity">0.00002</field>
+            <field name="gas_id" ref="esg_gas_ch4f"/>
+        </record>
+
+        <record id="esg_computers_production_gas_line_3" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_computers_production_factor"/>
+            <field name="quantity">0.00001</field>
+            <field name="gas_id" ref="esg_gas_n2o"/>
+        </record>
+
+        <!-- 4. Zero Emission Factor -->
+        <record id="esg_zero_emission_factor" model="esg.emission.factor">
+            <field name="name">Zero Emission</field>
+            <field name="source_id" ref="esg_emission_source_neutral"/>
+            <field name="esg_uncertainty_value">0.3</field>
+            <field name="compute_method">monetary</field>
+            <field name="currency_id" ref="base.USD"/>
+        </record>
+
+        <!-- 5. Employee Lunch Factor -->
+        <record id="esg_employee_lunch_factor" model="esg.emission.factor">
+            <field name="name">Employee Lunch</field>
+            <field name="source_id" ref="esg_emission_source_upstream_1"/>
+            <field name="esg_uncertainty_value">0.45</field>
+            <field name="compute_method">physically</field>
+            <field name="uom_id" ref="uom.product_uom_kgm"/>
+        </record>
+
+        <record id="esg_employee_lunch_gas_line_1" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_employee_lunch_factor"/>
+            <field name="quantity">0.5</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_employee_lunch_gas_line_2" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_employee_lunch_factor"/>
+            <field name="quantity">0.00002</field>
+            <field name="gas_id" ref="esg_gas_ch4f"/>
+        </record>
+
+        <record id="esg_employee_lunch_gas_line_3" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_employee_lunch_factor"/>
+            <field name="quantity">0.00001</field>
+            <field name="gas_id" ref="esg_gas_n2o"/>
+        </record>
+
+        <!-- 6. Smartphones (Hardware Equipment Production) Factor -->
+        <record id="esg_smartphones_production_factor" model="esg.emission.factor">
+            <field name="name">Smartphones (Hardware Equipment Production)</field>
+            <field name="source_id" ref="esg_emission_source_upstream_1"/>
+            <field name="esg_uncertainty_value">0.5</field>
+            <field name="compute_method">physically</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <record id="esg_smartphones_production_gas_line_1" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_smartphones_production_factor"/>
+            <field name="quantity">0.5</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_smartphones_production_gas_line_2" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_smartphones_production_factor"/>
+            <field name="quantity">0.00002</field>
+            <field name="gas_id" ref="esg_gas_ch4f"/>
+        </record>
+
+        <record id="esg_smartphones_production_gas_line_3" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_smartphones_production_factor"/>
+            <field name="quantity">0.00001</field>
+            <field name="gas_id" ref="esg_gas_n2o"/>
+        </record>
+
+        <!-- 7. Wooden Chairs Factor -->
+        <record id="esg_wooden_chairs_factor" model="esg.emission.factor">
+            <field name="name">Wooden Chairs</field>
+            <field name="source_id" ref="esg_emission_source_upstream_1"/>
+            <field name="esg_uncertainty_value">0.1</field>
+            <field name="compute_method">physically</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <record id="esg_wooden_chairs_gas_line_1" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_wooden_chairs_factor"/>
+            <field name="activity_type_id" ref="esg_activity_type_2"/>
+            <field name="quantity">4.92</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_wooden_chairs_gas_line_2" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_wooden_chairs_factor"/>
+            <field name="activity_type_id" ref="esg_activity_type_1"/>
+            <field name="quantity">8.66</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_wooden_chairs_gas_line_3" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_wooden_chairs_factor"/>
+            <field name="activity_type_id" ref="esg_activity_type_0"/>
+            <field name="quantity">5.05</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <!-- 8. Coffee Machines Factor -->
+        <record id="esg_coffee_machines_factor" model="esg.emission.factor">
+            <field name="name">Coffee Machines</field>
+            <field name="source_id" ref="esg_emission_source_upstream_1"/>
+            <field name="esg_uncertainty_value">0.5</field>
+            <field name="compute_method">physically</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <record id="esg_coffee_machines_gas_line_1" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_coffee_machines_factor"/>
+            <field name="activity_type_id" ref="esg_activity_type_2"/>
+            <field name="quantity">27.10</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_coffee_machines_gas_line_2" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_coffee_machines_factor"/>
+            <field name="activity_type_id" ref="esg_activity_type_1"/>
+            <field name="quantity">8.047</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_coffee_machines_gas_line_3" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_coffee_machines_factor"/>
+            <field name="activity_type_id" ref="esg_activity_type_0"/>
+            <field name="quantity">12.47</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <!-- 9. Advertising Screens 2 m² Factor -->
+        <record id="esg_advertising_screens_2m2_factor" model="esg.emission.factor">
+            <field name="name">Advertising Screens 2 m²</field>
+            <field name="source_id" ref="esg_emission_source_upstream_1"/>
+            <field name="esg_uncertainty_value">0.5</field>
+            <field name="compute_method">physically</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+        </record>
+
+        <record id="esg_advertising_screens_2m2_gas_line_1" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_advertising_screens_2m2_factor"/>
+            <field name="activity_type_id" ref="esg_activity_type_2"/>
+            <field name="quantity">1199</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_advertising_screens_2m2_gas_line_2" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_advertising_screens_2m2_factor"/>
+            <field name="activity_type_id" ref="esg_activity_type_1"/>
+            <field name="quantity">91.8</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_advertising_screens_2m2_gas_line_3" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_advertising_screens_2m2_factor"/>
+            <field name="activity_type_id" ref="esg_activity_type_0"/>
+            <field name="quantity">30.83</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <!-- 10. Office Electricity Factor -->
+        <record id="esg_office_electricity_factor" model="esg.emission.factor">
+            <field name="name">Electricity Consumption</field>
+            <field name="source_id" ref="esg_emission_source_indirect_1"/>
+            <field name="esg_uncertainty_value">0.35</field>
+            <field name="compute_method">monetary</field>
+            <field name="currency_id" ref="base.USD"/>
+        </record>
+
+        <record id="esg_office_electricity_gas_line_1" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_office_electricity_factor"/>
+            <field name="quantity">0.18</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_office_electricity_gas_line_2" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_office_electricity_factor"/>
+            <field name="quantity">0.000004</field>
+            <field name="gas_id" ref="esg_gas_ch4f"/>
+        </record>
+
+        <record id="esg_office_electricity_gas_line_3" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_office_electricity_factor"/>
+            <field name="quantity">0.000002</field>
+            <field name="gas_id" ref="esg_gas_n2o"/>
+        </record>
+
+        <record id="esg_office_electricity_gas_line_4" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_office_electricity_factor"/>
+            <field name="quantity">0.0000002</field>
+            <field name="gas_id" ref="esg_gas_hfc_23"/>
+        </record>
+
+        <record id="esg_office_electricity_gas_line_5" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_office_electricity_factor"/>
+            <field name="quantity">0.0000005</field>
+            <field name="gas_id" ref="esg_gas_pfc_cf4"/>
+        </record>
+
+        <record id="esg_office_electricity_gas_line_6" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_office_electricity_factor"/>
+            <field name="quantity">0.0000003</field>
+            <field name="gas_id" ref="esg_gas_sf6"/>
+        </record>
+
+        <!-- 11. Cloud Hosting Factor -->
+        <record id="esg_cloud_hosting_factor" model="esg.emission.factor">
+            <field name="name">Cloud Hosting</field>
+            <field name="source_id" ref="esg_emission_source_upstream_1"/>
+            <field name="esg_uncertainty_value">0.77</field>
+            <field name="compute_method">monetary</field>
+            <field name="currency_id" ref="base.USD"/>
+        </record>
+
+        <record id="esg_cloud_hosting_gas_line_1" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_cloud_hosting_factor"/>
+            <field name="quantity">0.50</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_cloud_hosting_gas_line_2" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_cloud_hosting_factor"/>
+            <field name="quantity">0.00002</field>
+            <field name="gas_id" ref="esg_gas_ch4f"/>
+        </record>
+
+        <record id="esg_cloud_hosting_gas_line_3" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_cloud_hosting_factor"/>
+            <field name="quantity">0.00001</field>
+            <field name="gas_id" ref="esg_gas_n2o"/>
+        </record>
+
+        <record id="esg_cloud_hosting_gas_line_4" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_cloud_hosting_factor"/>
+            <field name="quantity">0.0000005</field>
+            <field name="gas_id" ref="esg_gas_hfc_23"/>
+        </record>
+
+        <record id="esg_cloud_hosting_gas_line_5" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_cloud_hosting_factor"/>
+            <field name="quantity">0.000001</field>
+            <field name="gas_id" ref="esg_gas_pfc_cf4"/>
+        </record>
+
+        <record id="esg_cloud_hosting_gas_line_6" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_cloud_hosting_factor"/>
+            <field name="quantity">0.0000006</field>
+            <field name="gas_id" ref="esg_gas_sf6"/>
+        </record>
+
+        <!-- 12. Business Travel (Train) Factor -->
+        <record id="esg_business_travel_train_factor" model="esg.emission.factor">
+            <field name="name">Train (Business Travel)</field>
+            <field name="source_id" ref="esg_emission_source_upstream_6"/>
+            <field name="esg_uncertainty_value">0.38</field>
+            <field name="compute_method">physically</field>
+            <field name="uom_id" ref="uom.product_uom_km"/>
+        </record>
+
+        <record id="esg_business_travel_train_gas_line_1" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_business_travel_train_factor"/>
+            <field name="quantity">0.05</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_business_travel_train_gas_line_2" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_business_travel_train_factor"/>
+            <field name="quantity">0.0001</field>
+            <field name="gas_id" ref="esg_gas_ch4f"/>
+        </record>
+
+        <record id="esg_business_travel_train_gas_line_3" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_business_travel_train_factor"/>
+            <field name="quantity">0.0002</field>
+            <field name="gas_id" ref="esg_gas_n2o"/>
+        </record>
+
+        <!-- 13. Gasoline (Company Vehicles) Factor -->
+        <record id="esg_gasoline_vehicles_factor" model="esg.emission.factor">
+            <field name="name">Gasoline (Company Vehicles)</field>
+            <field name="source_id" ref="esg_emission_source_direct_1"/>
+            <field name="esg_uncertainty_value">0.5</field>
+            <field name="compute_method">physically</field>
+            <field name="uom_id" ref="uom.product_uom_litre"/>
+        </record>
+
+        <record id="esg_gasoline_vehicles_gas_line_1" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_gasoline_vehicles_factor"/>
+            <field name="quantity">2.31</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_gasoline_vehicles_gas_line_2" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_gasoline_vehicles_factor"/>
+            <field name="quantity">0.0001</field>
+            <field name="gas_id" ref="esg_gas_ch4f"/>
+        </record>
+
+        <record id="esg_gasoline_vehicles_gas_line_3" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_gasoline_vehicles_factor"/>
+            <field name="quantity">0.0003</field>
+            <field name="gas_id" ref="esg_gas_n2o"/>
+        </record>
+
+        <!-- 14. Waste Disposal (General Office Waste) Factor -->
+        <record id="esg_waste_disposal_office_factor" model="esg.emission.factor">
+            <field name="name">Waste Disposal (General Office Waste)</field>
+            <field name="source_id" ref="esg_emission_source_upstream_5"/>
+            <field name="esg_uncertainty_value">0.72</field>
+            <field name="compute_method">physically</field>
+            <field name="uom_id" ref="uom.product_uom_kgm"/>
+        </record>
+
+        <record id="esg_waste_disposal_office_gas_line_1" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_waste_disposal_office_factor"/>
+            <field name="quantity">0.5</field>
+            <field name="gas_id" ref="esg_gas_co2"/>
+        </record>
+
+        <record id="esg_waste_disposal_office_gas_line_2" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_waste_disposal_office_factor"/>
+            <field name="quantity">0.00002</field>
+            <field name="gas_id" ref="esg_gas_ch4f"/>
+        </record>
+
+        <record id="esg_waste_disposal_office_gas_line_3" model="esg.emission.factor.line">
+            <field name="esg_emission_factor_id" ref="esg_waste_disposal_office_factor"/>
+            <field name="quantity">0.00001</field>
+            <field name="gas_id" ref="esg_gas_n2o"/>
+        </record>
+
+        <!-- Accounts -->
+        <record id="account_electricity" model="account.account">
+            <field name="name">Electricity</field>
+            <field name="prefix">6060</field>
+            <field name="code_digits" eval="6"/>
+            <field name="account_type">expense</field>
+        </record>
+        <record id="account_expense" model="account.account">
+            <field name="name">Expense</field>
+            <field name="prefix">6070</field>
+            <field name="code_digits" eval="6"/>
+            <field name="account_type">expense</field>
+        </record>
+        <record id="account_salary" model="account.account">
+            <field name="name">Salary</field>
+            <field name="prefix">6080</field>
+            <field name="code_digits" eval="6"/>
+            <field name="account_type">liability_current</field>
+        </record>
+
+        <!-- Products -->
+        <record id="product_computer" model="product.product">
+            <field name="name">Computer</field>
+            <field name="uom_id" ref="uom.product_uom_unit"/>
+            <field name="standard_price">695.00</field>
+            <field name="type">consu</field>
+            <field name="sale_ok" eval="False"/>
+            <field name="purchase_ok" eval="True"/>
+            <field name="categ_id" eval="ref('product.product_category_expenses', raise_if_not_found=False)"/>
+            <field name="image_1920" type="base64" file="esg/demo/files/product_computer.jpg"/>
+        </record>
+
+        <!-- Partners -->
+        <record id="partner_voltixa" model="res.partner">
+            <field name="name">Voltixa</field>
+            <field name="is_company">1</field>
+            <field name="street">Avenue du Réseau Électrique 42</field>
+            <field name="city">Électroville</field>
+            <field name="zip">75321</field>
+            <field name="country_id" ref="base.fr"/>
+            <field name="email">voltixa@example.com</field>
+            <field name="phone">+33 1 99 88 77 66</field>
+            <field name="image_1920" type="base64" file="esg/demo/files/partner_voltixa-image.png"/>
+        </record>
+
+        <record id="partner_aetheris" model="res.partner">
+            <field name="name">Aetheris Digital</field>
+            <field name="is_company">1</field>
+            <field name="street">4567 Cloud Avenue</field>
+            <field name="state_id" ref="base.state_us_48"/>
+            <field name="city">Seattle</field>
+            <field name="zip">98199</field>
+            <field name="country_id" ref="base.us"/>
+            <field name="email">aetheris.digital@example.com</field>
+            <field name="phone">(206)-555-1234</field>
+            <field name="image_1920" type="base64" file="esg/demo/files/partner_aetheris-image.png"/>
+        </record>
+
+        <record id="partner_petronyx" model="res.partner">
+            <field name="name">Petronyx Fuels</field>
+            <field name="is_company">1</field>
+            <field name="street">Rue de l'Énergie 789</field>
+            <field name="city">Bruxelles</field>
+            <field name="zip">1040</field>
+            <field name="country_id" ref="base.be"/>
+            <field name="email">petronyx.fuels@example.com</field>
+            <field name="phone">+32 2 555 67 89</field>
+            <field name="image_1920" type="base64" file="esg/demo/files/partner_petronyx-image.png"/>
+        </record>
+
+        <!-- Assignations Rules -->
+        <record id="esg_emission_factor_line_assignation_1" model="esg.assignation.line">
+            <field name="esg_emission_factor_id" ref="esg_diesel_transport_factor"/>
+            <field name="partner_id" ref="partner_petronyx"/>
+        </record>
+
+        <record id="esg_emission_factor_line_assignation_2" model="esg.assignation.line">
+            <field name="esg_emission_factor_id" ref="esg_grid_electricity_warehouse_factor"/>
+            <field name="account_id" ref="account_electricity"/>
+        </record>
+
+        <record id="esg_emission_factor_line_assignation_3" model="esg.assignation.line">
+            <field name="esg_emission_factor_id" ref="esg_computers_production_factor"/>
+            <field name="product_id" ref="product_computer"/>
+            <field name="partner_id" ref="base.res_partner_1"/>
+        </record>
+
+        <record id="esg_emission_factor_line_assignation_4" model="esg.assignation.line">
+            <field name="esg_emission_factor_id" ref="esg_zero_emission_factor"/>
+            <field name="account_id" ref="account_expense"/>
+        </record>
+
+        <!-- Vendor Bills and Misc Entries -->
+        <record id="vendor_bill_1" model="account.move">
+            <field name="move_type">in_invoice</field>
+            <field name="partner_id" ref="base.res_partner_1"/>
+            <field name="invoice_date" eval="time.strftime('%Y')+'-01-03'"/>
+            <field name="invoice_line_ids" eval="[
+                (0, 0, {
+                    'product_id': ref('esg.product_computer'),
+                    'price_unit': 200.00,
+                    'quantity': 400,
+                })
+            ]"/>
+        </record>
+
+        <record id="vendor_bill_2" model="account.move">
+            <field name="move_type">in_invoice</field>
+            <field name="partner_id" ref="partner_petronyx"/>
+            <field name="invoice_date" eval="time.strftime('%Y')+'-01-05'"/>
+            <field name="date" eval="time.strftime('%Y')+'-01-05'"/>
+            <field name="invoice_line_ids" eval="[
+                (0, 0, {
+                    'name': 'Fuel',
+                    'price_unit': 1.50,
+                    'quantity': 150,
+                    'product_uom_id': ref('uom.product_uom_litre'),
+                })
+            ]"/>
+        </record>
+
+        <record id="vendor_bill_3" model="account.move">
+            <field name="move_type">in_invoice</field>
+            <field name="partner_id" ref="partner_voltixa"/>
+            <field name="invoice_date" eval="time.strftime('%Y')+'-01-09'"/>
+            <field name="date" eval="time.strftime('%Y')+'-01-09'"/>
+            <field name="invoice_line_ids" eval="[
+                (0, 0, {
+                    'name': 'Electricity',
+                    'account_id': ref('account_electricity'),
+                    'price_unit': 1500.00,
+                    'quantity': 1,
+                })
+            ]"/>
+        </record>
+
+        <record id="misc_entry_1" model="account.move">
+            <field name="move_type">entry</field>
+            <field name="date" eval="time.strftime('%Y')+'-01-31'"/>
+            <field name="line_ids" model="account.account" eval="[
+                (0, 0, {
+                    'name': 'Salaries January '+time.strftime('%Y'),
+                    'account_id': ref('account_expense'),
+                    'debit': 1500.00,
+                }),
+                (0, 0, {
+                    'name': 'Salaries January '+time.strftime('%Y'),
+                    'account_id': ref('account_salary'),
+                    'credit': 1500.00,
+                })
+            ]"/>
+        </record>
+
+        <function model="account.move" name="action_post">
+            <value eval="[ref('vendor_bill_1'), ref('vendor_bill_2'), ref('vendor_bill_3'), ref('misc_entry_1')]"/>
+        </function>
+
+    </data>
+</odoo>

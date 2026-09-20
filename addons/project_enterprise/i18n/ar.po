@@ -1,0 +1,512 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * project_enterprise
+#
+# Translators:
+# Martin Trigaux, 2022
+# Niyas Raphy, 2022
+# Malaz Abuidris <msea@odoo.com>, 2023
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# "Malaz Siddig Elsayed Abuidris (msea)" <msea@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:46+0000\n"
+"PO-Revision-Date: 2025-11-19 16:33+0000\n"
+"Last-Translator: \"Malaz Siddig Elsayed Abuidris (msea)\" <msea@odoo.com>\n"
+"Language-Team: Arabic <https://translate.odoo.com/projects/odoo-19/"
+"project_enterprise/ar/>\n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 "
+"&& n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid "%(partner)s has %(amount)s tasks at the same time."
+msgstr "%(partner)s لديه %(amount)s مهام في الوقت ذاته."
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form
+msgid ""
+"<i class=\"fa fa-exclamation-circle me-2\" role=\"img\" title=\"Dependency "
+"warning\"/>"
+msgstr ""
+"<i class=\"fa fa-exclamation-circle me-2\" role=\"img\" title=\"تحذير تبعيات "
+"المهام \"/>"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form
+msgid ""
+"<i class=\"fa fa-random me-2\" role=\"img\" title=\"Planning overlap\"/>"
+msgstr ""
+"<i class=\"fa fa-random me-2\" role=\"img\" title=\"تضارب في التخطيط \"/>"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.portal_my_task
+msgid "<strong>Deadline:</strong>"
+msgstr "<strong>الموعد النهائي:</strong>"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.portal_my_task
+msgid "<strong>Planned Date:</strong>"
+msgstr "<strong>التاريخ المخطط له:</strong>"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__allocated_hours
+msgid "Allocated Time"
+msgstr "الوقت المخصص"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__user_ids
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view_no_title
+msgid "Assignees"
+msgstr "المسند إليهم"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/view_dialogs/select_auto_plan_create_dialog.xml:0
+msgid "Auto Plan"
+msgstr "التخطيط التلقائي"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form
+msgid "Check it out <i class=\"oi oi-chevron-right ms-2\"/>"
+msgstr "ألقِ نظرة <i class=\"oi oi-chevron-right ms-2\"/>"
+
+#. module: project_enterprise
+#: model:ir.model,website_form_label:project_enterprise.model_project_task
+msgid "Create a Task"
+msgstr "إنشاء مهمة"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__partner_id
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view_no_title
+msgid "Customer"
+msgstr "العميل"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+msgid "Date"
+msgstr "التاريخ"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_sharing_project_task_view_form_inherited_in_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form_in_gantt
+msgid "Discard"
+msgstr "إهمال"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_project__display_name
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__display_name
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task_recurrence__display_name
+#: model:ir.model.fields,field_description:project_enterprise.field_report_project_task_user__display_name
+#: model:ir.model.fields,field_description:project_enterprise.field_res_users__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Failed to undo reschedule"
+msgstr "فشل إلغاء إعادة الجدولة"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_project__id
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__id
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task_recurrence__id
+#: model:ir.model.fields,field_description:project_enterprise.field_report_project_task_user__id
+#: model:ir.model.fields,field_description:project_enterprise.field_res_users__id
+msgid "ID"
+msgstr "المُعرف"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view_no_title
+msgid "Milestone"
+msgstr "مؤشر التقدم"
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"One parameter is missing to use this method. You should give a start and end "
+"dates."
+msgstr ""
+"أحد المعايير غير موجود لاستخدام هذه الطريقة. عليك إدخال تواريخ البدء "
+"والانتهاء."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/controllers/portal.py:0
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_sharing_project_task_view_form_inherited
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form
+msgid "Planned Date"
+msgstr "التاريخ المخطط"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__planned_date_start
+msgid "Planned Date Start"
+msgstr "بدء التاريخ المخطط له"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_project_view_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_gantt_inherited_project_sharing_task
+msgid "Planning"
+msgstr "التخطيط"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_project_project
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__project_id
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+msgid "Project"
+msgstr "المشروع"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/project_task_common/milestones_popover.xml:0
+msgid "Project due"
+msgstr "تاريخ تسليم المشروع"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/project_task_common/milestones_popover.xml:0
+msgid "Project start"
+msgstr "بداية المشروع"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_sharing_project_task_view_form_inherited_in_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form_in_gantt
+msgid "Save"
+msgstr "حفظ"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid ""
+"Some tasks have been successfully scheduled for the upcoming periods. Some "
+"warnings were generated. Please review them for details."
+msgstr ""
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid "Some tasks were planned after their initial deadline."
+msgstr "تم التخطيط لبعض المهام بعد موعدها النهائي الذي تم تحديده في البداية."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"Some tasks were scheduled concurrently, resulting in a conflict due to the "
+"limited availability of the assignees. The planned dates for these tasks may "
+"not align with their allocated hours."
+msgstr ""
+"تمت جدولة بعض المهام بشكل متتالي، مما تسبب في حدوث تعارض بسبب محدودية توافر "
+"الأفراد الذين تُسنَد إليهم المهام. قد لا تتوافق التواريخ المخطط لها مع الساعات "
+"المخصصة لها."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"Some tasks weren't planned because the closest available starting date was "
+"too far ahead in the future"
+msgstr ""
+"بعض المهام لم يتم التخطيط لها لأن أقرب تاريخ بدء متاح بعيد جداً في المستقبل"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__planned_date_begin
+#: model:ir.model.fields,field_description:project_enterprise.field_report_project_task_user__planned_date_begin
+msgid "Start date"
+msgstr "تاريخ البدء"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_project_task
+msgid "Task"
+msgstr "المهمة"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_project_task_recurrence
+msgid "Task Recurrence"
+msgstr "تكرار المهمة"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task could not be removed"
+msgstr "تعذر إزالة المهمة"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task duplicated"
+msgstr "تم نسخ المهمة"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task removed"
+msgstr "تمت إزالة المهمة"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task reschedule undone"
+msgstr ""
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task rescheduled"
+msgstr "تمت إعادة جدولة المهمة"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_report_project_task_user
+msgid "Tasks Analysis"
+msgstr "تحليل المهام"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Tasks have been successfully scheduled for the upcoming periods."
+msgstr "تمت جدولة المهام بنجاح للفترات المقبلة."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_search_conflict_task_project_enterprise
+msgid "Tasks in Conflict"
+msgstr "المهام المتعارضة"
+
+#. module: project_enterprise
+#: model:ir.model.constraint,message:project_enterprise.constraint_project_task_planned_dates_check
+msgid "The planned start date must be before the planned end date."
+msgstr "يجب ألا يقع تاريخ الانتهاء قبل تاريخ البداية."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"The tasks could not be rescheduled due to the assignees' lack of "
+"availability at this time."
+msgstr ""
+"تعذر إعادة جدولة المهام نظراً لأن الأفراد الذين تُسنَد إليهم المهام غير متاحون "
+"في ذلك الوقت."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid "This Progress Bar is not implemented."
+msgstr "لم يتم تطبيق شريط التقدم."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"This task cannot be planned before the following tasks on which it depends: %"
+"(task_list)s"
+msgstr ""
+"لا يمكن تخطيط هذه المهمة قبل المهام التالية التي تعتمد عليها: %(task_list)s"
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"This user isn't expected to have any tasks assigned during this period "
+"because they don't have any running contract."
+msgstr ""
+"ليس من المتوقع أن يكون لهذا المستخدم أي مهام مسندة أثناء هذه الفترة لأنه ليس "
+"لديه أي عقد جاري."
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.res_config_settings_view_form
+msgid "Timesheets"
+msgstr "الجداول الزمنية"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_sharing_project_task_view_form_inherited_in_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form_in_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_gantt_inherited_project_sharing_task
+msgid "Unschedule"
+msgstr "إلغاء الجدولة"
+
+#. module: project_enterprise
+#: model:ir.model.fields,help:project_enterprise.field_project_task__display_name
+msgid ""
+"Use these keywords in the title to set new tasks:\n"
+"\n"
+"        30h Allocate 30 hours to the task\n"
+"        #tags Set tags on the task\n"
+"        @user Assign the task to a user\n"
+"        ! Set the task a medium priority\n"
+"        !! Set the task a high priority\n"
+"        !!! Set the task a urgent priority\n"
+"\n"
+"        Make sure to use the right format and order e.g. Improve the "
+"configuration screen 5h #feature #v16 @Mitchell !"
+msgstr ""
+"استخدم هذه الكلمات المفتاحية في العنوان لتعيين مهام جديدة:\n"
+"\n"
+"        30h لتخصيص 30 ساعة للمهمة\n"
+"        #tags لتعيين علامات تصنيف للمهمة\n"
+"        @user لإسناد المهمة إلى أحد المستخدمين\n"
+"        ! لتعيين أولوية متوسطة للمهمة\n"
+"        !! لتعيين أولوية عالية للمهمة\n"
+"        !!! لتعيين أولوية عاجلة للمهمة\n"
+" \n"
+"        تأكد من استخدام التنسيق والترتيب الصحيحين، على سبيل المثال: تحسين "
+"شاشة الإعدادات 5h #feature #v16 @Mitchell !"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_res_users
+msgid "User"
+msgstr "المستخدم"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_project_view_gantt
+msgid "View Tasks"
+msgstr "عرض المهام"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/project_task_map/project_task_map_renderer.xml:0
+msgid "View customer locations for your tasks"
+msgstr "إظهار مواقع العملاء لمهامك"
+
+#~ msgid "<i class=\"fa fa-long-arrow-right\" title=\"Arrow\"/>"
+#~ msgstr "<i class=\"fa fa-long-arrow-right\" title=\"سهم \"/>"
+
+#~ msgid ""
+#~ "<span class=\"fst-italic text-muted\"><i class=\"fa fa-lock\"/> Private</"
+#~ "span>"
+#~ msgstr ""
+#~ "<span class=\"fst-italic text-muted\"><i class=\"fa fa-lock\"/> خاص</span>"
+
+#~ msgid "<strong>Assignees — </strong>"
+#~ msgstr "<strong>المسند إليهم — </strong>"
+
+#~ msgid "<strong>Customer — </strong>"
+#~ msgstr "<strong>العميل — </strong>"
+
+#~ msgid "<strong>Milestone — </strong>"
+#~ msgstr "<strong>مؤشر التقدم — </strong> "
+
+#~ msgid "<strong>Project Manager — </strong>"
+#~ msgstr "<strong>مدير المشروع — </strong> "
+
+#~ msgid "<strong>Project — </strong>"
+#~ msgstr "<strong>المشروع — </strong>"
+
+#~ msgid "Caution: some tasks have not been scheduled"
+#~ msgstr "تحذير: بعض المهام لم يتم تحديد موعدها "
+
+#~ msgid "Created by"
+#~ msgstr "أنشئ بواسطة"
+
+#~ msgid "Created on"
+#~ msgstr "أنشئ في"
+
+#~ msgid "Display Warning Dependency In Gantt"
+#~ msgstr "عرض تحذير التبعيات في غانت "
+
+#~ msgid "End Date"
+#~ msgstr "تاريخ الانتهاء"
+
+#~ msgid "End date"
+#~ msgstr "تاريخ النهاية"
+
+#~ msgid "Last Updated by"
+#~ msgstr "آخر تحديث بواسطة"
+
+#~ msgid "Last Updated on"
+#~ msgstr "آخر تحديث في"
+
+#~ msgid "Lines"
+#~ msgstr "البنود"
+
+#~ msgid "Mobile"
+#~ msgstr "الهاتف المحمول"
+
+#~ msgid "No task has been scheduled in the future."
+#~ msgstr "لم تتم جدولة أي مهمة في المستقبل. "
+
+#~ msgid "Overlapping Tasks"
+#~ msgstr "المهام المتداخلة "
+
+#~ msgid "Planning Overlap"
+#~ msgstr "التداخل في التخطيط "
+
+#~ msgid "Project Milestone"
+#~ msgstr "مؤشر تقدم المشروع "
+
+#~ msgid "Schedule Task"
+#~ msgstr "برنامج المهمة"
+
+#~ msgid "Schedule Tasks"
+#~ msgstr "برنامج المهام"
+
+#~ msgid "Selected Line Count"
+#~ msgstr "عدد البنود المحددة "
+
+#~ msgid "Show Warnings"
+#~ msgstr "إظهار التحذيرات"
+
+#~ msgid "Start Date"
+#~ msgstr "تاريخ البداية"
+
+#~ msgid "Street"
+#~ msgstr "الشارع"
+
+#~ msgid "Task confirm schedule line wizard"
+#~ msgstr "معالج بند جدول تأكيد المهمة "
+
+#~ msgid "Task confirm schedule wizard"
+#~ msgstr "معالج جدول تأكيد المهمة "
+
+#~ msgid ""
+#~ "The following tasks have not been scheduled because the corresponding\n"
+#~ "                        employees are unavailable. The next possible "
+#~ "dates for these tasks are:"
+#~ msgstr ""
+#~ "لم تتم جدولة المهام التالية لأن الموظفين المعنيين\n"
+#~ "                        غير متاحين. التواريخ التالية المتاحة لتلك المهام "
+#~ "هي: "
+
+#~ msgid "The task has been successfully scheduled."
+#~ msgstr "لقد تمت جدولة المهمة بنجاح. "
+
+#~ msgid "The tasks have been successfully scheduled."
+#~ msgstr "لقد تمت جدولة المهام بنجاح. "
+
+#~ msgid ""
+#~ "This employee does not have a running contract during the selected "
+#~ "period.\n"
+#~ "The working hours of the company were used as a reference instead."
+#~ msgstr ""
+#~ "لا يملك هذا الموظف عقداً جارياً خلال الفترة المحددة. \n"
+#~ "تم استخدام ساعات عمل الشركة كمرجع عوضاً عن ذلك. "
+
+#~ msgid "Unassigned Tasks"
+#~ msgstr "المهام غير المسندة "
+
+#~ msgid "User Names"
+#~ msgstr "أسماء المستخدمين "
+
+#~ msgid "Warning"
+#~ msgstr "تحذير"
+
+#~ msgid "Wizard"
+#~ msgstr "المعالج"
+
+#~ msgid "Zip"
+#~ msgstr "الرمز البريدي"

@@ -1,0 +1,56 @@
+<odoo>
+    <record id="account_journal_dashboard_kanban_view" model="ir.ui.view">
+        <field name="name">account.journal.dashboard.kanban</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.account_journal_dashboard_kanban_view"/>
+        <field name="arch" type="xml">
+            <kanban position="attributes">
+                <attribute name="on_create">account_accountant.action_journal_create_wizard</attribute>
+            </kanban>
+
+            <xpath expr="//div[@id='sale_purchase_refund']" position="after">
+                <div>
+                    <a type="object" name="action_open_reconcile" groups="account.group_account_user">Payments Matching</a>
+                </div>
+            </xpath>
+            <!-- The following section handles the reconcile button -->
+            <xpath expr="//div[@name='bank_cash_buttons']" position="inside">
+                <button t-if="dashboard.number_to_reconcile > 0" type="object" name="action_open_reconcile" class="btn btn-secondary d-block text-nowrap" groups="account.group_account_basic"><t t-out="dashboard.number_to_reconcile"/> to reconcile</button>
+            </xpath>
+
+            <xpath expr="//div[@name='latest_statement']//span" position="replace">
+                <a type="object"
+                   name="action_open_reconcile_statement"
+                   title="Latest Statement"
+                   t-att-context="{'statement_id': dashboard.last_statement_id}">
+                    Last Statement
+                </a>
+            </xpath>
+
+            <xpath expr="//div[@id='dashboard_bank_cash_right']" position="inside">
+                <t t-if="dashboard.number_to_check > 0">
+                    <div class="row" groups="account.group_account_readonly">
+                        <div class="col overflow-hidden text-start">
+                            <a type="object" name="action_open_to_check"><t t-out="dashboard.number_to_check"/> To Review</a>
+                        </div>
+                        <div class="col-auto text-end">
+                            <span dir="ltr"><t t-out="dashboard.to_check_balance"/></span>
+                        </div>
+                    </div>
+                </t>
+            </xpath>
+            <xpath expr="//h5[@id='card_action_view_menus']" position="after">
+                <div>
+                    <a role="menuitem" type="object" name="action_open_bank_transactions">Transactions</a>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_journal_create_wizard" model="ir.actions.client">
+        <field name="name">What type of journal do you want to add?</field>
+        <field name="tag">journal_create_wizard</field>
+        <field name="target">new</field>
+        <field name="context">{'footer': false}</field>
+    </record>
+</odoo>

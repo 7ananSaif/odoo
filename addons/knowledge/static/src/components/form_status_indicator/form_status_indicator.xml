@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="knowledge.FormStatusIndicator">
+        <img src="/knowledge/static/src/img/form_status_indicator_saved.svg"
+            class="align-items-center user-select-none text-muted px-1"
+            t-attf-class="{{ displayButtons ? 'd-none' : ''}}"
+            data-tooltip="All changes saved"/>
+        <button
+            class="o_form_button_save btn btn-light text-muted border-0 px-1 py-0"
+            t-ref="save"
+            t-att-class="{'d-none': !(props.model.root.isNew or displayButtons)}"
+            t-on-click.stop="save"
+            data-hotkey="s"
+            data-tooltip="Save manually"
+            aria-label="Save manually">
+            <i class="fa fa-cloud-upload fa-fw" />
+        </button>
+        <button
+            class="o_form_button_cancel btn btn-light text-muted border-0 px-1 py-0"
+            t-att-class="{'d-none': !(props.model.root.isNew or displayButtons)}"
+            t-on-click.stop="discard"
+            data-hotkey="j"
+            data-tooltip="Discard all changes"
+            aria-label="Discard all changes">
+            <i class="fa fa-times fa-fw" />
+        </button>
+        <span
+            t-if="!props.model.root.isNew and indicatorMode === 'invalid'"
+            class="text-danger small ms-2"
+            data-tooltip="Unable to save. Correct the issue or discard all changes">
+            <i class="fa fa-warning" />
+        </span>
+    </t>
+</templates>

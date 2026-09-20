@@ -1,0 +1,187 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * ai_documents_account
+#
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Saara Hakanen <sahak@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-12-19 10:50+0000\n"
+"Last-Translator: Saara Hakanen <sahak@odoo.com>\n"
+"Language-Team: Finnish <https://translate.odoo.com/projects/odoo-19/"
+"ai_documents_account/fi/>\n"
+"Language: fi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "%(b_open)sContracts & NDAs%(b_close)s go to the %(legal)s folder."
+msgstr ""
+"%(b_open)sSopimukset ja salassapitosopimukset%(b_close)s tallennetaan %"
+"(legal)s -kansioon."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"%(b_open)sInsurance contracts%(b_close)s go to the %(insurance)s folder."
+msgstr ""
+"%(b_open)sVakuutussopimukset%(b_close)s siirretään %(insurance)s-kansioon."
+
+#. module: ai_documents_account
+#: model:ir.model.fields,field_description:ai_documents_account.field_documents_document__ai_document_or_env_company_id
+msgid "AI Company"
+msgstr "Tekoäly-yritys"
+
+#. module: ai_documents_account
+#: model:ir.model,name:ai_documents_account.model_ai_documents_sort
+msgid "Ai Documents Sort"
+msgstr "Tekoälyasiakirjojen lajittelu"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "Company > Email"
+msgstr "Yritys > Sähköposti"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "Company > Name"
+msgstr "Yritys > Nimi"
+
+#. module: ai_documents_account
+#: model:ir.model.fields,field_description:ai_documents_account.field_ai_documents_sort__display_name
+#: model:ir.model.fields,field_description:ai_documents_account.field_documents_document__display_name
+#: model:ir.model.fields,field_description:ai_documents_account.field_ir_actions_server__display_name
+msgid "Display Name"
+msgstr "Näyttönimi"
+
+#. module: ai_documents_account
+#: model:ir.model,name:ai_documents_account.model_documents_document
+msgid "Document"
+msgstr "Dokumentti"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"First, check the file to see if it contains a single document or if several "
+"documents are collated together."
+msgstr ""
+"Tarkista ensin tiedostosta, sisältääkö se yhden asiakirjan vai useita "
+"asiakirjoja koottuna yhteen."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "For this, use this field: %s"
+msgstr "Käytä tätä kenttää: %s"
+
+#. module: ai_documents_account
+#: model:ir.model.fields,field_description:ai_documents_account.field_ai_documents_sort__id
+#: model:ir.model.fields,field_description:ai_documents_account.field_documents_document__id
+#: model:ir.model.fields,field_description:ai_documents_account.field_ir_actions_server__id
+msgid "ID"
+msgstr "Tunnus"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "If it is a customer invoice, trigger the action to create one."
+msgstr "Jos se on asiakaslasku, käynnistä toiminto luodaksesi yhden."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "If it is false, continue with the normal process"
+msgstr "Jos se on väärin, jatka tavallisella prosessilla"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"If it is true, add the tag %(b_open)s\"To Split\"%(b_close)s and stop there. "
+"This way, we'll know we first need to manually split it into different files."
+msgstr ""
+"Jos 'true', lisää tunniste %(b_open)s\"Jaettavaksi\"%(b_close)s ja lopeta "
+"siihen. Näin tiedämme, että meidän on ensin jaettava se manuaalisesti eri "
+"kansioihin."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"If the customer is %(b_open)sanyone else%(b_close)s, create a Customer "
+"Invoice."
+msgstr ""
+"Jos asiakas on %(b_open)skuka tahansa muu%(b_close)s, luo asiakaslasku."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"If the customer is %s it means it is a vendor bill, trigger the Create "
+"Vendor Bill action."
+msgstr ""
+"Jos asiakas on %s, kyseessä on toimittajalasku. Käynnistä Luo "
+"toimittajalasku -toiminto."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"If the customer of the invoice is us (%(company_name)s, with email %"
+"(company_email)s), create a Vendor Bill."
+msgstr ""
+"Jos laskun asiakas olemme me (%(company_name)s sähköpostiosoitteella %"
+"(company_email)s), luo toimittajalasku."
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"If the document is %(b_open)snot an invoice%(b_close)s, move it to the "
+"correct folder:"
+msgstr ""
+"Jos asiakirja %(b_open)sei ole lasku%(b_close)s, siirrä se oikeaan kansioon:"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid ""
+"If the document is an %(b_open)sinvoice%(b_close)s, move it to the %"
+"(finance)s folder then trigger the relevant action:"
+msgstr ""
+"Jos asiakirja on %(b_open)slasku%(b_close)s, siirrä se %(finance)s -kansioon "
+"ja käynnistä sitten olennainen toiminto:"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "Is considered multipage"
+msgstr "Pidetään monisivuisena"
+
+#. module: ai_documents_account
+#. odoo-python
+#: code:addons/ai_documents_account/wizard/ai_documents_sort.py:0
+msgid "Otherwise, %s"
+msgstr "Muussa tapauksessa, %s"
+
+#. module: ai_documents_account
+#: model:ir.model,name:ai_documents_account.model_ir_actions_server
+msgid "Server Action"
+msgstr "Palvelintoiminto"
+
+#. module: ai_documents_account
+#: model:documents.tag,name:ai_documents_account.documents_tag_to_split
+msgid "To Split"
+msgstr "Jakaminen"

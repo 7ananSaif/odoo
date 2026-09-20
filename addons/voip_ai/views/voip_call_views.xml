@@ -1,0 +1,49 @@
+<odoo>
+    <record id="voip_call_view_form_transcription_status" model="ir.ui.view">
+        <field name="name">voip.call.form.transcription_status</field>
+        <field name="model">voip.call</field>
+        <field name="inherit_id" ref="voip.voip_call_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="before">
+                <field name="transcription_status" class="d-block" widget="voip_ai_transcription_status_banner"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="voip_call_view_form_summary" model="ir.ui.view">
+        <field name="name">voip.call.form.summary</field>
+        <field name="model">voip.call</field>
+        <field name="inherit_id" ref="voip.voip_call_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='duration']" position="after">
+                <field name="summary" string="Summary"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="voip_call_view_form_transcript" model="ir.ui.view">
+        <field name="name">voip.call.form.transcript</field>
+        <field name="model">voip.call</field>
+        <field name="inherit_id" ref="voip.voip_call_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//sheet[last()]" position="inside">
+                <notebook>
+                    <page string="Transcript" name="transcript">
+                        <field name="transcript" placeholder="Call transcript..." />
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="voip_call_view_list_summary" model="ir.ui.view">
+        <field name="name">voip.call.list.summary</field>
+        <field name="model">voip.call</field>
+        <field name="inherit_id" ref="voip.voip_call_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='user_id']" position="after">
+                <field name="summary" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

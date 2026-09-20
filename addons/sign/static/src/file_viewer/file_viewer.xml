@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="sign.SignFileViewer" t-inherit="web.FileViewer" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o-FileViewer-download')]" position="before">
+            <div
+                t-if="allowSignTemplateCreation and state.file.mimetype === 'application/pdf' and this.hasUserAccess"
+                class="o-FileViewer-download o-FileViewer-headerButton d-flex align-items-center px-3 cursor-pointer"
+                role="button"
+                title="Sign"
+                t-on-click="openSignTemplate"
+            >
+                <a class="text-reset d-flex align-items-baseline">
+                    <i class="fa fa-pencil-square-o fa-fw me-1" role="img"/>
+                    <span>Sign</span>
+                </a>
+            </div>
+        </xpath>
+    </t>
+</templates>

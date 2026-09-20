@@ -1,0 +1,846 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * pos_enterprise
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-02 18:43+0000\n"
+"PO-Revision-Date: 2025-11-27 14:17+0000\n"
+"Last-Translator: Odoo Translation Bot <c3p@odoo.com>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"pos_enterprise/ko/>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "<span>Average time</span>"
+msgstr "<span>평균 시간</span>"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "<span>In progress</span>"
+msgstr "<span>진행 중</span>"
+
+#. module: pos_enterprise
+#. odoo-python
+#: code:addons/pos_enterprise/models/pos_prep_display.py:0
+msgid "A preparation display must have a minimum of one step."
+msgstr "준비 화면에는 최소한 하나의 단계가 있어야 합니다."
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Accept payments with a Tyro payment terminal"
+msgstr "Tyro 결제 단말기로 결제 수락하기"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__access_token
+msgid "Access Token"
+msgstr "사용 권한 토큰"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "After"
+msgstr "이후"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__alert_timer
+msgid "Alert timer (min)"
+msgstr "경고 타이머 (분)"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/stages/stages.xml:0
+msgid "All"
+msgstr "전체"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "All PoS"
+msgstr "전체 POS"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "All categories"
+msgstr "전체 카테고리"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_reset_wizard
+msgid ""
+"Archive all preparation display's orders for a fresh start. This will not "
+"affect the PoS order history."
+msgstr ""
+"다시 시작하기 위해 준비 화면의 주문 전체를 보관 처리합니다. POS의 주문 내역에"
+"는 영향이 없습니다."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__auto_clear
+msgid "Auto clear"
+msgstr "자동 삭제"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__avg_preparation_time
+msgid "Average Preparation Time"
+msgstr "평균 준비 시간"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_order__avg_preparation_time
+msgid "Average preparation time of the order"
+msgstr "주문 평균 준비 시간"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_order__avg_service_time
+msgid "Average service time of the order"
+msgstr "주문 평균 서비스 시간"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_display__average_time
+msgid "Average time of all order that not in a done stage."
+msgstr "완료 단계에 있지 않은 전체 주문의 평균 시간입니다."
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_reset_wizard
+msgid "Check products"
+msgstr "품목 확인"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Clear All Filters"
+msgstr "모든 필터 제거"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Close"
+msgstr "닫기"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__color
+msgid "Color"
+msgstr "색상"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__combo_line_ids
+msgid "Combo Lines"
+msgstr "콤보 내역"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__company_id
+msgid "Company"
+msgstr "회사"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__completion_time
+msgid "Completion Time"
+msgstr "완성 시간"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_res_config_settings
+msgid "Config Settings"
+msgstr "환경설정"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "Configure"
+msgstr "설정"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__create_uid
+msgid "Created by"
+msgstr "작성자"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__create_date
+msgid "Created on"
+msgstr "작성일자"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_order__pdis_general_customer_note
+msgid "Current general-customer-note displayed on preparation display"
+msgstr "준비 화면에 표시된 현재 일반 고객 메모."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_order__pdis_internal_note
+msgid "Current general-note displayed on preparation display"
+msgstr "준비 디스플레이에 표시되는 현재 일반 노트"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/order/order.xml:0
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__customer_note
+msgid "Customer Note"
+msgstr "고객 관련 메모"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_line__customer_note
+msgid "Customer notes written at the time of the order"
+msgstr ""
+
+#. module: pos_enterprise
+#: model_terms:ir.actions.act_window,help:pos_enterprise.action_preparation_display
+msgid ""
+"Different products and categories are sent to different tablets and screens."
+msgstr "서로 다른 품목 및 카테고리가 다른 태블릿과 화면으로 전송됩니다."
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_reset_wizard
+msgid "Discard"
+msgstr "취소"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_category__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_config__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_load_mixin__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order_line__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preset__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_session__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_attribute__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_product__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_template_attribute_value__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_resource_calendar_attendance__display_name
+msgid "Display Name"
+msgstr "표시명"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/order/order.xml:0
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Done"
+msgstr "완료"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/backend/components/fields/duration_field.js:0
+msgid "Duration"
+msgstr "소요시간"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_preset
+msgid "Easily load a set of configuration options"
+msgstr "설정 옵션 세트를 간편하게 불러오세요."
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Explore demo data"
+msgstr "데모 데이터 살펴보기"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/override/point_of_sale/pos_store.js:0
+msgid "Failed in sending the changes to preparation display"
+msgstr "변경 사항을 준비 화면으로 전송하지 못했습니다."
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Filters"
+msgstr "필터"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Food Delivery Connector"
+msgstr "음식 배달 커넥터"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__pdis_general_customer_note
+msgid "General Customer Note"
+msgstr "일반 고객 메모"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__pdis_internal_note
+msgid "General Note"
+msgstr "일반적인 참고 사항"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__order_hour
+msgid "Hour"
+msgstr "시간"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_category__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_config__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_load_mixin__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order_line__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preset__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_session__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_attribute__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_product__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_template_attribute_value__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_res_config_settings__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_resource_calendar_attendance__id
+msgid "ID"
+msgstr "ID"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_line__combo_parent_id
+msgid "Indicates the parent line if this is part of a combo"
+msgstr "콤보의 일부인 경우 상위 내역을 나타냅니다."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__internal_note
+msgid "Internal Note"
+msgstr "내부 노트"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_line__internal_note
+msgid "Internal notes written at the time of the order"
+msgstr "주문 시 기록한 내부 메모"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__clear_time_interval
+msgid "Interval auto clear time"
+msgstr "빈도 자동 삭제 시간"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_display__clear_time_interval
+msgid "Interval in minutes"
+msgstr "분 단위 대기 시간"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_config__module_pos_iot
+msgid "IoT Box"
+msgstr "IoT 박스"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__contains_bar_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_search
+msgid "Is a Bar/Restaurant"
+msgstr "바/레스토랑 유무"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_config__module_pos_urban_piper
+msgid "Is an Urbanpiper"
+msgstr "Urbanpiper"
+
+#. module: pos_enterprise
+#: model:ir.actions.server,name:pos_enterprise.action_pos_preparation_display_kitchen_display
+#: model:ir.ui.menu,name:pos_enterprise.menu_point_kitchen_display_root
+msgid "Kitchen Display"
+msgstr "주방 디스플레이"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_search
+msgid "Last 30 Days"
+msgstr "최근 30일"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__last_stage_change
+msgid "Last Stage Change"
+msgstr "마지막 단계 변경"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__write_uid
+msgid "Last Updated by"
+msgstr "최근 갱신한 사람"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__write_date
+msgid "Last Updated on"
+msgstr "최근 갱신 일자"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/orderline/orderline.xml:0
+msgid "Line Customer Note"
+msgstr "줄 고객 메모"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Loading..."
+msgstr "불러오는 중..."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_res_config_settings__pos_module_pos_urban_piper
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Manage your online orders with Urban Piper."
+msgstr "Urban Piper를 사용하여 온라인 주문을 관리하세요."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__name
+msgid "Name"
+msgstr "이름"
+
+#. module: pos_enterprise
+#: model_terms:ir.actions.act_window,help:pos_enterprise.action_preparation_display
+msgid "Need a touchscreen interface to manage order ?"
+msgstr "주문 관리를 위한 터치스크린 인터페이스가 필요하신가요?"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "No data available."
+msgstr "사용가능한 데이타가 없습니다."
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "Offer"
+msgstr "제안"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__pos_order_id
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__order_id
+msgid "Order"
+msgstr "주문"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__create_date
+msgid "Order Date"
+msgstr "주문일"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__order_name
+msgid "Order Name"
+msgstr "주문명"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__average_time
+msgid "Order average time"
+msgstr "주문 평균 시간"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__order_count
+msgid "Order count"
+msgstr "주문 수"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__pos_order_line_id
+msgid "Original pos order line"
+msgstr "원 POS 주문 내역"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_line__pos_order_line_uuid
+msgid "Original pos order line UUID"
+msgstr "원 POS 주문 항목 UUID"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__pos_config_id
+msgid "POS Config"
+msgstr "POS 환경설정"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_preparation_time_report
+msgid "POS Preparation Time Report"
+msgstr "POS 준비 시간 보고서"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__combo_parent_id
+msgid "Parent Combo Line"
+msgstr "상위 콤보 라인"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Payment method"
+msgstr "결제 방법"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_load_mixin
+msgid "PoS data loading mixin"
+msgstr "PoS 데이터 로드 믹스인"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__pos_config_ids
+msgid "Point of Sale"
+msgstr "POS"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_category
+msgid "Point of Sale Category"
+msgstr "점포판매시스템 분류"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_config
+msgid "Point of Sale Configuration"
+msgstr "POS 환경 설정"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_order_line
+msgid "Point of Sale Order Lines"
+msgstr "점포판매시스템 주문 명세"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_order
+msgid "Point of Sale Orders"
+msgstr "점포판매시스템 주문"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_session
+msgid "Point of Sale Session"
+msgstr "점포판매시스템 기간"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__pos_order_line_uuid
+msgid "Pos Order Line Uuid"
+msgstr "Pos 주문 명세 Uuid"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_display
+msgid "Pos Preparation Display"
+msgstr "POS 준비 화면"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_line
+msgid "Pos Preparation Line"
+msgstr "POS 준비 내역"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_order
+msgid "Pos Preparation Order"
+msgstr "POS 준비 순서"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_stage
+msgid "Pos Preparation Stage"
+msgstr "POS 준비 단계"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_state
+msgid "Pos Preparation State"
+msgstr "POS 준비 상태"
+
+#. module: pos_enterprise
+#: model:ir.actions.act_url,name:pos_enterprise.action_pos_preparation_display_bar_restaurant_filter_link
+#: model:ir.actions.act_window,name:pos_enterprise.action_preparation_display
+#: model:ir.actions.act_window,name:pos_enterprise.action_preparation_display_bar_restaurant_filter
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_search
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_tree
+msgid "Preparation Display"
+msgstr "준비 표시"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__prep_line_ids
+msgid "Preparation Lines"
+msgstr "준비 내역"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__prep_order_id
+msgid "Preparation Order"
+msgstr "준비 주문"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__prep_line_id
+msgid "Preparation Orderline"
+msgstr "준비 주문 내역"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "Preparation Screen"
+msgstr "준비 화면"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order__avg_preparation_time
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order_line__preparation_time
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__preparation_time
+#: model:ir.ui.menu,name:pos_enterprise.menu_report_preparation_time
+msgid "Preparation Time"
+msgstr "준비 시간"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_view_form
+msgid "Preparation Time Line"
+msgstr "준비 시간 내역"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_view_list
+msgid "Preparation Time Lines"
+msgstr "준비 시간 내역"
+
+#. module: pos_enterprise
+#: model:ir.actions.act_window,name:pos_enterprise.pos_preparation_time_report_action
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_graph
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_search
+msgid "Preparation Time Report"
+msgstr "준비 시간 보고서"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__prep_display_id
+msgid "Preparation display"
+msgstr "준비 화면"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Preset"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__product_id
+msgid "Product"
+msgstr "품목"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_product_attribute
+msgid "Product Attribute"
+msgstr "품목 속성"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__product_id
+msgid "Product ID"
+msgstr "품목 아이디"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_product_template_attribute_value
+msgid "Product Template Attribute Value"
+msgstr "품목 양식 속성 값"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_product_product
+msgid "Product Variant"
+msgstr "품목 세부선택"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__category_ids
+msgid "Product categories"
+msgstr "품목 카테고리"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_display__category_ids
+msgid "Product categories that will be displayed on this screen."
+msgstr "이 화면에 표시될 품목 카테고리입니다."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__quantity
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__qty
+msgid "Quantity"
+msgstr "수량"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__cancelled
+msgid "Quantity of cancelled product"
+msgstr "취소된 품목 수량"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Recall"
+msgstr "리콜"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/order/order.xml:0
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_reset_wizard
+msgid "Reset"
+msgstr "초기화"
+
+#. module: pos_enterprise
+#. odoo-python
+#: code:addons/pos_enterprise/models/pos_prep_display.py:0
+msgid "Reset Preparation Display"
+msgstr "준비 화면 초기화"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_preparation_display_reset_wizard
+msgid "Reset all current order in a preparation display"
+msgstr "준비 화면에서 현재 주문 전체를 초기화"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "Reset all orders"
+msgstr "전체 주문 초기화"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Save this page and come back here to set up the feature."
+msgstr "이 페이지를 저장하고 돌아와서 기능을 설정합니다."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__attribute_value_ids
+msgid "Selected Attributes"
+msgstr "선택 속성"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/override/point_of_sale/pos_store.js:0
+msgid "Send failed"
+msgstr "보내기 실패"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__sequence
+msgid "Sequence"
+msgstr "순서"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order__avg_service_time
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order_line__service_time
+msgid "Service Time"
+msgstr "서비스 시간"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__stage_id
+msgid "Stage"
+msgstr "단계"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__stage_ids
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "Stages"
+msgstr "단계"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__todo
+msgid "Status of the orderline"
+msgstr "주문 내역 상태"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/override/point_of_sale/navbar/navbar.xml:0
+msgid "Switch to Dark Mode"
+msgstr "다크 모드로 전환하기"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/override/point_of_sale/navbar/navbar.xml:0
+msgid "Switch to Light Mode"
+msgstr "라이트 모드로 전환하기"
+
+#. module: pos_enterprise
+#. odoo-python
+#: code:addons/pos_enterprise/models/pos_prep_display.py:0
+msgid "The interval auto clear time must be positive."
+msgstr "자동 삭제 간격은 반드시 양수여야 합니다."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_state__todo
+msgid "The status of a command line, todo or not"
+msgstr "명령줄 상태, 실행 여부"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_res_config_settings__module_pos_tyro
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid ""
+"The transactions are processed by Tyro. Set your Tyro credentials on the "
+"related payment method."
+msgstr ""
+"거래가 Tyro를 통해 처리됩니다. Tyro 자격 증명을 관련 결제 수단에 설정하세요."
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Time"
+msgstr "시간"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_display__auto_clear
+msgid "Time after which ready order will be removed from Order Status Screen."
+msgstr "일정 시간 후 주문 상태 화면에서 준비된 주문이 제거되는 시간입니다."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_order__completion_time
+msgid "Time in minutes to complete the order (preparation + service time)"
+msgstr "주문 완료에 걸리는 시간(분)(준비 + 서비스 시간)"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_order_line__preparation_time
+msgid "Time to prepare the order line"
+msgstr "주문 내역 준비 시간"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_order_line__service_time
+msgid "Time to serve the order line"
+msgstr "주문 내역 처리 시간"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_stage__alert_timer
+msgid "Timer after which the order will be highlighted"
+msgstr "주문이 강조 표시된 후 타이머"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Tyro"
+msgstr "초보자"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_res_config_settings__module_pos_tyro
+msgid "Tyro Payment Terminal"
+msgstr "Tyro 결제 단말기"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_res_config_settings__pos_module_pos_urban_piper
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Urban Piper"
+msgstr "도시 파이퍼"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_resource_calendar_attendance
+msgid "Work Detail"
+msgstr "작업 세부사항"
+
+#. module: pos_enterprise
+#. odoo-python
+#: code:addons/pos_enterprise/models/pos_prep_display.py:0
+msgid ""
+"You cannot modify the stages of a preparation display that has an active "
+"sessions."
+msgstr ""
+"준비 디스플레이 단계에서 활성화된 세션이 있는 경우에는 수정할 수 없습니다."
+
+#. module: pos_enterprise
+#: model:ir.actions.server,name:pos_enterprise.preparation_display_delete_cron_ir_actions_server
+msgid "delete_preparation_order"
+msgstr "delete_preparation_order"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "minutes"
+msgstr "분"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "or simply wait for orders to be sent for preparation."
+msgstr "또는 주문이 전송될 때까지 기다리세요."
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/order/order.xml:0
+msgid "products"
+msgstr "제품"

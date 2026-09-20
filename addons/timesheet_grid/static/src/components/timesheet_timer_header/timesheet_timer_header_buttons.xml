@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="timesheet_grid.TimesheetTimerHeaderButtons">
+        <t t-if="props.timerRunning">
+            <button t-if="props.stopTimer"
+                    class="btn btn-primary o_stop_timer_button o_stop_timer_button"
+                    data-hotkey="x"
+                    t-att-disabled="timerService.otherCompany"
+                    t-on-click.stop="onClickTimerButton"
+                    t-ref="stopButton"
+            >
+                <i class="fa fa-stop me-2"></i> Stop
+            </button>
+            <button class="btn btn-muted o_discard_timer_button"
+                    title="Press Esc to discard"
+                    t-att-disabled="timerService.otherCompany"
+                    t-on-click.stop="_onClickDeleteTimer"
+            >
+                Discard
+            </button>
+        </t>
+        <t t-else="">
+            <button class="btn_start_timer btn btn-primary text-uppercase"
+                    t-on-click.stop="onClickTimerButton"
+                    t-ref="startButton"
+            >
+                <i class="fa fa-play me-2"></i> Start
+            </button>
+        </t>
+    </t>
+
+</templates>

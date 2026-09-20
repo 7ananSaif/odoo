@@ -1,0 +1,853 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * pos_enterprise
+#
+# Translators:
+# Martin Trigaux, 2022
+# Dorin Hongu <dhongu@gmail.com>, 2022
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-01-02 18:43+0000\n"
+"PO-Revision-Date: 2025-11-13 17:15+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Romanian <https://translate.odoo.com/projects/odoo-19/"
+"pos_enterprise/ro/>\n"
+"Language: ro\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
+"20)) ? 1 : 2;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "<span>Average time</span>"
+msgstr "<span>Durata medie</span>"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "<span>In progress</span>"
+msgstr "<span>În curs de desfășurare</span>"
+
+#. module: pos_enterprise
+#. odoo-python
+#: code:addons/pos_enterprise/models/pos_prep_display.py:0
+msgid "A preparation display must have a minimum of one step."
+msgstr "Un display de pregătire trebuie să aibă cel puțin o etapă."
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Accept payments with a Tyro payment terminal"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__access_token
+msgid "Access Token"
+msgstr "Token de acces"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "After"
+msgstr "După"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__alert_timer
+msgid "Alert timer (min)"
+msgstr "Temporizator de alertă (min)"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/stages/stages.xml:0
+msgid "All"
+msgstr "Tot"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "All PoS"
+msgstr "Toate POS-urile"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "All categories"
+msgstr "Toate categoriile"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_reset_wizard
+msgid ""
+"Archive all preparation display's orders for a fresh start. This will not "
+"affect the PoS order history."
+msgstr ""
+"Arhivați toate comenzile ecranului de pregătire pentru un nou început. Acest "
+"lucru nu va afecta istoricul comenzilor PoS."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__auto_clear
+msgid "Auto clear"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__avg_preparation_time
+msgid "Average Preparation Time"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_order__avg_preparation_time
+msgid "Average preparation time of the order"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_order__avg_service_time
+msgid "Average service time of the order"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_display__average_time
+msgid "Average time of all order that not in a done stage."
+msgstr ""
+"Durata medie a tuturor comenzilor care nu se află în stadiul finalizat."
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_reset_wizard
+msgid "Check products"
+msgstr "Verificați produsele"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Clear All Filters"
+msgstr "Șterge toate filtrele"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Close"
+msgstr "Închide"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__color
+msgid "Color"
+msgstr "Color"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__combo_line_ids
+msgid "Combo Lines"
+msgstr "Linii Combo"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__company_id
+msgid "Company"
+msgstr "Companie"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__completion_time
+msgid "Completion Time"
+msgstr "Timpul de Finalizare"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_res_config_settings
+msgid "Config Settings"
+msgstr "Setări de configurare"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "Configure"
+msgstr "Configurează"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__create_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__create_uid
+msgid "Created by"
+msgstr "Creat de"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__create_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__create_date
+msgid "Created on"
+msgstr "Creat la"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_order__pdis_general_customer_note
+msgid "Current general-customer-note displayed on preparation display"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_order__pdis_internal_note
+msgid "Current general-note displayed on preparation display"
+msgstr "Nota generală curentă afișată pe ecranul de pregătire"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/order/order.xml:0
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__customer_note
+msgid "Customer Note"
+msgstr "Notă client"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_line__customer_note
+msgid "Customer notes written at the time of the order"
+msgstr ""
+
+#. module: pos_enterprise
+#: model_terms:ir.actions.act_window,help:pos_enterprise.action_preparation_display
+msgid ""
+"Different products and categories are sent to different tablets and screens."
+msgstr ""
+"Produse și categorii diferite sunt trimise către dispozitive și ecrane "
+"diferite."
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_reset_wizard
+msgid "Discard"
+msgstr "Renunță"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_category__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_config__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_load_mixin__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order_line__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preset__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_session__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_attribute__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_product__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_template_attribute_value__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:pos_enterprise.field_resource_calendar_attendance__display_name
+msgid "Display Name"
+msgstr "Nume afișat"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/order/order.xml:0
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Done"
+msgstr "Finalizat"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/backend/components/fields/duration_field.js:0
+msgid "Duration"
+msgstr "Durată"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_preset
+msgid "Easily load a set of configuration options"
+msgstr ""
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Explore demo data"
+msgstr "Analizați datele demo"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/override/point_of_sale/pos_store.js:0
+msgid "Failed in sending the changes to preparation display"
+msgstr "Trimiterea modificărilor la ecranul de pregătire a eșuat"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Filters"
+msgstr "Filtre"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Food Delivery Connector"
+msgstr "Conector pentru livrare de mâncare"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__pdis_general_customer_note
+msgid "General Customer Note"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__pdis_internal_note
+msgid "General Note"
+msgstr "Notă generală"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__order_hour
+msgid "Hour"
+msgstr "Ora"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_category__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_config__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_load_mixin__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order_line__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preset__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_session__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_attribute__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_product__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_product_template_attribute_value__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_res_config_settings__id
+#: model:ir.model.fields,field_description:pos_enterprise.field_resource_calendar_attendance__id
+msgid "ID"
+msgstr "ID"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_line__combo_parent_id
+msgid "Indicates the parent line if this is part of a combo"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__internal_note
+msgid "Internal Note"
+msgstr "Nota interna"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_line__internal_note
+msgid "Internal notes written at the time of the order"
+msgstr "Note interne scrise în momentul comenzii"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__clear_time_interval
+msgid "Interval auto clear time"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_display__clear_time_interval
+msgid "Interval in minutes"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_config__module_pos_iot
+msgid "IoT Box"
+msgstr "IoT Box"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__contains_bar_restaurant
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_search
+msgid "Is a Bar/Restaurant"
+msgstr "Este un bar / restaurant"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_config__module_pos_urban_piper
+msgid "Is an Urbanpiper"
+msgstr "Este un Urbanpiper"
+
+#. module: pos_enterprise
+#: model:ir.actions.server,name:pos_enterprise.action_pos_preparation_display_kitchen_display
+#: model:ir.ui.menu,name:pos_enterprise.menu_point_kitchen_display_root
+msgid "Kitchen Display"
+msgstr "Display de bucătărie"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_search
+msgid "Last 30 Days"
+msgstr "Ultimele 30 zile"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__last_stage_change
+msgid "Last Stage Change"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__write_uid
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__write_uid
+msgid "Last Updated by"
+msgstr "Ultima actualizare de"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__write_date
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_preparation_display_reset_wizard__write_date
+msgid "Last Updated on"
+msgstr "Ultima actualizare la"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/orderline/orderline.xml:0
+msgid "Line Customer Note"
+msgstr ""
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Loading..."
+msgstr "Se încarcă..."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_res_config_settings__pos_module_pos_urban_piper
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Manage your online orders with Urban Piper."
+msgstr "Gestionează comenzile tale online cu Urban Piper."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__name
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__name
+msgid "Name"
+msgstr "Nume"
+
+#. module: pos_enterprise
+#: model_terms:ir.actions.act_window,help:pos_enterprise.action_preparation_display
+msgid "Need a touchscreen interface to manage order ?"
+msgstr ""
+"Aveți nevoie de o interfață cu ecran tactil pentru a gestiona comenzile?"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "No data available."
+msgstr "Nu există date disponibile."
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "Offer"
+msgstr "Ofertă"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__pos_order_id
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__order_id
+msgid "Order"
+msgstr "Comandă"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__create_date
+msgid "Order Date"
+msgstr "Data comenzii"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__order_name
+msgid "Order Name"
+msgstr "Nume comandă"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__average_time
+msgid "Order average time"
+msgstr "Durata medie a comenzii"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__order_count
+msgid "Order count"
+msgstr "Număr comandă"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__pos_order_line_id
+msgid "Original pos order line"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_line__pos_order_line_uuid
+msgid "Original pos order line UUID"
+msgstr "UUID-ul liniei de comandă PoS originale"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__pos_config_id
+msgid "POS Config"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_preparation_time_report
+msgid "POS Preparation Time Report"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__combo_parent_id
+msgid "Parent Combo Line"
+msgstr ""
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Payment method"
+msgstr "Metodă de plată"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_load_mixin
+msgid "PoS data loading mixin"
+msgstr "Mixin de încărcare date PoS"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__pos_config_ids
+msgid "Point of Sale"
+msgstr "Punct de vânzare"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_category
+msgid "Point of Sale Category"
+msgstr "Categorie Punct de vânzare"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_config
+msgid "Point of Sale Configuration"
+msgstr "Configurarea Punctului de Vânzare"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_order_line
+msgid "Point of Sale Order Lines"
+msgstr "Liniile Punctului de vânzare"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_order
+msgid "Point of Sale Orders"
+msgstr "Comenzile Punctului de vânzare"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_session
+msgid "Point of Sale Session"
+msgstr "Sesiune Punct de vânzare"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__pos_order_line_uuid
+msgid "Pos Order Line Uuid"
+msgstr "UUID linie comandă PoS"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_display
+msgid "Pos Preparation Display"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_line
+msgid "Pos Preparation Line"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_order
+msgid "Pos Preparation Order"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_stage
+msgid "Pos Preparation Stage"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_prep_state
+msgid "Pos Preparation State"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.actions.act_url,name:pos_enterprise.action_pos_preparation_display_bar_restaurant_filter_link
+#: model:ir.actions.act_window,name:pos_enterprise.action_preparation_display
+#: model:ir.actions.act_window,name:pos_enterprise.action_preparation_display_bar_restaurant_filter
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_search
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_tree
+msgid "Preparation Display"
+msgstr "Preparation Display"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_order__prep_line_ids
+msgid "Preparation Lines"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__prep_order_id
+msgid "Preparation Order"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__prep_line_id
+msgid "Preparation Orderline"
+msgstr ""
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "Preparation Screen"
+msgstr "Ecran de pregătire"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order__avg_preparation_time
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order_line__preparation_time
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__preparation_time
+#: model:ir.ui.menu,name:pos_enterprise.menu_report_preparation_time
+msgid "Preparation Time"
+msgstr ""
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_view_form
+msgid "Preparation Time Line"
+msgstr ""
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_view_list
+msgid "Preparation Time Lines"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.actions.act_window,name:pos_enterprise.pos_preparation_time_report_action
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_graph
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_time_report_search
+msgid "Preparation Time Report"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__prep_display_id
+msgid "Preparation display"
+msgstr "Afișaj pregătire"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Preset"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__product_id
+msgid "Product"
+msgstr "Produs"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_product_attribute
+msgid "Product Attribute"
+msgstr "Atribut produs"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__product_id
+msgid "Product ID"
+msgstr "ID produs"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_product_template_attribute_value
+msgid "Product Template Attribute Value"
+msgstr "Valoare atribut șablon produs"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_product_product
+msgid "Product Variant"
+msgstr "Variantă produs"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__category_ids
+msgid "Product categories"
+msgstr "Categorii de produse"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_display__category_ids
+msgid "Product categories that will be displayed on this screen."
+msgstr "Categoriile de produse care vor fi afișate pe acest ecran."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__quantity
+#: model:ir.model.fields,field_description:pos_enterprise.field_preparation_time_report__qty
+msgid "Quantity"
+msgstr "Cantitate"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__cancelled
+msgid "Quantity of cancelled product"
+msgstr "Cantitatea de produs anulată"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Recall"
+msgstr "Revocare"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/order/order.xml:0
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_reset_wizard
+msgid "Reset"
+msgstr "Resetează"
+
+#. module: pos_enterprise
+#. odoo-python
+#: code:addons/pos_enterprise/models/pos_prep_display.py:0
+msgid "Reset Preparation Display"
+msgstr "Resetarea ecranului de pregătire"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_pos_preparation_display_reset_wizard
+msgid "Reset all current order in a preparation display"
+msgstr "Resetați toate comenzile curente pe afișajul de pregătire"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_kanban
+msgid "Reset all orders"
+msgstr "Resetați toate comenzile"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Save this page and come back here to set up the feature."
+msgstr ""
+"Salvați această pagină și reveniți aici pentru a configura caracteristica."
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_line__attribute_value_ids
+msgid "Selected Attributes"
+msgstr "Atribute selectate"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/override/point_of_sale/pos_store.js:0
+msgid "Send failed"
+msgstr "Trimitere eșuată"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_stage__sequence
+msgid "Sequence"
+msgstr "Secvență"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order__avg_service_time
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_order_line__service_time
+msgid "Service Time"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__stage_id
+msgid "Stage"
+msgstr "Etapă"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_display__stage_ids
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "Stages"
+msgstr "Etape"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_pos_prep_state__todo
+msgid "Status of the orderline"
+msgstr "Etapa liniei de comandă"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/override/point_of_sale/navbar/navbar.xml:0
+msgid "Switch to Dark Mode"
+msgstr ""
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/override/point_of_sale/navbar/navbar.xml:0
+msgid "Switch to Light Mode"
+msgstr ""
+
+#. module: pos_enterprise
+#. odoo-python
+#: code:addons/pos_enterprise/models/pos_prep_display.py:0
+msgid "The interval auto clear time must be positive."
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_state__todo
+msgid "The status of a command line, todo or not"
+msgstr "Etapa unei linii de comandă, todo sau nu"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_res_config_settings__module_pos_tyro
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid ""
+"The transactions are processed by Tyro. Set your Tyro credentials on the "
+"related payment method."
+msgstr ""
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "Time"
+msgstr "Data"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_display__auto_clear
+msgid "Time after which ready order will be removed from Order Status Screen."
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_order__completion_time
+msgid "Time in minutes to complete the order (preparation + service time)"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_order_line__preparation_time
+msgid "Time to prepare the order line"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_order_line__service_time
+msgid "Time to serve the order line"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,help:pos_enterprise.field_pos_prep_stage__alert_timer
+msgid "Timer after which the order will be highlighted"
+msgstr "Timer după care comanda va fi evidențiată"
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Tyro"
+msgstr "Tyro"
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_res_config_settings__module_pos_tyro
+msgid "Tyro Payment Terminal"
+msgstr ""
+
+#. module: pos_enterprise
+#: model:ir.model.fields,field_description:pos_enterprise.field_res_config_settings__pos_module_pos_urban_piper
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.res_config_settings_view_form
+msgid "Urban Piper"
+msgstr "Urban Piper"
+
+#. module: pos_enterprise
+#: model:ir.model,name:pos_enterprise.model_resource_calendar_attendance
+msgid "Work Detail"
+msgstr "Detaliu lucru"
+
+#. module: pos_enterprise
+#. odoo-python
+#: code:addons/pos_enterprise/models/pos_prep_display.py:0
+msgid ""
+"You cannot modify the stages of a preparation display that has an active "
+"sessions."
+msgstr ""
+"Nu puteți modifica etapele unui afișaj de pregătire care are sesiuni active."
+
+#. module: pos_enterprise
+#: model:ir.actions.server,name:pos_enterprise.preparation_display_delete_cron_ir_actions_server
+msgid "delete_preparation_order"
+msgstr ""
+
+#. module: pos_enterprise
+#: model_terms:ir.ui.view,arch_db:pos_enterprise.preparation_display_view_form
+msgid "minutes"
+msgstr "minute"
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/preparation_display/preparation_display.xml:0
+msgid "or simply wait for orders to be sent for preparation."
+msgstr "sau pur și simplu așteptați să fie trimise comenzile de pregătire."
+
+#. module: pos_enterprise
+#. odoo-javascript
+#: code:addons/pos_enterprise/static/src/app/components/order/order.xml:0
+msgid "products"
+msgstr "produse"

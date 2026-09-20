@@ -1,0 +1,62 @@
+div.o_documents_details_panel {
+    border-bottom-width: 2px !important;
+
+    .o_documents_details_panel_fields > *:nth-child(2n+1) {
+        // Make the icons aligned, even if they have different width
+        width: 14px;
+        text-align: center;
+    }
+
+    .o_documents_details_panel_fields > *:nth-child(2n){
+        width: calc(50% - 25px);
+        padding-right: 5px;
+    }
+
+    .o_field_many2one > div {
+        // Make the model selector looks like a real many2one
+        gap: 0!important;
+    }
+
+    // Hide the border when not hovering
+    .o_field_widget:not(:hover) {
+        * {
+            border-color: transparent !important;
+        }
+        .o_dropdown_button {
+            visibility: hidden;
+        }
+    }
+    .o_model_selector {
+        &:not(:hover) .o_dropdown_button {
+            visibility: hidden;
+        }
+        .o_dropdown_button {
+            visibility: visible;
+        }
+    }
+
+    .o_documents_details_panel_name {
+        display: contents;
+        .o_field_input_buttons {
+            position: relative;
+        }
+    }
+
+    .o_field_tags .o_tag {
+        margin: 2px;
+    }
+
+    .o_documents_details_panel_record {
+        button {
+            display: none;
+            max-width: 200px;
+        }
+        &:hover button {
+            display: inline-block;
+        }
+    }
+
+    .o_documents_details_panel_placeholder {
+        @include o-placeholder;
+    }
+}

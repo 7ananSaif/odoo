@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+
+<t t-name="website_generator.Configurator.WebsiteGeneratorScreen">
+    <div class="o_configurator_screen h-100 d-flex flex-column o_website_generator_screen">
+        <div class="o_configurator_screen_content d-flex h-100 flex-grow-1">
+            <div class="o_main_content m-auto d-flex mh-100 flex-column p-4">
+                <div class="o_configurator_typing_text o_configurator_show_fast">Import your <b class="text-info">Pages</b> and <b class="text-warning">Products</b></div>
+                <h2 class="o_configurator_show_fast text-muted pb-lg-3">You'll be able to create additional pages later on.</h2>
+
+                <form class="o_form_view mt-2" t-on-submit="this.makeWebsiteGeneratorRequest" autocomplete="off">
+                    <div class="d-flex mb-4">
+                        <label for="url" class="col-sm-3 col-6 form-check-label"> Website URL </label>
+                        <div class="col-sm-9 col-6">
+                            <input id="url" name="url" type="url" required="true"
+                                class="o_input form-control" placeholder="https://www.odoo.com/" t-on-input="onUrlInput"/>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <span t-if="state.url and state.isValidatingUrl" class="o_we_url_loading mx-2 fa fa-lg fa-circle-o-notch fa-spin" title="Loading..."/>
+                            <span t-elif="state.url and state.isValidUrl and state.submitted" class="o_we_url_success text-success mx-2 fa fa-lg fa-check" title="The URL is reachable."/>
+                            <span t-elif="state.url and !state.isValidUrl and state.submitted" class="o_we_url_error text-danger mx-2 fa fa-lg fa-times" title="The URL is not reachable."/>
+                        </div>
+                    </div>
+
+                    <div class="d-flex mb-4">
+                        <label for="import_products" class="col-sm-3 col-6 form-check-label">
+                        Import Products<sup class="text-info p-1"
+                                            data-tooltip-template="web.FieldTooltip"
+                                            data-tooltip-info="{&quot;field&quot;:{&quot;help&quot;:&quot;Imports products found on the website into your Odoo database. This means potentially installing the ecommerce app and creating products.&quot;}}"
+                                            data-tooltip-touch-tap-to-show="true"
+                                            title="">?</sup></label>
+                        <div class="col-sm-9 col-6">
+                            <div class="form-switch">
+                                <input id="import_products" name="import_products" type="checkbox" checked="checked"
+                                       class="form-check-input"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info" role="alert">
+                        <i class="fa fa-info-circle"/> The maximum number of pages is 200 by default.<br/>
+                        If you require more, you can contact us at <a href="https://www.odoo.com/help" target="_blank">odoo.com/help</a>.
+                    </div>
+
+                    <div class="alert alert-info" role="alert">
+                        <i class="fa fa-info-circle"/> By clicking "Import my website", you confirm that you are the owner of the website and all associated components (such as images and other content), and you take full responsibility for their use and any potential legal implications.
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg mt-2 align-self-start">Import my website</button>
+                </form>
+            </div>
+        </div>
+        <SkipButton skip="this.props.skip"/>
+    </div>
+</t>
+
+</templates>

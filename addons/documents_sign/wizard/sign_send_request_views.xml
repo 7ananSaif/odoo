@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="document_sign_send_request_view_form" model="ir.ui.view">
+        <field name="name">document.sign.send.request.view.form</field>
+        <field name="model">sign.send.request</field>
+        <field name="inherit_id" ref="sign.sign_send_request_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@widget='html_composer_message']" position="attributes">
+                <attribute name="widget">documents_html_composer_message</attribute>
+            </xpath>
+            <xpath expr="//field[@widget='many2many_binary_sign_request']" position="after">
+                <widget name="mail_composer_document_selector" title="Select Documents"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

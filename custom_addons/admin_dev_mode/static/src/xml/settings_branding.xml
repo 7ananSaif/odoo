@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+
+    <!--
+        The "About" block of General Settings is rendered by the Owl template
+        "res_config_edition", which ships inside the web module. An ir.ui.view
+        xpath cannot reach it, so Owl template inheritance is used instead.
+
+        The copyright link is repointed at this deployment (BASE_URL, exposed
+        on the session payload by models/ir_http.py) instead of odoo.com. The
+        licence link is left untouched.
+    -->
+    <t t-name="admin_dev_mode.ResConfigEdition"
+       t-inherit="res_config_edition"
+       t-inherit-mode="extension">
+        <xpath expr="//small" position="replace">
+            <small>Copyright © 2004 <a t-att-href="baseUrl" target="_blank" style="text-decoration: underline;">Odoo S.A.</a> <a id="license" target="_blank" href="http://www.gnu.org/licenses/lgpl.html" style="text-decoration: underline;">GNU LGPL Licensed</a></small>
+        </xpath>
+    </t>
+
+</templates>

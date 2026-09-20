@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="oss_sales_report" model="account.report">
+        <field name="name">OSS Sales</field>
+        <field name="name@cs">Prodej OSS</field>
+        <field name="name@nl">OSS-verkopen</field>
+        <field name="name@fr">Ventes OSS</field>
+        <field name="name@it">Vendite sportello unico</field>
+        <field name="name@de">OSS-Verkäufe</field>
+        <field name="name@pl">Sprzedaż OSS</field>
+        <field name="name@fi">OSS-myynti</field>
+        <field name="name@lt">OSS-pardavimas</field>
+        <field name="name@es">Ventas OSS</field>
+        <field name="root_report_id" ref="account.generic_tax_report"/>
+        <field name="custom_handler_model_id" ref="model_l10n_eu_oss_sales_tax_report_handler"/>
+        <field name="availability_condition">oss</field>
+        <field name="column_ids">
+            <record id="oss_sales_report_net" model="account.report.column">
+                <field name="name">Amount excl. VAT</field>
+                <field name="name@cs">Částka bez DPH</field>
+                <field name="name@nl">Bedrag excl. btw</field>
+                <field name="name@fr">Montant hors TVA</field>
+                <field name="name@it">Importo IVA esclusa</field>
+                <field name="name@de">Betrag exkl. MwSt.</field>
+                <field name="name@pl">Kwota bez VAT</field>
+                <field name="name@fi">Määrä ilman alv:tä</field>
+                <field name="name@lt">Suma be PVM</field>
+                <field name="name@es">Importe sin IVA</field>
+                <field name="expression_label">net</field>
+            </record>
+            <record id="oss_sales_report_tax" model="account.report.column">
+                <field name="name">VAT</field>
+                <field name="name@cs">DPH</field>
+                <field name="name@nl">Btw</field>
+                <field name="name@fr">TVA</field>
+                <field name="name@it">IVA</field>
+                <field name="name@de">MwSt.</field>
+                <field name="name@pl">VAT</field>
+                <field name="name@fi">ALV</field>
+                <field name="name@lt">PVM</field>
+                <field name="name@es">IVA</field>
+                <field name="expression_label">tax</field>
+            </record>
+        </field>
+    </record>
+
+    <record id="oss_imports_report" model="account.report">
+        <field name="name">OSS Imports</field>
+        <field name="name@cs">Importy OSS</field>
+        <field name="name@nl">OSS-import</field>
+        <field name="name@fr">Importations OSS</field>
+        <field name="name@it">Importazioni sportello unico</field>
+        <field name="name@de">OSS-Importe</field>
+        <field name="name@pl">Import OSS</field>
+        <field name="name@fi">OSS-tuonnit</field>
+        <field name="name@lt">OSS-importai</field>
+        <field name="name@es">Importaciones OSS</field>
+        <field name="root_report_id" ref="account.generic_tax_report"/>
+        <field name="custom_handler_model_id" ref="model_l10n_eu_oss_imports_tax_report_handler"/>
+        <field name="availability_condition">oss</field>
+        <field name="column_ids">
+            <record id="oss_imports_report_net" model="account.report.column">
+                <field name="name">Amount excl. VAT</field>
+                <field name="name@cs">Částka bez DPH</field>
+                <field name="name@nl">Bedrag excl. btw</field>
+                <field name="name@fr">Montant hors TVA</field>
+                <field name="name@it">Importo IVA esclusa</field>
+                <field name="name@de">Betrag exkl. MwSt.</field>
+                <field name="name@pl">Kwota bez VAT</field>
+                <field name="name@fi">Määrä ilman alv:tä</field>
+                <field name="name@lt">Suma be PVM</field>
+                <field name="name@es">Importe sin IVA</field>
+                <field name="expression_label">net</field>
+            </record>
+            <record id="oss_imports_report_tax" model="account.report.column">
+                <field name="name">VAT</field>
+                <field name="name@cs">DPH</field>
+                <field name="name@nl">Btw</field>
+                <field name="name@fr">TVA</field>
+                <field name="name@it">IVA</field>
+                <field name="name@de">MwSt.</field>
+                <field name="name@pl">VAT</field>
+                <field name="name@fi">ALV</field>
+                <field name="name@lt">PVM</field>
+                <field name="name@es">IVA</field>
+                <field name="expression_label">tax</field>
+            </record>
+        </field>
+    </record>
+
+</odoo>

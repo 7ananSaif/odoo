@@ -1,0 +1,287 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * helpdesk_stock
+#
+# Translators:
+# Wil Odoo, 2025
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Tony Ng (ngto)" <ngto@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.2+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:45+0000\n"
+"PO-Revision-Date: 2025-11-16 17:48+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Chinese (Traditional Han script) <https://translate.odoo.com/"
+"projects/odoo-19/helpdesk_stock/zh_Hant/>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+msgid ""
+"\n"
+"                <p class=\"o_view_nocontent_smiling_face "
+"o_view_nocontent_stock\">No delivery orders yet. Let's create one!</p>\n"
+"                <p>Send customers a replacement for a lost, damaged, or "
+"returned item</p>\n"
+"            "
+msgstr ""
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/stock_picking.py:0
+msgid " Delivery %(status)s"
+msgstr ""
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/stock_picking.py:0
+msgid " Return %(status)s"
+msgstr ""
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.view_picking_form_helpdesk
+msgid "<span class=\"o_stat_text\">Ticket</span>"
+msgstr ""
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+msgid "Create Replacement Order"
+msgstr ""
+
+#. module: helpdesk_stock
+#: model:ir.model,website_form_label:helpdesk_stock.model_helpdesk_ticket
+msgid "Create a Ticket"
+msgstr "建立支援請求"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__partner_id
+msgid "Customer"
+msgstr "客戶"
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.helpdesk_ticket_view_form_inherit_helpdesk_stock
+msgid "Deliveries"
+msgstr "交貨"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+msgid "Delivery Orders"
+msgstr "交貨單"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/stock_picking.py:0
+msgid "Delivery created"
+msgstr ""
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.view_stock_return_picking_form_inherit_helpdesk_stock
+msgid "Delivery to Return"
+msgstr "送貨退貨"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_sla_report_analysis__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket_report_analysis__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_picking__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__display_name
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking_line__display_name
+msgid "Display Name"
+msgstr "顯示名稱"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,help:helpdesk_stock.field_helpdesk_ticket__tracking
+msgid "Ensure the traceability of a storable product in your warehouse."
+msgstr "確保倉庫內可儲存產品的可追蹤性。"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__has_partner_picking
+msgid "Has Partner Picking"
+msgstr "有合作夥伴揀貨"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_helpdesk_ticket
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_picking__ticket_id
+msgid "Helpdesk Ticket"
+msgstr "技術支援請求"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_sla_report_analysis__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket_report_analysis__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_picking__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking_line__id
+msgid "ID"
+msgstr "識別號"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__lot_id
+msgid "Lot/Serial Number"
+msgstr "批次/序號"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,help:helpdesk_stock.field_stock_picking__ticket_visibility
+msgid ""
+"People to whom this helpdesk team and its tickets will be visible.\n"
+"\n"
+"- Invited internal users: internal users can access the team and the tickets "
+"they are following. This access can be modified on each ticket individually "
+"by adding or removing the user as follower.\n"
+"A user with the helpdesk > administrator access right level can still access "
+"this team and its tickets, even if they are not explicitely part of the "
+"followers.\n"
+"\n"
+"- All internal users: all internal users can access the team and all of its "
+"tickets without distinction.\n"
+"\n"
+"- Invited portal users and all internal users: all internal users can access "
+"the team and all of its tickets without distinction.\n"
+"Portal users can only access the tickets they are following. This access can "
+"be modified on each ticket individually by adding or removing the portal "
+"user as follower."
+msgstr ""
+"可看見此技術支援團隊及其支援請求的人員。\n"
+"\n"
+"-【受邀內部使用者】：內部使用者可存取正在關注的團隊及其支援請求。可在個別請求"
+"的關注者名單新增或移除使用者，以單獨修改個別請求的存取權限。\n"
+"擁有「技術支援 > 管理員」存取權限等級的使用者，即使未有明確加入關注者名單，將"
+"仍可存取此團隊及其支援請求。\n"
+"\n"
+"-【所有內部用戶】：所有內部用戶都可以無差別地存取團隊及其所有支援請求。\n"
+"\n"
+"-【受邀門戶網站使用者及所有內部使用者】：所有內部使用者都可以無差別地存取團隊"
+"及其所有支援請求。\n"
+"門戶網站使用者只可存取他們關注的支援請求。可在個別請求的關注者名單新增或移除"
+"門戶使用者，以單獨修改個別請求的存取權限。"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__picking_id
+msgid "Picking"
+msgstr "揀貨"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_sla_report_analysis__product_id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__product_id
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket_report_analysis__product_id
+msgid "Product"
+msgstr "商品"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,help:helpdesk_stock.field_helpdesk_ticket__product_id
+msgid ""
+"Product this ticket is about. If selected, only the sales orders, deliveries "
+"and invoices including this product will be visible."
+msgstr ""
+"此支援請求所涉及的產品。選取後，只會顯示包含該產品的銷售訂單、送貨單及發票。"
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.helpdesk_ticket_view_form_inherit_stock_user
+msgid "Replace"
+msgstr "更換"
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.helpdesk_ticket_view_form_inherit_stock_user
+msgid "Return"
+msgstr "退回"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__picking_ids
+msgid "Return Orders"
+msgstr "退貨單"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__pickings_count
+msgid "Return Orders Count"
+msgstr "退貨單數目"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_stock_return_picking
+msgid "Return Picking"
+msgstr "退回揀貨"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_stock_return_picking_line
+msgid "Return Picking Line"
+msgstr "退回揀貨資料行"
+
+#. module: helpdesk_stock
+#: model_terms:ir.ui.view,arch_db:helpdesk_stock.helpdesk_ticket_view_form_inherit_helpdesk_stock
+msgid "Returns"
+msgstr "退回"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_helpdesk_sla_report_analysis
+msgid "SLA Status Analysis"
+msgstr "SLA狀態分析"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__sale_order_id
+msgid "Sales Order"
+msgstr "銷售訂單"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__suitable_picking_ids
+msgid "Suitable Picking"
+msgstr "合適的揀貨"
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__suitable_sale_order_ids
+msgid "Suitable Sale Order"
+msgstr "合適的銷售訂單"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/stock_picking.py:0
+msgid "This transfer was created from the ticket"
+msgstr ""
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_stock_return_picking__ticket_id
+msgid "Ticket"
+msgstr "票據"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_helpdesk_ticket_report_analysis
+msgid "Ticket Analysis"
+msgstr "支援請求分析"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+#: code:addons/helpdesk_stock/wizard/stock_picking_return.py:0
+msgid "Ticket: %(ticket_name)s"
+msgstr ""
+
+#. module: helpdesk_stock
+#: model:ir.model.fields,field_description:helpdesk_stock.field_helpdesk_ticket__tracking
+msgid "Tracking"
+msgstr "追蹤"
+
+#. module: helpdesk_stock
+#: model:ir.model,name:helpdesk_stock.model_stock_picking
+msgid "Transfer"
+msgstr "轉移"
+
+#. module: helpdesk_stock
+#. odoo-python
+#: code:addons/helpdesk_stock/models/helpdesk_ticket.py:0
+msgid "id"
+msgstr "id"
+
+#~ msgid "Return %(status)s"
+#~ msgstr "退貨 %(status)s"

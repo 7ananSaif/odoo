@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="esg.CarbonAnalyticsBox">
+        <div class="card p-3">
+            <div class="d-flex justify-content-start mb-2">
+                <a href="#" class="fs-4 fw-bold" t-on-click="openEmissionsViews">
+                    Collect Emissions
+                </a>
+            </div>
+
+            <div class="d-flex justify-content-start mb-2 pt-2 gap-1">
+                <button class="btn btn-primary" t-on-click="openEmissionsForm">
+                    New
+                </button>
+                <button t-if="props.data.has_unassigned_emissions" class="btn btn-secondary" t-on-click="openUnassignedEmissions">
+                    Emissions to define
+                </button>
+            </div>
+
+            <!-- Bar Chart -->
+            <EsgGraphDashboard config="props.data.graph_config"/>
+        </div>
+    </t>
+</templates>

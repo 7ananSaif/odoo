@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="crm_enterprise.CrmBusinessCardScannerKanbanController" t-inherit="web.KanbanView" t-inherit-mode="primary">
+        <xpath expr="//t[@t-set-slot='control-panel-always-buttons']" position="inside">
+            <button t-if="isMobileOS" type="button" class="btn btn-secondary">
+                <CrmBusinessCardScanner/>
+            </button>
+        </xpath>
+    </t>
+</templates>

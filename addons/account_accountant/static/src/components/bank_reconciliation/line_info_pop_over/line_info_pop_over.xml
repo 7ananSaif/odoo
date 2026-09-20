@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="account_accountant.BankRecLineInfoPopOver">
+        <table class="table table-hover m-0">
+            <tbody>
+                <tr t-if="props.exchangeMove">
+                    <td t-on-click="openExchangeMove" class="cursor-pointer">
+                        <span class="btn btn-link p-0" t-esc="exchangeDiffMoveName"/>
+                    </td>
+                    <td class="align-middle text-end" t-esc="formattedExchangeMoveBalance"/>
+                </tr>
+                <tr t-if="props.isPartiallyReconciled">
+                    <td t-on-click="openReconciledMove" class="cursor-pointer">
+                        <span class="btn btn-link p-0" t-esc="reconciledMoveName"/>
+                    </td>
+                    <td class="align-middle">
+                        <span class="text-decoration-line-through me-2" t-esc="formattedReconciledMoveAmountCurrency"/>
+                        <span t-esc="formattedLineDataAmountCurrency"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </t>
+</templates>

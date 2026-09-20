@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Employee View -->
+    <record id="payroll_hr_employee_view_form" model="ir.ui.view">
+        <field name="name">payroll.hr.employee.view.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="priority" eval="10"/>
+        <field name="arch" type="xml">
+            <button name="action_open_versions" position="before">
+                <button class="oe_stat_button" name="action_open_payslips"
+                        type="object" icon="fa-dollar" groups="hr_payroll.group_hr_payroll_user"
+                        invisible="payslip_count == 0">
+                    <field name="payslip_count" string="Payslips" widget="statinfo"/>
+                </button>
+                <button class="oe_stat_button" name="%(action_hr_payslip_new)d"
+                        type="action" icon="fa-dollar" groups="hr_payroll.group_hr_payroll_user"
+                        context="{'default_employee_id': id, 'default_version_id': version_id}"
+                        invisible="not employee_id or payslip_count or not contract_date_start">
+                        <div class="o_stat_info">
+                            <span class="o_stat_text">Payslips</span>
+                            <span class="o_stat_value">New</span>
+                        </div>
+                </button>
+            </button>
+            <xpath expr="//field[@name='structure_type_id']" position="after">
+                <field name="registration_number" string="Reference" groups="base.group_no_one"/>
+            </xpath>
+            <xpath expr="//page[@name='personal_information']//group[@name='hr_birth_group']" position="inside">
+                <field name="lang" string="Payslip Language" placeholder="User Language"/>
+            </xpath>
+            <group name="hr_document_group" position="inside">
+                <field name="sim_card"/>
+                <field name="internet_invoice"/>
+            </group>
+            <field name="marital" position="before">
+                <field name="disabled"/>
+            </field>
+
+            <xpath expr="//field[@name='country_id']" position="after">
+                <field name="is_non_resident" eval="False"/>
+            </xpath>
+            <xpath expr="//label[@for='wage']" position="before">
+                <field name="wage_type"/>
+                <label for="hourly_wage" invisible="wage_type != 'hourly'"/>
+                <div class="o_row" name="hourly_wage" invisible="wage_type != 'hourly'">
+                    <field name="hourly_wage" class="o_hr_narrow_field"/>
+                    <span>/ hour</span>
+                </div>
+            </xpath>
+            <xpath expr="//field[@name='wage']" position="after">
+                <span class="mx-2">/</span>
+                <field name="schedule_pay" class="o_hr_narrow_field" nolabel="1"/>
+            </xpath>
+
+            <field name="resource_calendar_id" position="attributes">
+                <attribute name="groups">hr.group_hr_manager</attribute>
+            </field>
+            <field name="resource_calendar_id" position="after">
+                <field name="resource_calendar_id"
+                    groups="!hr.group_hr_manager,hr_payroll.group_hr_payroll_user"
+                    options="{'no_create': True, 'no_open': True}"
+                    help="The default working hours are set in configuration."/>
+            </field>
+
+            <page name="payroll_information" position="attributes">
+                <attribute name="groups">hr_payroll.group_hr_payroll_user</attribute>
+            </page>
+            <group name="payroll_group" position="inside">
+                <group name="external_codes" string="External Codes" invisible="1"/>
+            </group>
+            <group name="payroll_group" position="after">
+                <group colspan="4">
+                    <field name="structure_id" groups="hr_payroll.group_hr_payroll_user" invisible="1"/>
+                    <field name="payroll_properties" groups="hr_payroll.group_hr_payroll_user" nolabel="1" colspan="4" widget="properties"/>
+                    <button name="action_configure_employee_inputs" groups="hr_payroll.group_hr_payroll_user" context="{'structure_id': structure_id}" type="object" icon="fa-plus" string="Add Inputs"
+                            class="btn btn-secondary text-break m-0"/>
+                </group>
+            </group>
+            <page name="payroll_information" position="after">
+                <page name="salary_attachment" string="Salary Adjustments" groups="hr_payroll.group_hr_payroll_user">
+
+                    <field name="salary_attachment_ids" widget="salary_attachment_2many"
+                           context="{
+                                'default_employee_ids': [id],
+                                'form_view_ref': 'hr_payroll.hr_salary_attachment_employee_view_form',
+                                'list_view_ref': 'hr_payroll.hr_salary_attachment_employee_view_list',
+                            }"
+                    />
+                </page>
+            </page>
+        </field>
+    </record>
+
+    <record id="payroll_hr_employee_view_form_work_entry" model="ir.ui.view">
+        <field name="name">payroll.hr.employee.view.form.work.entry</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_work_entry.hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_open_work_entries']" position="attributes">
+                <attribute name="groups">hr_payroll.group_hr_payroll_user</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="payroll_hr_employee_view_tree_employee_trends" model="ir.ui.view">
+    <field name="name">payroll.hr.employee.view.list.inherit</field>
+    <field name="model">hr.employee</field>
+    <field name="inherit_id" ref="hr.view_employee_tree"/>
+    <field name="priority" eval="100" />
+    <field name="arch" type="xml">
+        <xpath expr="//field[@name='name']" position="after">
+                <field name="registration_number" optional="hide"/>
+        </xpath>
+    </field>
+    </record>
+
+    <record id="payroll_hr_employee_view_kanban" model="ir.ui.view">
+        <field name="name">payroll.hr.employee.view.kanban.inherit</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.hr_kanban_view_employees"/>
+        <field name="arch" type="xml">
+            <xpath expr="//main/div[@t-if='record.contract_date_start.raw_value']" position="attributes">
+                <attribute name="groups">hr_payroll.group_hr_payroll_user</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="payroll_hr_employee_view_search" model="ir.ui.view">
+        <field name="name">hr.employee.search.inherit</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="registration_number" string="Employee Reference"/>
+            </xpath>
+            <xpath expr="//field[@name='contract_date_start']" position="attributes">
+                <attribute name="groups">hr_payroll.group_hr_payroll_user</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='in_contract']" position="attributes">
+                <attribute name="groups">hr_payroll.group_hr_payroll_user</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='out_of_contract']" position="attributes">
+                <attribute name="groups">hr_payroll.group_hr_payroll_user</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='contract_date_start']" position="attributes">
+                <attribute name="groups">hr_payroll.group_hr_payroll_user</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='contract_date_end']" position="attributes">
+                <attribute name="groups">hr_payroll.group_hr_payroll_user</attribute>
+            </xpath>
+            <xpath expr="//filter[@name='group_start']" position="attributes">
+                <attribute name="groups">hr_payroll.group_hr_payroll_user</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_index_employee_contracts_form" model="ir.actions.server">
+        <field name="name">Index contract(s)</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records._index_employee_contracts(multi_employees=False)
+        </field>
+    </record>
+
+    <record id="action_index_employee_contracts_list" model="ir.actions.server">
+        <field name="name">Index contract(s)</field>
+        <field name="model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_view_types">list,kanban</field>
+        <field name="state">code</field>
+        <field name="code">
+if records:
+    action = records._index_employee_contracts(multi_employees=True)
+        </field>
+    </record>
+</odoo>

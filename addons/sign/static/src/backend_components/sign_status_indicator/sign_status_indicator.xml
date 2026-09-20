@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="sign.SignStatusIndicator">
+        <div class="o_sign_status_indicator d-md-flex align-items-center align-self-md-end me-auto">
+            <div t-if="this.props.signStatus.isTemplateChanged" class="o_sign_status_indicator_buttons d-flex">
+                <button
+                    type="button"
+                    class="o_sign_button_save btn btn-light px-1 py-0 lh-sm"
+                    data-hotkey="s"
+                    t-on-click="saveManually"
+                    data-tooltip="Save manually"
+                    aria-label="Save manually">
+                        <i class="fa fa-cloud-upload fa-fw" />
+                </button>
+                <button
+                    type="button"
+                    class="o_sign_button_cancel btn btn-light px-1 py-0 lh-sm"
+                    data-hotkey="j"
+                    t-on-click="discardChanges"
+                    data-tooltip="Discard all changes"
+                    aria-label="Discard all changes">
+                        <i class="fa fa-times fa-fw" />
+                </button>
+            </div>
+            <div t-else="">
+                <img
+                    src="/sign/static/img/form_status_indicator_saved.svg"
+                    class="o_sign_button_saved align-items-center d-flex px-1 py-0 border border-transparent user-select-none mb-1"
+                    data-tooltip="All changes saved"
+                />
+            </div>
+        </div>
+    </t>
+</templates>

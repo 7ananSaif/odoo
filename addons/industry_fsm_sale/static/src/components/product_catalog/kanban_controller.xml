@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="industry_fsm_sale.FSMProductCatalogKanbanController.Buttons" t-inherit="web.KanbanView.Buttons" t-inherit-mode="primary">
+        <xpath expr="." position="inside">
+            <button
+                type="button"
+                class="btn btn-secondary o-kanban-button-back"
+                t-on-click="this.backToTaskDebounced"
+            >
+                Back to Task
+            </button>
+        </xpath>
+    </t>
+</templates>

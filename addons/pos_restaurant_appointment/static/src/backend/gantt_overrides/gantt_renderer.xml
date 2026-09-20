@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_gantt.GanttRenderer.RowContent" t-inherit="web_gantt.GanttRenderer.RowContent" t-inherit-mode="primary">
+        <xpath expr='//div[hasclass("o_gantt_cell")]' position="before">
+            <t t-set="isBooked" t-value="this.isBooked(column, row)"/>
+        </xpath>
+        <xpath expr='//div[hasclass("o_gantt_cell")]' position="attributes">
+            <attribute name="t-attf-class" separator=" " add="{{ isBooked ? 'o_gantt_cell_booked' : '' }}"/>
+            <attribute name="t-att-data-tooltip">isBooked ? "This resource is currently occupied" : ""</attribute>
+        </xpath>
+    </t>
+</templates>

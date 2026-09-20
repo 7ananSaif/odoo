@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="project_project_view_gantt_inherit_timesheet_grid" model="ir.ui.view">
+        <field name="name">project.project.view.gantt.inherit.timesheet</field>
+        <field name="model">project.project</field>
+        <field name="inherit_id" ref="project_enterprise.project_project_view_gantt"/>
+        <field name="arch" type="xml">
+            <gantt position="attributes">
+                <attribute name="progress_bar">user_id</attribute>
+            </gantt>
+        </field>
+    </record>
+</odoo>

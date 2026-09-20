@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="ae_corporate_tax_report" model="account.report">
+        <field name="name">Corporate Tax Report</field>
+        <field name="country_id" ref="base.ae"/>
+        <field name="filter_analytic_groupby" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="default_opening_date_filter">this_year</field>
+        <field name="custom_handler_model_id" ref="model_l10n_ae_corporate_tax_report_handler"/>
+        <field name="column_ids">
+            <record id="ae_corporate_tax_report_column_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="ae_corporate_tax_report_line_net_profit" model="account.report.line">
+                <field name="name">Net Profit</field>
+                <field name="code">AE_CORP_NET_PROFIT</field>
+                <field name="hierarchy_level">0</field>
+                <field name="expression_ids">
+                    <record id="ae_corporate_tax_report_expression_net_profit" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">NEP.balance</field>
+                        <field name="date_scope">strict_range</field>
+                        <field name="subformula">cross_report(account_reports.profit_and_loss)</field>
+                    </record>
+                </field>
+            </record>
+            <record id="ae_corporate_tax_report_line_allowable_deductions" model="account.report.line">
+                <field name="name">Less Allowable Deductions</field>
+                <field name="code">AE_CORP_ALLOWABLE_DEDUCTIONS</field>
+                <field name="hierarchy_level">1</field>
+                <field name="expression_ids">
+                    <record id="ae_corporate_tax_report_expression_allowable_deductions" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">account_codes</field>
+                        <field name="formula">tag(l10n_ae_reports.uae_account_tag_c_tax_exp)</field>
+                    </record>
+                </field>
+            </record>
+            <record id="ae_corporate_tax_report_line_less_exempt_income" model="account.report.line">
+                <field name="name">Less Exempt Income</field>
+                <field name="code">AE_CORP_LESS_EXEMPT_INC</field>
+                <field name="hierarchy_level">1</field>
+                <field name="expression_ids">
+                    <record id="ae_corporate_tax_report_expression_less_exempt_income" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">account_codes</field>
+                        <field name="formula">-tag(l10n_ae_reports.uae_account_tag_c_tax_exempt)</field>
+                    </record>
+                </field>
+            </record>
+            <record id="ae_corporate_tax_report_line_plus_disallowed_expenses" model="account.report.line">
+                <field name="name">Plus Disallowed Expenses</field>
+                <field name="code">AE_CORP_PLUS_DISALLOWED_EXP</field>
+                <field name="hierarchy_level">1</field>
+                <field name="expression_ids">
+                    <record id="ae_corporate_tax_report_expression_plus_disallowed_expenses" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">custom</field>
+                        <field name="formula">_report_custom_engine_total_disallowed_expenses</field>
+                        <field name="subformula">balance</field>
+                        <field name="auditable" eval="True"/>
+                    </record>
+                </field>
+            </record>
+            <record id="ae_corporate_tax_report_line_plus_other_adjustments" model="account.report.line">
+                <field name="name">Plus Other Adjustments</field>
+                <field name="code">AE_CORP_PLUS_OTHER_ADJUSTMENTS</field>
+                <field name="hierarchy_level">1</field>
+                <field name="expression_ids">
+                    <record id="ae_corporate_tax_report_expression_plus_other_adjustments" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">external</field>
+                        <field name="formula">sum</field>
+                        <field name="subformula">editable;rounding=2</field>
+                    </record>
+                </field>
+            </record>
+            <record id="ae_corporate_tax_report_line_total_income" model="account.report.line">
+                <field name="name">Total Income</field>
+                <field name="code">AE_CORP_TOTAL_INC</field>
+                <field name="hierarchy_level">0</field>
+                <field name="aggregation_formula">AE_CORP_NET_PROFIT.balance - AE_CORP_ALLOWABLE_DEDUCTIONS.balance - AE_CORP_LESS_EXEMPT_INC.balance + AE_CORP_PLUS_DISALLOWED_EXP.balance + AE_CORP_PLUS_OTHER_ADJUSTMENTS.balance</field>
+            </record>
+            <record id="ae_corporate_tax_report_line_taxable_income" model="account.report.line">
+                <field name="name">Taxable Income</field>
+                <field name="code">AE_CORP_TAXABLE_INC</field>
+                <field name="hierarchy_level">1</field>
+                <field name="expression_ids">
+                    <record id="ae_corporate_tax_report_expression_taxable_income" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">AE_CORP_TOTAL_INC.balance - 375000</field>
+                        <field name="subformula">if_above(AED(0))</field>
+                        <field name="auditable" eval="False"/>
+                    </record>
+                </field>
+            </record>
+            <record id="ae_corporate_tax_report_line_tax_percentage" model="account.report.line">
+                <field name="name">Tax Percentage</field>
+                <field name="code">AE_CORP_TAX_PERC</field>
+                <field name="hierarchy_level">1</field>
+                <field name="expression_ids">
+                    <record id="ae_corporate_tax_report_expression_tax_percentage" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">9</field>
+                        <field name="figure_type">percentage</field>
+                        <field name="auditable" eval="False"/>
+                    </record>
+                </field>
+            </record>
+            <record id="ae_corporate_tax_report_line_corporate_tax_amount" model="account.report.line">
+                <field name="name">Corporate Tax Amount</field>
+                <field name="code">AE_CORP_PAYABLE</field>
+                <field name="hierarchy_level">0</field>
+                <field name="expression_ids">
+                    <record id="ae_corporate_tax_report_expression_corporate_tax_amount" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">AE_CORP_TAXABLE_INC.balance * (AE_CORP_TAX_PERC.balance / 100)</field>
+                        <field name="auditable" eval="False"/>
+                    </record>
+                </field>
+            </record>
+        </field>
+    </record>
+</odoo>

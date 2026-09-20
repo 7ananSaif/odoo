@@ -1,0 +1,16 @@
+@keyframes voipProgressBar {
+    to {
+        transform: scaleX(0);
+    }
+}
+
+.o-voip-CallSummary {
+    .progress {
+        --#{$prefix}progress-height: #{$o-voip-progress-height};
+
+        .progress-bar {
+            transform-origin: left center;
+            animation: voipProgressBar linear $o-voip-progressBar-duration;
+        }
+    }
+}

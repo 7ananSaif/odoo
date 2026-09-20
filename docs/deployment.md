@@ -1,7 +1,36 @@
 # Deployment Runbook — Invoice Agent Odoo on EC2
 
 > **Last updated:** 2026-07-30
-> **Target:** `https://invoices.<domain>` serving Odoo 19 via Nginx reverse proxy with Let's Encrypt TLS, websockets enabled, port 8069 closed to the world.
+> **Reviewed against live environment:** 2026-09-15
+>
+> ## ⚠️ STATUS: RETIRED for Odoo deployments — reference only
+>
+> The Odoo deploy path described in this document (**SSH into a single EC2
+> host and run `docker compose up -d --build`**) has been **retired**. The sole
+> supported path to production for Odoo is now the EKS + Helm workflow — see
+> [`infra/runbook.md`](../infra/runbook.md), which is the source of truth.
+>
+> Concretely, in the current repo:
+>
+> - `.github/workflows/deploy.yml` is **"Deploy — EKS Production"**: it assumes
+>   an IAM role via GitHub OIDC, runs `aws eks update-kubeconfig`, and does a
+>   single `helm upgrade --install ... --atomic`. It contains **no SSH step**.
+> - The `EC2_HOST` / `EC2_USERNAME` / `SSH_PRIVATE_KEY` GitHub secrets are
+>   **not used by the Odoo pipeline any more**. They survive only for the
+>   *invoice-ai* service, which still deploys over SSH via
+>   `.github/workflows/invoice-ai-deploy.yml`.
+> - `appleboy/ssh-action` appears only in that invoice-ai workflow.
+>
+> **What this document is still good for:** the Nginx + Let's Encrypt + TLS +
+> websocket sections (§4–§7) describe the reverse-proxy behaviour that the
+> local `docker-compose.yml` stack still uses verbatim, and the TLS grading
+> checks (§12) still apply to whatever fronts the app. Treat it as a
+> reference for *how the proxy and TLS are configured*, not as the deploy
+> procedure.
+>
+> **Nothing in AWS is currently running** — see
+> [`docs/architecture.md`](architecture.md) §0 for the verified evidence.
+> The EC2 host, the VPC, the Elastic IP and RDS were torn down on 2026-08-24.
 
 ---
 
@@ -70,14 +99,29 @@
 
 ### Port Map
 
-| Container | Port | Exposed to Internet | Purpose |
-|-----------|------|---------------------|---------|
-| nginx | 80 | ✅ (Security Group) | HTTP + ACME HTTP-01 challenge |
-| nginx | 443 | ✅ (Security Group) | HTTPS |
-| odoo | 8069 | ❌ (127.0.0.1 only) | Odoo HTTP (proxied by nginx) |
-| odoo | 8072 | ❌ (127.0.0.1 only) | Odoo longpoll/websocket (proxied by nginx) |
-| db | 5432 | ❌ (not mapped) | PostgreSQL — only accessible within Docker network |
-| certbot | - | ❌ | Certificate renewal, no ports |
+This is the map that `docker-compose.yml` **actually** declares. Two entries
+here used to be wrong in this document: the db port and the third-party
+services that had been left out entirely.
+
+| Container | Host binding | Exposed to Internet | Purpose |
+|-----------|--------------|---------------------|---------|
+| nginx | `80:80`, `443:443` | ✅ (Security Group) | HTTP + ACME HTTP-01 challenge, then HTTPS |
+| odoo | `127.0.0.1:8069:8069` | ❌ (loopback only) | Odoo HTTP (proxied by nginx) |
+| odoo | `127.0.0.1:8072:8072` | ❌ (loopback only) | Odoo longpoll/websocket (proxied by nginx) |
+| db | `127.0.0.1:5434:5432` | ❌ (loopback only) | PostgreSQL — **host port 5434**, not 5432 |
+| rabbitmq | `127.0.0.1:15672:15672` | ❌ (loopback only) | AMQP broker; the UI is loopback, **AMQP 5672 is never published** |
+| redis | `127.0.0.1:6379:6379` | ❌ (loopback only) | Sessions + LLM cache |
+| invoice-ai | `127.0.0.1:8100:8100` | ❌ (loopback only) | FastAPI extraction service health endpoint |
+| worker | *(none)* | ❌ | RabbitMQ consumer — no listening port |
+| certbot | *(none)* | ❌ | Certificate renewal, no ports |
+
+**Rule:** every internal service binds to `127.0.0.1` (loopback) so it is
+reachable from the host for debugging but never from the network. nginx is
+the only service with a non-loopback binding — it is the single entry point.
+
+The host-side Postgres port is **5434**, deliberately, so it cannot collide
+with a Postgres already listening on 5432 on a developer machine. Any command
+in this repo that connects from the *host* must use `-p 5434`.
 
 ---
 

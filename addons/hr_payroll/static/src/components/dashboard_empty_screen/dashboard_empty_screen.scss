@@ -1,0 +1,87 @@
+.diagram-container {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    background: url("/hr_payroll/static/img/green_highlight_scribble_04.svg") no-repeat center;
+    justify-self: end;
+}
+.schema-grid {
+    grid-auto-flow: column;
+    grid-template-columns: repeat(5, minmax(0, 0.7fr));
+    justify-items: center;
+}
+.label {
+    font-size: 0.7rem;
+}
+.employee-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+.time-off-icon {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+.attendance-icon {
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    transform: translateX(-50%);
+    text-align: center;
+}
+.planning-icon {
+    position: absolute;
+    bottom: 0;
+    right: 20%;
+    transform: translateX(50%);
+    text-align: center;
+}
+.arrow-icon {
+    align-self: center;
+    text-align: center;
+    width: 70px;
+}
+.clock-icon {
+    position: absolute;
+    top: 0px;
+    right: 6px;
+    width: 1.05em;
+    height: 1.05em;
+    background: white;
+    border-radius: 10%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.dashboard-work-entry-icon {
+    .fa-clock-o {
+        font-size: 1em;
+    }
+    .fa-file-text {
+        font-size: 2.9em;
+    }
+}
+.underline-asset {
+    position: absolute;
+    width: 100px;
+    top: 72px;
+    right: -24px;
+}
+.corner-asset-top{
+    position: absolute;
+    width: 25px;
+    top: -20px;
+    right: 48px;
+}
+.corner-asset-bottom{
+    position: absolute;
+    width: 25px;
+    top: 55px;
+    right: -21px;
+    transform: rotate(180deg);
+}

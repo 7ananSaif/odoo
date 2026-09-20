@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_payroll_pre_tax_benefits" model="hr.salary.rule.category">
+        <field name="name">Pre-Tax Benefits</field>
+        <field name="code">PRETAX</field>
+        <field name="parent_id" ref="hr_payroll.DED"/>
+        <field name="country_id" ref="base.us"/>
+    </record>
+
+    <record id="hr_payroll_benefits_matching" model="hr.salary.rule.category">
+        <field name="name">Benefits Matching</field>
+        <field name="code">MATCHING</field>
+        <field name="country_id" ref="base.us"/>
+    </record>
+
+    <record id="hr_payroll_taxable" model="hr.salary.rule.category">
+        <field name="name">Taxable Income</field>
+        <field name="code">TAXABLE</field>
+        <field name="country_id" ref="base.us"/>
+    </record>
+
+    <record id="hr_payroll_gross_pay" model="hr.salary.rule.category">
+        <field name="name">Gross Pay</field>
+        <field name="code">GROSS_PAY</field>
+        <field name="parent_id" ref="hr_payroll.GROSS"/>
+        <field name="country_id" ref="base.us"/>
+    </record>
+
+    <record id="hr_payroll_taxes" model="hr.salary.rule.category">
+        <field name="name">Taxes</field>
+        <field name="code">TAXES</field>
+        <field name="parent_id" ref="hr_payroll.DED"/>
+        <field name="country_id" ref="base.us"/>
+    </record>
+
+    <record id="hr_payroll_post_tax_deductions" model="hr.salary.rule.category">
+        <field name="name">Post Tax Deductions</field>
+        <field name="code">POSTTAX</field>
+        <field name="parent_id" ref="hr_payroll.DED"/>
+        <field name="country_id" ref="base.us"/>
+    </record>
+
+    <record id="hr_payroll_employer_deductions" model="hr.salary.rule.category">
+        <field name="name">Employer Deductions</field>
+        <field name="code">COMPANYDED</field>
+        <field name="country_id" ref="base.us"/>
+    </record>
+</odoo>

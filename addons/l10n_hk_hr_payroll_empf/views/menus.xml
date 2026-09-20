@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <menuitem
+            id="l10n_hk_hr_payroll.menu_l10n_hk_manulife_mpf"
+            name="eMPF Contributions"
+            action="l10n_hk_empf_action"
+            parent="l10n_hk_hr_payroll.menu_reporting_l10n_hk"
+            sequence="80"/>
+
+        <menuitem
+            id="menu_hk_empf_settings"
+            name="eMPF"
+            parent="hr_work_entry_enterprise.menu_hr_payroll_configuration"
+            sequence="200"/>
+        <menuitem
+            id="menu_hk_mpf_schemes"
+            action="action_l10n_hk_mpf_schemes"
+            parent="menu_hk_empf_settings"
+            name="MPF Schemes"
+            sequence="10"/>
+    </data>
+</odoo>

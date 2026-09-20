@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sign</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="55"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Sign" string="Sign" name="sign" groups="sign.group_sign_manager">
+                    <block title="Sign Settings" name="sign">
+                        <setting id="use_sign_terms" help="Add terms &amp; conditions to the signature request email">
+                            <field name="use_sign_terms"/>
+                            <div class="content-group" invisible="not use_sign_terms">
+                                <div class="mt16">
+                                    <field name="sign_terms_type" class="o_light_label" widget="radio"/>
+                                    <div>
+                                        <field name="sign_terms"
+                                                invisible="sign_terms_type == 'html'"
+                                                class="oe_sign_terms mt-5 w-100"
+                                                placeholder="Insert your terms &amp; conditions here..."/>
+                                    </div>
+                                    <div class="mt8" invisible="sign_terms_type != 'html'">
+                                        <button name="action_update_sign_terms" icon="oi-arrow-right" type="object" string="Update Terms" class="btn-link"/>
+                                    </div>
+                                    <field name="sign_preview_ready" invisible="1"/>
+                                    <div class="mt4 ms-1" invisible="not sign_preview_ready">
+                                        <a class="btn-link" href="/sign/terms" role="button">
+                                            <i class="oi oi-arrow-right"/>
+                                            Preview
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting help="Allow signatories to provide their identity using itsme®" id="module_sign_itsme">
+                            <field name="module_sign_itsme"/>
+                            <widget name="documentation_link" path="https://www.itsme-id.com/en-BE/business/coverage" label="Available in supported countries" icon="oi oi-fw o_button_icon oi-arrow-right"/>
+                            <widget name="iap_buy_more_credits" service_name="itsme_proxy" hide_service="1"/>
+                        </setting>
+                        <setting help="Allow users to define the users or groups which have access to the template" id="manage_template_access">
+                            <field name="group_manage_template_access"/>
+                        </setting>
+                        <setting id="sms" string="Authenticate by SMS" documentation="/applications/marketing/sms_marketing/pricing/pricing_and_faq.html" help="Deliver one-time codes by SMS to identify signatories when signing a document">
+                            <widget name="iap_buy_more_credits" service_name="sms" hide_service="1"/>
+                        </setting>
+                        <setting help="Sign your important documents using Aadhaar esign." id="module_sign_emsigner">
+                            <field name="module_sign_emsigner"/>
+                            <widget name="iap_buy_more_credits" service_name="emsigner_proxy" hide_service="1"/>
+                        </setting>
+                        <setting id="company_sign_info">
+                            <div>
+                                <span class="fw-bold">Cryptographic signature<i class="fa fa-building-o ms-1"/></span>
+                            </div>
+                            <div class="text-muted mb-2">
+                                <span groups="base.group_system">
+                                    Certify your documents using a provided .pfx or .p12 file.
+                                </span>
+                            </div>
+                            <group>
+                                <field name="signing_certificate_id" options="{'no_quick_create': True}"/>
+                            </group>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

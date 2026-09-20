@@ -1,0 +1,25 @@
+.o_payrun_kanban {
+    padding: 0 4%;
+
+    @media (max-width: 768px) {
+        padding: 0;
+    }
+
+    .o_kanban_group {
+        .o_kanban_header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            padding: 0 !important;
+            font-weight: $o-font-weight-normal;
+
+            &:after {
+                content: "";
+                flex-grow: 1;
+                height: 1px;
+                background-color: $border-color;
+            }
+        }
+    }
+}

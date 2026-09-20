@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <div t-name="spreadsheet_edition.SelectionFilterEditorSidePanel" class="o_spreadsheet_filter_editor_side_panel">
+        <Section title.translate="Label">
+            <TextInput
+                placeholder="store.labelPlaceholder"
+                class="'o_global_filter_label' + (store.missingLabelError ? ' o_field_invalid' : '')"
+                value="store.filter.label"
+                onChange.bind="setLabel"
+                autofocus="true"
+            />
+        </Section>
+        <t t-if="store.isValid">
+            <Section title.translate="Selection field" class="'o-selection-model-field'">
+                <div class="o-section-subtitle">Model</div>
+                <ModelSelector
+                    value="store.selectionModelLabel"
+                    onModelSelected.bind="store.onSelectionModelSelected"
+                />
+                <t t-if="store.filter.resModel">
+                    <div class="o-section-subtitle">Field</div>
+                    <ModelFieldSelector
+                        path="store.filter.selectionField"
+                        resModel="store.filter.resModel"
+                        readonly="false"
+                        allowEmpty="false"
+                        isDebugMode="!!env.debug"
+                        update.bind="store.onSelectionFieldSelected"
+                        filter.bind="filterSelectionsFields"
+                    />
+                </t>
+            </Section>
+            <Section title.translate="Filter value" t-if="store.filter.resModel and store.filter.selectionField">
+                <div class="o-section-subtitle">Default value</div>
+                <SelectionFilterValue
+                    resModel="store.filter.resModel"
+                    field="store.filter.selectionField"
+                    value="store.filter.defaultValue?.selectionValues ?? []"
+                    onValueChanged.bind="updateSelectionDefaultValue"
+                />
+            </Section>
+            <t t-if="store.shouldDisplayFieldMatching or true">
+                <SidePanelCollapsible isInitiallyCollapsed="!store.isNew" title.translate="Field matching">
+                    <t t-set-slot="content">
+                        <Section class="'pt-0'">
+                            <FilterEditorFieldMatching
+                                fieldMatchings="store.fieldsMatching"
+                                selectField.bind="store.updateFieldMatching"
+                                filterModelFieldSelectorField="store.filterModelFieldSelectorField"
+                            />
+                        </Section>
+                    </t>
+                </SidePanelCollapsible>
+            </t>
+        </t>
+        <Section t-else="1">
+            <ValidationMessages messages="[invalidModel]" msgType="'error'"/>
+        </Section>
+        <GlobalFilterFooter t-props="footerProps"/>
+    </div>
+</templates>

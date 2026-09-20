@@ -1,0 +1,256 @@
+
+////// ======  Dashboard Kanban View ==========
+////// ========================================
+.o_documents_kanban_view  .o_content {
+    .o_kanban_renderer {
+        --KanbanRecord-padding-v: 0;
+        --KanbanRecord-padding-h: 0;
+
+        overflow: auto;
+        transition: background 0.3s;
+        height: 100%;
+        width: 100%;
+
+        @include media-breakpoint-down(lg) {
+            &.o_kanban_grouped {
+                div:has(.o_kanban_record) {
+                    width: 100%;
+                }
+                .o_kanban_record {
+                    width: 95%;
+                }
+                &.o_documents_recent {
+                    overflow: auto !important;
+                }
+            }
+        }
+
+        .o_kanban_record {
+            flex-direction: column;
+            width: 260px;
+            margin: .5rem;
+            border: none;
+
+            @include media-breakpoint-down(xxl) {
+                max-width: calc(50% - 20px);
+            }
+
+            @include media-breakpoint-down(xl) {
+                max-width: calc(100% - 20px);
+            }
+            .o_kanban_progress_card {
+                height: 100%;
+            }
+
+            > div:nth-of-type(1) {
+                border: $border-width solid var(--border-color);
+            }
+
+            &.o_kanban_ghost {
+                min-height: 0;
+                @include media-breakpoint-down(lg) {
+                    display: none;
+                }
+            }
+
+            &:hover .o-file-upload-progress-bar-abort {
+                display: inline-block;
+                z-index: 5;
+            }
+
+            .o_documents_in_folder {
+                font-size: 13px;
+            }
+        }
+
+        .o_kanban_record {
+            &:has(.o_kanban_stack) {
+                z-index: $o-dms-kanban-stack-zindex;
+
+                &:before, &:after {
+                    content: '';
+                    z-index: $o-dms-kanban-stack-zindex - 1;
+                    background: $o-view-background-color;
+                    outline: 1px solid var(--border-color);
+                    width: 100%;
+                    height: 100%;
+                    position: absolute;
+                    transform: translate(6px, 6px);
+                }
+
+                &:after {
+                    transform: translate(3px, 3px);
+                }
+            }
+
+            > div:nth-of-type(1) {
+                background: $o-view-background-color;;
+            }
+
+            &.o_record_selected {
+                > div:nth-of-type(1), &:before, &:after {
+                    background: var(--KanbanColumn__highlight-selected);
+                }
+            }
+
+            & > .o_kanban_attachment.oe_file_request {
+                border-style: dashed;
+                background-color: #fff0;
+            }
+
+            .o_kanban_image_wrapper {
+                background-color: $body-bg;
+                height: 140px;
+                width: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: space-around;
+                .o_image.o_image_thumbnail {
+                    height: 70px;
+                    width: 70px;
+                }
+
+                .o_documents_image {
+                    height: 100%;
+                }
+
+                img {
+                    max-width: 100%;
+                    max-height: 100%;
+                    -webkit-user-drag: none;
+                    user-drag: none;
+                }
+
+                .fa-star,.fa-star-o {
+                    &:before {
+                        position: relative;
+                        z-index: 1;
+                    }
+                    &:after {
+                        position: absolute;
+                        content: "\f005";
+                        color: white;
+                        z-index: 0;
+                        right: 8px;
+                    }
+                }
+            }
+
+            .o_request_image .o_kanban_image_wrapper {
+                background-color: #f1f1f1;
+                opacity: 0.5;
+
+                &:hover {
+                    background-color: $gray-200;
+                }
+            }
+
+            &:not(.o_record_selection_available) .oe_kanban_previewer {
+                cursor: zoom-in;
+            }
+
+            .o_record_selector {
+                @include o-hover-text-color($gray-400, $gray-800 );
+                @include o-position-absolute($o-kanban-inside-vgutter - 4px , $o-kanban-inside-hgutter - 4px);
+                padding: $o-dms-p-tiny;
+                font-size: 16px;
+                text-shadow: 0 0 2px black;
+                z-index: 4;
+                transform: translate(-6px);
+            }
+
+            @include media-breakpoint-up(lg) {
+                &:not(:hover) {
+                    .fa-eye-slash,.fa-star-o,.o_field_kanban_activity:has(.fa-clock-o) {
+                        visibility: hidden;
+                    }
+                }
+            }
+
+            .fa-star-o {
+                &:hover:before {
+                    content: "\f005";
+                }
+            }
+
+            .fa-star {
+                &:hover:before {
+                    content: "\f006";
+                }
+            }
+
+            .o_field_kanban_activity {
+                margin-top: 2px;
+            }
+        }
+
+        .o_record_selected {
+            .o_record_selector{
+                @include o-hover-opacity(0.8, 1);
+
+                &:before{
+                    color: var(--KanbanColumn__highlight-background);
+                    content:"\f058";
+                    padding: 0px 1px;
+                    background-color: var(--KanbanColumn__highlight-border);
+                    border-radius: 50%;
+                }
+            }
+        }
+
+        &.o_documents_drop_over {
+            background: $gray-700;
+
+            .o_kanban_record {
+                opacity: 0.2;
+                filter: blur(1px);
+            }
+
+            .o_view_nocontent {
+                display: none;
+            }
+        }
+
+        &.o_documents_drop_over_unauthorized {
+            @extend .o_documents_drop_over;
+            background: $red-100;
+        }
+    }
+}
+
+
+////// ==========  Share modal ==============
+////// ======================================
+
+.o_url_group {
+    .o_field_copy {
+        padding: $input-btn-padding-y-lg $input-btn-padding-x-lg;
+        color: $text-muted;
+        text-align: left;
+        font-style: italic;
+        border-color: $gray-500;
+
+        .o_clipboard_button {
+            box-shadow: 1px 0 0 1px $o-brand-primary;
+            border-radius: inherit; // To always get the container border radius;
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+        }
+    }
+}
+
+
+////// ==========-  Animations ==============
+////// ======================================
+
+@keyframes o_documents_preview_in {
+   0% {
+       opacity: 0;
+       transform: scaleX(0.50) scaleY(0.50);
+   }
+
+   100% {
+       opacity: 1;
+       transform: scaleX(1.00) scaleY(1.00);
+   }
+}

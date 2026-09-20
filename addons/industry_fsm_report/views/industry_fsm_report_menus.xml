@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem
+        id="project_task_menu_planning_by_project_fsm"
+        name="By Worksheet Template"
+        sequence="20"
+        action="project_task_fsm_planning_groupby_worksheet_server_action"
+        parent="industry_fsm.fsm_menu_planning"
+        groups="industry_fsm.group_fsm_manager"
+    />
+
+    <menuitem
+        id="fsm_settings_worksheets"
+        name="Worksheet Templates"
+        sequence="20"
+        action="fsm_worksheets_action_settings"
+        parent="industry_fsm.fsm_menu_settings"
+        groups="industry_fsm.group_fsm_manager"
+    />
+</odoo>

@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="equity_ubo_report">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <div class="text-center">
+                            <h2 class="text-primary">Ultimate Beneficial Owners (UBO) statement</h2>
+                            <h3 class="text-secondary">
+                                <t t-out="o.name"/>
+                                <t t-if="o.vat"> - <t t-out="o.vat"/></t>
+                            </h3>
+                        </div>
+
+                        <div>
+                            <p>According to laws related to anti money laundering, the notary must identify the beneficial owners of their customer.</p>
+                            <p>The undersigned (executive officer or administrator) acting as a representative of the company:</p>
+                        </div>
+
+                        <ul>
+                            <li>
+                                <strong>Company Name:</strong>
+                                <t t-out="o.name"/>
+                            </li>
+                            <li>
+                                <strong>Tax ID Number:</strong>
+                                <t t-out="o.vat or '-'"/>
+                            </li>
+                            <li>
+                                <strong>Address:</strong>
+                                <t t-out="o.contact_address or '-'"/>
+                            </li>
+                        </ul>
+
+                        <div>
+                            declares that the beneficial owners of the company:
+                        </div>
+
+                        <ul>
+                            <li>
+                                are the following individuals who, in last resort, own or control directly or indirectly more than 25% of the shares or of the voting rights of this company
+                            </li>
+                            <strong>OR</strong>
+                            <li>
+                                are the following individuals who have control by other means on the direction of the company (administrators)
+                            </li>
+                            <strong>OR</strong>
+                            <li>
+                                are the following publicly traded companies.
+                            </li>
+                        </ul>
+
+                        <div>
+                            <t t-if="o.ubo_owner_ids">
+                                <ol>
+                                    <t t-foreach="o.ubo_owner_ids" t-as="ubo">
+                                        <li>
+                                            <strong>
+                                                <t t-out="ubo.holder_id.name"/>
+                                            </strong>
+                                            <t t-if="ubo.holder_id.ubo_national_identifier"> (ID <t t-out="ubo.holder_id.ubo_national_identifier"/>) </t>
+                                            <t t-if="ubo.holder_id.ubo_birth_date or ubo.holder_id.ubo_birth_place">born</t>
+                                            <t t-if="ubo.holder_id.ubo_birth_date"> on <t t-out="ubo.holder_id.ubo_birth_date"/>
+                                            </t>
+                                            <t t-if="ubo.holder_id.ubo_birth_place"> in <t t-out="ubo.holder_id.ubo_birth_place"/> </t>
+                                            <br/> Nationality: <t t-out="ubo.holder_id.country_id.name"/>
+                                            <br/>
+                                            Politically Exposed Person:
+                                            <t t-if="ubo.holder_id.ubo_pep">Yes</t>
+                                            <t t-else="">No</t>
+                                        </li>
+                                    </t>
+                                </ol>
+                            </t>
+                            <t t-else="">
+                                <div>No UBOs recorded for this company.</div>
+                            </t>
+                        </div>
+
+                        <div>
+                            <h6>Signature:</h6>
+                            <div class="d-flex">
+                                <label class="me-1">First and Last Name: </label>
+                                <div t-out="rep_name"/>
+                            </div>
+                            <div class="d-flex">
+                                <label class="me-1">Job Position: </label>
+                                <div t-out="rep_position"/>
+                            </div>
+                            <div class="d-flex">
+                                <label class="me-1">Signature date: </label>
+                                <div t-out="rep_sig_date"/>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

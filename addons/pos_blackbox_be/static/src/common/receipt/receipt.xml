@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-inherit="point_of_sale.ReceiptHeader" t-inherit-mode="extension">
+        <xpath expr="//span[hasclass('pos-receipt-vat')]" position="replace">
+            <t t-if="order.useBlackBoxBe()">
+                <span class="pos-receipt-vat">
+                    <t t-if="order.uiState.receipt_type != 'NS' and order.uiState.receipt_type  != 'NR'">
+                        <span class="pos-receipt-header"><bold>THIS IS NOT A VALID TICKET</bold></span>
+                        <br/>
+                        <span class="pos-receipt-header"><bold>PRO FORMA</bold> <bold t-if="order.uiState.receipt_type  == 'PR'">REFUND</bold></span>
+                    </t>
+                    <t t-else="">
+                        <span class="pos-receipt-header"><bold>VAT TICKET</bold></span>
+                        <span class="pos-receipt-header ms-1"><bold t-if="order.uiState.receipt_type == 'NR'">REFUND</bold></span>
+                    </t>
+                    <span class="pos-receipt-header ms-1"><bold><t t-esc="order.pos_reference"/></bold></span>
+                </span>
+            </t>
+            <t t-else="">
+                <span class="pos-receipt-vat">
+                    <t t-if="order.config._IS_VAT"> VAT </t>
+                    Ticket
+                    <t t-out="order.pos_reference"/>
+                </span>
+            </t>
+        </xpath>
+
+        <xpath expr="//div[hasclass('pos-receipt-contact')]" position="inside">
+            <t t-if="order.useBlackBoxBe()">
+                <div>
+                    Till: <t t-esc="order.config.name"/>
+                </div>
+            </t>
+        </xpath>
+    </t>
+    <t t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('after-footer')]" position="after">
+            <t t-if="order.useBlackBoxBe()">
+                <br/>
+                <div style="font-size: 75%;">
+                    <div t-if="order.originalSplittedOrder?.pos_reference">Original Order: <t t-esc="order.originalSplittedOrder.pos_reference"/></div>
+                    <div>PLU hash: <t t-esc="order.plu_hash"/></div>
+                    <div>FDM ID: <t t-esc="order.blackbox_unique_fdm_production_number"/></div>
+                    <div>Terminal ID: <t t-esc="order.config.id"/></div>
+                    <div>D/H Terminal: <span><t t-esc="order.blackbox_date"/> <t t-esc="order.blackbox_time"/></span></div>
+                    <div>POS version: <t t-esc="order.config._server_version.server_version"/></div>
+
+                    <div>Control data</div>
+                    <div>FDM ticket counters:<t t-esc="order.blackbox_ticket_counters"/></div>
+                    <div>VSC ID: <t t-esc="order.blackbox_vsc_identification_number"/></div>
+                    <div>FDM Identifier: <t t-esc="order.config.certified_blackbox_identifier"/></div>
+                    <div>Ticket signature: <t t-esc="order.blackbox_signature"/></div>
+                </div>
+            </t>
+        </xpath>
+        <xpath expr="//Orderline" position="inside">
+            <t t-if="order.useBlackBoxBe() and line.discount and line.discount !== '0'">
+                <div>
+                    Old unit price:
+                    <span>
+                        <s>
+                            <t t-esc="this.env.utils.formatCurrency(line.displayPriceNoDiscount, line.currency)" /> / Units
+                        </s>
+                    </span>
+                </div>
+            </t>
+        </xpath>
+        <xpath expr="//t[@id='tax_base']" position="attributes">
+            <attribute name="t-if" add="order.useBlackBoxBe()" separator=" or "/>
+        </xpath>
+    </t>
+</templates>

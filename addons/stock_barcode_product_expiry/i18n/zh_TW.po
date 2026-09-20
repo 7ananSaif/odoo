@@ -1,0 +1,70 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * stock_barcode_product_expiry
+#
+# Translators:
+# Wil Odoo, 2025
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.3+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:48+0000\n"
+"PO-Revision-Date: 2025-09-16 12:12+0000\n"
+"Last-Translator: \"Dylan Kiss (dyki)\" <dyki@odoo.com>\n"
+"Language-Team: Chinese (Traditional Han script) <https://translate.odoo.com/"
+"projects/odoo-19/stock_barcode_product_expiry/zh_Hant/>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: stock_barcode_product_expiry
+#: model_terms:ir.ui.view,arch_db:stock_barcode_product_expiry.stock_move_line_product_selector
+msgid ""
+"<span class=\"fa fa-exclamation-triangle fs-6 text-danger ms-4\" "
+"invisible=\"not is_expired or not picking_type_use_existing_lots\">\n"
+"                        This lot is expired\n"
+"                    </span>"
+msgstr ""
+"<span class=\"fa fa-exclamation-triangle fs-6 text-danger ms-4\" "
+"invisible=\"not is_expired or not picking_type_use_existing_lots\">\n"
+"                        此批次已過期\n"
+"                    </span>"
+
+#. module: stock_barcode_product_expiry
+#: model:ir.model.fields,field_description:stock_barcode_product_expiry.field_product_product__display_name
+#: model:ir.model.fields,field_description:stock_barcode_product_expiry.field_stock_lot__display_name
+#: model:ir.model.fields,field_description:stock_barcode_product_expiry.field_stock_move_line__display_name
+msgid "Display Name"
+msgstr "顯示名稱"
+
+#. module: stock_barcode_product_expiry
+#: model_terms:ir.ui.view,arch_db:stock_barcode_product_expiry.stock_move_line_product_selector
+msgid "Expiration Date"
+msgstr "過期日期"
+
+#. module: stock_barcode_product_expiry
+#: model:ir.model.fields,field_description:stock_barcode_product_expiry.field_product_product__id
+#: model:ir.model.fields,field_description:stock_barcode_product_expiry.field_stock_lot__id
+#: model:ir.model.fields,field_description:stock_barcode_product_expiry.field_stock_move_line__id
+msgid "ID"
+msgstr "識別號"
+
+#. module: stock_barcode_product_expiry
+#: model:ir.model,name:stock_barcode_product_expiry.model_stock_lot
+msgid "Lot/Serial"
+msgstr "批次/序列號"
+
+#. module: stock_barcode_product_expiry
+#: model:ir.model,name:stock_barcode_product_expiry.model_stock_move_line
+msgid "Product Moves (Stock Move Line)"
+msgstr "產品移動（庫存移動資料行）"
+
+#. module: stock_barcode_product_expiry
+#: model:ir.model,name:stock_barcode_product_expiry.model_product_product
+msgid "Product Variant"
+msgstr "產品款式"

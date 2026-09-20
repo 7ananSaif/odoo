@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="documents.DocumentsAction">
+        <div t-if="props.targetRecords.length" class="btn-group mt-1 mt-sm-0 d-empty-none">
+            <ActionMenus t-if="props.isPreview and state.actionMenuProps" t-props="state.actionMenuProps"/>
+            <div t-if="!ui.isSmall and topbarActions.length" class="d-flex flex-row flex-wrap btn-group d-none d-md-inline">
+                <t t-set="firstEmbeddedActions"
+                   t-value="props.folderId === 'TRASH' ? topbarActions.slice(0, 1) : topbarActions.slice(0, ui.isSmall ? 0 : this.visibleTopbarActions)"/>
+                <t t-set="lastEmbeddedActions"
+                   t-value="props.folderId === 'TRASH' ? [] : topbarActions.slice(ui.isSmall ? 0 : this.visibleTopbarActions)"/>
+                <button t-foreach="firstEmbeddedActions" t-as="action" t-key="action_index" class="btn btn-secondary"
+                    t-on-click="() => action.callback()" t-esc="action.description" />
+                <div class="dropdown btn-group" t-if="lastEmbeddedActions?.length">
+                    <button class="btn btn-secondary o_dropdown_title dropdown-toggle" type="button"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                        More
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li t-foreach="lastEmbeddedActions" t-as="action" t-key="action_index"
+                            class="d-flex flex-row">
+                            <button type="button" class="dropdown-item btn btn-secondary mx-1" t-out="action.description"
+                                t-on-click="() => action.callback()"/>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

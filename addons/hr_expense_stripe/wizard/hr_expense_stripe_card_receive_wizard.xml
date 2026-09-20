@@ -1,0 +1,41 @@
+<odoo>
+    <data>
+        <record id="hr_expense_stripe_card_receive_wizard_form" model="ir.ui.view">
+            <field name="name">hr.expense.stripe.card.receive.wizard.form</field>
+            <field name="model">hr.expense.stripe.card.receive.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="card_id" invisible="True"/><!-- needed otherwise card_last_4 has no value -->
+                        <label for="last_4_challenge"/>
+                        <div class="d-flex align-items-center">
+                            <field name="last_4_challenge" style="width: 30%"/>
+                            <span
+                                invisible="not show_warning_wrong_last_4"
+                                class="fa fa-exclamation-triangle text-danger pb-2"
+                                title="Entered digits don't match the last 4 digits of the card."
+                            />
+                        </div>
+                        <field name="phone_number" style="width: 30%"/>
+                    </group>
+                    <group>
+                        <field name="is_confirmed" nolabel="1"/>
+                        <span>
+                            I confirm agreeing to the
+                            <b><a href="#" name="open_expense_stripe_card_receive_terms" type="object">terms and conditions</a></b>
+                        </span>
+                    </group>
+                    <footer>
+                        <button name="action_receive_card" class="btn btn-primary" type="object" data-hotkey="q" invisible="not is_confirmed or last_4_challenge != card_last_4">
+                            Activate
+                        </button>
+                        <button name="action_receive_card" class="btn btn-primary disabled" type="object" invisible="is_confirmed and last_4_challenge == card_last_4">
+                            Activate
+                        </button>
+                        <button string="Discard" special="cancel" data-hotkey="x"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

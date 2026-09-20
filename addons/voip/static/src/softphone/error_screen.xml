@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip.ErrorScreen">
+    <section class="o-voip-ErrorScreen position-absolute d-flex flex-column align-items-center h-100 w-100 px-5 bg-view bg-opacity-75 text-center z-2" t-on-click="onClick">
+        <div class="d-flex flex-column align-items-center justify-content-center gap-3 flex-grow-1 flex-shrink-0 py-3">
+            <i class="fa fa-exclamation-circle fs-1 text-danger" aria-hidden="true"/>
+            <h3 t-esc="props.title" class="mb-0"/>
+            <p class="o-voip-ErrorScreen-errorMessage" t-esc="props.message"/>
+            <t t-if="props.button">
+                <button class="btn btn-primary" t-esc="props.button.text" t-on-click="props.button.callback"/>
+            </t>
+        </div>
+    </section>
+</t>
+</templates>

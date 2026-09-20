@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_contract_benefit_view_tree" model="ir.ui.view">
+        <field name="name">hr.contract.salary.benefit.view.list.inherit.hr_contract_salary_payroll</field>
+        <field name="model">hr.contract.salary.benefit</field>
+        <field name="inherit_id" ref="hr_contract_salary.hr_contract_benefit_view_tree"/>
+        <field name="arch" type="xml">
+            <field name="res_field_id" position="after">
+                <field name="salary_rule_id" invisible="source != 'rule'"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="hr_contract_benefit_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.salary.benefit.view.form.inherit.hr_contract_salary_payroll</field>
+        <field name="model">hr.contract.salary.benefit</field>
+        <field name="inherit_id" ref="hr_contract_salary.hr_contract_benefit_view_form"/>
+        <field name="arch" type="xml">
+            <field name="benefit_type_id" position="after">
+                <field name="source"/>
+                <field name="salary_rule_id" invisible="source != 'rule'" groups="hr_payroll.group_hr_payroll_user"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

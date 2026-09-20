@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="my_tax_return_type_sst_02_b2" model="account.return.type">
+            <field name="name">Tax</field>
+            <field name="report_id" ref="l10n_my.tax_report_sst_02_b2"/>
+            <field name="country_id" ref="base.my" />
+        </record>
+        <record id="my_tax_return_type_sst_02_a_b" model="account.return.type">
+            <field name="name">Tax</field>
+            <field name="report_id" ref="l10n_my.tax_report_sst_02_a_b"/>
+            <field name="country_id" ref="base.my" />
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <record id="fleet_vehicle_view_form" model="ir.ui.view">
+        <field name="name">fleet.vehicle.form</field>
+        <field name="model">fleet.vehicle</field>
+        <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='location']" position="after">
+                <field name="l10n_mx_is_freight_vehicle" invisible="country_code != 'MX'"/>
+            </xpath>
+            <xpath expr="//field[@name='license_plate']" position="attributes">
+                <attribute name="required">l10n_mx_is_freight_vehicle and country_code == 'MX'</attribute>
+            </xpath>
+            <xpath expr="//field[@name='driver_id']" position="attributes">
+                <attribute name="required">l10n_mx_is_freight_vehicle and country_code == 'MX'</attribute>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="MX Parameters" name="mx_parameters" invisible="not l10n_mx_is_freight_vehicle or country_code != 'MX'">
+                    <group>
+                        <group>
+                            <field name="l10n_mx_vehicle_config" required="l10n_mx_is_freight_vehicle"/>
+                            <label for="l10n_mx_gross_vehicle_weight" required="l10n_mx_is_freight_vehicle"/>
+                            <div class="o_row ms-2">
+                                <field name="l10n_mx_gross_vehicle_weight"/>
+                                <span> Ton</span>
+                            </div>
+                        </group>
+                        <group>
+                            <field name="l10n_mx_transport_perm_sct" required="l10n_mx_is_freight_vehicle"/>
+                            <field name="l10n_mx_transport_perm_number" required="l10n_mx_is_freight_vehicle"/>
+                            <field name="l10n_mx_transport_insurer" required="l10n_mx_is_freight_vehicle"/>
+                            <field name="l10n_mx_transport_insurance_policy"  required="l10n_mx_is_freight_vehicle"/>
+                            <field name="l10n_mx_environment_insurer"/>
+                            <field name="l10n_mx_environment_insurance_policy"/>
+                        </group>
+                        <group col="2">
+                            <field name="l10n_mx_figure_ids">
+                                <list editable="bottom">
+                                    <field name="type" required="1"/>
+                                    <field name="operator_id"/>
+                                    <field name="part_ids" widget="many2many_tags"
+                                        options="{'no_create': True}" invisible="type == '01'"/>
+                                </list>
+                            </field>
+                        </group>
+                        <group col="2">
+                            <field name="l10n_mx_trailer_ids"
+                                invisible="l10n_mx_vehicle_config in ('C2', 'C3', 'OTROSG', 'GPLUTA', 'GPLUTB', 'GPLUTC', 'GPLUTD', 'GPLATA', 'GPLATB', 'GPLATC', 'GPLATD')">
+                                <list editable="bottom">
+                                    <field name="name"/>
+                                    <field name="sub_type"/>
+                                </list>
+                            </field>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

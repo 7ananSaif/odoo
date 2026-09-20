@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="account_accountant.BankRecStatementSummary">
+        <div class="o_statement_summary d-flex justify-content-between align-items-center w-100 p-2">
+            <div name="label_statement_summary" class="d-flex gap-2 align-items-center">
+                <h4 t-esc="props.label"
+                    t-on-click="props.action"
+                    class="m-0"
+                    t-att-class="{'text-danger': !props.isValid}"/>
+            </div>
+            <div>
+                <h4 class="m-0"
+                    t-if="props.journalIsInvalid"
+                    t-on-click="actionApplyInvalidStatement">
+                    Invalid Statement(s)
+                </h4>
+            </div>
+            <div t-if="props.amount"
+                 class="btn btn-link p-0 fw-bold fs-4"
+                 t-on-click="props.action"
+                 t-esc="props.amount"/>
+        </div>
+    </t>
+</templates>

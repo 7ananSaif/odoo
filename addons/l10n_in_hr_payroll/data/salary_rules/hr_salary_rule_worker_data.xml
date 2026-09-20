@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_in_hr_payroll_structure_worker_0001_basic_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.BASIC"/>
+        <field name="name">Basic Salary</field>
+        <field name="sequence">1</field>
+        <field name="code">BASIC</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = payslip.paid_amount
+        </field>
+        <field name="struct_id" ref="structure_worker_0001"/>
+    </record>
+
+    <record id="hr_salary_worker_trans_allownce" model="hr.salary.rule">
+        <field name="code">TCA</field>
+        <field name="name">Transport/Conveyance Allownace</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="amount_select">fix</field>
+        <field eval="800.0" name="amount_fix"/>
+        <field name="sequence" eval="14"/>
+        <field name="note">A conveyance allowance refers to an amount of money reimbursed to someone for the operation of a vehicle or the riding of a vehicle. The allowance is typically a designated amount or percentage of total transportation expenses that is referenced in a country's tax laws or code. Organizations and private or public businesses may also offer a conveyance allowance in addition to reimbursing employees or members for transportation expenses. In this instance, the conveyance allowance may identify an unusual transport occurrence that may not be covered by a designated travel expense report such as travel to a specific job site that requires a daily bus or taxi ride.</field>
+        <field name="struct_id" ref="structure_worker_0001"/>
+    </record>
+
+    <record id="hr_salary_rule_worker_special" model="hr.salary.rule">
+        <field name="code">SA</field>
+        <field name="name">Special</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = bool(version.l10n_in_fixed_allowance)</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = version.l10n_in_fixed_allowance</field>
+        <field name="sequence" eval="20"/>
+        <field name="note">This allowance is normally given as an additional benefit to worker and is fully taxable.</field>
+        <field name="struct_id" ref="structure_worker_0001"/>
+    </record>
+
+    <record id="l10n_in_hr_payroll_structure_worker_0001_gross_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.GROSS"/>
+        <field name="name">Taxable Salary</field>
+        <field name="sequence">100</field>
+        <field name="code">GROSS</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW']
+        </field>
+        <field name="struct_id" ref="structure_worker_0001"/>
+    </record>
+
+    <record id="hr_payslip_line_worker_professional_tax" model="hr.salary.rule">
+        <field name="code">PTD</field>
+        <field name="name">Professional Tax</field>
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = bool(version.l10n_in_pt and version.pt_rule_parameter_id)</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = 0
+tax_slabs = payslip._rule_parameter(version.pt_rule_parameter_id.code)
+if isinstance(tax_slabs, dict):
+    gender = version.sex if version.sex in ['male', 'female'] else 'male'
+    slabs = tax_slabs.get(gender, [])
+else:
+    slabs = tax_slabs
+for amount, (lower, upper) in slabs:
+    if float(lower) &lt;= categories['GROSS'] &lt;= float(upper):
+        result = -amount
+        break
+        </field>
+        <field name="partner_id" ref="hr_professional_tax_deduction_register"/>
+        <field eval="145" name="sequence"/>
+        <field name="note">Workers living in states that impose the professional tax must submit a payment each half-year for the right to practice a profession or trade. It applies equally to employees who work for the national or state government, and those employed by private corporations. The professional tax uses a six-month accounting system, which divides the year into two periods, beginning on April 1 and October 1.</field>
+        <field name="struct_id" ref="structure_worker_0001"/>
+    </record>
+
+    <record id="l10n_in_hr_payroll_structure_worker_0001_attachment_of_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Attachment of Salary</field>
+        <field name="sequence">174</field>
+        <field name="code">ATTACH_SALARY</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'ATTACH_SALARY' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['ATTACH_SALARY'].amount
+result_name = inputs['ATTACH_SALARY'].name
+        </field>
+        <field name="struct_id" ref="structure_worker_0001"/>
+    </record>
+
+    <record id="l10n_in_hr_payroll_structure_worker_0001_assignment_of_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Assignment of Salary</field>
+        <field name="sequence">174</field>
+        <field name="code">ASSIG_SALARY</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'ASSIG_SALARY' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['ASSIG_SALARY'].amount
+result_name = inputs['ASSIG_SALARY'].name
+        </field>
+        <field name="struct_id" ref="structure_worker_0001"/>
+    </record>
+
+    <record id="l10n_in_hr_payroll_structure_worker_0001_child_support" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Child Support</field>
+        <field name="code">CHILD_SUPPORT</field>
+        <field name="amount_select">code</field>
+        <field name="sequence">174</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'CHILD_SUPPORT' in inputs</field>
+        <field name="amount_python_compute">
+result = -inputs['CHILD_SUPPORT'].amount
+result_name = inputs['CHILD_SUPPORT'].name
+        </field>
+        <field name="struct_id" ref="structure_worker_0001"/>
+    </record>
+
+    <record id="l10n_in_hr_payroll_structure_worker_0001_deduction_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Deduction</field>
+        <field name="sequence">198</field>
+        <field name="code">DEDUCTION</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'DEDUCTION' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['DEDUCTION'].amount
+result_name = inputs['DEDUCTION'].name
+        </field>
+        <field name="struct_id" ref="structure_worker_0001"/>
+    </record>
+
+    <record id="l10n_in_hr_payroll_structure_worker_0001_reimbursement_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="name">Reimbursement</field>
+        <field name="sequence">199</field>
+        <field name="code">REIMBURSEMENT</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'REIMBURSEMENT' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = inputs['REIMBURSEMENT'].amount
+result_name = inputs['REIMBURSEMENT'].name
+        </field>
+        <field name="struct_id" ref="structure_worker_0001"/>
+    </record>
+
+    <record id="l10n_in_hr_payroll_structure_worker_0001_net_salary" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.NET"/>
+        <field name="name">Net Salary</field>
+        <field name="sequence">200</field>
+        <field name="code">NET</field>
+        <field name="appears_on_employee_cost_dashboard" eval="True"/>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW'] + categories['DED']
+        </field>
+        <field name="struct_id" ref="structure_worker_0001"/>
+    </record>
+</odoo>

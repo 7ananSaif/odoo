@@ -1,0 +1,296 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <template id="report_payslip_in">
+        <t t-call="web.internal_layout">
+            <div class="page" style="font-size: 11px; page-break-before: always;">
+                <table class="table table-sm table-bordered w-100 mb-0" style="border: 1px solid #808080;">
+                    <tbody>
+                        <tr>
+                            <th colspan="6">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <div>
+                                        <h5>
+                                            <span t-field="o.company_id"/>
+                                        </h5>
+                                        <span t-field="o.company_id.street" />
+                                        <span t-field="o.company_id.street2" />
+                                        <span t-field="o.company_id.city" />
+                                        <span t-field="o.company_id.zip" />
+                                        <span t-field="o.company_id.state_id" />
+                                        <span t-field="o.company_id.country_id" />
+                                    </div>
+                                    <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" style="max-height: 45px;" alt="Logo"/>
+                                </div>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th colspan="6" class="text-center">
+                                <h6 id="payslip_name" t-field="o.name" class="my-2"/>
+                            </th>
+                        </tr>
+                        <tr>
+                            <td colspan="6">
+                                <table class="table table-sm table-borderless" style="table-layout: fixed;">
+                                    <thead>
+                                            <tr>
+                                                <th colspan="6">
+                                                    <div>
+                                                        <t t-set="is_invalid" t-value="o._is_invalid()"/>
+                                                        <t t-if="is_invalid">
+                                                            <strong id="invalid_warning">This payslip is not validated and is not a legal document.</strong>
+                                                        </t>
+                                                    </div>
+                                                    <div id="pay_period" class="fs-6">
+                                                        <span>Pay Period : </span>
+                                                        <span t-if="o.date_from &lt; o.version_id.contract_date_start" t-field="o.version_id.contract_date_start"/>
+                                                        <span t-else="" t-field="o.date_from"/>
+                                                            to
+                                                        <span t-if="o.version_id.contract_date_end and o.date_to &gt; o.version_id.contract_date_end" t-field="o.version_id.contract_date_end"/>
+                                                        <span t-else="" t-field="o.date_to"/>
+                                                    </div>
+                                                </th>
+                                            </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="1"><strong>Employee Name</strong></td>
+                                            <td colspan="2">: <span t-field="o.employee_id.legal_name"/></td>
+                                            <td colspan="1"><strong class="me-2">Employee ID</strong></td>
+                                            <td colspan="2">: <span t-field="o.employee_id.registration_number"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="1"><strong>Designation</strong></td>
+                                            <td colspan="5">: <span t-field="o.employee_id.job_title"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="1"><strong>Date of Joining</strong></td>
+                                            <td colspan="2">: <span t-field="o.employee_id.contract_date_start"/></td>
+                                            <td colspan="1"><strong class="me-2">UAN</strong></td>
+                                            <td colspan="2">: <span t-field="o.employee_id.l10n_in_uan"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="1"><strong>Pay Date</strong></td>
+                                            <td colspan="2">: <span t-field="o.compute_date"/></td>
+                                            <td colspan="1"><strong>PAN</strong></td>
+                                            <td colspan="2">: <span t-field="o.employee_id.l10n_in_pan"/></td>
+                                        </tr>
+                                        <tr>
+                                            <td colspan="1"><strong>ESIC No.</strong></td>
+                                            <td colspan="2">: <span t-field="o.employee_id.l10n_in_esic_number"/></td>
+                                            <td colspan="1"><strong>Standard Working Schedule</strong></td>
+                                            <td colspan="2">: <t t-if="o.wage_type == 'monthly'">
+                                                    <span t-out="int(o._get_l10n_in_company_working_time())"/> Days
+                                                </t>
+                                                <t t-else="">
+                                                    <span t-out="o._get_l10n_in_company_working_time(return_hours=True)"/> Hours
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                        <tr t-if="o._get_employee_timeoff_data()">
+                            <!-- Time Off Data -->
+                            <td colspan="6" class="p-0">
+                                <div>
+                                    <table class="table table-sm w-100 m-0" style="border: 1px solid #c9c9c9; table-layout: fixed;">
+                                        <thead>
+                                            <tr>
+                                                <th><strong>Time Off</strong></th>
+                                                <th class="text-end"><strong>Total</strong></th>
+                                                <th class="text-end"><strong>Remaining</strong></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <span t-foreach="o._get_employee_timeoff_data()" t-as="timeoff_data">
+                                                <tr>
+                                                    <td><t t-out="timeoff_data[0]"/></td>
+                                                    <td class="text-end"><t t-out="timeoff_data[1].get('max_leaves')"/>
+                                                        <t t-if="timeoff_data[1].get('request_unit') == 'hour'">Hours</t>
+                                                        <t t-else="">Days</t></td>
+                                                    <td class="text-end"><t t-out="timeoff_data[1].get('remaining_leaves')"/>
+                                                        <t t-if="timeoff_data[1].get('request_unit') == 'hour'">Hours</t>
+                                                        <t t-else="">Days</t></td>
+                                                </tr>
+                                            </span>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                </td>
+                        </tr>
+                        <tr>
+                            <!-- Worked Days Table -->
+                            <td colspan="6" class="p-0">
+                                <div id="worked_days_table">
+                                    <table class="table table-sm w-100 m-0" style="border: 1px solid #c9c9c9; table-layout: fixed; border-bottom: 2px solid #c9c9c9;">
+                                        <thead>
+                                            <tr>
+                                                <th id="work_days_header_name"><strong>Worked Days</strong></th>
+                                                <th class="text-end"><strong>
+                                                    <t t-if="o.wage_type == 'hourly'">Number of Hours</t>
+                                                    <t t-else="">Number of Days</t>
+                                                </strong></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="worked_days_lines">
+                                            <t t-set="worked_days_lines" t-value="o.worked_days_line_ids.filtered(lambda worked_days: worked_days.code != 'OUT')"/>
+                                            <span t-foreach="worked_days_lines" t-as="worked_days">
+                                                <tr style="color:none">
+                                                    <td id="worked_days_name"><span t-field="worked_days.name"/></td>
+                                                    <td class="text-end">
+                                                        <span t-if="o.wage_type == 'hourly'" t-field="worked_days.number_of_hours"> Hours</span>
+                                                        <span t-else="" t-field="worked_days.number_of_days"> Days</span>
+                                                    </td>
+                                                </tr>
+                                            </span>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Earnings and deduction tables -->
+                        <tr>
+                            <td class="w-25"><strong>EARNINGS</strong></td>
+                            <td class="text-end" t-att-colspan="1 if o.ytd_computation else 2" t-att-style="'width: 12.5%;' if o.ytd_computation else 'width: 25%'">
+                                <strong>AMOUNT</strong>
+                            </td>
+                            <td t-if="o.ytd_computation" class="text-end" style="width: 12.5%"><strong>YTD</strong></td>
+                            <td class="w-25"><strong>DEDUCTIONS</strong></td>
+                            <td class="text-end" t-att-colspan="1 if o.ytd_computation else 2" t-att-style="'width: 12.5%;' if o.ytd_computation else 'width: 25%'">
+                                <strong>AMOUNT</strong>
+                            </td>
+                            <td t-if="o.ytd_computation" class="text-end" style="width: 12.5%"><strong>YTD</strong></td>
+                        </tr>
+                        <t t-set="earnings_lines" t-value="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.total >= 0 and 'NET' not in line.category_id.code)"/>
+                        <t t-set="deductions_lines" t-value="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.amount &lt; 0)"/>
+                        <t t-set="max_length" t-value="max(len(earnings_lines), len(deductions_lines))"/>
+                        <t t-foreach="range(max_length)" t-as="i">
+                            <tr>
+                                <!-- Earnings column -->
+                                <td class="text-break">
+                                    <span t-if="i &lt; len(earnings_lines)" t-field="earnings_lines[i].name"/>
+                                    <span t-else=""></span>
+                                </td>
+                                <td t-att-colspan="1 if o.ytd_computation else 2" class="text-end">
+                                    <span t-if="i &lt; len(earnings_lines)" t-out="earnings_lines[i].total" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                    <span t-else=""></span>
+                                </td>
+                                <td t-if="o.ytd_computation" class="text-end">
+                                    <span t-if="i &lt; len(earnings_lines)" t-out="earnings_lines[i].ytd" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                    <span t-else=""></span>
+                                </td>
+
+                                <!-- Deduction column -->
+                                <td class="text-break">
+                                    <span t-if="i &lt; len(deductions_lines)" t-field="deductions_lines[i].name"/>
+                                    <span t-else=""></span>
+                                </td>
+                                <td t-att-colspan="1 if o.ytd_computation else 2" class="text-end">
+                                    <span t-if="i &lt; len(deductions_lines)" t-out="abs(deductions_lines[i].total)" t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                    <span t-else=""></span>
+                                </td>
+                                <td t-if="o.ytd_computation" class="text-end">
+                                    <span t-if="i &lt; len(deductions_lines)" t-out="abs(deductions_lines[i].ytd)" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                    <span t-else=""></span>
+                                </td>
+                            </tr>
+                        </t>
+                        <tr>
+                            <td><strong>Gross Earnings</strong></td>
+                            <td t-att-colspan="1 if o.ytd_computation else 2" class="text-end"><strong>
+                                <t t-out="o.line_ids.filtered(lambda line: line.code == 'GROSS').total" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                            </strong></td>
+                            <td t-if="o.ytd_computation"></td>
+                            <td><strong>Total Deductions</strong></td>
+                            <td t-att-colspan="1 if o.ytd_computation else 2" class="text-end"><strong>
+                                <t t-out="abs(sum(o.line_ids.filtered(lambda line: line.appears_on_payslip and line.amount &lt; 0).mapped('total')))"
+                                   t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                            </strong></td>
+                            <td t-if="o.ytd_computation"></td>
+                        </tr>
+                        <!-- Net Pay -->
+                        <tr style="background-color: #efefef;">
+                            <td colspan="4"></td>
+                            <td colspan="2" class="text-end"><strong>AMOUNT</strong></td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">Gross Earnings</td>
+                            <td colspan="2" class="text-end">
+                                <t t-out="o.line_ids.filtered(lambda line: line.code == 'GROSS').total" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4">Total Deductions</td>
+                            <td colspan="2" class="text-end">
+                                <t t-out="abs(sum(o.line_ids.filtered(lambda line: line.appears_on_payslip and line.amount &lt; 0).mapped('total')))"
+                                   t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4"  class="text-end">
+                                <strong>Total Net Payable</strong>
+                            </td>
+                            <td colspan="2" class="text-end">
+                                <strong t-field="o.net_wage"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="6">
+                                <div t-if="o.net_wage &gt;= 0">
+                                    <h6 class="mb-0">Total Net Payable <strong t-field="o.net_wage"/></h6>
+                                    <p>(<span t-out="o.currency_id.with_context(lang='en_US').amount_to_text(o.net_wage)"/> Only)</p>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <t t-set="allocations" t-value="o.safe_compute_salary_allocations(o.net_wage)" />
+                <t t-if="'__error__' in allocations">
+                    <div class="alert alert-danger mt-3">
+                        <i class="fa fa-exclamation-triangle"/> <strong>Salary allocations could not be computed:</strong>
+                        <span t-out="allocations['__error__']"/>
+                    </div>
+                </t>
+                <t t-else="">
+                    <table class="table table-sm mt-3">
+                        <tbody>
+                            <t t-set="line_count" t-value="0" />
+                            <t t-foreach="o.employee_id.bank_account_ids" t-as="bank">
+                                <t t-if="str(bank.id) in allocations">
+                                    <tr class="table-secondary">
+                                        <t t-if="line_count == 0">
+                                            <td width="40%" t-att-rowspan="len(o.employee_id.bank_account_ids)">To Pay On</td>
+                                        </t>
+                                        <td class="text-end">
+                                            <span t-out="bank.acc_number"/>
+                                            <t t-if="bank.bank_id"> - <span t-out="bank.bank_id.name"/></t>
+                                        </td>
+                                        <td class="text-end">
+                                            <span t-out="allocations[str(bank.id)]"
+                                                t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <t t-set="line_count" t-value="line_count+1" />
+                            </t>
+                        </tbody>
+                    </table>
+                </t>
+                <p class="text-center m-0">This is a system generated payslip, hence the signature is not required.</p>
+                <p class="text-center m-0">Made by Odoo with ❤️</p>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_payslip">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="o" t-value="o.with_context(lang=o.employee_id.sudo().lang or o.env.lang)"/>
+                <t t-call="l10n_in_hr_payroll.report_payslip_in" t-lang="o.env.lang"/>
+            </t>
+        </t>
+    </template>
+
+</odoo>

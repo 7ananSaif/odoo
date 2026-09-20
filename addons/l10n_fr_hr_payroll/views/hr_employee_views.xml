@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_view_form_l10n_fr_payroll" model="ir.ui.view">
+        <field name="name">hr.employee.view.form.l10n.fr.payroll</field>
+        <field name="model">hr.employee</field>
+        <field name="priority">20</field>
+        <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <field name="structure_type_id" position="after">
+                <field name="qualif" invisible="country_code != 'FR'"/>
+                <field name="niveau" invisible="country_code != 'FR'"/>
+                <field name="coef" invisible="country_code != 'FR'"/>
+            </field>
+        </field>
+    </record>
+</odoo>

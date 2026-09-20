@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Account Audit -->
+        <record id="account_audit_kanban_view" model="ir.ui.view">
+            <field name="name">account.audit.kanban</field>
+            <field name="model">account.return</field>
+            <field name="arch" type="xml">
+                <kanban js_class="account_return_audit_kanban" action="action_open_audit_return" type="object" can_open="0" on_create="account_reports.action_create_account_audit" options="{'allowed_categories': ['audit']}">
+                    <field name="state" />
+                    <t t-name="card" class="o_audit_kanban_record">
+                        <div class="d-flex flex-column w-100 h-100">
+                            <div class="d-flex flex-row justify-content-between w-100 px-2 py-2">
+                                <h3 class="text-truncate" style="width:70%;" t-att-title="record.name.raw_value">
+                                    <field name="name" widget="account_return_name_badge"/>
+                                </h3>
+                                <div class="pe-3">
+                                    <field
+                                        widget="account_return_selection_badge"
+                                        name="audit_status"
+                                        options="{
+                                            'ongoing': {'decoration': 'muted'},
+                                            'paused': {'decoration': 'danger'},
+                                            'done': {'decoration': 'success'},
+                                        }"
+                                        />
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-column w-100 h-100 px-2 mt-2 gap-3">
+                                <a type="object" class="link_balances_progressbar" name="action_open_audit_balances">
+                                    <div class="w-100">
+                                        <label for="resolved_check_count">Balances</label>
+                                        <field name="audit_balances_count" invisible="1"/>
+                                        <field name="audit_balances_completed_count" class="w-100 audit_return_progressbar" widget="account_audit_progressbar" options="{ 'max_value': 'audit_balances_count'}"/>
+                                    </div>
+                                </a>
+
+                                <div class="w-100" >
+                                    <label for="resolved_check_count">Checks</label>
+                                    <field name="check_count" invisible="1"/>
+                                    <field name="resolved_check_count" class="w-100 audit_return_progressbar" widget="account_audit_progressbar" options="{ 'max_value': 'check_count'}"/>
+                                </div>
+                            </div>
+
+                            <div class="d-flex flex-row-reverse w-100 h-25 px-2 mt-2 align-items-center align-self-end">
+                                <field name="activity_ids" widget="kanban_activity" class="ms-1"/>
+                            </div>
+                        </div>
+                    </t>
+
+                    <t t-name="menu" class="py-2">
+                        <field name="is_completed" invisible="1"/>
+                        <a class="dropdown-item" type="object" name="action_mark_completed" string="Mark as Completed" invisible="is_completed"/>
+                        <a class="dropdown-item" type="object" name="action_mark_uncompleted" string="Reset" invisible="not is_completed"/>
+                        <a class="dropdown-item" type="object" name="action_archive" string="Archive" invisible="state != 'new' or is_completed or not active"/>
+                        <a class="dropdown-item" type="object" name="action_unarchive" string="Unarchive" invisible="active"/>
+                        <a class="dropdown-item" type="object" name="action_export_working_files" string="Export"/>
+                        <a invisible="state != 'new'" class="dropdown-item" type="object" name="action_delete" string="Delete"/>
+                    </t>
+                </kanban>
+            </field>
+        </record>
+
+        <record id="account_audit_search_view" model="ir.ui.view">
+            <field name="name">account.audit.search</field>
+            <field name="model">account.return</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="date_to"/>
+                    <field name="date_from"/>
+                    <field name="date_deadline"/>
+                    <field name="type_id"/>
+                    <field name="state"/>
+                    <field name="date_submission"/>
+                    <filter name="todo_returns" string="Ongoing" domain="[('audit_status', '=', 'ongoing')]"/>
+                    <filter name="done_returns" string="Done" domain="[('audit_status', '=', 'done')]"/>
+                    <filter name="paused_returns" string="Paused" domain="[('audit_status', '=', 'paused')]"/>
+                    <separator/>
+                    <filter name="filter_archived" string="Archived" domain="[('active', '=', False)]"/>
+                    <filter name="groupby_type_id" string="Return Type" context="{'group_by': 'type_id'}"/>
+                    <separator/>
+                    <filter invisible="1" string="My Activities" name="filter_activities_my" domain="[('activity_user_id', '=', uid)]"/>
+                    <separator invisible="1"/>
+                    <filter invisible="1" string="Late Activities" name="activities_overdue" domain="[('my_activity_date_deadline', '&lt;', 'today')]" help="Show all records whose next activity date is past"/>
+                    <filter invisible="1" string="Today Activities" name="activities_today" domain="[('my_activity_date_deadline', '=', 'today')]"/>
+                    <filter invisible="1" string="Future Activities" name="activities_upcoming_all" domain="[('my_activity_date_deadline', '&gt;', 'today')]"/>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_create_account_audit" model="ir.actions.act_window">
+            <field name="name">Start an Audit</field>
+            <field name="res_model">account.return.creation.wizard</field>
+            <field name="view_id" ref="account_reports.return_creation_wizard_form"/>
+            <field name="target">new</field>
+            <field name="context">{'open_account_return_on_save': True, 'default_category': 'audit'}</field>
+        </record>
+
+        <record id="action_view_account_audit" model="ir.actions.act_window">
+            <field name="name">Audit</field>
+            <field name="res_model">account.return</field>
+            <field name="view_mode">kanban,search</field>
+            <field name="domain">[('return_type_category', '=', 'audit')]</field>
+            <field name="view_id" ref="account_reports.account_audit_kanban_view"/>
+            <field name="search_view_id" ref="account_reports.account_audit_search_view"/>
+            <field name="context">{'search_default_todo_returns': 1, 'search_default_paused_returns': 1}</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create a new audit working file with dedicated checks and balance reviews to ensure smooth closings.
+                </p>
+            </field>
+        </record>
+
+        <!-- Account Balances -->
+        <record id="account_audit_account_balances_list_view" model="ir.ui.view">
+            <field name="name">account.audit.account.balances.list</field>
+            <field name="model">account.account</field>
+            <field name="arch" type="xml">
+                <list js_class="account_audit_balance_list" editable="top" create="0" edit="1" multi_edit="1" type="object">
+                    <field name="audit_balance_show_warning" column_invisible="1"/>
+                    <field name="audit_previous_balance_show_warning" column_invisible="1"/>
+                    <field name="code" readonly="1"/>
+                    <field name="name" readonly="1" string="Name" widget="accountAuditClickableCharField" options="{'onclick': 'action_audit_account'}"/>
+                    <field name="audit_debit" readonly="1" optional="hide"/>
+                    <field name="audit_credit" readonly="1" optional="hide"/>
+                    <field name="audit_balance" readonly="1"/>
+                    <field name="audit_previous_balance" readonly="1"/>
+                    <field name="audit_var_n_1" readonly="1"/>
+                    <field name="audit_var_percentage" widget="percentage" digits="[0,2]" readonly="1"/>
+                    <field name="last_message" readonly="1" />
+                    <field
+                        widget="account_return_selection_badge"
+                        name="audit_status"
+                        options="{
+                            'todo': {'decoration': 'info'},
+                            'reviewed': {'decoration': 'success'},
+                            'supervised': {'decoration': 'success'},
+                            'anomaly': {'decoration': 'danger'},
+                        }"
+                        />
+                </list>
+            </field>
+        </record>
+
+        <record id="account_audit_account_balances_search_view" model="ir.ui.view">
+            <field name="name">account.audit.account.balances.search</field>
+            <field name="model">account.account</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="audit_debit"/>
+                    <field name="audit_credit"/>
+                    <field name="audit_balance"/>
+                    <field name="audit_previous_balance"/>
+                    <field name="audit_var_n_1"/>
+                    <field name="audit_var_percentage"/>
+                    <field name="account_type"/>
+                    <filter name="account_with_entries" string="Account with Entries" domain="['|', ('audit_debit', '!=', 0.0), '|', ('audit_credit', '!=', 0.0), ('audit_var_n_1', '!=', 0.0)]"/>
+                    <filter name="account_inactive" string="Inactive Account" domain="[('active', '=', False)]"/>
+                    <filter name="groupby_audit_status" string="Account Audit Status" context="{'group_by': 'audit_status'}"/>
+                    <filter name="groupby_type" string="Account Type" context="{'group_by': 'account_type'}"/>
+                    <filter name="audit_accounts"
+                            string="Audit Accounts"
+                            invisible="not context.get('currency_exhange_difference_account_ids')"
+                            domain="[('id', 'in', context.get('currency_exhange_difference_account_ids'))]"
+                    />
+                    <searchpanel>
+                        <field name="audit_status" select="multi" enable_counters="1"/>
+                        <field name="account_type" select="multi" enable_counters="1"/>
+                    </searchpanel>
+                </search>
+            </field>
+        </record>
+
+        <record id="action_view_account_balances" model="ir.actions.act_window">
+            <field name="name">Balances</field>
+            <field name="res_model">account.account</field>
+            <field name="view_mode">list</field>
+            <field name="view_id" ref="account_reports.account_audit_account_balances_list_view"/>
+            <field name="search_view_id" ref="account_reports.account_audit_account_balances_search_view"/>
+            <field name="context">{'working_file_id': active_id }</field>
+        </record>
+
+        <record id="action_view_account_audit_checks" model="ir.actions.act_window">
+            <field name="name">Cycle</field>
+            <field name="res_model">account.return.check</field>
+            <field name="view_mode">kanban</field>
+            <field name="view_id" ref="account_reports.account_return_check_kanban_view"/>
+            <field name="domain">[['return_id', '=', active_id]]</field>
+            <field name="context" eval="{
+                'account_return_view_id': ref('account_reports.account_return_kanban_view'),
+                'search_default_groupby_cycle': 1,
+                'active_model': 'account.return',
+                'max_number_opened_groups': 100000,
+            }"/>
+        </record>
+
+        <record id="account_audit_embedded_action_account_balances_view" model="ir.embedded.actions">
+            <field name="parent_res_model">account.return</field>
+            <field name="parent_action_id" ref="account_reports.action_view_account_audit_checks"/>
+            <field name="sequence">10</field>
+            <field name="name">Balances</field>
+            <field name="context" eval="False"/>
+            <field name="action_id" ref="account_reports.action_view_account_balances"/>
+        </record>
+
+        <record id="account_audit_embedded_action_cycles_view" model="ir.embedded.actions">
+            <field name="parent_res_model">account.return</field>
+            <field name="parent_action_id" ref="account_reports.action_view_account_balances"/>
+            <field name="sequence">10</field>
+            <field name="name">Cycle</field>
+            <field name="context" eval="False"/>
+            <field name="python_method">action_open_audit_return</field>
+        </record>
+    </data>
+</odoo>

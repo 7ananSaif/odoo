@@ -1,0 +1,8 @@
+.o_wappointment_sale_confirmation_card {
+    min-height: 200px;
+    .o_wappointment_sale_confirmation_desc {
+        max-height: 4.2rem;
+        white-space: normal;
+        line-height: 1.4rem;
+    }
+}

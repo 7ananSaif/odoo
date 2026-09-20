@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="knowledge.KnowledgeArticleProperties">
+        <div class="o_field_highlight o_scroll_view_lg p-3" t-if="state.isDisplayed and props.record.data.parent_id">
+            <div t-if="!hasProperties" class="o_properties_helper text-center d-flex flex-column align-items-center justify-content-end my-3">
+                <p class="o_view_nocontent_smiling_face"/>
+                <h3>Add Property Fields</h3>
+                <p class="mt-3 mb-0">
+                    Organize your database with custom fields
+                    (Text, Selection, ...). <br/>
+                    Those fields will be available on all articles that share the same parent.
+                </p>
+            </div>
+            <div class="o_field_widget o_field_properties">
+                <PropertiesField
+                    columns="1"
+                    editMode="userIsInternal"
+                    name="'article_properties'"
+                    record="this.props.record"
+                    readonly="this.props.record.data.is_locked || !this.props.record.data.user_can_write"
+                    context="this.props.record.context"
+                />
+            </div>
+        </div>
+    </t>
+</templates>

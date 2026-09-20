@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="account_return_check_kanban_view" model="ir.ui.view">
+            <field name="name">account.return.check.kanban</field>
+            <field name="model">account.return.check</field>
+            <field name="inherit_id" ref="account_reports.account_return_check_kanban_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='approver_supervisor_ids']/following-sibling::t[2]" position="after">
+                    <button invisible="code != 'missing_fetch_einvoice'"
+                        class="btn btn-secondary ms-2 px-2 py-1"
+                        name="action_get_irn_data_from_check"
+                        type="object"
+                        string="Fetch E-Invoice"
+                        help="Click this button to fetch the e-invoice from the government portal."/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="ir_action_server_recompute_declaration_content" model="ir.actions.server">
+            <field name="name">Recompute Declaration Info</field>
+            <field name="model_id" ref="l10n_be_hr_payroll_dimona_auto.model_l10n_be_dimona_declaration"/>
+            <field name="binding_model_id" ref="l10n_be_hr_payroll_dimona_auto.model_l10n_be_dimona_declaration"/>
+            <field name="binding_view_types">form,list</field>
+            <field name="state">code</field>
+            <field name="code">action = records._compute_declaration_info()</field>
+        </record>
+
+        <record id="ir_action_server_recompute_period_content" model="ir.actions.server">
+            <field name="name">Recompute Period Info</field>
+            <field name="model_id" ref="l10n_be_hr_payroll_dimona_auto.model_l10n_be_dimona_period"/>
+            <field name="binding_model_id" ref="l10n_be_hr_payroll_dimona_auto.model_l10n_be_dimona_period"/>
+            <field name="binding_view_types">form,list</field>
+            <field name="state">code</field>
+            <field name="code">action = records._compute_period_info()</field>
+        </record>
+
+        <record id="ir_action_server_recompute_relation_content" model="ir.actions.server">
+            <field name="name">Recompute Relation Info</field>
+            <field name="model_id" ref="l10n_be_hr_payroll_dimona_auto.model_l10n_be_dimona_relation"/>
+            <field name="binding_model_id" ref="l10n_be_hr_payroll_dimona_auto.model_l10n_be_dimona_relation"/>
+            <field name="binding_view_types">form,list</field>
+            <field name="state">code</field>
+            <field name="code">action = records._compute_relation_info()</field>
+        </record>
+
+        <record id="ir_action_server_action_open_dimona" model="ir.actions.server">
+            <field name="name">Open Dimona</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="binding_model_id" ref="hr.model_hr_employee"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">action = records.action_open_dimona()</field>
+        </record>
+
+        <record id="ir_action_server_action_update_dimona" model="ir.actions.server">
+            <field name="name">Update Dimona</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="binding_model_id" ref="hr.model_hr_employee"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">action = records.action_update_dimona()</field>
+        </record>
+
+        <record id="ir_action_server_action_close_dimona" model="ir.actions.server">
+            <field name="name">Close Dimona</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="binding_model_id" ref="hr.model_hr_employee"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">action = records.action_close_dimona()</field>
+        </record>
+
+        <record id="ir_action_server_action_cancel_dimona" model="ir.actions.server">
+            <field name="name">Cancel Dimona</field>
+            <field name="model_id" ref="hr.model_hr_employee"/>
+            <field name="binding_model_id" ref="hr.model_hr_employee"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">action = records.action_cancel_dimona()</field>
+        </record>
+
+        <record id="l10n_be_hr_payroll_dimona.ir_cron_check_dimona" model="ir.cron">
+            <field name="interval_number">1</field>
+        </record>
+    </data>
+</odoo>

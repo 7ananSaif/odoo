@@ -1,0 +1,37 @@
+// Custom SCSS for enterprise version of notebook tabs
+
+.o_notebook {
+    --Notebook__link-border-color: #{$border-color};
+    --Notebook__link-border-color--hover: #{$border-color};
+    --Notebook__link-border-top-color--active: #{$o-brand-odoo};
+
+    .modal & {
+        --Notebook-padding-x: #{$modal-inner-padding};
+        --Notebook-margin-x: -#{$modal-inner-padding};
+    }
+
+    .nav-tabs {
+        .nav-link {
+            &:not(.active) {
+                background-color: var(--Notebook__link-background-color, #{$o-gray-100});
+                color: inherit;
+
+                &:hover {
+                    background-color: var(--Notebook__link-background-color--hover, #{$o-gray-200});
+                }
+            }
+
+            &.active {
+                --#{$prefix}nav-tabs-link-active-color: var(--Notebook__link-color--active, #{$o-brand-odoo});
+
+                &::after {
+                    position: absolute;
+                    inset: -$border-width;
+                    height: $border-width * 3;
+                    background-color: var(--Notebook__link-border-top-color--active);
+                    content: '';
+                }
+            }
+        }
+    }
+}

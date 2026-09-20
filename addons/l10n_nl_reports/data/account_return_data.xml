@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="partner_belastingdienst_netherlands" model="res.partner">
+            <field name="name">Belastingdienst</field>
+        </record>
+        <data noupdate="1">
+            <record id="belastingdienst_current_account" model="res.partner.bank">
+                <field name="acc_number">NL86INGB0002445588</field>
+                <field name="partner_id" ref="partner_belastingdienst_netherlands"/>
+                <field name="allow_out_payment">True</field>
+            </record>
+        </data>
+
+        <record id="nl_tax_return_type" model="account.return.type">
+            <field name="name">VAT</field>
+            <field name="report_id" ref="l10n_nl.tax_report"/>
+            <field name="country_id" ref="base.nl" />
+            <field name="payment_partner_bank_id" ref="l10n_nl_reports.belastingdienst_current_account"/>
+        </record>
+
+        <record id="nl_tax_correction_return_type" model="account.return.type">
+            <field name="name">VAT Correction</field>
+            <field name="report_id" ref="l10n_nl.tax_report"/>
+            <field name="country_id" ref="base.nl"/>
+            <field name="auto_generate">False</field>
+        </record>
+    </data>
+</odoo>

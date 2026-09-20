@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <t t-name="hr_payroll.PayRunButtonBox">
+        <div class="d-print-none d-flex flex-row gap-2 me-2">
+            <t t-slot="{{ button_value }}" t-foreach="visibleActionButtons" t-as="button" t-key="button_value"/>
+            <div class="align-content-center oe_stat_button btn position-relative p-0 border-0">
+                <Dropdown menuClass="'o_payrun_action_buttons d-grid gap-0 o-form-buttonbox o-dropdown--kanban-record-menu'"
+                          position="'bottom-end'">
+                    <button class="btn o-no-caret rounded-0 p-0">
+                        <span class="fa fa-ellipsis-v " style="width: 15px;" aria-hidden="true"/>
+                    </button>
+                    <t t-set-slot="content">
+                        <DropdownItem t-foreach="additionalActionButtons" t-as="button" t-key="button_value"
+                                      class="'btn-outline-secondary btn border-0 flex-grow-1 p-0 w-100'">
+                            <t t-slot="{{ button_value }}"/>
+                        </DropdownItem>
+                        <span t-if="allSmartButtons.length">
+                            <hr class="m-2"/>
+                            <DropdownItem t-foreach="allSmartButtons" t-as="button" t-key="button_value"
+                                          class="'btn-outline-secondary btn border-0 flex-grow-1 p-0 w-100'">
+                                <t t-slot="{{ button_value }}"/>
+                            </DropdownItem>
+                        </span>
+                    </t>
+                </Dropdown>
+            </div>
+        </div>
+    </t>
+</odoo>

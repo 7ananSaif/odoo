@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_documents_sign" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.documents.sign</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="20"/>
+        <field name="inherit_id" ref="documents.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//block[@id='files_centralization_section']" position="attributes">
+                <attribute name="invisible">0</attribute>
+            </xpath>
+            <xpath expr="//block[@id='files_centralization_section']" position="inside">
+                <setting string="Sign" help="Link Sign Templates to directories">
+                    <button name="%(sign.sign_template_action)d" icon="oi-arrow-right" type="action" string="Go to Sign Document Templates" class="btn-link"/>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

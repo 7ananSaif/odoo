@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.hr.payroll</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="45"/>
+        <field name="inherit_id" ref="hr.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <block id="hr_payroll_settings" position="after">
+                <block id="l10n_mx_cfdi_settings" title="CFDI">
+                    <setting string="Employer IMSS ID">
+                         <field name="l10n_mx_imss_id"/>
+                    </setting>
+                    <setting string="Risk Type">
+                         <field name="l10n_mx_risk_type"/>
+                    </setting>
+                    <setting string="Employer CURP" invisible="is_company">
+                         <field name="l10n_mx_curp"/>
+                    </setting>
+                </block>
+            </block>
+        </field>
+    </record>
+</odoo>

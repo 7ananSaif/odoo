@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <t t-name="hr_appraisal.AppraisalActionHelper">
+        <div class="o_view_nocontent flex-wrap pt-5">
+            <div class="container">
+                <div class="o_nocontent_help">
+                    <div class="oe_view_nocontent_create">
+                        <div t-if="employeeNumber > 1 || !hasAppraisalRight">
+                            <h2 class="o_view_nocontent_smiling_face">
+                                No Appraisals found!
+                            </h2>
+                            <div t-if="hasAppraisalRight">
+                                <div>Keep track of how your employees are doing...</div>
+                                <div class="justify-content-center py-2">
+                                    <a class="btn btn-primary col-3" type="object"
+                                        t-on-click="() => this.loadAppraisalCampaignWizard()">
+                                            Schedule Appraisals
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div t-else="" class="py-2">
+                            <h2 class="o_view_nocontent_smiling_face py-2">
+                                No employees to assess yet!
+                            </h2>
+                            <div t-if="!state.hasDemoData">
+                                Would you like to test with sample data or create your own employees?
+                            </div>
+                            <div class="row justify-content-center gap-3 py-4">
+                                <a t-if="!state.hasDemoData"  class="btn btn-primary col-3" type="object"
+                                    t-on-click="() => this.loadAppraisalScenario()">
+                                        Load sample data
+                                </a>
+                                <a class="btn btn-secondary col-3" type="object"
+                                    t-on-click="() => this.loadCreateEmployee()">
+                                        New Employee
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </t>
+</odoo>

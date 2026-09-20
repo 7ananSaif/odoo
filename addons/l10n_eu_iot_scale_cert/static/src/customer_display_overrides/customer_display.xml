@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-inherit="point_of_sale.CustomerDisplay" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o_customer_display_main')]/div" position="before">
+            <div t-if="order.showCertificationWarning" class="text-center bg-warning w-100 fw-bolder py-1 fs-4">
+                Metrological data not certified
+            </div>
+        </xpath>
+
+        <xpath expr="//li[hasclass('price-per-unit')]" position="replace">
+            <li class="price-per-unit">
+                <span class="qty px-1 border rounded text-bg-view fw-bolder me-1">
+                    <t t-esc="line.qty" />
+                    <t t-if="line.unit and line.showUnit" t-esc="' ' + line.unit" />
+                </span>
+                x
+                <t t-if="line.price !== 0">
+                    <t t-esc="line.unitPrice" />
+                </t>
+                /
+                <t t-if="line.unit" t-esc="line.unit" />
+            </li>
+        </xpath>
+    </t>
+</templates>

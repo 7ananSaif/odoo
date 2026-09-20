@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_sale_advance_payment_inv_sale_subscription" model="ir.ui.view">
+        <field name="name">view_sale_advance_payment_inv_sale_subscription</field>
+        <field name="model">sale.advance.payment.inv</field>
+        <field name="inherit_id" ref="sale.view_sale_advance_payment_inv"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form//footer" position="before">
+                <div role="alert" class="alert alert-warning" invisible="not postpaid_warning_message">
+                    <div class="align-middle"
+                       style="margin-top: 5px">
+                        <span>
+                            <b>Subscriptions</b><br/>
+                            <field name="postpaid_warning_message"/>
+                        </span>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

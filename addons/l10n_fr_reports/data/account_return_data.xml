@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="vat_return_type" model="account.return.type">
+            <field name="name">VAT</field>
+            <field name="report_id" ref="l10n_fr_account.tax_report"/>
+            <field name="country_id" ref="base.fr" />
+            <field name="default_deadline_days_delay">19</field>
+            <field name="states_workflow">generic_state_review_submit</field>
+        </record>
+    </data>
+</odoo>

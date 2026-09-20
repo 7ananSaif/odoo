@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- Pick the first in the master data and set it up for testing -->
+        <record id="demo_mpf_scheme" model="l10n_hk.mpf.scheme" context="{'allowed_company_ids': [ref('base.demo_company_hk')]}">
+            <field name="name">DEMO Mandatory Provident Fund Scheme</field>
+            <field name="registration_number">MT00000</field>
+            <field name="employer_account_number">12345678</field>
+            <field name="payroll_group_ids">
+                <record id="demo_payroll_group" model="l10n_hk.payroll.group">
+                    <field name="name">Staff - Monthly</field>
+                    <field name="group_id">PGEAB</field>
+                    <field name="contribution_frequency">monthly</field>
+                    <field name="company_id" ref="base.demo_company_hk"/>
+                    <field name="is_default" eval="True"/>
+                </record>
+            </field>
+            <field name="member_class_ids">
+                <record id="demo_payroll_class" model="l10n_hk.member.class">
+                    <field name="name">Staff - 5% Top Up Matched</field>
+                    <field name="company_id" ref="base.demo_company_hk"/>
+                    <field name="definition_of_service">date_of_employment</field>
+                    <field name="contribution_type_ids">
+                        <record id="demo_payroll_class_contribution_type_employee" model="l10n_hk.member.class.contribution.type">
+                            <field name="contribution_type">employee</field>
+                            <field name="contribution_option">top_up</field>
+                            <field name="amount">5</field>
+                            <field name="definition_of_income">relevant_wages</field>
+                        </record>
+                        <record id="demo_payroll_class_contribution_type_employer" model="l10n_hk.member.class.contribution.type">
+                            <field name="contribution_type">employer</field>
+                            <field name="contribution_option">match</field>
+                        </record>
+                    </field>
+                </record>
+            </field>
+        </record>
+
+        <record id="l10n_hk_hr_payroll.hr_employee_natalie" model="hr.employee">
+            <field name="l10n_hk_mpf_scheme_id" ref="l10n_hk_hr_payroll_empf.demo_mpf_scheme"/>
+            <field name="l10n_hk_mpf_registration_status">registered</field>
+            <field name="l10n_hk_mpf_contribution_start">immediate</field>
+            <field name="l10n_hk_mpf_account_number">987456321</field>
+        </record>
+
+        <record id="l10n_hk_hr_payroll.hr_employee_anthony" model="hr.employee">
+            <field name="l10n_hk_mpf_scheme_id" ref="l10n_hk_hr_payroll_empf.demo_mpf_scheme"/>
+            <field name="l10n_hk_member_class_id" ref="l10n_hk_hr_payroll_empf.demo_payroll_class"/>
+            <field name="l10n_hk_mpf_registration_status">registered</field>
+            <field name="l10n_hk_mpf_contribution_start">immediate</field>
+            <field name="l10n_hk_mpf_account_number">321456987</field>
+        </record>
+    </data>
+</odoo>
