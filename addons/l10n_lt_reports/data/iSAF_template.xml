@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo xmlns:xsi="http://www.vmi.lt/cms/imas/isaf">
+
+    <template id="invoice_template">
+        <InvoiceNo t-out="move_vals['name']"/>
+        <SupplierInfo t-if="move_vals['move_type'] in ('in_invoice', 'in_refund', 'in_receipt')">
+            <SupplierID t-out="move_vals['partner_id']"/>
+            <t t-if="move_vals.get('partner_vat') and move_vals['partner_vat'] != '/'">
+                <VATRegistrationNumber t-out="move_vals['partner_vat']"/>
+                <RegistrationNumber t-if="move_vals.get('partner_registration_number')" t-out="move_vals['partner_registration_number']"/>
+            </t>
+            <t t-else="">
+                <VATRegistrationNumber>ND</VATRegistrationNumber>
+                <RegistrationNumber t-if="move_vals.get('partner_registration_number')" t-out="move_vals['partner_registration_number']"/>
+                <RegistrationNumber t-else="">ND</RegistrationNumber>
+            </t>
+            <Country t-if="move_vals['country_code']" t-out="move_vals['country_code']"/>
+            <Country t-else="" xsi:nil="1"/>
+            <Name t-out="move_vals['partner_name']"/>
+        </SupplierInfo>
+        <CustomerInfo t-if="move_vals['move_type'] in ('out_invoice', 'out_refund', 'out_receipt')">
+            <CustomerID t-out="move_vals['partner_id']"/>
+            <t t-if="move_vals.get('partner_vat') and move_vals['partner_vat'] != '/'">
+                <VATRegistrationNumber t-out="move_vals['partner_vat']"/>
+                <RegistrationNumber t-if="move_vals.get('partner_registration_number')" t-out="move_vals['partner_registration_number']"/>
+            </t>
+            <t t-else="">
+                <VATRegistrationNumber>ND</VATRegistrationNumber>
+                <RegistrationNumber t-if="move_vals.get('partner_registration_number')" t-out="move_vals['partner_registration_number']"/>
+                <RegistrationNumber t-else="">ND</RegistrationNumber>
+            </t>
+            <Country t-if="move_vals['country_code']" t-out="move_vals['country_code']"/>
+            <Country t-else="" xsi:nil="1"/>
+            <Name t-out="move_vals['partner_name']"/>
+        </CustomerInfo>
+        <InvoiceDate t-out="move_vals['invoice_date']"/>
+        <InvoiceType>SF</InvoiceType>
+        <SpecialTaxation/>
+        <References>
+            <Reference t-out="move_vals['reversed_move_name']" t-if="move_vals.get('reversed_move_name')"/>
+            <ReferenceDate t-out="move_vals['reversed_move_invoice_date']" t-if="move_vals.get('reversed_move_invoice_date')"/>
+        </References>
+        <VATPointDate t-if="move_vals.get('delivery_date') and move_vals['delivery_date'] != move_vals['invoice_date']" t-out="move_vals['delivery_date']"/>
+        <VATPointDate t-else="" xsi:nil="1"/>
+        <RegistrationAccountDate t-if="move_vals['move_type'] in ('in_invoice', 'in_refund', 'in_receipt')" t-out="move_vals['date']"/>
+        <DocumentTotals>
+            <DocumentTotal t-foreach="move_vals['tax_total']" t-as="tax_total">
+                <TaxableValue t-out="float_repr(tax_total['base_amount'], 2)"/>
+                <TaxCode t-out="tax_total['tax_code']"/>
+                <TaxPercentage t-out="tax_total['percentage']"/>
+                <Amount t-out="float_repr(tax_total['tax_amount'] or 0, 2)"/>
+                <t t-if="move_vals['move_type'] in ('out_invoice', 'out_refund', 'out_receipt')">
+                    <VATPointDate2 t-if="move_vals.get('delivery_date') and move_vals['delivery_date'] != move_vals['invoice_date']" t-out="move_vals['delivery_date']"/>
+                    <VATPointDate2 t-else="" xsi:nil="1"/>
+                </t>
+            </DocumentTotal>
+        </DocumentTotals>
+    </template>
+
+    <template id="iSAF_template">
+        <iSAFFile xmlns="http://www.vmi.lt/cms/imas/isaf" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <Header>
+                <FileDescription>
+                    <FileVersion t-out="file_version"/>
+                    <FileDateCreated t-out="today_str"/>
+                    <DataType>F</DataType>
+                    <SoftwareCompanyName>Odoo SA</SoftwareCompanyName>
+                    <SoftwareName>Odoo</SoftwareName>
+                    <SoftwareVersion/>
+                    <RegistrationNumber t-out="registration_number"/>
+                    <NumberOfParts>1</NumberOfParts>
+                    <PartNumber>1</PartNumber>
+                    <SelectionCriteria>
+                        <SelectionStartDate t-out="date_from"/>
+                        <SelectionEndDate t-out="date_to"/>
+                    </SelectionCriteria>
+                </FileDescription>
+            </Header>
+            <MasterFiles />
+            <SourceDocuments>
+                <PurchaseInvoices t-if="bill_vals">
+                    <Invoice t-foreach="bill_vals" t-as="move_vals">
+                        <t t-call="l10n_lt_reports.invoice_template"/>
+                    </Invoice>
+                </PurchaseInvoices>
+                <SalesInvoices t-if="invoice_vals">
+                    <Invoice t-foreach="invoice_vals" t-as="move_vals">
+                        <t t-call="l10n_lt_reports.invoice_template"/>
+                    </Invoice>
+                </SalesInvoices>
+            </SourceDocuments>
+        </iSAFFile>
+    </template>
+</odoo>

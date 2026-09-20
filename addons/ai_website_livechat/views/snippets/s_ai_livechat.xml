@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="s_ai_livechat" name="AI Livechat">
+    <section class="s_ai_livechat pt64 pb96">
+        <div class="o_container_small" data-name="ai_livechat_container">
+            <h2 class="h3-fs" style="text-align: center;">Need help?<br/></h2>
+            <div class="ai_livechat_component py-2" contenteditable="false"/>
+
+            <!-- Demo content for the snippets modal preview, will be removed on drop -->
+            <div class="s_ai_livechat_preview">
+                <div class="ai_website_livechat_form form-control d-flex align-items-center py-0 ps-lg-3 ps-xl-4 pe-lg-2">
+                    <span class="text-muted flex-grow-1">Ask AI</span>
+                    <div class="align-self-baseline py-2">
+                        <button class="ai_website_livechat_form_button btn btn-sm">
+                            <i class="fa fa-fw fa-lg fa-paper-plane fs-5" style="scale: .75;"/>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</template>
+
+</odoo>

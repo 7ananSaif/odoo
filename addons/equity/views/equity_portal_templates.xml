@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_my_home_equity" name="Equity" inherit_id="portal.portal_my_home" customize_show="True" priority="100">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_service_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_service_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/equity/static/src/img/equity.svg'"/>
+                <t t-set="title">Equity</t>
+                <t t-set="url" t-value="'/my/equity'"/>
+                <t t-set="text">See your shares and transactions</t>
+                <t t-set="placeholder_count" t-value="'transaction_count'"/>
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_breadcrumbs_equity" name="Portal layout : equity" inherit_id="portal.portal_breadcrumbs" priority="30">
+        <xpath expr="//ol[hasclass('o_portal_submenu')]" position="inside">
+            <li name="equity_breadcrumb" t-if="page_name == 'equity'" t-attf-class="breadcrumb-item #{'active ' if not partner_id else ''}">
+                <a t-if="partner_id" t-attf-href="/my/equity?{{ keep_query() }}">Equity</a>
+                <t t-else="">Equity</t>
+            </li>
+            <li t-if="partner_name" class="breadcrumb-item active">
+                <t t-out="partner_name"/>
+            </li>
+        </xpath>
+    </template>
+
+    <template id="portal_my_equity" name="My Companies">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">My Companies</t>
+            </t>
+            <t t-if="not partners">
+                <p class="alert alert-warning">There is currently no equity for your account.</p>
+            </t>
+            <t t-if="partners" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th name="name">Name</th>
+                        <th name="securities">Securities</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="partners" t-as="partner">
+                        <tr>
+                            <td>
+                                <a t-attf-href="/my/equity/#{partner['id']}?{{ keep_query() }}">
+                                    <t t-out="partner['display_name']"/>
+                                </a>
+                            </td>
+                            <td>
+                                <span t-out="partner['securities']"/>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+        </t>
+    </template>
+
+    <template id="portal_my_company_equity" name="My Company Equity">
+        <t t-call="portal.portal_layout">
+            <t t-set="breadcrumbs_searchbar" t-value="True"/>
+
+            <t t-call="portal.portal_searchbar">
+                <t t-set="title">Equity</t>
+            </t>
+            <t t-if="not transactions">
+                <p class="alert alert-warning">There are currently no transactions for your account.</p>
+            </t>
+            <t t-if="partner_id and holder_id">
+                <owl-component
+                    name="equity.ValuationChart"
+                    t-att-props="json.dumps(chart_props)"
+                />
+            </t>
+            <t t-if="transactions" t-call="portal.portal_table">
+                <thead>
+                    <tr class="active">
+                        <th name="date">Date</th>
+                        <th name="date">Expiration Date</th>
+                        <th name="event">Event</th>
+                        <th name="security_class">Class</th>
+                        <th name="securities" class="text-end"># Securities</th>
+                        <th name="security_price" class="text-end">Security Price</th>
+                        <th name="transaction_price" class="text-end">Transaction Price</th>
+                    </tr>
+                </thead>
+                <tbody id="equity_transaction_tbody">
+                    <t t-foreach="transactions" t-as="transaction">
+                        <tr>
+                            <td>
+                                <span t-out="fmt_date(transaction.get('date'))"/>
+                            </td>
+                            <td>
+                                <span t-out="fmt_date(transaction.get('expiration_date'))"/>
+                            </td>
+                            <td>
+                                <span t-out="transaction.get('event')"/>
+                                <sup
+                                    class="text-info"
+                                    t-if="transaction.get('add_total_tooltip')"
+                                    data-tooltip="The &quot;# Securities&quot; total is not counting the &quot;Options Exercise&quot; transactions (because they are counted at the time of &quot;Options Issuance&quot;). The &quot;Transaction Price&quot; total is not counting the prices of options issuance transactions because that is a strike price.">?</sup>
+                            </td>
+                            <td>
+                                <span t-out="transaction.get('security_class')"/>
+                            </td>
+                            <td t-att-class="'text-end ' + (('text-success' if transaction.get('securities') &gt; 0 else 'text-danger') if not transaction.get('is_exercise') else 'text-muted')">
+                                <span t-out="transaction.get('securities')"/>
+                            </td>
+                            <td class="text-end">
+                                <span t-out="transaction.get('security_price') and fmt_amount(transaction['security_price'])"/>
+                            </td>
+                            <td t-att-class="'text-end ' + (('text-success' if transaction.get('transaction_price') &gt; 0 else 'text-danger') if not transaction.get('is_options_issuance') else 'text-muted')">
+                                <span t-out="transaction.get('transaction_price') and fmt_amount(transaction['transaction_price'])"/>
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </t>
+        </t>
+    </template>
+</odoo>

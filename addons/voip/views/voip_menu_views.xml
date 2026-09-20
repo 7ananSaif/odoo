@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<odoo>
+    <menuitem id="menu_voip_root" name="Phone" sequence="261" web_icon="voip,static/description/icon.png"/>
+
+    <menuitem id="menu_voip_call_view" name="Calls" parent="menu_voip_root" action="voip_call_view" sequence="10"/>
+    <menuitem id="menu_voip_call_configuration" name="Configuration" parent="menu_voip_root" sequence="20"/>
+
+    <menuitem id="voip_provider_view_inner_menu" name="Providers" parent="menu_voip_call_configuration" action="action_voip_provider_view" sequence="10"/>
+</odoo>

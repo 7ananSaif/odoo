@@ -1,0 +1,113 @@
+<?xml version="1.0"?>
+<odoo>
+    <!-- DEDUCTIONS -->
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_social_security_total_employee" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_d1"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_isr" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_d2"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_christmas_bonus_isr" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_d2_2"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_imss_ceav_employee" model="hr.salary.rule">
+        <field name="l10n_mx_concept" eval="False"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_hr_payroll_structure_mx_employee_salary_deduction_salary_rule" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_d4"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_savings_fund" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_d4_2"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_employer_savings_fund" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_d4_3"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_hr_payroll_structure_mx_employee_salary_child_support" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_d7"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_infonavit_employee" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_d10"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_fonacot" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_d11"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_discount_for_absence" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_d20"/>
+    </record>
+
+    <!-- PERCEPTIONS -->
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_bruto" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_p1"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_holidays_on_time" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_p1_2"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_christmas_bonus_taxable" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_p2"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_employer_savings_fund_alw" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_p5"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_bonus" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_p10"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_commissions" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_p28"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_meal_voucher_alw" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_p29"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_meal_voucher" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_p29_2"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_gasoline_alw" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_p31"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_gasoline" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_p31_2"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_transport_alw" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_p36"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_transport" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_p36_2"/>
+    </record>
+
+    <!-- OTHER PAYMENTS -->
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_isr_adjustment" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_o1"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_subsidy" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_o2"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_regular_pay_expenses" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_o3"/>
+    </record>
+
+    <record id="l10n_mx_hr_payroll.l10n_mx_hr_payroll_structure_mx_employee_salary_reimbursement_salary_rule" model="hr.salary.rule">
+        <field name="l10n_mx_concept" ref="l10n_mx_concept_o999"/>
+    </record>
+</odoo>

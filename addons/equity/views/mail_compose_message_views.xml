@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="equity_email_compose_message_wizard_form" model="ir.ui.view">
+            <field name="name">equity.mail.compose.message.form</field>
+            <field name="model">mail.compose.message</field>
+            <field name="inherit_id" ref="mail.email_compose_message_wizard_form"/>
+            <field name="arch" type="xml">
+                <label for="partner_ids" position="attributes">
+                    <attribute name="invisible" add="context.get('hide_recipients', False)" separator=" or "/>
+                </label>
+                <xpath expr="//label[@for='partner_ids']/following-sibling::div[1]" position="attributes">
+                    <attribute name="invisible" add="context.get('hide_recipients', False)" separator=" or "/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

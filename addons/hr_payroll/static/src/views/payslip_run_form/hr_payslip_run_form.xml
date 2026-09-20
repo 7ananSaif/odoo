@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="hr_payroll.PayslipBatchFormView.Buttons">
+        <button class="btn btn-primary" t-on-click="selectEmployees" t-att-disabled="!payRunValid">
+            Continue
+        </button>
+        <button class="btn btn-secondary" t-on-click="discard">
+            Discard
+        </button>
+    </t>
+</templates>

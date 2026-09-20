@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ke_tax_return_type" model="account.return.type">
+            <field name="name">Tax</field>
+            <field name="report_id" ref="l10n_ke.tax_report_ke"/>
+            <field name="country_id" ref="base.ke" />
+        </record>
+
+        <record id="ke_wh_tax_return_type" model="account.return.type">
+            <field name="name">WH Tax</field>
+            <field name="report_id" ref="l10n_ke.wh_tax_report_ke"/>
+            <field name="country_id" ref="base.ke" />
+            <field name="auto_generate" eval="False"/>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,371 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_us_direct_deposit
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 19:09+0000\n"
+"PO-Revision-Date: 2025-12-30 19:09+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_us_direct_deposit
+#: model_terms:ir.ui.view,arch_db:l10n_us_direct_deposit.res_config_settings_view_form
+msgid ""
+"<i title=\"Connect to Wise\" role=\"img\" aria-label=\"Connect to Wise\" class=\"fa fa-plug fa-fw\"/>\n"
+"                                    Connect to Wise"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model_terms:ir.ui.view,arch_db:l10n_us_direct_deposit.res_config_settings_view_form
+msgid ""
+"<i title=\"Show logs\" role=\"img\" aria-label=\"Show logs\" class=\"fa fa-file-text-o\"/>\n"
+"                                    Show logs"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model_terms:ir.ui.view,arch_db:l10n_us_direct_deposit.res_config_settings_view_form
+msgid ""
+"<i title=\"Start logging for 30 minutes\" role=\"img\" aria-label=\"Start logging for 30 minutes\" class=\"fa fa-file-text-o\"/>\n"
+"                                    Start logging for 30 minutes"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model_terms:ir.ui.view,arch_db:l10n_us_direct_deposit.view_batch_payment_form_inherit
+msgid ""
+"<span class=\"o_stat_text\">\n"
+"                                View Batch\n"
+"                            </span>"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields.selection,name:l10n_us_direct_deposit.selection__res_partner_bank__wise_account_type__aba
+msgid "ACH"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,help:l10n_us_direct_deposit.field_res_company__wise_api_key
+#: model:ir.model.fields,help:l10n_us_direct_deposit.field_res_config_settings__wise_api_key
+msgid "API key obtained from Wise platform"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_batch_payment.py:0
+msgid "All payments in the batch must be in USD."
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model,name:l10n_us_direct_deposit.model_res_partner_bank
+msgid "Bank Accounts"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model,name:l10n_us_direct_deposit.model_account_batch_payment
+msgid "Batch Payment"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model,name:l10n_us_direct_deposit.model_res_company
+msgid "Companies"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields.selection,name:l10n_us_direct_deposit.selection__account_batch_payment__wise_payment_status__completed
+msgid "Completed"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model,name:l10n_us_direct_deposit.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_account_setup_bank_manual_config__wise_account_type
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_partner_bank__wise_account_type
+msgid "Direct Deposit Transfer Type"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_account_batch_payment__display_name
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_account_payment__display_name
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_account_payment_method__display_name
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_company__display_name
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_partner_bank__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model_terms:ir.ui.view,arch_db:l10n_us_direct_deposit.res_config_settings_view_form
+msgid "Environment"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_batch_payment.py:0
+msgid ""
+"Failed to create a batch on Wise:\n"
+"%(wise_error)s"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_batch_payment.py:0
+msgid ""
+"Failed to create a quote on Wise:\n"
+"%(wise_error)s"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_batch_payment.py:0
+msgid ""
+"Failed to create a transfer on Wise:\n"
+"%(wise_error)s"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_batch_payment.py:0
+msgid ""
+"Failed to create a vendor on Wise:\n"
+"%(wise_error)s"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_batch_payment.py:0
+msgid ""
+"Failed to load vendors from Wise:\n"
+"%(wise_error)s"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_batch_payment.py:0
+msgid ""
+"Failed to mark the batch as complete on Wise:\n"
+"%(wise_error)s"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/res_config_settings.py:0
+msgid "Failed to retrieve Wise profiles: %(wise_error)s"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_batch_payment.py:0
+msgid ""
+"Failed to retrieve batch information on Wise:\n"
+"%(wise_error)s"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_account_batch_payment__id
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_account_payment__id
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_account_payment_method__id
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_company__id
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_config_settings__id
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_partner_bank__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,help:l10n_us_direct_deposit.field_account_setup_bank_manual_config__wise_bank_account
+#: model:ir.model.fields,help:l10n_us_direct_deposit.field_res_partner_bank__wise_bank_account
+msgid "ID of the linked account in Wise"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model_terms:ir.ui.view,arch_db:l10n_us_direct_deposit.view_batch_payment_form_inherit
+msgid "Initiate Payment"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields.selection,name:l10n_us_direct_deposit.selection__account_batch_payment__wise_payment_status__new
+msgid "New"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_batch_payment.py:0
+msgid "Non-USD payments are not yet supported."
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model,name:l10n_us_direct_deposit.model_account_payment_method
+msgid "Payment Methods"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model,name:l10n_us_direct_deposit.model_account_payment
+msgid "Payments"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/res_config_settings.py:0
+msgid "Please enter your Wise API Key first."
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields.selection,name:l10n_us_direct_deposit.selection__res_company__wise_environment__production
+msgid "Production"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,help:l10n_us_direct_deposit.field_res_company__wise_profile_identifier
+#: model:ir.model.fields,help:l10n_us_direct_deposit.field_res_config_settings__wise_profile_identifier
+msgid "Profile ID retrieved from Wise API"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields.selection,name:l10n_us_direct_deposit.selection__res_company__wise_environment__sandbox
+msgid "Sandbox"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_batch_payment.py:0
+msgid "Scheduled payments are not yet supported."
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,help:l10n_us_direct_deposit.field_account_setup_bank_manual_config__wise_account_type
+#: model:ir.model.fields,help:l10n_us_direct_deposit.field_res_partner_bank__wise_account_type
+msgid ""
+"Specify the recipient's preferred transaction type (ACH or Wire) when "
+"sending a U.S. Direct Deposit payment. The Transfer type will determine "
+"transfer speed, applicable fees, and availability through Wise."
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/res_config_settings.py:0
+msgid "Successfully connected to Wise profile: %(wise_profile_name)s"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_batch_payment.py:0
+msgid ""
+"The journal '%s' must have a linked bank account to create a Wise recipient."
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_batch_payment.py:0
+msgid "This batch payment is not yet created in Wise."
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:account.payment.method,name:l10n_us_direct_deposit.account_payment_method_wise
+msgid "U.S. Direct Deposit"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model_terms:ir.ui.view,arch_db:l10n_us_direct_deposit.res_config_settings_view_form
+msgid "U.S. Direct Deposit (via Wise)"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields.selection,name:l10n_us_direct_deposit.selection__account_batch_payment__wise_payment_status__uninitiated
+msgid "Uninitiated"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields.selection,name:l10n_us_direct_deposit.selection__res_partner_bank__wise_account_type__fedwire_local
+msgid "Wire (Fedwire)"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_company__wise_api_key
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_config_settings__wise_api_key
+msgid "Wise API Key"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_account_setup_bank_manual_config__wise_bank_account
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_partner_bank__wise_bank_account
+msgid "Wise Account ID"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_account_batch_payment__wise_batch_identifier
+msgid "Wise Batch ID"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_company__wise_connected
+msgid "Wise Connected"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_company__wise_environment
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_config_settings__wise_environment
+msgid "Wise Environment"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/res_config_settings.py:0
+msgid "Wise Logging"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_account_batch_payment__wise_payments_enabled
+msgid "Wise Payments Enabled"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_company__wise_profile_identifier
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_res_config_settings__wise_profile_identifier
+msgid "Wise Profile ID"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_account_batch_payment__wise_payment_status
+msgid "Wise Status"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_account_payment__wise_transfer_identifier
+msgid "Wise Transfer ID"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model:ir.model.fields,field_description:l10n_us_direct_deposit.field_account_payment__wise_unique_reference
+msgid "Wise Unique Reference"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_batch_payment.py:0
+msgid "Wise will send the entire batch payment as soon as you fund it."
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/account_payment.py:0
+msgid "You cannot modify a payment that has already been sent to the bank."
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#: model_terms:ir.ui.view,arch_db:l10n_us_direct_deposit.res_config_settings_view_form
+msgid "Your Wise API Key"
+msgstr ""
+
+#. module: l10n_us_direct_deposit
+#. odoo-python
+#: code:addons/l10n_us_direct_deposit/models/res_config_settings.py:0
+msgid "name"
+msgstr ""

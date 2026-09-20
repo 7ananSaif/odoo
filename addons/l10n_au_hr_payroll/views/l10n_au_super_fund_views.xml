@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_au_super_fund_view_form" model="ir.ui.view">
+        <field name="name">l10n_au.super.fund.view.form</field>
+        <field name="model">l10n_au.super.fund</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="abn"/>
+                            <field name="address_id"/>
+                        </group>
+                        <group>
+                            <field name="fund_type"/>
+                            <field name="usi"
+                                invisible="fund_type != 'APRA'"
+                                required="fund_type == 'APRA'"/>
+                            <field name="esa"
+                                invisible="fund_type != 'SMSF'"
+                                required="fund_type == 'SMSF'"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter />
+            </form>
+        </field>
+    </record>
+
+    <record id="l10n_au_super_fund_view_tree" model="ir.ui.view">
+        <field name="name">l10n_au.super.fund.view.list</field>
+        <field name="model">l10n_au.super.fund</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="address_id"/>
+                <field name="fund_type"/>
+                <field name="usi"/>
+                <field name="esa"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_au_super_fund_view_search" model="ir.ui.view">
+        <field name="name">l10n_au.super.fund.view.search</field>
+        <field name="model">l10n_au.super.fund</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="abn"/>
+                <field name="usi"/>
+                <field name="esa"/>
+                <group>
+                    <filter name="filter_fund_type" string="Fund Type" context="{'group_by': 'fund_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="l10n_au_super_fund_action" model="ir.actions.act_window">
+        <field name="name">Super Funds</field>
+        <field name="res_model">l10n_au.super.fund</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_fund_type': 1}</field>
+    </record>
+</odoo>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_contract_template_form_view" model="ir.ui.view">
+        <field name="name">hr.contract.template.view.form.inherit.l10n.ch.hr.payroll</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+            <group name="salary_info" position="inside">
+                <group name="ch_salary_info" string="Salary Information" invisible="country_code != 'CH'">
+                    <field name="l10n_ch_job_type"/>
+                    <field name="l10n_ch_thirteen_month"/>
+                    <label for="l10n_ch_contractual_13th_month_rate" invisible="wage_type != 'hourly'"/>
+                    <div class="o_row" name="l10n_ch_contractual_13th_month_rate" invisible="wage_type != 'hourly'">
+                        <field name="l10n_ch_contractual_13th_month_rate" class="o_hr_narrow_field"/>
+                        <span>%</span>
+                    </div>
+                    <field name="l10n_ch_yearly_holidays" class="o_hr_narrow_field"/>
+                    <field name="l10n_ch_yearly_paid_public_holidays" class="o_hr_narrow_field"/>
+                    <field name="l10n_ch_lpp_not_insured"/>
+
+                    <separator string="Insurances"/>
+                    <field name="l10n_ch_location_unit_id" options="{'no_quick_create': True}"/>
+                    <field name="l10n_ch_avs_status"/>
+                    <field name="l10n_ch_social_insurance_id"/>
+                    <field name="l10n_ch_compensation_fund_id"/>
+                    <field name="l10n_ch_accident_insurance_line_id" options="{'no_create':True}"/>
+                    <field name="l10n_ch_additional_accident_insurance_line_ids" widget="many2many_tags" options="{'no_create':True}"/>
+                    <field name="l10n_ch_sickness_insurance_line_ids" widget="many2many_tags" options="{'no_create':True}"/>
+                    <field name="l10n_ch_lpp_insurance_id"/>
+                </group>
+            </group>
+            <div name="hourly_wage" position="after">
+                <label for="l10n_ch_lesson_wage" invisible="wage_type != 'hourly' or country_code != 'CH'"/>
+                <div class="o_row mw-50" name="l10n_ch_lesson_wage" invisible="wage_type != 'hourly' or country_code != 'CH'">
+                    <field name="l10n_ch_lesson_wage" widget="monetary" options="{'currency_field': 'currency_id'}" class="o_hr_narrow_field"/>
+                    <span>/ lesson</span>
+                </div>
+            </div>
+        </field>
+    </record>
+</odoo>

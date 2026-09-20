@@ -1,0 +1,347 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * hr_expense_extract
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Kira Petersen François (peti)" <peti@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.2+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:45+0000\n"
+"PO-Revision-Date: 2025-09-25 13:24+0000\n"
+"Last-Translator: \"Kira Petersen François (peti)\" <peti@odoo.com>\n"
+"Language-Team: Danish <https://translate.odoo.com/projects/odoo-19/"
+"hr_expense_extract/da/>\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: hr_expense_extract
+#. odoo-javascript
+#: code:addons/hr_expense_extract/static/src/js/tours/expense_tour.js:0
+msgid "<b>Wasting time recording your receipts?</b> Let’s try a better way."
+msgstr ""
+"<b>Spilder du tid på at registrere dine kvitteringer?</b> Det kan gøres på "
+"en mere effektiv måde."
+
+#. module: hr_expense_extract
+#: model_terms:web_tour.tour,rainbow_man_message:hr_expense_extract.hr_expense_extract_tour
+msgid ""
+"<span><b>Congratulations</b>, you are now an expert of Expenses.\n"
+"        </span>"
+msgstr ""
+"<span><b>Tillykke</b>, du er nu en ekspert i Udgifter.\n"
+"        </span>"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_needaction
+msgid "Action Needed"
+msgstr "Handling påkrævet"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_attachment_count
+msgid "Attachment Count"
+msgstr "Antal vedhæftninger"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__extract_can_show_send_button
+msgid "Can show the ocr send button"
+msgstr "Kan vise knappen til afsendelse via OCR"
+
+#. module: hr_expense_extract
+#. odoo-javascript
+#: code:addons/hr_expense_extract/static/src/js/tours/expense_tour.js:0
+msgid "Choose a receipt."
+msgstr "Vælg en kvittering."
+
+#. module: hr_expense_extract
+#: model:ir.model,name:hr_expense_extract.model_res_company
+msgid "Companies"
+msgstr "Virksomheder"
+
+#. module: hr_expense_extract
+#: model:ir.model,name:hr_expense_extract.model_res_config_settings
+msgid "Config Settings"
+msgstr "Konfigurationsindstillinger"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_expense_sample_receipt__create_uid
+msgid "Created by"
+msgstr "Oprettet af"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_expense_sample_receipt__create_date
+msgid "Created on"
+msgstr "Oprettet den"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields.selection,name:hr_expense_extract.selection__res_company__expense_extract_show_ocr_option_selection__auto_send
+msgid "Digitize automatically"
+msgstr "Digitalisér automatisk"
+
+#. module: hr_expense_extract
+#: model:ir.actions.server,name:hr_expense_extract.hr_expense_parse_action_server
+#: model_terms:ir.ui.view,arch_db:hr_expense_extract.hr_expense_extract_view_form
+msgid "Digitize document"
+msgstr "Digitalisér dokument"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields.selection,name:hr_expense_extract.selection__res_company__expense_extract_show_ocr_option_selection__manual_send
+msgid "Digitize on demand only"
+msgstr "Digitalisér kun efter behov"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_expense_sample_receipt__display_name
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__display_name
+#: model:ir.model.fields,field_description:hr_expense_extract.field_res_company__display_name
+#: model:ir.model.fields,field_description:hr_expense_extract.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "Vis navn"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields.selection,name:hr_expense_extract.selection__res_company__expense_extract_show_ocr_option_selection__no_send
+msgid "Do not digitize"
+msgstr "Må ikke digitaliseres"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__extract_error_message
+msgid "Error message"
+msgstr "Fejlbesked"
+
+#. module: hr_expense_extract
+#: model:ir.model,name:hr_expense_extract.model_hr_expense
+msgid "Expense"
+msgstr "Omkostning"
+
+#. module: hr_expense_extract
+#: model:ir.actions.server,name:hr_expense_extract.ir_cron_update_ocr_status_ir_actions_server
+msgid "Expense OCR: Update All Status"
+msgstr "OCR-udgifter: Opdatér alle statusser"
+
+#. module: hr_expense_extract
+#: model:ir.actions.server,name:hr_expense_extract.ir_cron_ocr_validate_ir_actions_server
+msgid "Expense OCR: Validate Expenses"
+msgstr "OCR-udgift: Validér udgifter"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_res_config_settings__expense_extract_show_ocr_option_selection
+msgid "Expense processing option"
+msgstr "Behandlingsmuligheder for udgifter"
+
+#. module: hr_expense_extract
+#. odoo-python
+#: code:addons/hr_expense_extract/wizard/expense_sample_receipt.py:0
+msgid "Expenses"
+msgstr "Øvrige udgifter"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__sample
+msgid "Expenses created from sample receipt"
+msgstr "Udgifter oprettet fra eksempelkvittering"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__extract_state_processed
+msgid "Extract State Processed"
+msgstr "Udtræksstatus behandlet"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__extract_state
+msgid "Extract state"
+msgstr "Udtræksstatus"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__extract_status
+msgid "Extract status"
+msgstr "Udtræksstatus"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_follower_ids
+msgid "Followers"
+msgstr "Følgere"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Følgere (partnere)"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__has_message
+msgid "Has Message"
+msgstr "Har besked"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_expense_sample_receipt__id
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__id
+#: model:ir.model.fields,field_description:hr_expense_extract.field_res_company__id
+#: model:ir.model.fields,field_description:hr_expense_extract.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__extract_document_uuid
+msgid "ID of the request to IAP-OCR"
+msgstr "ID på anmodning til IAP-OCR'en"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "Hvis dette felt er markeret, kræver nye beskeder din opmærksomhed."
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__message_has_error
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+"Hvis dette felt er markeret, indeholder nogle beskeder en leveringsfejl."
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_is_follower
+msgid "Is Follower"
+msgstr "Er følger"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__is_in_extractable_state
+msgid "Is In Extractable State"
+msgstr "Er i udtræksstatus"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_expense_sample_receipt__write_uid
+msgid "Last Updated by"
+msgstr "Sidst opdateret af"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_expense_sample_receipt__write_date
+msgid "Last Updated on"
+msgstr "Sidst opdateret den"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_main_attachment_id
+msgid "Main Attachment"
+msgstr "Vedhæftning"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_has_error
+msgid "Message Delivery error"
+msgstr "Besked ved leveringsfejl"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_ids
+msgid "Messages"
+msgstr "Beskeder"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Antal handlinger"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_has_error_counter
+msgid "Number of errors"
+msgstr "Antal fejl"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Antal meddelelser, der kræver handling"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Antal beskeder med leveringsfejl"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__rating_ids
+msgid "Ratings"
+msgstr "Bedømmelser"
+
+#. module: hr_expense_extract
+#. odoo-javascript
+#: code:addons/hr_expense_extract/static/src/js/tours/expense_tour.js:0
+msgid "Report this expense to your manager for validation."
+msgstr "Rapportér denne udgift til din leder for at få den godkendt."
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "Fejl ved SMS-levering"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__sample
+msgid "Sample"
+msgstr "Eksempel"
+
+#. module: hr_expense_extract
+#. odoo-python
+#: code:addons/hr_expense_extract/wizard/expense_sample_receipt.py:0
+msgid "Sample Employee"
+msgstr "Testmedarbejder"
+
+#. module: hr_expense_extract
+#. odoo-python
+#: code:addons/hr_expense_extract/wizard/expense_sample_receipt.py:0
+msgid "Sample Receipt: %s"
+msgstr "Testkvittering: %s"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_res_company__expense_extract_show_ocr_option_selection
+msgid "Send mode on expense attachments"
+msgstr "Fremgangsmåde for vedhæftning af udgiftsbilag"
+
+#. module: hr_expense_extract
+#: model_terms:ir.ui.view,arch_db:hr_expense_extract.expense_sample_receipt_view_form
+msgid "Try Expense Digitization"
+msgstr "Prøv dokumentdigitalisering"
+
+#. module: hr_expense_extract
+#: model:ir.actions.act_window,name:hr_expense_extract.action_expense_sample_receipt
+msgid "Try Sample Receipt"
+msgstr "Prøv testkvittering"
+
+#. module: hr_expense_extract
+#: model:ir.model,name:hr_expense_extract.model_expense_sample_receipt
+msgid "Try Sample Receipts"
+msgstr "Prøv testkvitteringer"
+
+#. module: hr_expense_extract
+#. odoo-javascript
+#: code:addons/hr_expense_extract/static/src/js/tours/expense_tour.js:0
+msgid "Try the AI with a sample receipt."
+msgstr "Prøv KI'en med en testkvittering."
+
+#. module: hr_expense_extract
+#. odoo-python
+#: code:addons/hr_expense_extract/models/hr_expense.py:0
+msgid "Upload or drop an expense receipt"
+msgstr "Upload eller slip en kvittering på en udgift"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,field_description:hr_expense_extract.field_hr_expense__website_message_ids
+msgid "Website Messages"
+msgstr "Beskeder fra hjemmesiden"
+
+#. module: hr_expense_extract
+#: model:ir.model.fields,help:hr_expense_extract.field_hr_expense__website_message_ids
+msgid "Website communication history"
+msgstr "Hjemmesidens kommunikationshistorik"
+
+#. module: hr_expense_extract
+#. odoo-python
+#: code:addons/hr_expense_extract/models/hr_expense.py:0
+msgid "You cannot send a expense that is not in draft state!"
+msgstr "Du kan ikke sende en udgift, der ikke er i kladdetilstand!"
+
+#. module: hr_expense_extract
+#. odoo-javascript
+#: code:addons/hr_expense_extract/static/src/js/tours/expense_tour.js:0
+msgid "Your manager will have to approve (or refuse) your expense reports."
+msgstr "Din leder skal godkende (eller afvise) dine udgiftsrapporter."
+
+#. module: hr_expense_extract
+#. odoo-python
+#: code:addons/hr_expense_extract/models/hr_expense.py:0
+msgid "try a sample receipt"
+msgstr "prøv en testkvittering"

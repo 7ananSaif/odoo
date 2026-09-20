@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.view.form.inherit.l10n.be.hr.payroll</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="l10n_be_hr_payroll_dimona.hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <button name="action_check_dimona" position="after">
+                <button name="action_open_dimona" string="Open Dimona" type="object" 
+                    invisible="country_code != 'BE' or not l10n_be_needs_dimona_in" groups="hr_payroll.group_hr_payroll_user"/>
+                <button name="action_update_dimona" string="Update Dimona" type="object"
+                    invisible="country_code != 'BE' or not l10n_be_needs_dimona_update" groups="hr_payroll.group_hr_payroll_user"/>
+                <button name="action_close_dimona" string="Close Dimona" type="object"
+                    invisible="country_code != 'BE' or not l10n_be_needs_dimona_out" groups="hr_payroll.group_hr_payroll_user"/>
+                <button name="action_cancel_dimona" string="Cancel Dimona" type="object"
+                    invisible="country_code != 'BE' or not l10n_be_needs_dimona_cancel" groups="hr_payroll.group_hr_payroll_user"/>
+            </button>
+            <field name="l10n_be_dimona_in_declaration_number" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="l10n_be_dimona_last_declaration_number" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="l10n_be_dimona_declaration_state" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <field name="l10n_be_dimona_declaration_state" position="after">
+                <field name="l10n_be_dimona_declaration_id"/>
+                <field name="l10n_be_last_dimona_declaration_id"/>
+                <field name="l10n_be_needs_dimona_in"/>
+                <field name="l10n_be_needs_dimona_update"/>
+                <field name="l10n_be_needs_dimona_out"/>
+                <field name="l10n_be_needs_dimona_cancel"/>
+            </field>
+            <div name="button_box" position="inside">
+                <button name="action_open_relation"
+                    class="oe_stat_button"
+                    icon="fa-address-book"
+                    type="object"
+                    groups="hr_payroll.group_hr_payroll_user"
+                    invisible="country_code != 'BE' or not l10n_be_dimona_relation_id">
+                    <div class="o_stat_info">
+                        Dimona Relation
+                    </div>
+                </button>
+            </div>
+        </field>
+    </record>
+
+    <record id="hr_employee_view_search" model="ir.ui.view">
+        <field name="name">hr.employee.view.search</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_filter"/>
+        <field name="arch" type="xml">
+            <filter name="inactive" position="before">
+                <filter string="Dimona to close" name="dimona_to_close" domain="[('l10n_be_needs_dimona_out', '=', True)]"/>
+                <filter string="Dimona to open" name="dimona_to_open" domain="[('l10n_be_needs_dimona_in', '=', True)]"/>
+                <filter string="Dimona to update" name="dimona_to_update" domain="[('l10n_be_needs_dimona_update', '=', True)]"/>
+                <filter string="Dimona to cancel" name="dimona_to_cancel" domain="[('l10n_be_needs_dimona_cancel', '=', True)]"/>
+                <separator/>
+            </filter>
+            <filter name="group_employee_type" position="before">
+                <filter name="group_dimona_next_action" string="Dimona Next Action" domain="[]" context="{'group_by': 'l10n_be_dimona_next_action'}"/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="hr_employee_view_list" model="ir.ui.view">
+        <field name="name">hr.employee.view.list</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_tree"/>
+        <field name="arch" type="xml">
+            <field name="job_id" position="before">
+                <field name="l10n_be_dimona_next_action" invisible="country_code != 'BE' or l10n_be_dimona_next_action == 'nothing'" widget="badge" decoration-success="l10n_be_dimona_next_action == 'in'" decoration-warning="l10n_be_dimona_next_action in ('update', 'out')" decoration-danger="l10n_be_dimona_next_action == 'cancel'"/>
+            </field>
+        </field>
+    </record>
+</odoo>

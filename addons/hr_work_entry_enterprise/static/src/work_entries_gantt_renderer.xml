@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates>
+    <t t-name="hr_work_entry_enterprise.WorkEntriesGanttRenderer.Pill" t-inherit="web_gantt.GanttRenderer.Pill" t-inherit-mode="primary">
+        <span t-if="pill._progress" position="after">
+            <i t-if="pill.record.state === 'validated'" class="fa fa-lock position-absolute top-0 end-0" style="font-size: x-small"/>
+        </span>
+        <xpath expr="//div[hasclass('o_gantt_pill_wrapper')]" position="attributes">
+            <attribute name="t-attf-class" add="#{pill.record.state === 'validated' ? 'opacity-50' : '' }" />
+        </xpath>
+        <xpath expr="//span[hasclass('o_gantt_pill_title')]" position="after">
+            <span t-if="pill?.dayDuration !== pill?.maxDayDuration" class="o-xsmaller text-truncate w-100 text-center"><t t-esc="pill.subName"/></span>
+        </xpath>
+        <xpath expr="//span[hasclass('o_gantt_pill_title')]" position="attributes">
+            <attribute name="class" remove="o_gantt_pill_title mx-1" add="text-center w-100" separator=" "/>
+        </xpath>
+    </t>
+</templates>

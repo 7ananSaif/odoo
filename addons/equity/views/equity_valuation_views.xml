@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_equity_valuation_search" model="ir.ui.view">
+        <field name="name">equity.valuation.search</field>
+        <field name="model">equity.valuation</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="partner_id" domain="[('is_company', '=', True)]"/>
+
+                <filter string="Audit" name="event_audit" domain="[('event', '=', 'audit')]" context="{'default_event': 'audit'}"/>
+                <filter string="Transaction" name="event_transaction" domain="[('event', '=', 'transaction')]" context="{'default_event': 'transaction'}"/>
+            </search>
+        </field>
+    </record>
+    
+    <record id="view_equity_valuation_list" model="ir.ui.view">
+        <field name="name">equity.valuation.list</field>
+        <field name="model">equity.valuation</field>
+        <field name="arch" type="xml">
+            <list string="Transactions" editable="bottom" open_form_view="True" sample="1">
+                <field name="equity_currency_id" column_invisible="1"/> <!-- Needed for monetary widget -->
+                <field name="date"/>
+                <field name="event"/>
+                <field name="partner_id"/>
+                <field name="share_price" widget="monetary" options="{'currency_field': 'equity_currency_id'}" string="Price ND"/>
+                <field name="shares"/>
+                <field name="security_price" widget="monetary" string="Price FD" optional="hide"/>
+                <field name="securities" optional="hide"/>
+                <field name="valuation" widget="monetary"/>
+                <field name="attachment_number" widget="attachment_number" nolabel="1" readonly="True"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_equity_valuation_form" model="ir.ui.view">
+        <field name="name">equity.valuation.form</field>
+        <field name="model">equity.valuation</field>
+        <field name="arch" type="xml">
+            <form string="Transaction">
+                <sheet>
+                    <group>
+                        <group id="left_group">
+                            <field name="event" widget="selection_badge"/>
+                            <field name="date"/>
+                            <field name="partner_id"/>
+                        </group>
+                        <group id="right_group">
+                            <field name="equity_currency_id" invisible="1"/> <!-- Needed for monetary widget -->
+                            <field name="share_price" options="{'currency_field': 'equity_currency_id'}" widget="monetary"/>
+                            <field name="shares"/>
+                            <field name="valuation" widget="monetary"/>
+                        </group>
+                    </group>
+                </sheet>
+                <!-- Attachment preview -->
+                <div class="o_attachment_preview"/>
+                <!-- Chatter -->
+                <chatter reload_on_attachment="True"/>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_equity_valuation" model="ir.actions.act_window">
+        <field name="name">Valuations</field>
+        <field name="res_model">equity.valuation</field>
+        <field name="path">valuations</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+
+    <record id="action_equity_valuation_form" model="ir.actions.act_window">
+        <field name="name">Create Valuation</field>
+        <field name="res_model">equity.valuation</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="equity.view_equity_valuation_form"/>
+        <field name="target">current</field>
+    </record>
+</odoo>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="documents.DocumentsMany2OneAvatarField">
+        <t t-set="relation" t-value="props.record.fields[props.name].relation"/>
+        <t t-set="value" t-value="props.record.data[props.name]"/>
+        <t t-set="isMe" t-value="(relation === 'res.users' and user.userId === value.id) || (relation === 'res.partner' and user.partnerId === value.id)"/>
+        <div class="d-flex align-items-center gap-1" t-if="value">
+            <Avatar resModel="relation" resId="value.id" cssClass="{ 'opacity-50': !value.active }"/>
+            <div class="flex-grow-1 d-flex flex-column">
+                <div class="d-flex gap-1">
+                    <div t-out="value.name" t-att-class="{ 'text-muted': !value.active }"/>
+                    <div t-if="isMe" class="badge d-none d-sm-block rounded-pill text-bg-primary flex-shrink-1">You</div>
+                </div>
+                <div t-out="value.email" class="text-truncate text-muted"/>
+            </div>
+        </div>
+        <div t-else=""/>
+    </t>
+
+</templates>

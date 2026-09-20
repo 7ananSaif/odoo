@@ -1,0 +1,23 @@
+.o_widget_knowledge_comments_panel {
+    &:empty {
+        display: none,
+    }
+
+    .o_knowledge_comments_panel {
+        .o_comments_helper {
+            height: 60%;
+            min-height: 300px;
+            .o_view_nocontent_smiling_face:before {
+                @extend %o-nocontent-init-image;
+                width: 120px;
+                height: 140px;
+                background: transparent url(/web/static/img/smiling_face.svg) no-repeat center;
+            }
+        }
+    }
+
+    @include media-breakpoint-up(lg) {
+        height: 100%;
+        overflow-y: auto;
+    }
+}

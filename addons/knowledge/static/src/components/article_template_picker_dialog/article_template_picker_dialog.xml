@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates xml:space="preserve">
+    <t t-name="knowledge.ArticleTemplatePickerDialog">
+        <t t-set="hasArticlesListedInTemplateGallery" t-value="state.articlesListedInTemplateGallery.length > 0"/>
+        <t t-set="hasTemplates" t-value="state.templatesGroupedByCategory.length > 0"/>
+        <Dialog size="size" title.translate="Select a Template" bodyClass="'o_knowledge_article_template_picker_dialog p-0'">
+            <div t-if="hasArticlesListedInTemplateGallery or hasTemplates" class="d-sm-flex">
+                <div class="o_knowledge_template_selector flex-shrink-0 p-3">
+                    <!-- Article section: -->
+                    <t t-if="hasArticlesListedInTemplateGallery">
+                        <div class="text-truncate text-muted mb-2">
+                            Shared Templates
+                        </div>
+                        <ul class="list-unstyled">
+                            <li t-foreach="state.articlesListedInTemplateGallery" t-as="article" t-key="article_index"
+                                t-on-click="() => this.onSelectArticle(article.id)"
+                                t-attf-class="text-nowrap cursor-pointer #{ article.id === this.state.resId ? 'active fw-bold' : '' }">
+                                <div class="d-flex align-items-center">
+                                    <span class="p-1">
+                                        <t t-if="article.icon" t-out="article.icon"/>
+                                        <t t-else="">📄</t>
+                                    </span>
+                                    <div class="flex-grow-1 text-truncate px-1">
+                                        <t t-if="article.name" t-out="article.name"/>
+                                        <t t-else="">Untitled</t>
+                                    </div>
+                                    <div class="o_article_template_delete p-1"
+                                        t-if="article.user_can_write"
+                                        t-on-click.stop="() => this.onDeleteArticle(article.id)">
+                                        <i class="fa fa-fw fa-trash" title="Remove from Templates"/>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </t>
+                    <!-- Template sections: -->
+                    <t t-foreach="state.templatesGroupedByCategory" t-as="group" t-key="group_index">
+                        <div class="text-truncate text-muted mb-2">
+                            <t t-out="group[0]['template_category_id'][1]"/>
+                        </div>
+                        <ul class="list-unstyled">
+                            <li t-foreach="group" t-as="template" t-key="template.id"
+                                t-on-click="() => this.onSelectTemplate(template.id)"
+                                t-attf-class="text-nowrap cursor-pointer #{ template.id === this.state.resId ? 'active fw-bold' : '' }">
+                                <div class="d-flex align-items-center">
+                                    <span class="p-1">
+                                        <t t-if="template.icon" t-out="template.icon"/>
+                                        <t t-else="">📄</t>
+                                    </span>
+                                    <div class="flex-grow-1 text-truncate px-1" t-out="template.template_name"/>
+                                    <div class="o_article_template_delete p-1"
+                                        t-if="this.canDeleteTemplate(template)"
+                                        t-on-click.stop="() => this.onDeleteTemplate(template.id)">
+                                        <i class="fa fa-fw fa-trash" title="Delete Template"/>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </t>
+                </div>
+                <div class="d-flex flex-column flex-grow-1 min-w-0">
+                    <!-- Render a template: -->
+                    <Record
+                        t-if="state.isRenderingTemplate"
+                        resModel="'knowledge.article'"
+                        resId="this.state.resId"
+                        fieldNames="this.templateFieldNames"
+                        mode="'readonly'"
+                        context="this.props.templateRenderingContext || {}"
+                        t-slot-scope="slot">
+                        <div class="o_knowledge_template_preview flex-grow-1 flex-basis-0" t-ref="scroll-view">
+                            <img t-if="slot.record.data.cover_image_url"
+                                t-att-src="slot.record.data.cover_image_url"
+                                class="o_article_template_cover"/>
+                            <div class="o_article_template_container mx-auto">
+                                <div t-if="slot.record.data.icon"
+                                    t-out="slot.record.data.icon"
+                                    class="o_article_template_emoji"/>
+                                <div class="o_article_template_body mt-3 pe-none">
+                                    <WithSubEnv model="slot.record.model">
+                                        <KnowledgeHtmlViewer t-props="this.getHtmlViewerConfig(slot.record)"/>
+                                    </WithSubEnv>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="border rounded mx-4 my-3 p-3">
+                            <div class="h4 m-0">
+                                <span class="pe-1">
+                                    <t t-if="slot.record.data.icon" t-out="slot.record.data.icon"/>
+                                    <t t-else="">📄</t>
+                                </span>
+                                <t t-out="slot.record.data.template_name"/>
+                            </div>
+                            <p t-if="slot.record.data.template_description" t-out="slot.record.data.template_description" class="m-0 mt-2"/>
+                        </div>
+                    </Record>
+                    <!-- Render an article: -->
+                    <Record
+                        t-else=""
+                        resModel="'knowledge.article'"
+                        resId="this.state.resId"
+                        fieldNames="this.articleFieldNames"
+                        mode="'readonly'"
+                        t-slot-scope="slot">
+                        <div class="o_knowledge_template_preview flex-grow-1 flex-basis-0" t-ref="scroll-view">
+                            <img t-if="slot.record.data.cover_image_url"
+                                t-att-src="slot.record.data.cover_image_url"
+                                class="o_article_template_cover"/>
+                            <div class="o_article_template_container mx-auto">
+                                <div t-if="slot.record.data.icon"
+                                    t-out="slot.record.data.icon"
+                                    class="o_article_template_emoji"/>
+                                <div class="o_article_template_body mt-3 pe-none">
+                                    <WithSubEnv model="slot.record.model">
+                                        <KnowledgeHtmlViewer t-props="this.getHtmlViewerConfig(slot.record)"/>
+                                    </WithSubEnv>
+                                </div>
+                            </div>
+                        </div>
+                    </Record>
+                </div>
+            </div>
+            <NoContentHelper t-else=""/>
+            <t t-set-slot="footer">
+                <t t-if="hasArticlesListedInTemplateGallery or hasTemplates">
+                    <button t-if="state.isRenderingTemplate" t-on-click="onLoadTemplate" class="btn btn-primary" data-hotkey="q">Load Template</button>
+                    <button t-else="" t-on-click="onLoadArticle" class="btn btn-primary" data-hotkey="q">Load Template</button>
+                </t>
+                <button t-on-click="() => this.props.close()" class="btn" data-hotkey="x">Discard</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

@@ -1,0 +1,170 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * crm_enterprise
+#
+# Translators:
+# Martin Trigaux, 2022
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Junko Augias (juau)" <juau@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:44+0000\n"
+"PO-Revision-Date: 2025-11-06 09:02+0000\n"
+"Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/"
+"crm_enterprise/ja/>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/tools/business_card_scanner.py:0
+msgid "%(contact_name)s's opportunity"
+msgstr "%(contact_name)sの案件"
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/tools/business_card_scanner.py:0
+msgid "Could not extract lead information from this image."
+msgstr "この画像からリード情報を抽出できませんでした。"
+
+#. module: crm_enterprise
+#: model:ir.model,website_form_label:crm_enterprise.model_crm_lead
+msgid "Create an Opportunity"
+msgstr "案件作成"
+
+#. module: crm_enterprise
+#: model_terms:ir.ui.view,arch_db:crm_enterprise.crm_lead_view_map
+msgid "Customer"
+msgstr "顧客"
+
+#. module: crm_enterprise
+#: model:ir.model.fields,field_description:crm_enterprise.field_crm_lead__days_to_convert
+msgid "Days To Convert"
+msgstr "変換までの日数"
+
+#. module: crm_enterprise
+#: model:ir.model.fields,field_description:crm_enterprise.field_crm_lead__display_name
+msgid "Display Name"
+msgstr "表示名"
+
+#. module: crm_enterprise
+#: model:ir.model.fields,field_description:crm_enterprise.field_crm_lead__days_exceeding_closing
+msgid "Exceeded Closing Days"
+msgstr "完了超過日数"
+
+#. module: crm_enterprise
+#: model:ir.model.fields,field_description:crm_enterprise.field_crm_lead__id
+msgid "ID"
+msgstr "ID"
+
+#. module: crm_enterprise
+#. odoo-javascript
+#: code:addons/crm_enterprise/static/src/crm_business_card_scanner.xml:0
+#: code:addons/crm_enterprise/static/src/crm_business_card_scanner_cog_menu.xml:0
+msgid "Import Business Cards"
+msgstr "名刺をインポート"
+
+#. module: crm_enterprise
+#: model:ir.model,name:crm_enterprise.model_crm_lead
+msgid "Lead"
+msgstr "リード"
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/tools/business_card_scanner.py:0
+msgid "Lead generated from this image."
+msgstr "この画像からリードが生成されました。"
+
+#. module: crm_enterprise
+#: model_terms:ir.ui.view,arch_db:crm_enterprise.crm_lead_view_pivot
+msgid "Leads"
+msgstr "リード"
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/tools/business_card_scanner.py:0
+msgid "Network error while processing the business cards."
+msgstr "名刺の処理中にネットワークエラーが発生しました。"
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/tools/business_card_scanner.py:0
+msgid "New Lead Scan"
+msgstr "新規リードスキャン"
+
+#. module: crm_enterprise
+#: model_terms:ir.actions.act_window,help:crm_enterprise.crm_opportunity_action_dashboard
+msgid "No data found!"
+msgstr "データがありません！"
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/tools/business_card_scanner.py:0
+msgid ""
+"Oops, the AI service is not working 🤖. Please contact your administrator to "
+"verify settings."
+msgstr ""
+"AIサービスが動作していません🤖。設定を確認するには管理者へご連絡ください。"
+
+#. module: crm_enterprise
+#: model_terms:ir.ui.view,arch_db:crm_enterprise.crm_lead_view_cohort
+#: model_terms:ir.ui.view,arch_db:crm_enterprise.crm_opportunity_view_graph
+msgid "Opportunities"
+msgstr "案件"
+
+#. module: crm_enterprise
+#: model:ir.actions.act_window,name:crm_enterprise.crm_opportunity_action_dashboard
+msgid "Pipeline Analysis"
+msgstr "パイプライン分析"
+
+#. module: crm_enterprise
+#. odoo-javascript
+#: code:addons/crm_enterprise/static/src/crm_business_card_scanner.xml:0
+msgid "Scan Business Cards"
+msgstr "名刺をスキャン"
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/models/crm_lead.py:0
+msgid ""
+"The AI agent was not able to generate a lead from the provided image. *sad "
+"robot noises* 🤖"
+msgstr ""
+"AI エージェントは、提供された画像からリードを生成することができませんでした*"
+"🤖"
+
+#. module: crm_enterprise
+#: model_terms:ir.actions.act_window,help:crm_enterprise.crm_opportunity_action_dashboard
+msgid "Use this menu to have an overview of your Pipeline."
+msgstr "このメニューでパイプラインの概要を確認できます。"
+
+#. module: crm_enterprise
+#: model_terms:ir.ui.view,arch_db:crm_enterprise.crm_lead_view_graph
+msgid "leads"
+msgstr "リード"
+
+#~ msgid "CRM Activity Analysis"
+#~ msgstr "CRMアクティビティ分析"
+
+#~ msgid "Is Won"
+#~ msgstr "成約状況"
+
+#~ msgid "Lead/Opportunity"
+#~ msgstr "リード / 案件"
+
+#~ msgid "Lost"
+#~ msgstr "失注"
+
+#~ msgid "Pending"
+#~ msgstr "保留"
+
+#~ msgid "Won"
+#~ msgstr "成約"

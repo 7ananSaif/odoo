@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="hr_contract_template_form_view" model="ir.ui.view">
+        <field name="name">hr.contract.template.form.inherit.hr.payroll.account</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+            <group name="top_info_right" position="inside">
+                <field name="analytic_distribution" widget="analytic_distribution"
+                    groups="analytic.group_analytic_accounting"/>
+            </group>
+        </field>
+    </record>
+</odoo>

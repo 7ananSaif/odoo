@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <menuitem id="hr_timesheet_menu_configuration_settings"
+              name="Configuration"
+              parent="hr_timesheet.timesheet_menu_root"
+              groups="hr_timesheet.group_hr_timesheet_approver"
+              sequence="100"
+    >
+        <menuitem id="hr_timesheet.hr_timesheet_menu_configuration"
+                  name="Settings"
+                  sequence="10"
+        />
+        <menuitem id="hr_timesheet_menu_employee_billable_time_target"
+                  name="Billing Time Targets"
+                  action="action_open_edit_billable_time_target"
+                  sequence="15"
+        />
+        <menuitem id="hr_timesheet_menu_employee"
+                  name="Billing Time Targets"
+                  action="action_open_view_employee"
+                  sequence="15"
+                  groups="hr.group_hr_user"
+        />
+        <menuitem id="hr_timesheet_menu_configuration_tips"
+                  name="Tips"
+                  action="hr_timesheet_tip_action"
+                  groups="hr_timesheet.group_timesheet_manager"
+                  sequence="20"
+        />
+    </menuitem>
+</odoo>

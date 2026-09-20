@@ -1,0 +1,14 @@
+<odoo>
+    <record id="voip_call_view_form_lead_button" model="ir.ui.view">
+        <field name="name">voip.call.form.lead.button</field>
+        <field name="model">voip.call</field>
+        <field name="inherit_id" ref="voip.voip_call_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button class="oe_stat_button o_res_partner_tip_opp" type="object" name="voip_action_view_opportunity" icon="fa-star" groups="sales_team.group_sale_salesman" context="{'default_partner_id': partner_id, 'default_type': 'opportunity'}">
+                    <field string="Leads" name="opportunity_count" widget="statinfo"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+</odoo>

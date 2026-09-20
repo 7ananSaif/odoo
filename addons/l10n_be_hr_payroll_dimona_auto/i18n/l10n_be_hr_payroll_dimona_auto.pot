@@ -1,0 +1,551 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_be_hr_payroll_dimona_auto
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 19:04+0000\n"
+"PO-Revision-Date: 2025-12-30 19:04+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields.selection,name:l10n_be_hr_payroll_dimona_auto.selection__l10n_be_dimona_declaration__state__a
+msgid "Accepted"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields.selection,name:l10n_be_hr_payroll_dimona_auto.selection__l10n_be_dimona_declaration__state__w
+msgid "Accepted with Warnings"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.actions.server,name:l10n_be_hr_payroll_dimona_auto.ir_action_server_action_cancel_dimona
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.hr_employee_view_form
+msgid "Cancel Dimona"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/hr_version.py:0
+msgid ""
+"Cannot connect with the ONSS servers. Please contact an administrator. (%s)"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.actions.server,name:l10n_be_hr_payroll_dimona_auto.ir_action_server_action_close_dimona
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.hr_employee_view_form
+msgid "Close Dimona"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__company_id
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__company_id
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__company_id
+msgid "Company"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__content
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__content
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__content
+msgid "Content"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__create_uid
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__create_uid
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__create_date
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__create_date
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/hr_version.py:0
+msgid "DIMONA declaration posted successfully, waiting validation"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/l10n_be_dimona_declaration.py:0
+msgid ""
+"DIMONA declaration treated and accepted with non blocking anomalies\n"
+"%(anomalies)s\n"
+"%(informations)s"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/l10n_be_dimona_declaration.py:0
+msgid "DIMONA declaration treated and accepted without anomalies"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/l10n_be_dimona_declaration.py:0
+msgid ""
+"DIMONA declaration treated and refused (blocking anomalies)\n"
+"%s"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/l10n_be_dimona_declaration.py:0
+msgid "DIMONA declaration waiting worker identification by Sigedis"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__date_end
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__date_end
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__date_end
+msgid "Date End"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__date_start
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__date_start
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__date_start
+msgid "Date Start"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__declaration_ids
+msgid "Declaration"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__declaration_count
+msgid "Declaration Count"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__name
+msgid "Declaration ID"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__declaration_type
+msgid "Declaration Type"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields.selection,name:l10n_be_hr_payroll_dimona_auto.selection__l10n_be_dimona_declaration__declaration_type__dimona_cancel
+msgid "Dimona Cancel"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/l10n_be_dimona_period.py:0
+#: model:ir.model,name:l10n_be_hr_payroll_dimona_auto.model_l10n_be_dimona_declaration
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.l10n_be_dimona_declaration_view_form
+msgid "Dimona Declaration"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/l10n_be_dimona_period.py:0
+#: model:ir.actions.act_window,name:l10n_be_hr_payroll_dimona_auto.l10n_be_dimona_declaration_action
+#: model:ir.ui.menu,name:l10n_be_hr_payroll_dimona_auto.menu_l10n_be_dimona_declaration
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.l10n_be_dimona_declaration_view_tree
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.l10n_be_dimona_period_view_form
+msgid "Dimona Declarations"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields.selection,name:l10n_be_hr_payroll_dimona_auto.selection__l10n_be_dimona_declaration__declaration_type__dimona_in
+msgid "Dimona In"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_employee__l10n_be_dimona_declaration_id
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_version__l10n_be_dimona_declaration_id
+msgid "Dimona In Declaration"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_employee__l10n_be_dimona_next_action
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_version__l10n_be_dimona_next_action
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.hr_employee_view_search
+msgid "Dimona Next Action"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields.selection,name:l10n_be_hr_payroll_dimona_auto.selection__l10n_be_dimona_declaration__declaration_type__dimona_out
+msgid "Dimona Out"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/l10n_be_dimona_relation.py:0
+#: model:ir.model,name:l10n_be_hr_payroll_dimona_auto.model_l10n_be_dimona_period
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.l10n_be_dimona_period_view_form
+msgid "Dimona Period"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/l10n_be_dimona_relation.py:0
+#: model:ir.actions.act_window,name:l10n_be_hr_payroll_dimona_auto.l10n_be_dimona_period_action
+#: model:ir.ui.menu,name:l10n_be_hr_payroll_dimona_auto.menu_l10n_be_dimona_period
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.l10n_be_dimona_period_view_tree
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.l10n_be_dimona_relation_view_form
+msgid "Dimona Periods"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/hr_employee.py:0
+#: model:ir.model,name:l10n_be_hr_payroll_dimona_auto.model_l10n_be_dimona_relation
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_employee__l10n_be_dimona_relation_id
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.hr_employee_view_form
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.l10n_be_dimona_relation_view_form
+msgid "Dimona Relation"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.actions.act_window,name:l10n_be_hr_payroll_dimona_auto.l10n_be_dimona_relation_action
+#: model:ir.ui.menu,name:l10n_be_hr_payroll_dimona_auto.menu_l10n_be_dimona_relation
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.l10n_be_dimona_relation_view_tree
+msgid "Dimona Relations"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields.selection,name:l10n_be_hr_payroll_dimona_auto.selection__l10n_be_dimona_declaration__declaration_type__dimona_update
+msgid "Dimona Update"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model,name:l10n_be_hr_payroll_dimona_auto.model_l10n_be_dimona_wizard
+msgid "Dimona Wizard"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields.selection,name:l10n_be_hr_payroll_dimona_auto.selection__hr_version__l10n_be_dimona_next_action__cancel
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.hr_employee_view_search
+msgid "Dimona to cancel"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields.selection,name:l10n_be_hr_payroll_dimona_auto.selection__hr_version__l10n_be_dimona_next_action__out
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.hr_employee_view_search
+msgid "Dimona to close"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields.selection,name:l10n_be_hr_payroll_dimona_auto.selection__hr_version__l10n_be_dimona_next_action__in
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.hr_employee_view_search
+msgid "Dimona to open"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields.selection,name:l10n_be_hr_payroll_dimona_auto.selection__hr_version__l10n_be_dimona_next_action__update
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.hr_employee_view_search
+msgid "Dimona to update"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_version__display_name
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__display_name
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__display_name
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__display_name
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_wizard__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/hr_version.py:0
+msgid ""
+"Due to a technical problem at the ONSS side, the Dimona declaration could "
+"not be received by the ONSS."
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/hr_version.py:0
+msgid ""
+"Due to a technical problem at the ONSS side, the Dimona declarations could "
+"not be fetch to the ONSS."
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model,name:l10n_be_hr_payroll_dimona_auto.model_hr_employee
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__employee_id
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__employee_id
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__employee_id
+msgid "Employee"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model,name:l10n_be_hr_payroll_dimona_auto.model_hr_version
+msgid "Employee Contract"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/hr_version.py:0
+msgid ""
+"Error with one or several invalid parameters on the POST request. Please "
+"contact an administrator. (%s)"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_employee__id
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_version__id
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__id
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__id
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__id
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_wizard__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_employee__l10n_be_needs_dimona_cancel
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_version__l10n_be_needs_dimona_cancel
+msgid "L10N Be Needs Dimona Cancel"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_employee__l10n_be_needs_dimona_in
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_version__l10n_be_needs_dimona_in
+msgid "L10N Be Needs Dimona In"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_employee__l10n_be_needs_dimona_out
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_version__l10n_be_needs_dimona_out
+msgid "L10N Be Needs Dimona Out"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_employee__l10n_be_needs_dimona_update
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_version__l10n_be_needs_dimona_update
+msgid "L10N Be Needs Dimona Update"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_employee__l10n_be_last_dimona_declaration_id
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_hr_version__l10n_be_last_dimona_declaration_id
+msgid "Last Dimona Declaration"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__write_uid
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__write_uid
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__write_date
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__write_date
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__name
+msgid "NISS"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/hr_version.py:0
+msgid "No DIMONA declaration is linked to this contract"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields.selection,name:l10n_be_hr_payroll_dimona_auto.selection__hr_version__l10n_be_dimona_next_action__nothing
+msgid "Nothing to do"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.actions.server,name:l10n_be_hr_payroll_dimona_auto.ir_action_server_action_open_dimona
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.hr_employee_view_form
+msgid "Open Dimona"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__period_id
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__period_ids
+msgid "Period"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_relation__period_count
+msgid "Period Count"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__name
+msgid "Period ID"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.actions.server,name:l10n_be_hr_payroll_dimona_auto.ir_action_server_recompute_declaration_content
+msgid "Recompute Declaration Info"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.actions.server,name:l10n_be_hr_payroll_dimona_auto.ir_action_server_recompute_period_content
+msgid "Recompute Period Info"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.actions.server,name:l10n_be_hr_payroll_dimona_auto.ir_action_server_recompute_relation_content
+msgid "Recompute Relation Info"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields.selection,name:l10n_be_hr_payroll_dimona_auto.selection__l10n_be_dimona_declaration__state__b
+msgid "Refused"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/wizard/l10n_be_dimona_wizard.py:0
+msgid "Start date and end date should belong to the same quarter."
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__state
+msgid "State"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/wizard/l10n_be_dimona_wizard.py:0
+msgid "The DIMONA should be introduced before start date for students."
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/hr_version.py:0
+msgid ""
+"The authentication token is invalid. Please contact an administrator. (%s)"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/hr_version.py:0
+msgid ""
+"The declaration has been submitted but not processed yet or the declaration "
+"reference is not known. (%s)"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.constraint,message:l10n_be_hr_payroll_dimona_auto.constraint_l10n_be_dimona_declaration_constraint_name_unique
+msgid "The dimona declaration ID must be unique!"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.constraint,message:l10n_be_hr_payroll_dimona_auto.constraint_l10n_be_dimona_period_constraint_name_unique
+msgid "The dimona period ID must be unique!"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.constraint,message:l10n_be_hr_payroll_dimona_auto.constraint_l10n_be_dimona_relation_constraint_name_unique
+msgid "The dimona relation ID must be unique!"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/wizard/l10n_be_dimona_wizard.py:0
+msgid "There is already a IN declaration for this contract."
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/wizard/l10n_be_dimona_wizard.py:0
+msgid "There is no contract defined on the employee form."
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/wizard/l10n_be_dimona_wizard.py:0
+msgid "There is no defined end date on the student contract."
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/wizard/l10n_be_dimona_wizard.py:0
+msgid "There is no defined planned hours on the student contract."
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/wizard/l10n_be_dimona_wizard.py:0
+msgid "There is not end date defined on the employee contract."
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/l10n_be_dimona_declaration.py:0
+msgid "Unknown"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.actions.server,name:l10n_be_hr_payroll_dimona_auto.ir_action_server_action_update_dimona
+#: model_terms:ir.ui.view,arch_db:l10n_be_hr_payroll_dimona_auto.hr_employee_view_form
+msgid "Update Dimona"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_declaration__version_id
+msgid "Version"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields.selection,name:l10n_be_hr_payroll_dimona_auto.selection__l10n_be_dimona_declaration__state__s
+msgid "Waiting Sigedis"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/hr_version.py:0
+msgid "You don't have the right to call this action"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/hr_version.py:0
+msgid ""
+"Your user does not have the rights to consult this declaration. This "
+"happens, for example, if the user does not have or no longer has a mandate "
+"for the employer. (%s)"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/hr_version.py:0
+msgid ""
+"Your user does not have the rights to make a declaration for the employer. "
+"This happens, for example, if the user does not have or no longer has a "
+"mandate for the employer. (%s)"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#. odoo-python
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/l10n_be_dimona_period.py:0
+#: code:addons/l10n_be_hr_payroll_dimona_auto/models/l10n_be_dimona_relation.py:0
+msgid "id"
+msgstr ""
+
+#. module: l10n_be_hr_payroll_dimona_auto
+#: model:ir.model.fields,field_description:l10n_be_hr_payroll_dimona_auto.field_l10n_be_dimona_period__relation_id
+msgid "relation_id"
+msgstr ""

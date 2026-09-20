@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="carbon_emission_report_list_view" model="ir.ui.view">
+        <field name="name">carbon.emission.report.list</field>
+        <field name="model">esg.carbon.emission.report</field>
+        <field name="arch" type="xml">
+            <list multi_edit="1" editable="bottom" js_class="esg_carbon_emission_list">
+                <field name="date" widget="esg_list_daterange" width="200px" options="{'end_date_field': 'date_end'}" readonly="id &lt; 0"/>
+                <field name="name" readonly="id &lt; 0"/>
+                <field name="partner_id" optional="show" readonly="1" options="{'no_open': True}"/>
+                <field name="esg_emission_factor_id"/>
+                <field name="quantity" optional="show" readonly="id &lt; 0"/>
+                <field name="uom_id" optional="hide" required="id > 0 and compute_method == 'physically'" readonly="id &lt; 0" options="{'no_open': True}"/>
+                <field name="currency_id" optional="hide" required="id > 0 and compute_method == 'monetary'" readonly="id &lt; 0" options="{'no_open': True}"/>
+                <field name="price_subtotal" optional="show" readonly="1" invisible="id > 0"/>
+                <field name="esg_emissions_value" sum="Total Emissions (kgCO₂e)" readonly="1" width="200px"/>
+                <field name="esg_uncertainty_absolute_value" optional="show" readonly="1" width="200px"/>
+                <field name="esg_uncertainty_value" readonly="1" widget="percentage" optional="hide"/>
+                <field name="move_id" readonly="1" optional="show" widget="many2one"/>
+                <field name="account_id" optional="hide" readonly="1" options="{'no_open': True}"/>
+                <field name="source_id" optional="hide" options="{'no_open': True}"/>
+                <field name="compute_method" optional="hide"/>
+                <field name="database_id" optional="hide"/>
+                <field name="company_id" optional="hide" readonly="id &lt; 0" options="{'no_open': True}"/>
+                <field name="note" optional="hide" readonly="id &lt; 0"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="carbon_emission_report_kanban_view" model="ir.ui.view">
+        <field name="name">carbon.emission.report.kanban</field>
+        <field name="model">esg.carbon.emission.report</field>
+        <field name="arch" type="xml">
+            <kanban js_class="esg_carbon_emission_kanban" action="action_open_emission_form" type="object">
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex mb-1">
+                            <field name="name" class="fw-bold fs-5 text-truncate"/>
+                            <div class="flex-shrink-0 ms-auto">
+                                <field name="esg_emissions_value"/>
+                                <span class="ms-1">kgCO₂e</span>
+                            </div>
+                        </div>
+                        <footer class="pt-0">
+                            <field name="date"/>
+                            <field name="esg_emission_factor_id" class="ms-auto"/>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="carbon_emission_report_search_view" model="ir.ui.view">
+        <field name="name">carbon.emission.report.search</field>
+        <field name="model">esg.carbon.emission.report</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="esg_emission_factor_id"/>
+                <field name="move_id"/>
+                <filter name="emissions_emitted" string="Emitted" domain="[('esg_emissions_value', '>=', 0.0)]"/>
+                <filter name="emissions_offset" string="Offset" domain="[('esg_emissions_value', '&lt;', 0.0)]"/>
+                <separator/>
+                <filter name="missing_factor_emissions" string="Missing Emission Factor" domain="[('esg_emission_factor_id', '=', False)]"/>
+                <separator/>
+                <filter name="account_emissions" string="Accounting" domain="[('id', '&lt;', 0)]"/>
+                <filter name="other_emissions" string="Other" domain="[('id', '>', 0)]"/>
+                <separator/>
+                <filter name="low_uncertainty" string="Low Uncertainty (&lt; 5%)" domain="[('esg_uncertainty_value', '&lt;', 0.05)]"/>
+                <filter name="medium_uncertainty" string="Medium Uncertainty (5-20%)" domain="[('esg_uncertainty_value', '>=', 0.05), ('esg_uncertainty_value', '&lt;', 0.20)]"/>
+                <filter name="high_uncertainty" string="High Uncertainty (20-50%)" domain="[('esg_uncertainty_value', '>=', 0.20), ('esg_uncertainty_value', '&lt;', 0.50)]"/>
+                <filter name="very_high_uncertainty" string="Very High Uncertainty (> 50%)" domain="[('esg_uncertainty_value', '>=', 0.50)]"/>
+                <separator/>
+                <filter string="Date" name="date" date="date" end_month="1" end_year="1"/>
+                <separator/>
+                <group>
+                    <filter name="group_by_partner_id" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_by_emission_factor_id" context="{'group_by': 'esg_emission_factor_id'}"/>
+                    <filter name="group_by_scope" context="{'group_by': 'scope'}"/>
+                    <filter name="group_by_database_id" context="{'group_by': 'database_id'}"/>
+                    <filter name="group_by_compute_method" context="{'group_by': 'compute_method'}"/>
+                    <filter name="group_by_activity_type_ids" context="{'group_by': 'activity_type_ids'}"/>
+                    <separator/>
+                    <filter name="group_by_date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="carbon_emission_report_graph_view" model="ir.ui.view">
+        <field name="name">carbon.emission.report.graph</field>
+        <field name="model">esg.carbon.emission.report</field>
+        <field name="arch" type="xml">
+            <graph js_class="esg_carbon_emission_graph">
+                <field name="date" interval="year"/>
+                <field name="scope"/>
+                <field name="esg_emissions_value_t" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="carbon_emission_report_pivot_view" model="ir.ui.view">
+        <field name="name">carbon.emission.report.pivot</field>
+        <field name="model">esg.carbon.emission.report</field>
+        <field name="arch" type="xml">
+            <pivot js_class="esg_carbon_emission_pivot">
+                <field name="scope" type="row"/>
+                <field name="source_id" type="row"/>
+                <field name="esg_emission_factor_id" type="row"/>
+                <field name="date" interval="year" type="col"/>
+                <field name="esg_emissions_value_t" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_emitted_emission_report_views" model="ir.actions.act_window">
+        <field name="name">Emitted Emissions</field>
+        <field name="path">esg-emitted-emissions</field>
+        <field name="res_model">esg.carbon.emission.report</field>
+        <field name="view_mode">list,kanban,graph,pivot</field>
+        <field name="context">{'search_default_emissions_emitted': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Emission yet!
+            </p>
+            <p>
+                Emissions data will sync automatically from accounting when you receive supplier invoices.<br/>
+                You can also manually add other emission not linked to journal entries.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_offset_emission_report_views" model="ir.actions.act_window">
+        <field name="name">Offset Emissions</field>
+        <field name="path">esg-offset-emissions</field>
+        <field name="res_model">esg.carbon.emission.report</field>
+        <field name="view_mode">list,kanban,graph,pivot</field>
+        <field name="context">{'search_default_emissions_offset': True}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No Emission yet!
+            </p>
+            <p>
+                Emissions data will sync automatically from accounting when you receive supplier invoices.<br/>
+                You can also manually add other emission not linked to journal entries.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_carbon_emission_report_analytics_views" model="ir.actions.act_window">
+        <field name="name">Carbon Analytics</field>
+        <field name="path">esg-carbon-analytics</field>
+        <field name="res_model">esg.carbon.emission.report</field>
+        <field name="view_mode">graph,pivot</field>
+    </record>
+</odoo>

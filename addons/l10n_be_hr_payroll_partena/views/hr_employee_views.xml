@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_form_l10n_be_hr_payroll_partena" model="ir.ui.view">
+        <field name="name">hr.employee.inherit.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="l10n_be_hr_payroll.hr_employee_view_form"/>
+        <field name="priority">41</field>
+        <field name="arch" type="xml">
+            <group name="external_codes" position="attributes">
+                <attribute name="invisible" add="country_code != 'BE'" separator="and"/>
+            </group>
+            <group name="external_codes" position="inside">
+                <field name="partena_code" invisible="country_code != 'BE'"/>
+            </group>
+        </field>
+    </record>
+</odoo>

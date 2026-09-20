@@ -1,10 +1,19 @@
 # =============================================================================
 # security_groups.tf - Tiered security groups
 #
-# ALB SG:   80/443 from internet → forwards to App SG
-# App SG:   8069 only from ALB SG, outbound 443 via NAT (pip/npm)
-# Data SG:  5432 only from App SG (RDS access)
-# SSM SG:   443 outbound only (SSM Session Manager, no SSH)
+# ALB SG:   80/443 from internet -> forwards to App SG
+# App SG:   8069 only from ALB SG; egress 5432 to Data, 6379 to Redis,
+#           443/80/53 out via NAT (pip/apt/Claude API)
+# Data SG:  5432 only from App SG (RDS); no egress rules at all
+#
+# Defined in OTHER files:
+#   Redis SG  (elasticache.tf)  6379 ingress from App SG only
+#   SSM SG    (ssm.tf)          443 ingress from App SG only (VPC endpoints)
+#
+# NO SSH ANYWHERE: no security group in this stack opens port 22, there is no
+# key pair, and the app instances have no public IP. Operational access is
+# SSM Session Manager (see ssm.tf) - not SSH. Do not "fix" this by adding an
+# ingress rule for port 22.
 # =============================================================================
 
 # ---------------------------------------------------------------------------
@@ -117,6 +126,22 @@ resource "aws_vpc_security_group_egress_rule" "app_to_redis" {
   to_port                      = 6379
   ip_protocol                  = "tcp"
   description                  = "Redis sessions + cache"
+}
+
+# Allow outbound HTTPS to the SSM interface endpoints (see ssm.tf). This is
+# the ops-access path that REPLACES SSH: the SSM agent talks outbound to
+# these endpoint ENIs and an operator opens a session through SSM, never a
+# port-22 connection. Note the 0.0.0.0/0:443 rule above already covers this
+# (the private endpoint IPs are inside the VPC, so they match the CIDR rule) -
+# this rule exists to document the intent and to keep access intact if the
+# NAT/0.0.0.0 egress is ever tightened to specific destinations.
+resource "aws_vpc_security_group_egress_rule" "app_to_ssm" {
+  security_group_id            = aws_security_group.app.id
+  referenced_security_group_id = aws_security_group.ssm.id
+  from_port                    = 443
+  to_port                      = 443
+  ip_protocol                  = "tcp"
+  description                  = "HTTPS to SSM interface endpoints"
 }
 
 # ---------------------------------------------------------------------------

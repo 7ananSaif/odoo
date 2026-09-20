@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+        <record id="account_return_check_template_travel_and_entertainment_expenses" model="account.return.check.template">
+            <field name="name">Travel and Entertainment Expenses</field>
+            <field name="description">Review travel and entertainment expenses. Ensure all entries are supported by valid documentation.</field>
+            <field name="type">check</field>
+            <field name="model" eval="False"/>
+            <field name="cycle">operating_expenses</field>
+            <field name="return_type" ref="account_reports.default_audit_return_type"/>
+            <field name="code">_account_return_check_template_travel_and_entertainment_expenses</field>
+            <field name="action_id" ref="hr_expense.hr_expense_actions_my_all"/>
+        </record>
+    </data>
+</odoo>

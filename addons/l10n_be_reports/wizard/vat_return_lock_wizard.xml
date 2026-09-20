@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="vat_return_lock_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_be_reports.vat.return.lock.wizard.form</field>
+        <field name="model">l10n_be_reports.vat.return.lock.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Bank">
+                <group id="export_options">
+                    <group class="col-lg-12">
+                        <div>
+                            <span class="o_stat_text"><label for="ask_restitution"/></span>
+                            <span id="ask_restitution_field" class="o_stat_value ms-2 me-3"><field name="ask_restitution"/></span>
+                            <span class="o_stat_text" invisible="not show_prorata"><label for="is_prorata_necessary"/></span>
+                            <span class="o_stat_value ms-2 me-3" invisible="not show_prorata"><field name="is_prorata_necessary"/></span>
+                        </div>
+                    </group>
+                </group>
+                <div class="alert alert-warning oe_edit_only" role="alert"
+                    invisible="special_prorata_deduction == 0
+                               or special_prorata_1 != 0
+                               or special_prorata_2 != 0
+                               or special_prorata_3 != 0
+                               or special_prorata_4 != 0
+                               or special_prorata_5 != 0">
+                    If the field '% Special pro rata deduction' is filled, one of the fields 'Special pro rata' must be filled
+                </div>
+                <group>
+                    <group invisible="not is_prorata_necessary">
+                        <separator string="Prorata"/>
+                        <field name="prorata_year" required="is_prorata_necessary"/>
+                        <field name="prorata" />
+                        <p class="mb-2">Actual Use Incoming Transactions</p><br/>
+                        <field name="prorata_at_100"/>
+                        <field name="prorata_at_0"/>
+                        <field name="special_prorata_deduction"/>
+                        <field name="special_prorata_1" invisible="special_prorata_deduction == 0"/>
+                        <field name="special_prorata_2" invisible="special_prorata_deduction == 0"/>
+                        <field name="special_prorata_3" invisible="special_prorata_deduction == 0"/>
+                        <field name="special_prorata_4" invisible="special_prorata_deduction == 0"/>
+                        <field name="special_prorata_5" invisible="special_prorata_deduction == 0"/>
+                        <field name="submit_more" invisible="special_prorata_1 == 0
+                                                            or special_prorata_2 == 0
+                                                            or special_prorata_3 == 0
+                                                            or special_prorata_4 == 0
+                                                            or special_prorata_5 == 0"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string='Lock' name="action_proceed_with_locking" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button string="Discard" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

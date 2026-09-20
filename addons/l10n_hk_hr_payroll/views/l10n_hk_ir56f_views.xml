@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_hk_ir56f_view_form" model="ir.ui.view">
+        <field name="name">l10n_hk_ir56f.view.form</field>
+        <field name="model">l10n_hk.ir56f</field>
+        <field name="inherit_id" ref="l10n_hk_hr_payroll.l10n_hk_ird_view_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <form position="attributes">
+                <attribute name="string">IR56F Sheet</attribute>
+            </form>
+            <header position="replace">
+                <header>
+                    <button
+                        string="Create XML"
+                        name="action_generate_xml"
+                        type="object"
+                        class="btn-primary"
+                        invisible="not lines_count"/>
+                </header>
+            </header>
+            <p name="xml_name" position="inside">
+                IR56F
+            </p>
+        </field>
+    </record>
+
+    <record id="l10n_hk_ir56f_view_tree" model="ir.ui.view">
+        <field name="name">l10n_hk.ir56f.view.list</field>
+        <field name="model">l10n_hk.ir56f</field>
+        <field name="inherit_id" ref="l10n_hk_hr_payroll.l10n_hk_ird_view_list"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="string">IR56F Sheets</attribute>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_hk_ir56f_action" model="ir.actions.act_window">
+        <field name="name">IR56F Sheet</field>
+        <field name="res_model">l10n_hk.ir56f</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+</odoo>

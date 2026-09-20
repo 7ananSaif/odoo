@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="l10n_fr_fec_import.FecImportUploader">
+        <div t-if="fecFileState.file.name" class="mb-2">
+            <span>File: </span>
+            <span class="fw-bold" t-out="fecFileState.file.name"/>
+        </div>
+        <FileUploader onUploaded.bind="onFileChanged" checkSize="false">
+            <t t-set-slot="toggler">
+                <button
+                    t-att-class="{'btn': 1, 'btn-secondary': fecFileState.file.name, 'btn-primary': !fecFileState.file.name}"
+                    t-out="fecFileState.file.name ? 'Replace' : 'Upload'"/>
+            </t>
+        </FileUploader>
+    </t>
+</templates>

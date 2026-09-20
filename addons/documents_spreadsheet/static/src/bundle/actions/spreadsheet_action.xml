@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+
+<div t-name="documents_spreadsheet.SpreadsheetAction" class="o_spreadsheet_action">
+    <t t-if="this.dataFetched">
+        <SpreadsheetNavbar
+            t-props="navbarProps"
+            isReadonly="isReadonly || !!accessToken"
+            model="model"
+        >
+            <t t-set-slot="navbar-additional-actions">
+                <a
+                    title="Toggle favorite"
+                    t-on-click="_onSpreadSheetFavoriteToggled"
+                    t-attf-class="o-sp-favorite fa fa-lg fa-star{{!state.isFavorited ? '-o' : ' favorite_button_enabled'}}"
+                />
+            </t>
+        </SpreadsheetNavbar>
+        <SpreadsheetComponent model="model"/>
+    </t>
+</div>
+
+</templates>

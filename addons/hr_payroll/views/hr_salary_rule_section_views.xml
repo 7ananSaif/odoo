@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_salary_rule_section_list" model="ir.ui.view">
+        <field name="name">hr.salary.rule.section.list</field>
+        <field name="model">hr.salary.rule.section</field>
+        <field name="arch" type="xml">
+            <list editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="struct_ids" string="Payroll Structure"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_hr_salary_rule_section" model="ir.actions.act_window">
+        <field name="name">Salary Rule Sections</field>
+        <field name="res_model">hr.salary.rule.section</field>
+        <field name="view_mode">list,form</field>
+        <field name="view_id" ref="view_hr_salary_rule_section_list"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Salary Rule Section
+            </p>
+            <p>
+                Define sections to organize salary rule inputs within payroll structures.
+            </p>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_payslip_filter" model="ir.ui.view">
+        <field name="name">hr.payslip.view.search.inherit</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_filter"/>
+        <field name="arch" type="xml">
+            <filter name="group_by_company_id" position="after">
+                <filter name="period_filter" string="Pay Period" context="{'group_by': 'l10n_au_schedule_pay'}"/>
+                <filter name="final_pay" string="Final Pay" domain="[('l10n_au_termination_type', '!=', False)]"/>
+            </filter>
+        </field>
+    </record>
+
+    <record id="view_hr_payslip_form" model="ir.ui.view">
+        <field name="name">hr.payslip.form.inherit.l10n_au_hr_payroll</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/div" position="before">
+                <field name="l10n_au_termination_type" invisible="1"/>
+                <widget name="web_ribbon" title="Final Pay" bg_color="text-bg-danger" invisible="not l10n_au_termination_type"/>
+            </xpath>
+            <field name="struct_id" position="after">
+                <field name="l10n_au_termination_type" invisible="not l10n_au_termination_type"/>
+            </field>
+            <xpath expr="//page[@name='account_info']/group" position="after">
+                <group name="l10n_au" invisible="country_code != 'AU'">
+                    <field name="l10n_au_income_stream_type" invisible="1"/>
+                    <group name="general" string="General" invisible="l10n_au_income_stream_type not in ['FEI', 'IAA', 'WHM']">
+                        <field name="l10n_au_foreign_tax_withheld"/>
+                        <field name="l10n_au_exempt_foreign_income"/>
+                    </group>
+                </group>
+            </xpath>
+            <xpath expr="//field[@name='input_line_ids']/list/field[@name='name']" position="after">
+                <field name="l10n_au_treatment" column_invisible="parent.country_code != 'AU'"/>
+            </xpath>
+            <field name="input_line_ids" position="after">
+                <separator string="Other Input Details" invisible="country_code != 'AU'"/>
+                <field name="l10n_au_other_input_details_ids" colspan="4" nolabel="1"
+                    readonly="state in ['cancel', 'done', 'paid']" invisible="country_code != 'AU'"
+                    options="{'no_create': True, 'no_open': True}" >
+                    <list create="0" delete="0" no_open="1" editable="top">
+                        <field name="name" class="text-muted"/>
+                        <field name="date" required="is_backpayment" invisible="not is_backpayment"/>
+                        <field name="city_id" options="{'no_create': True, 'no_edit': True}"
+                            invisible="code != 'ALW.DTA'" readonly="code != 'ALW.DTA'"/>
+                        <field name="country_id" options="{'no_create': True, 'no_edit': True}"
+                            invisible="code != 'ALW.OTA'" readonly="code != 'ALW.OTA'"/>
+                        <field name="quantity" invisible="not input_uom"/>
+                        <field name="input_uom" nolabel="1" invisible="not input_uom"/>
+                        <field name="rate" invisible="code != 'ALW.CPK'" optional="hide"/>
+                    </list>
+                    <form string="Input Details">
+                        <group>
+                            <field name="name" string="Description"/>
+                            <field name="payslip_id" />
+                        </group>
+                        <group>
+                            <label for="quantity" class="o_form_label"/>
+                            <div>
+                                <field name="quantity" nolabel="1" class="oe_inline" invisible="not input_uom"/>
+                                <field name="input_uom" nolabel="1" class="oe_inline" invisible="not input_uom"/>
+                            </div>
+                            <field name="city_id" options="{'no_create': True, 'no_edit': True}"
+                            required="code == 'ALW.DTA'" invisible="code != 'ALW.DTA'" readonly="code != 'ALW.DTA'"/>
+                            <field name="country_id" options="{'no_create': True, 'no_edit': True}"
+                                required="code == 'ALW.OTA'" invisible="code != 'ALW.OTA'" readonly="code != 'ALW.OTA'"/>
+                            <field name="rate" invisible="code != 'ALW.CPK'" optional="hide"/>
+                        </group>
+                    </form>
+                </field>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_hr_payslip_tree" model="ir.ui.view">
+        <field name="name">hr.payslip.view.list.inherit</field>
+        <field name="model">hr.payslip</field>
+        <field name="inherit_id" ref="hr_payroll.view_hr_payslip_tree"/>
+        <field name="arch" type="xml">
+            <list position="inside">
+                <field name="l10n_au_schedule_pay" optional="hide"/>
+            </list>
+        </field>
+    </record>
+</odoo>

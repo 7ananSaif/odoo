@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="knowledge.EmbeddedArticleIndex">
+        <t t-set="show_less">Hide sub-articles</t>
+        <t t-set="show_all">Show sub-articles</t>
+        <div class="d-flex justify-content-between flex-wrap">
+            <div class="o_embedded_articles_index_label px-2 py-1 fw-bold">Index</div>
+            <EmbeddedComponentToolbar>
+                <t t-set-slot="buttons">
+                    <EmbeddedComponentToolbarButton
+                        hidden="props.readonly"
+                        icon="'fa-sitemap'"
+                        label="embeddedState.showAllChildren ? show_less : show_all"
+                        onClick.bind="onSwitchModeBtnClick"
+                        title.translate="Switch Mode"
+                    />
+                    <EmbeddedComponentToolbarButton
+                        hidden="props.readonly"
+                        icon="['fa-circle-o-notch', state.loading ? 'fa-spin' : ''].join(' ')"
+                        label.translate="Refresh"
+                        onClick="() => this.loadArticleIndex()"
+                        title.translate="Update"
+                    />
+                </t>
+            </EmbeddedComponentToolbar>
+        </div>
+        <div class="o_embedded_articles_index_content">
+            <div t-if="(embeddedState.articles || []).length === 0" class="fst-italic px-2 py-1">
+                No article to display
+            </div>
+            <ArticleIndexList
+                t-else=""
+                t-key="state.key"
+                articles="embeddedState.articles"
+                isNested="embeddedState.showAllChildren"/>
+            <button class="btn btn-link px-2" t-if="this.env.model.root.data.origin_template_id" t-on-click="() => this.openTemplatePicker()">Load a Template</button>
+            <button class="btn btn-link px-2" t-on-click="() => this.addChildToArticle()">Add an Article</button>
+        </div>
+    </t>
+</templates>

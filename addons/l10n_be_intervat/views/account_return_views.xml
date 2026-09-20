@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_be_intervat_account_return_kanban_view" model="ir.ui.view">
+        <field name="name">l10n_be_intervat.account.return.kanban</field>
+        <field name="model">account.return</field>
+        <field name="inherit_id" ref="l10n_be_reports.account_return_kanban_view"/>
+        <field name="arch" type="xml">
+            <a name="action_reset_tax_return_common" position="before">
+                <a invisible="state not in ['submitted', 'paid'] or type_external_id != 'l10n_be_reports.be_vat_return_type'"
+                   class="dropdown-item"
+                   type="object"
+                   name="l10n_be_action_fetch_from_intervat"
+                   string="Fetch from Intervat"/>
+            </a>
+        </field>
+    </record>
+</odoo>

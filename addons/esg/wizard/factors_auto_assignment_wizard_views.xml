@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="factors_auto_assignment_wizard_action" model="ir.actions.act_window">
+        <field name="name">Assign Emission Factors</field>
+        <field name="res_model">factors.auto.assignment.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <record id="factors_auto_assignment_wizard_form_view" model="ir.ui.view">
+        <field name="name">factors.auto.assignment.wizard.form</field>
+        <field name="model">factors.auto.assignment.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <header>
+                    <div class="o_title">
+                        Do you want to automatically assign the selected emission factor(s) to the move lines based on your predefined assignation rules?
+                    </div>
+                </header>
+                <group>
+                    <group>
+                        <field name="start_date" string="Application Period" widget="daterange" options="{'end_date_field': 'end_date'}"/>
+                        <field name="replace_previous_factors" string="Replace existing assignations"/>
+                    </group>
+                </group>
+                <footer>
+                    <button string="Confirm" class="btn btn-primary" name="action_save" type="object" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

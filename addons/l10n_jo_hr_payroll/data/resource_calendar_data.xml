@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <record id="l10n_jo_resource_calender" model="resource.calendar">
+        <field name="name">Jordan Working Schedule</field>
+        <field name="company_id" eval="False"/>
+        <field name="tz">Asia/Amman</field>
+        <field name="attendance_ids"
+            eval="[Command.clear(),
+                Command.create({'name': 'Sunday Morning', 'dayofweek': '6', 'hour_from': 9, 'hour_to': 12, 'day_period': 'morning'}),
+                Command.create({'name': 'Sunday Afternoon', 'dayofweek': '6', 'hour_from': 12, 'hour_to': 17, 'day_period': 'afternoon'}),
+                Command.create({'name': 'Monday Morning', 'dayofweek': '0', 'hour_from': 9, 'hour_to': 12, 'day_period': 'morning'}),
+                Command.create({'name': 'Monday Afternoon', 'dayofweek': '0', 'hour_from': 12, 'hour_to': 17, 'day_period': 'afternoon'}),
+                Command.create({'name': 'Tuesday Morning', 'dayofweek': '1', 'hour_from': 9, 'hour_to': 12, 'day_period': 'morning'}),
+                Command.create({'name': 'Tuesday Afternoon', 'dayofweek': '1', 'hour_from': 12, 'hour_to': 17, 'day_period': 'afternoon'}),
+                Command.create({'name': 'Wednesday Morning', 'dayofweek': '2', 'hour_from': 9, 'hour_to': 12, 'day_period': 'morning'}),
+                Command.create({'name': 'Wednesday Afternoon', 'dayofweek': '2', 'hour_from': 12, 'hour_to': 17, 'day_period': 'afternoon'}),
+                Command.create({'name': 'Thursday Morning', 'dayofweek': '3', 'hour_from': 9, 'hour_to': 12, 'day_period': 'morning'}),
+                Command.create({'name': 'Thursday Afternoon', 'dayofweek': '3', 'hour_from': 12, 'hour_to': 17, 'day_period': 'afternoon'}),
+            ]"
+        />
+    </record>
+
+</odoo>

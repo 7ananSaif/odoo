@@ -1,0 +1,103 @@
+<odoo>
+    <template id="portal_my_home_menu_withholding" name="Portal layout : withholding menu entries" inherit_id="account.portal_my_home_menu_invoice" priority="30">
+        <xpath expr='//li[@name="invoices_breadcrumb"]' position="before">
+            <li t-if="page_name == 'withholding'" t-attf-class="breadcrumb-item #{'active ' if not invoice else ''}">
+                <a t-if="invoice" t-attf-href="/my/invoices?{{ keep_query('*', filterby='withholdings') }}">Withholdings</a>
+                <t t-else="">Withholdings</t>
+            </li>
+        </xpath>
+    </template>
+
+    <template id="portal_my_home_withholding" name="Withholdings" inherit_id="portal.portal_my_home" customize_show="True" priority="30">
+        <xpath expr="//div[hasclass('o_portal_docs')]" position="before">
+            <t t-set="portal_vendor_category_enable" t-value="True"/>
+        </xpath>
+        <div id="portal_vendor_category" position="inside">
+            <t t-call="portal.portal_docs_entry">
+                <t t-set="icon" t-value="'/account/static/src/img/bill.svg'"/>
+                <t t-set="title">Our Withholdings</t>
+                <t t-set="url" t-value="'/my/invoices?filterby=withholdings'"/>
+                <t t-set="text">Follow or download withholdings</t>
+                <t t-set="placeholder_count" t-value="'withholding_count'"/>
+            </t>
+        </div>
+    </template>
+
+    <template id="portal_my_withholdings" inherit_id="account.portal_my_invoices" primary="True" name="My Withholdings">
+        <xpath expr="//p[hasclass('alert-warning')]" position="replace">
+            <p class="alert alert-warning">There are currently no withholdings for your account.</p>
+        </xpath>
+
+        <th name="invoice_number" position="replace">
+            <th name="withholding_number">Withholding #</th>
+        </th>
+
+        <th name="invoice_date" position="replace">
+            <th name="withholding_date">Withholding Date</th>
+        </th>
+
+        <th name="due_date" position="attributes">
+            <attribute name="class">d-none</attribute>
+        </th>
+        <th name="amount_due" position="replace">
+            <th name="amount_due" class="text-end pe-3">Total Withholding Amount</th>
+        </th>
+
+        <xpath expr="//span[@t-field='invoice.invoice_date']" position="attributes">
+            <attribute name="t-field">invoice.l10n_ec_withhold_date</attribute>
+        </xpath>
+
+        <xpath expr="//span[@t-field='invoice.invoice_date_due']/.." position="attributes">
+            <attribute name="t-attf-class" add="d-none" separator=" "/>
+        </xpath>
+
+        <xpath expr="//td[@name='invoice_amount']/span" position="attributes">
+            <attribute name="t-out">invoice.amount_total</attribute>
+        </xpath>
+
+        <xpath expr="//td[@name='invoice_status']" position="replace">
+            <td name='withhold_state'>
+                <span t-if="invoice.state == 'posted'"
+                    class="badge rounded-pill text-bg-success">
+                    <i class="fa fa-fw fa-check" aria-label="Posted" title="Posted" role="img"/>
+                    <span class="d-none d-md-inline"> Posted</span>
+                </span>
+                <span t-elif="invoice.state == 'draft'" class="badge rounded-pill text-bg-info" name="draft">
+                    <i class="fa fa-fw fa-clock-o" aria-label="Draft" title="Draft" role="img"/>
+                    <span class="d-none d-md-inline"> Draft</span>
+                </span>
+                <span t-else="" class="badge rounded-pill text-bg-danger">
+                    <i class="fa fa-fw fa-remove" aria-label="Cancelled" title="Cancelled" role="img"/>
+                    <span class="d-none d-md-inline"> Cancelled</span>
+                </span>
+            </td>
+        </xpath>
+
+    </template>
+
+
+    <template id="portal_withholding_page" inherit_id="account.portal_invoice_page" name="Withholding">
+        <xpath expr="//div[@name='invoice_paid_badge']" position="after">
+            <t t-if="page_name == 'withholding'">
+                <span t-if="invoice.state == 'posted'"
+                    class="badge rounded-pill text-bg-success">
+                    <i class="fa fa-fw fa-check" aria-label="Posted" title="Posted" role="img"/>
+                    <span class="d-none d-md-inline"> Posted</span>
+                </span>
+                <span t-elif="invoice.state == 'draft'" class="badge rounded-pill text-bg-info" name="draft">
+                    <i class="fa fa-fw fa-clock-o" aria-label="Draft" title="Draft" role="img"/>
+                    <span class="d-none d-md-inline"> Draft</span>
+                </span>
+                <span t-else="" class="badge rounded-pill text-bg-danger">
+                    <i class="fa fa-fw fa-remove" aria-label="Cancelled" title="Cancelled" role="img"/>
+                    <span class="d-none d-md-inline"> Cancelled</span>
+                </span>
+            </t>
+        </xpath>
+
+        <xpath expr="//div[@name='invoice_paid_badge']" position="attributes">
+            <attribute name="t-attf-class" separator=" " add="rounded text-bg-success fw-normal badge {{ 'd-none' if page_name == 'withholding' else '' }}"/>
+        </xpath>
+
+    </template>
+</odoo>

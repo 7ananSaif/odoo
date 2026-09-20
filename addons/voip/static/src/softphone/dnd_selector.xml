@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<templates>
+
+<t t-name="voip.DndSelector">
+    <Dropdown position="'bottom-end'">
+        <button class="o-voip-DndSelector-badge btn btn-light align-items-center d-flex p-2" t-att-title="badgeTitle">
+            <i class="fa" t-att-class="doNotDisturbUntilDt ? 'fa-minus-circle text-danger' : 'fa-circle text-success'" aria-hidden="true"/>
+            <span class="ms-2" t-esc="statusText"/>
+        </button>
+        <t t-set-slot="content">
+            <DropdownItem onSelected="() => this.settings.setVoipDoNotDisturb(0)">
+                <i class="fa fa-circle fa-fw text-success me-1" aria-hidden="true"/>
+                Available
+            </DropdownItem>
+            <Dropdown>
+                <div>
+                    <i class="fa fa-minus-circle fa-fw text-danger me-1" aria-hidden="true"/>
+                    <div>
+                        <p class="m-0">Do Not Disturb</p>
+                        <p class="mb-0 me-3 text-muted smaller" t-esc="dndButtonBottomText"/>
+                    </div>
+                </div>
+                <t t-set-slot="content">
+                    <t t-foreach="settings.MUTES" t-as="dndDuration" t-key="dndDuration.label">
+                        <DropdownItem class="'btn rounded-0 d-flex align-items-center px-2 py-2 m-0'" onSelected="() => this.settings.setVoipDoNotDisturb(dndDuration.value)">
+                            <button class="btn p-0 mx-2 text-wrap text-start text-break" t-esc="dndDuration.name"/>
+                        </DropdownItem>
+                    </t>
+                </t>
+            </Dropdown>
+        </t>
+    </Dropdown>
+</t>
+
+</templates>

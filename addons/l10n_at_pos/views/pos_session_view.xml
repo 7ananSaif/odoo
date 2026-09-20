@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_pos_fiskaly_details" model="ir.actions.act_window">
+        <field name="name">DEP7 Reports</field>
+        <field name="res_model">pos.fiskaly.details.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="context" eval="{'dialog_size': 'medium'}"/>
+    </record>
+
+    <menuitem id="pos_fiskaly_reports"
+        name="Fiskaly"
+        parent="point_of_sale.menu_point_rep"
+        sequence="13"/>
+
+    <menuitem id="menu_fiskaly_report_order_details"
+        name="DEP7 Reports"
+        action="l10n_at_pos.action_report_pos_fiskaly_details"
+        parent="l10n_at_pos.pos_fiskaly_reports"
+        sequence="14"/>
+</odoo>

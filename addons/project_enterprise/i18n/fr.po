@@ -1,0 +1,524 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * project_enterprise
+#
+# Translators:
+# Martin Trigaux, 2022
+# Alexandra Jubert, 2022
+# Cécile Collart <cco@odoo.com>, 2022
+# Jolien De Paepe, 2023
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Manon Rondou (ronm)" <ronm@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:46+0000\n"
+"PO-Revision-Date: 2025-10-15 08:38+0000\n"
+"Last-Translator: \"Manon Rondou (ronm)\" <ronm@odoo.com>\n"
+"Language-Team: French <https://translate.odoo.com/projects/odoo-19/"
+"project_enterprise/fr/>\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=3; plural=(n == 0 || n == 1) ? 0 : ((n != 0 && n % "
+"1000000 == 0) ? 1 : 2);\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid "%(partner)s has %(amount)s tasks at the same time."
+msgstr "%(partner)s a %(amount)s tâches en même temps."
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form
+msgid ""
+"<i class=\"fa fa-exclamation-circle me-2\" role=\"img\" title=\"Dependency "
+"warning\"/>"
+msgstr ""
+"<i class=\"fa fa-exclamation-circle me-2\" role=\"img\" "
+"title=\"Avertissement de dépendance\"/>"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form
+msgid ""
+"<i class=\"fa fa-random me-2\" role=\"img\" title=\"Planning overlap\"/>"
+msgstr ""
+"<i class=\"fa fa-random me-2\" role=\"img\" title=\"Chevauchement de "
+"planification\"/>"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.portal_my_task
+msgid "<strong>Deadline:</strong>"
+msgstr "<strong>Date limite :</strong>"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.portal_my_task
+msgid "<strong>Planned Date:</strong>"
+msgstr "<strong>Date prévue :</strong>"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__allocated_hours
+msgid "Allocated Time"
+msgstr "Temps alloué"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__user_ids
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view_no_title
+msgid "Assignees"
+msgstr "Assignés"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/view_dialogs/select_auto_plan_create_dialog.xml:0
+msgid "Auto Plan"
+msgstr "Planifier automatiquement"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form
+msgid "Check it out <i class=\"oi oi-chevron-right ms-2\"/>"
+msgstr "Jetez-y un coup d'œil <i class=\"oi oi-chevron-right ms-2\"/>"
+
+#. module: project_enterprise
+#: model:ir.model,website_form_label:project_enterprise.model_project_task
+msgid "Create a Task"
+msgstr "Créer une tâche"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__partner_id
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view_no_title
+msgid "Customer"
+msgstr "Client"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+msgid "Date"
+msgstr "Date"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_sharing_project_task_view_form_inherited_in_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form_in_gantt
+msgid "Discard"
+msgstr "Ignorer"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_project__display_name
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__display_name
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task_recurrence__display_name
+#: model:ir.model.fields,field_description:project_enterprise.field_report_project_task_user__display_name
+#: model:ir.model.fields,field_description:project_enterprise.field_res_users__display_name
+msgid "Display Name"
+msgstr "Nom d'affichage"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Failed to undo reschedule"
+msgstr "Échec de l'annulation de la replanification"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_project__id
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__id
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task_recurrence__id
+#: model:ir.model.fields,field_description:project_enterprise.field_report_project_task_user__id
+#: model:ir.model.fields,field_description:project_enterprise.field_res_users__id
+msgid "ID"
+msgstr "ID"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view_no_title
+msgid "Milestone"
+msgstr "Jalon"
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"One parameter is missing to use this method. You should give a start and end "
+"dates."
+msgstr ""
+"Il manque un paramètre pour utiliser cette méthode. Vous devez donner une "
+"date de début et de fin."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/controllers/portal.py:0
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_sharing_project_task_view_form_inherited
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form
+msgid "Planned Date"
+msgstr "Date planifiée"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__planned_date_start
+msgid "Planned Date Start"
+msgstr "Date de début prévue"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_project_view_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_gantt_inherited_project_sharing_task
+msgid "Planning"
+msgstr "Planning"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_project_project
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__project_id
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_map_view
+msgid "Project"
+msgstr "Projet"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/project_task_common/milestones_popover.xml:0
+msgid "Project due"
+msgstr "Date d’échéance du projet"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/project_task_common/milestones_popover.xml:0
+msgid "Project start"
+msgstr "Date de début du projet"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_sharing_project_task_view_form_inherited_in_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form_in_gantt
+msgid "Save"
+msgstr "Enregistrer"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid ""
+"Some tasks have been successfully scheduled for the upcoming periods. Some "
+"warnings were generated. Please review them for details."
+msgstr ""
+"Certaines tâches ont été planifiées avec succès pour les prochaines "
+"périodes. Des avertissements ont toutefois été générés. Consultez-les pour "
+"plus de détails."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid "Some tasks were planned after their initial deadline."
+msgstr "Certaines tâches ont été planifiées après leur échéance initiale."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"Some tasks were scheduled concurrently, resulting in a conflict due to the "
+"limited availability of the assignees. The planned dates for these tasks may "
+"not align with their allocated hours."
+msgstr ""
+"Certaines tâches ont été programmées simultanément, ce qui a entraîné un "
+"conflit en raison de la disponibilité limitée des personnes assignées. Les "
+"dates prévues pour ces tâches peuvent ne pas correspondre aux heures "
+"attribuées."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"Some tasks weren't planned because the closest available starting date was "
+"too far ahead in the future"
+msgstr ""
+"Certaines tâches n'étaient pas planifiées, car la date de début disponible "
+"la plus proche était trop éloignée dans le futur"
+
+#. module: project_enterprise
+#: model:ir.model.fields,field_description:project_enterprise.field_project_task__planned_date_begin
+#: model:ir.model.fields,field_description:project_enterprise.field_report_project_task_user__planned_date_begin
+msgid "Start date"
+msgstr "Date de début"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_project_task
+msgid "Task"
+msgstr "Tâche"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_project_task_recurrence
+msgid "Task Recurrence"
+msgstr "Récurrence de tâche"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task could not be removed"
+msgstr "La tâche n’a pas pu être supprimée"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task duplicated"
+msgstr "Tâche dupliquée"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task removed"
+msgstr "Tâche supprimée"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task reschedule undone"
+msgstr "Replanification de la tâche annulée"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Task rescheduled"
+msgstr "Tâche replanifiée"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_report_project_task_user
+msgid "Tasks Analysis"
+msgstr "Analyse des tâches"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/task_gantt/task_gantt_renderer.js:0
+msgid "Tasks have been successfully scheduled for the upcoming periods."
+msgstr "Les tâches ont été planifiées avec succès pour les périodes à venir."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_search_conflict_task_project_enterprise
+msgid "Tasks in Conflict"
+msgstr "Tâches en conflit"
+
+#. module: project_enterprise
+#: model:ir.model.constraint,message:project_enterprise.constraint_project_task_planned_dates_check
+msgid "The planned start date must be before the planned end date."
+msgstr ""
+"La date de début planifiée doit être antérieure à la date de fin planifiée."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"The tasks could not be rescheduled due to the assignees' lack of "
+"availability at this time."
+msgstr ""
+"Les tâches n'ont pas pu être reprogrammées en raison du manque de "
+"disponibilité des personnes assignées à ce moment-là."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid "This Progress Bar is not implemented."
+msgstr "Cette barre de progression n'est pas mise en œuvre."
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"This task cannot be planned before the following tasks on which it depends: %"
+"(task_list)s"
+msgstr ""
+"Cette tâche ne peut pas être planifiée avant les autres tâches dont elle "
+"dépend : %(task_list)s"
+
+#. module: project_enterprise
+#. odoo-python
+#: code:addons/project_enterprise/models/project_task.py:0
+msgid ""
+"This user isn't expected to have any tasks assigned during this period "
+"because they don't have any running contract."
+msgstr ""
+"Cet utilisateur n'est pas censé avoir des tâches assignées pendant cette "
+"période, car ils n'ont pas de contrat en cours."
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.res_config_settings_view_form
+msgid "Timesheets"
+msgstr "Feuilles de temps"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_sharing_project_task_view_form_inherited_in_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_form_in_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_gantt
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_task_view_gantt_inherited_project_sharing_task
+msgid "Unschedule"
+msgstr "Déprogrammer"
+
+#. module: project_enterprise
+#: model:ir.model.fields,help:project_enterprise.field_project_task__display_name
+msgid ""
+"Use these keywords in the title to set new tasks:\n"
+"\n"
+"        30h Allocate 30 hours to the task\n"
+"        #tags Set tags on the task\n"
+"        @user Assign the task to a user\n"
+"        ! Set the task a medium priority\n"
+"        !! Set the task a high priority\n"
+"        !!! Set the task a urgent priority\n"
+"\n"
+"        Make sure to use the right format and order e.g. Improve the "
+"configuration screen 5h #feature #v16 @Mitchell !"
+msgstr ""
+"Utilisez ces mots-clés dans le titre pour créer de nouvelles tâches :\n"
+"\n"
+"    30h Allouer 30 heures à la tâche  \n"
+"    #tags Ajouter des tags à la tâche  \n"
+"    @user Assigner la tâche à un utilisateur  \n"
+"    ! Définir la tâche comme priorité moyenne  \n"
+"    !! Définir la tâche comme priorité élevée  \n"
+"    !!! Définir la tâche comme priorité urgente  \n"
+"\n"
+"    Veillez à utiliser le bon format et l’ordre correct, par exemple : "
+"Améliorer l’écran de configuration 5h #feature #v16 @Mitchell !"
+
+#. module: project_enterprise
+#: model:ir.model,name:project_enterprise.model_res_users
+msgid "User"
+msgstr "Utilisateur"
+
+#. module: project_enterprise
+#: model_terms:ir.ui.view,arch_db:project_enterprise.project_project_view_gantt
+msgid "View Tasks"
+msgstr "Voir les tâches"
+
+#. module: project_enterprise
+#. odoo-javascript
+#: code:addons/project_enterprise/static/src/views/project_task_map/project_task_map_renderer.xml:0
+msgid "View customer locations for your tasks"
+msgstr "Afficher la localisation des clients pour vos tâches"
+
+#~ msgid "<i class=\"fa fa-long-arrow-right\" title=\"Arrow\"/>"
+#~ msgstr "<i class=\"fa fa-long-arrow-right\" title=\"Flèche\"/>"
+
+#~ msgid ""
+#~ "<span class=\"fst-italic text-muted\"><i class=\"fa fa-lock\"/> Private</"
+#~ "span>"
+#~ msgstr ""
+#~ "<span class=\"fst-italic text-muted\"><i class=\"fa fa-lock\"/> Privé</"
+#~ "span>"
+
+#~ msgid "<strong>Assignees — </strong>"
+#~ msgstr "<strong>Assignés — </strong>"
+
+#~ msgid "<strong>Customer — </strong>"
+#~ msgstr "<strong>Client — </strong>"
+
+#~ msgid "<strong>Milestone — </strong>"
+#~ msgstr "<strong>Jalon — </strong>"
+
+#~ msgid "<strong>Project Manager — </strong>"
+#~ msgstr "<strong>Chef de projet — </strong>"
+
+#~ msgid "<strong>Project — </strong>"
+#~ msgstr "<strong>Projet — </strong>"
+
+#~ msgid "Caution: some tasks have not been scheduled"
+#~ msgstr "Attention : certaines tâches n'ont pas été planifiées"
+
+#~ msgid "Created by"
+#~ msgstr "Créé par"
+
+#~ msgid "Created on"
+#~ msgstr "Créé le"
+
+#~ msgid "Display Warning Dependency In Gantt"
+#~ msgstr "Afficher l'alerte de dépendance en Gantt"
+
+#~ msgid "End Date"
+#~ msgstr "Date de fin"
+
+#~ msgid "End date"
+#~ msgstr "Date de fin"
+
+#~ msgid "Last Updated by"
+#~ msgstr "Dernière mise à jour par"
+
+#~ msgid "Last Updated on"
+#~ msgstr "Dernière mise à jour le"
+
+#~ msgid "Lines"
+#~ msgstr "Lignes"
+
+#~ msgid "Mobile"
+#~ msgstr "Mobile"
+
+#~ msgid "No task has been scheduled in the future."
+#~ msgstr "Aucune tâche n'a été planifiée dans le futur."
+
+#~ msgid "Overlapping Tasks"
+#~ msgstr "Tâches se chevauchant"
+
+#~ msgid "Planning Overlap"
+#~ msgstr "Chevauchement du planning"
+
+#~ msgid "Project Milestone"
+#~ msgstr "Jalon du projet"
+
+#~ msgid "Schedule Task"
+#~ msgstr "Planifier une tâche"
+
+#~ msgid "Schedule Tasks"
+#~ msgstr "Planifier des tâches"
+
+#~ msgid "Selected Line Count"
+#~ msgstr "Nombre de lignes sélectionnées"
+
+#~ msgid "Show Warnings"
+#~ msgstr "Afficher les avertissements"
+
+#~ msgid "Start Date"
+#~ msgstr "Date de début"
+
+#~ msgid "Street"
+#~ msgstr "Rue"
+
+#~ msgid "Task confirm schedule line wizard"
+#~ msgstr "Assistant de confirmation de l'échéance d'une tâche"
+
+#~ msgid "Task confirm schedule wizard"
+#~ msgstr "Assistant de confirmation de la planification d'une tâche"
+
+#~ msgid ""
+#~ "The following tasks have not been scheduled because the corresponding\n"
+#~ "                        employees are unavailable. The next possible "
+#~ "dates for these tasks are:"
+#~ msgstr ""
+#~ "Les tâches suivantes n'ont pas été planifiées, car les employés "
+#~ "correspondants \n"
+#~ "ne sont pas disponibles. Les prochaines dates possibles pour ces tâches "
+#~ "sont :"
+
+#~ msgid "The task has been successfully scheduled."
+#~ msgstr "La tâche a été planifiée avec succès."
+
+#~ msgid "The tasks have been successfully scheduled."
+#~ msgstr "Les tâches ont été planifiées avec succès."
+
+#~ msgid ""
+#~ "This employee does not have a running contract during the selected "
+#~ "period.\n"
+#~ "The working hours of the company were used as a reference instead."
+#~ msgstr ""
+#~ "Cet employé n'a pas de contrat en cours pendant la période sélectionnée.\n"
+#~ "Les heures de travail de la société ont été utilisées comme référence à "
+#~ "la place."
+
+#~ msgid "Unassigned Tasks"
+#~ msgstr "Tâches non assignées"
+
+#~ msgid "User Names"
+#~ msgstr "Noms d'utilisateur"
+
+#~ msgid "Warning"
+#~ msgstr "Avertissement"
+
+#~ msgid "Wizard"
+#~ msgstr "Assistant"
+
+#~ msgid "Zip"
+#~ msgstr "Code postal"

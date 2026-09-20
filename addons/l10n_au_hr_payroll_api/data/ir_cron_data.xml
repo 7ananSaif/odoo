@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="l10n_au_stp_update_status" model="ir.cron">
+        <field name="name">Australia: Single Touch Payroll - Update Status</field>
+        <field name="model_id" ref="l10n_au_hr_payroll_account.model_l10n_au_stp"/>
+        <field name="state">code</field>
+        <field name="code">model.update_status(catch_errors=True)</field>
+        <field name="user_id" ref="base.user_root" />
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+    </record>
+
+    <record id="l10n_au_super_update_funds" model="ir.cron">
+        <field name="name">Australia: Super Stream - Update Funds</field>
+        <field name="model_id" ref="l10n_au_hr_payroll.model_l10n_au_super_fund"/>
+        <field name="state">code</field>
+        <field name="code">model._update_active_funds()</field>
+        <field name="user_id" ref="base.user_root" />
+        <field name="interval_number">1</field>
+        <field name="interval_type">weeks</field>
+    </record>
+
+    <record id="l10n_au_superstream_update_status" model="ir.cron">
+        <field name="name">Australia: Super Stream - Update Status</field>
+        <field name="model_id" ref="l10n_au_hr_payroll_account.model_l10n_au_super_stream"/>
+        <field name="state">code</field>
+        <field name="code">
+records = model.search([("state", "=", "done")])
+records.update_payment_status()
+        </field>
+        <field name="user_id" ref="base.user_root" />
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+    </record>
+
+    <record id="l10n_au_audit_logs_sync" model="ir.cron">
+        <field name="name">Australia: Sync Audit Logs</field>
+        <field name="model_id" ref="l10n_au_hr_payroll_api.model_l10n_au_audit_log"/>
+        <field name="state">code</field>
+        <field name="code">model._sync_audit_logs()</field>
+        <field name="user_id" ref="base.user_root" />
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="active" eval="True"/>
+    </record>
+  </odoo>

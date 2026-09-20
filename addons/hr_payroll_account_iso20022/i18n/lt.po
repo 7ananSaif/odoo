@@ -1,0 +1,190 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * hr_payroll_account_sepa
+#
+# Translators:
+# Arunas V. <arunas@devoro.com>, 2022
+# digitouch UAB <digitouchagencyeur@gmail.com>, 2022
+# Martin Trigaux, 2022
+# UAB "Draugiški sprendimai" <transifex@draugiskisprendimai.lt>, 2022
+# Linas Versada <linaskrisiukenas@gmail.com>, 2022
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:45+0000\n"
+"PO-Revision-Date: 2025-11-12 13:02+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Lithuanian <https://translate.odoo.com/projects/odoo-19/"
+"hr_payroll_account_iso20022/lt/>\n"
+"Language: lt\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=4; plural=(n % 10 == 1 && (n % 100 > 19 || n % 100 < "
+"11) ? 0 : (n % 10 >= 2 && n % 10 <=9) && (n % 100 > 19 || n % 100 < 11) ? "
+"1 : n % 1 != 0 ? 2: 3);\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payroll_payment_report_wizard__journal_id
+msgid "Bank Journal"
+msgstr "Banko žurnalas"
+
+#. module: hr_payroll_account_iso20022
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_iso20022.hr_payslip_view_form
+msgid "Create Payment Report"
+msgstr "Sukurti mokėjimo ataskaitą"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payroll_payment_report_wizard__display_name
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip__display_name
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip_run__display_name
+msgid "Display Name"
+msgstr "Rodomas pavadinimas"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model,name:hr_payroll_account_iso20022.model_hr_employee
+msgid "Employee"
+msgstr "Darbuotojas"
+
+#. module: hr_payroll_account_iso20022
+#: model:hr.payroll.dashboard.warning,name:hr_payroll_account_iso20022.hr_payroll_dashboard_warning_employee_invalid_bank_account
+msgid "Employees With Invalid IBAN Bank Accounts"
+msgstr ""
+
+#. module: hr_payroll_account_iso20022
+#: model:hr.payroll.dashboard.warning,name:hr_payroll_account_iso20022.hr_payroll_dashboard_warning_employee_no_country
+msgid "Employees Without Any Country"
+msgstr ""
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payroll_payment_report_wizard__export_format
+msgid "Export Format"
+msgstr ""
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model,name:hr_payroll_account_iso20022.model_hr_payroll_payment_report_wizard
+msgid "HR Payroll Payment Report Wizard"
+msgstr ""
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_employee__id
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payroll_payment_report_wizard__id
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip__id
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip_run__id
+msgid "ID"
+msgstr "ID"
+
+#. module: hr_payroll_account_iso20022
+#. odoo-javascript
+#: code:addons/hr_payroll_account_iso20022/static/src/components/payrun_card/payrun_card.xml:0
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_iso20022.hr_payslip_run_view_kanban
+msgid "Mark as Paid"
+msgstr ""
+
+#. module: hr_payroll_account_iso20022
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_iso20022.hr_payslip_view_form
+msgid "Mark as paid"
+msgstr "Pažymėti kaip apmokėtą"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model,name:hr_payroll_account_iso20022.model_hr_payslip_run
+msgid "Pay Run"
+msgstr ""
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model,name:hr_payroll_account_iso20022.model_hr_payslip
+msgid "Pay Slip"
+msgstr "Algalapis"
+
+#. module: hr_payroll_account_iso20022
+#. odoo-javascript
+#: code:addons/hr_payroll_account_iso20022/static/src/components/payrun_card/payrun_card.xml:0
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_iso20022.hr_payslip_run_view_kanban
+msgid "Payment Report"
+msgstr ""
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields.selection,name:hr_payroll_account_iso20022.selection__hr_payroll_payment_report_wizard__export_format__sepa
+msgid "SEPA"
+msgstr ""
+
+#. module: hr_payroll_account_iso20022
+#. odoo-python
+#: code:addons/hr_payroll_account_iso20022/wizard/hr_payroll_payment_report_wizard.py:0
+msgid "Some employees (%s) don't have a valid name on the work contact."
+msgstr "Kai kurie darbuotojai (%s) darbo sutartyje neturi vardo."
+
+#. module: hr_payroll_account_iso20022
+#. odoo-python
+#: code:addons/hr_payroll_account_iso20022/wizard/hr_payroll_payment_report_wizard.py:0
+msgid "Some employees (%s) don't have a work contact."
+msgstr "Kai kurie darbuotojai (%s) neturi darbo sutarties"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields.selection,name:hr_payroll_account_iso20022.selection__hr_payroll_payment_report_wizard__export_format__iso20022_ch
+msgid "Swiss ISO20022"
+msgstr ""
+
+#. module: hr_payroll_account_iso20022
+#. odoo-python
+#: code:addons/hr_payroll_account_iso20022/wizard/hr_payroll_payment_report_wizard.py:0
+msgid ""
+"The journal '%s' requires a proper IBAN account to pay via SEPA. Please "
+"configure it first."
+msgstr ""
+"Norint atlikti mokėjimą per SEPA, žurnalui '%s' reikalinga tinkama IBAN "
+"sąskaita. Prašome pirmiausia ją sukonfigūruoti."
+
+#. module: hr_payroll_account_iso20022
+#. odoo-python
+#: code:addons/hr_payroll_account_iso20022/wizard/hr_payroll_payment_report_wizard.py:0
+msgid "The payment date cannot be in the past."
+msgstr ""
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip__iso20022_uetr
+msgid "UETR"
+msgstr "UETR"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,help:hr_payroll_account_iso20022.field_hr_payslip__iso20022_uetr
+msgid "Unique end-to-end transaction reference"
+msgstr "Unikali operacijų nuoroda nuo galo iki galo"
+
+#~ msgid "Cancel"
+#~ msgstr "Atšaukti"
+
+#~ msgid "Confirm"
+#~ msgstr "Patvirtinti"
+
+#~ msgid "Created by"
+#~ msgstr "Sukūrė"
+
+#~ msgid "Created on"
+#~ msgstr "Sukurta"
+
+#~ msgid "Exported File"
+#~ msgstr "Eksportuotas failas"
+
+#~ msgid "File Name"
+#~ msgstr "Failo pavadinimas"
+
+#~ msgid "File name"
+#~ msgstr "Failo pavadinimas"
+
+#~ msgid "Generation Date"
+#~ msgstr "Generavimo data"
+
+#~ msgid "Last Updated by"
+#~ msgstr "Paskutinį kartą atnaujino"
+
+#~ msgid "Last Updated on"
+#~ msgstr "Paskutinį kartą atnaujinta"
+
+#~ msgid "Payslip Batches"
+#~ msgstr "Algalapių suvestinės"

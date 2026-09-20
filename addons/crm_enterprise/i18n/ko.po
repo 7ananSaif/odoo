@@ -1,0 +1,172 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * crm_enterprise
+#
+# Translators:
+# Martin Trigaux, 2022
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:44+0000\n"
+"PO-Revision-Date: 2025-11-16 05:24+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/"
+"crm_enterprise/ko/>\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/tools/business_card_scanner.py:0
+msgid "%(contact_name)s's opportunity"
+msgstr "%(contact_name)s의 영업기회"
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/tools/business_card_scanner.py:0
+msgid "Could not extract lead information from this image."
+msgstr "이 이미지에서 리드 정보를 추출할 수 없습니다."
+
+#. module: crm_enterprise
+#: model:ir.model,website_form_label:crm_enterprise.model_crm_lead
+msgid "Create an Opportunity"
+msgstr "영업기회 생성"
+
+#. module: crm_enterprise
+#: model_terms:ir.ui.view,arch_db:crm_enterprise.crm_lead_view_map
+msgid "Customer"
+msgstr "고객"
+
+#. module: crm_enterprise
+#: model:ir.model.fields,field_description:crm_enterprise.field_crm_lead__days_to_convert
+msgid "Days To Convert"
+msgstr "변환 날짜"
+
+#. module: crm_enterprise
+#: model:ir.model.fields,field_description:crm_enterprise.field_crm_lead__display_name
+msgid "Display Name"
+msgstr "표시명"
+
+#. module: crm_enterprise
+#: model:ir.model.fields,field_description:crm_enterprise.field_crm_lead__days_exceeding_closing
+msgid "Exceeded Closing Days"
+msgstr "마감일 초과"
+
+#. module: crm_enterprise
+#: model:ir.model.fields,field_description:crm_enterprise.field_crm_lead__id
+msgid "ID"
+msgstr "ID"
+
+#. module: crm_enterprise
+#. odoo-javascript
+#: code:addons/crm_enterprise/static/src/crm_business_card_scanner.xml:0
+#: code:addons/crm_enterprise/static/src/crm_business_card_scanner_cog_menu.xml:0
+msgid "Import Business Cards"
+msgstr "명함 가져오기"
+
+#. module: crm_enterprise
+#: model:ir.model,name:crm_enterprise.model_crm_lead
+msgid "Lead"
+msgstr "리드"
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/tools/business_card_scanner.py:0
+msgid "Lead generated from this image."
+msgstr "이 이미지에서 생성된 영업제안입니다."
+
+#. module: crm_enterprise
+#: model_terms:ir.ui.view,arch_db:crm_enterprise.crm_lead_view_pivot
+msgid "Leads"
+msgstr "영업제안"
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/tools/business_card_scanner.py:0
+msgid "Network error while processing the business cards."
+msgstr "명함 처리 중 네트워크 오류가 발생했습니다."
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/tools/business_card_scanner.py:0
+msgid "New Lead Scan"
+msgstr "새 영업제안 스캔"
+
+#. module: crm_enterprise
+#: model_terms:ir.actions.act_window,help:crm_enterprise.crm_opportunity_action_dashboard
+msgid "No data found!"
+msgstr "데이터를 찾을 수 없습니다!"
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/tools/business_card_scanner.py:0
+msgid ""
+"Oops, the AI service is not working 🤖. Please contact your administrator to "
+"verify settings."
+msgstr ""
+"죄송합니다. AI 서비스가 정상적으로 작동하지 않습니다. 🤖 관리자에게 문의하여 "
+"설정 내용을 확인하세요."
+
+#. module: crm_enterprise
+#: model_terms:ir.ui.view,arch_db:crm_enterprise.crm_lead_view_cohort
+#: model_terms:ir.ui.view,arch_db:crm_enterprise.crm_opportunity_view_graph
+msgid "Opportunities"
+msgstr "영업기회"
+
+#. module: crm_enterprise
+#: model:ir.actions.act_window,name:crm_enterprise.crm_opportunity_action_dashboard
+msgid "Pipeline Analysis"
+msgstr "파이프라인 분석"
+
+#. module: crm_enterprise
+#. odoo-javascript
+#: code:addons/crm_enterprise/static/src/crm_business_card_scanner.xml:0
+msgid "Scan Business Cards"
+msgstr "명함 스캔"
+
+#. module: crm_enterprise
+#. odoo-python
+#: code:addons/crm_enterprise/models/crm_lead.py:0
+msgid ""
+"The AI agent was not able to generate a lead from the provided image. *sad "
+"robot noises* 🤖"
+msgstr ""
+"AI 에이전트가 제공된 이미지로부터 리드를 생성하는 데 실패했습니다. *로봇 오류"
+"음* 🤖"
+
+#. module: crm_enterprise
+#: model_terms:ir.actions.act_window,help:crm_enterprise.crm_opportunity_action_dashboard
+msgid "Use this menu to have an overview of your Pipeline."
+msgstr "이 메뉴에서 파이프라인 전체보기를 할 수 있습니다."
+
+#. module: crm_enterprise
+#: model_terms:ir.ui.view,arch_db:crm_enterprise.crm_lead_view_graph
+msgid "leads"
+msgstr "영업제안"
+
+#~ msgid "CRM Activity Analysis"
+#~ msgstr "CRM 활동 분석"
+
+#~ msgid "Is Won"
+#~ msgstr "성공 여부"
+
+#~ msgid "Lead/Opportunity"
+#~ msgstr "영업제안/영업기회"
+
+#~ msgid "Lost"
+#~ msgstr "실패"
+
+#~ msgid "Pending"
+#~ msgstr "대기 중"
+
+#~ msgid "Won"
+#~ msgstr "성공"

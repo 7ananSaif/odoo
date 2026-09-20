@@ -1,0 +1,342 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * documents_hr
+#
+# Translators:
+# Rafał Kozak <rafal.kozak@openglobe.pl>, 2022
+# Paweł Wodyński <pw@myodoo.pl>, 2022
+# Natalia Gros <nag@odoo.com>, 2022
+# Martin Trigaux, 2022
+# Piotr Szlązak <szlazakpiotr@gmail.com>, 2022
+# Piotr Strębski <strebski@gmail.com>, 2022
+# Maksym <ms@myodoo.pl>, 2022
+# Łukasz Grzenkowicz <lukasz.grzenkowicz@gmail.com>, 2022
+# Tadeusz Karpiński <tadeuszkarpinski@gmail.com>, 2023
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Marta (wacm)" <wacm@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0beta+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:44+0000\n"
+"PO-Revision-Date: 2025-10-23 13:58+0000\n"
+"Last-Translator: \"Marta (wacm)\" <wacm@odoo.com>\n"
+"Language-Team: Polish <https://translate.odoo.com/projects/odoo-19/"
+"documents_hr/pl/>\n"
+"Language: pl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=4; plural=(n==1 ? 0 : (n%10>=2 && n%10<=4) && "
+"(n%100<12 || n%100>14) ? 1 : n!=1 && (n%10>=0 && n%10<=1) || (n%10>=5 && "
+"n%10<=9) || (n%100>=12 && n%100<=14) ? 2 : 3);\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: documents_hr
+#: model_terms:ir.ui.view,arch_db:documents_hr.documents_hr_portal_view
+msgid "<i class=\"fa fa-download fa-fw\"/> Download file"
+msgstr "<i class=\"fa fa-download fa-fw\"/> Pobierz plik"
+
+#. module: documents_hr
+#: model_terms:ir.ui.view,arch_db:documents_hr.res_config_settings_view_form
+msgid "<span class=\"o_form_label\">Default tags</span>"
+msgstr "<span class=\"o_form_label\">Domyślne tagi</span>"
+
+#. module: documents_hr
+#: model:documents.tag,name:documents_hr.documents_tag_absences
+msgid "Absences"
+msgstr "Nieobecności"
+
+#. module: documents_hr
+#: model_terms:ir.ui.view,arch_db:documents_hr.res_config_settings_view_form
+msgid "Centralize your employees' documents (contracts, payslips, etc.)"
+msgstr "Centralizuj dokumenty swoich pracowników (umowy, listy płac, itp.)"
+
+#. module: documents_hr
+#: model:documents.tag,name:documents_hr.documents_tag_certification
+msgid "Certifications"
+msgstr "Certyfikaty"
+
+#. module: documents_hr
+#: model:ir.model.fields,help:documents_hr.field_res_company__employee_subfolders
+#: model_terms:ir.ui.view,arch_db:documents_hr.res_config_settings_view_form
+msgid ""
+"Comma separated list of folder names that need to be created under each "
+"employee folder."
+msgstr ""
+"Oddzielona przecinkiem lista nazw folderów, które musza być stworzone w "
+"folderze każdego pracownika."
+
+#. module: documents_hr
+#: model:ir.model.fields,help:documents_hr.field_res_config_settings__employee_subfolders
+msgid ""
+"Comma separated string of folder names that need to be created under each "
+"employee folder."
+msgstr ""
+"Ciąg rozdzielonych przecinkami nazw folderów, które powinny zostać stworzone "
+"w każdym folderze pracownika."
+
+#. module: documents_hr
+#: model:ir.model,name:documents_hr.model_res_company
+msgid "Companies"
+msgstr "Firmy"
+
+#. module: documents_hr
+#: model:ir.model,name:documents_hr.model_res_config_settings
+msgid "Config Settings"
+msgstr "Ustawienia konfiguracji"
+
+#. module: documents_hr
+#. odoo-python
+#: code:addons/documents_hr/models/hr_employee.py:0
+#: model:ir.model.fields,field_description:documents_hr.field_res_config_settings__documents_hr_contracts_tags
+msgid "Contracts"
+msgstr "Umowy"
+
+#. module: documents_hr
+#: model:documents.tag,name:documents_hr.documents_hr_tag_contracts
+msgid "Contracts (HR)"
+msgstr "Umowy (HR)"
+
+#. module: documents_hr
+#: model:ir.model.fields,field_description:documents_hr.field_documents_document__display_name
+#: model:ir.model.fields,field_description:documents_hr.field_documents_redirect__display_name
+#: model:ir.model.fields,field_description:documents_hr.field_documents_tag__display_name
+#: model:ir.model.fields,field_description:documents_hr.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:documents_hr.field_hr_employee_public__display_name
+#: model:ir.model.fields,field_description:documents_hr.field_hr_version__display_name
+#: model:ir.model.fields,field_description:documents_hr.field_res_company__display_name
+#: model:ir.model.fields,field_description:documents_hr.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "Nazwa wyświetlana"
+
+#. module: documents_hr
+#: model:ir.model,name:documents_hr.model_documents_document
+msgid "Document"
+msgstr "Dokument"
+
+#. module: documents_hr
+#: model:ir.model.fields,field_description:documents_hr.field_hr_employee__document_count
+#: model:ir.model.fields,field_description:documents_hr.field_hr_employee_public__document_count
+msgid "Document Count"
+msgstr "Liczba dokumentów"
+
+#. module: documents_hr
+#: model:ir.model,name:documents_hr.model_documents_redirect
+msgid "Document Redirect"
+msgstr "Przekierowanie dokumentu"
+
+#. module: documents_hr
+#: model_terms:ir.ui.view,arch_db:documents_hr.hr_employee_public_view_form
+#: model_terms:ir.ui.view,arch_db:documents_hr.hr_employee_view_form
+msgid "Documents"
+msgstr "Dokumenty"
+
+#. module: documents_hr
+#: model:ir.model.fields,field_description:documents_hr.field_res_company__documents_hr_contracts_tags
+msgid "Documents Hr Contracts Tags"
+msgstr "Tagi dokumenty umowy HR"
+
+#. module: documents_hr
+#: model:ir.model.fields,field_description:documents_hr.field_res_company__documents_hr_settings
+msgid "Documents Hr Settings"
+msgstr "Ustawienia dokumentów HR"
+
+#. module: documents_hr
+#: model_terms:ir.ui.view,arch_db:documents_hr.documents_hr_portal_view
+msgid "Download file"
+msgstr "Pobierz plik"
+
+#. module: documents_hr
+#: model:ir.model,name:documents_hr.model_hr_employee
+#: model:ir.model.fields,field_description:documents_hr.field_documents_redirect__employee_id
+msgid "Employee"
+msgstr "Pracownik"
+
+#. module: documents_hr
+#: model:ir.model,name:documents_hr.model_hr_version
+msgid "Employee Contract"
+msgstr "Umowa pracownika"
+
+#. module: documents_hr
+#. odoo-python
+#: code:addons/documents_hr/models/res_company.py:0
+msgid "Employees - %s"
+msgstr "Pracownicy - %s"
+
+#. module: documents_hr
+#: model:documents.tag,name:documents_hr.documents_tag_employees
+msgid "Employees Documents"
+msgstr "Dokumenty pracowników"
+
+#. module: documents_hr
+#: model:ir.model.fields,field_description:documents_hr.field_res_company__documents_employee_folder_id
+#: model:ir.model.fields,field_description:documents_hr.field_res_config_settings__documents_employee_folder_id
+#: model_terms:ir.ui.view,arch_db:documents_hr.res_config_settings_view_form
+msgid "Employees Folder"
+msgstr "Folder pracowników"
+
+#. module: documents_hr
+#: model:ir.model.fields,field_description:documents_hr.field_res_company__employee_subfolders
+#: model:ir.model.fields,field_description:documents_hr.field_res_config_settings__employee_subfolders
+msgid "Employees Subfolder"
+msgstr "Subfolder pracowników"
+
+#. module: documents_hr
+#: model_terms:ir.ui.view,arch_db:documents_hr.res_config_settings_view_form
+msgid "Employees Subfolders"
+msgstr "Subfoldery pracowników"
+
+#. module: documents_hr
+#: model:ir.model.fields,field_description:documents_hr.field_hr_employee__hr_employee_contract_folder_id
+msgid "HR Employee Contract Folder"
+msgstr "Folder umów pracowników"
+
+#. module: documents_hr
+#: model:ir.model.fields,field_description:documents_hr.field_hr_employee__hr_employee_folder_id
+msgid "HR Employee Folder"
+msgstr "Folder pracowników HR"
+
+#. module: documents_hr
+#: model:ir.model.fields,field_description:documents_hr.field_res_config_settings__documents_hr_settings
+msgid "Human Resources"
+msgstr "Zasoby ludzkie"
+
+#. module: documents_hr
+#: model:ir.model.fields,field_description:documents_hr.field_documents_document__id
+#: model:ir.model.fields,field_description:documents_hr.field_documents_redirect__id
+#: model:ir.model.fields,field_description:documents_hr.field_documents_tag__id
+#: model:ir.model.fields,field_description:documents_hr.field_hr_employee__id
+#: model:ir.model.fields,field_description:documents_hr.field_hr_employee_public__id
+#: model:ir.model.fields,field_description:documents_hr.field_hr_version__id
+#: model:ir.model.fields,field_description:documents_hr.field_res_company__id
+#: model:ir.model.fields,field_description:documents_hr.field_res_config_settings__id
+msgid "ID"
+msgstr "ID"
+
+#. module: documents_hr
+#. odoo-python
+#: code:addons/documents_hr/models/documents_document.py:0
+msgid "Impossible to delete employee folder or employee 'Contract' folder"
+msgstr "Nie można usunąć folderu pracowników lub folderu \"Umowy\" pracowników"
+
+#. module: documents_hr
+#: model_terms:ir.ui.view,arch_db:documents_hr.documents_hr_portal_view
+msgid "My documents"
+msgstr "Moje dokumenty"
+
+#. module: documents_hr
+#: model:ir.model,name:documents_hr.model_hr_employee_public
+msgid "Public Employee"
+msgstr "Pracownik publiczny"
+
+#. module: documents_hr
+#: model:documents.tag,name:documents_hr.document_tag_signature_request
+msgid "Signature Request"
+msgstr "Prośba o podpis"
+
+#. module: documents_hr
+#: model_terms:ir.ui.view,arch_db:documents_hr.documents_hr_portal_view
+msgid "Size:"
+msgstr "Rozmiar:"
+
+#. module: documents_hr
+#: model:ir.model,name:documents_hr.model_documents_tag
+msgid "Tag"
+msgstr "Tag"
+
+#. module: documents_hr
+#. odoo-python
+#: code:addons/documents_hr/models/hr_employee.py:0
+msgid "You cannot access the employee's folder."
+msgstr "Nie możesz uzyskać dostępu do folderu pracowników."
+
+#. module: documents_hr
+#. odoo-python
+#: code:addons/documents_hr/models/documents_tag.py:0
+msgid ""
+"You cannot delete this tag as it is used to link employee contracts and "
+"signatures."
+msgstr ""
+"Nie możesz usunąć tego tagu, ponieważ jest używany do łączenia umów "
+"pracowników z podpisami."
+
+#. module: documents_hr
+#. odoo-python
+#: code:addons/documents_hr/models/hr_employee.py:0
+msgid ""
+"You must configure the HR Employee folder in document settings to use "
+"Document's features."
+msgstr ""
+"Musisz skonfigurować folder pracownicy HR w ustawieniach dokumentu, aby "
+"używać funkcji dokumentu."
+
+#. module: documents_hr
+#. odoo-python
+#: code:addons/documents_hr/models/hr_employee.py:0
+msgid ""
+"You must have a contact linked to the employee in order to use Document's "
+"features."
+msgstr ""
+"Musisz mieć kontakt powiązany z pracownikiem, aby korzystać z funkcji "
+"dokumentu."
+
+#~ msgid "Departure Wizard"
+#~ msgstr "Ustawienia odejścia"
+
+#~ msgid "Documents Share"
+#~ msgstr "Udostępnij dokumenty"
+
+#~ msgid ""
+#~ "Employee's private email must be set to use \"Send Access Link\" "
+#~ "function:\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Prywatna poczta elektroniczna pracownika musi być ustawiona na używanie "
+#~ "funkcji \"Send Access Link\": \n"
+#~ "%s"
+
+#~ msgid "HR"
+#~ msgstr "HR"
+
+#~ msgid "HR Documents: %s"
+#~ msgstr "Dokumenty HR: %s"
+
+#~ msgid "HR: Document Access Link"
+#~ msgstr "HR: link dostępu do dokumentów"
+
+#~ msgid "Send Access Link"
+#~ msgstr "Wyślij link dostępu"
+
+#~ msgid "Send HR Documents Access Link"
+#~ msgstr "Wyślij link dostępu do dokumentów HR"
+
+#~ msgid "Sent manually when recording an employee departure"
+#~ msgstr "Wysyłane ręcznie przy rejestracji odejścia pracownika"
+
+#~ msgid "The access link has been sent to the employee."
+#~ msgstr "Link dostępu został wysłany do pracownika."
+
+#~ msgid "User"
+#~ msgstr "Użytkownik"
+
+#~ msgid "Workspace"
+#~ msgstr "Przestrzeń robocza"
+
+#~ msgid ""
+#~ "You must set a private address on the Employee in order to use Document's "
+#~ "features."
+#~ msgstr ""
+#~ "Aby korzystać z funkcji Dokumentu, należy ustawić adres prywatny na "
+#~ "pracowniku."
+
+#~ msgid "hr Workspace"
+#~ msgstr "Przestrzeń robocza HR"
+
+#~ msgid "hr default workspace"
+#~ msgstr "Domyślna przestrzeń robocza HR"
+
+#~ msgid "{{ object.name }}, your personal documents access link is available"
+#~ msgstr ""
+#~ "{{ object.name }}, link dostępu do Twoich dokumentów osobistych jest "
+#~ "dostępny."

@@ -1,0 +1,439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="base.partner_demo_company_au" model="res.partner" forcecreate="1">
+        <field name="name">My Australian Company</field>
+        <field name="street">Australian Street</field>
+        <field name="zip">1234</field>
+        <field name="city">Sydney</field>
+        <field name="country_id" ref="base.au"/>
+    </record>
+
+    <record id="base.demo_company_au" model="res.company" forcecreate="1">
+        <field name="name">My Australian Company</field>
+        <field name="currency_id" ref="base.AUD"/>
+        <field name="partner_id" ref="base.partner_demo_company_au"/>
+        <field name="street">Darling Street</field>
+        <field name="zip">2039</field>
+        <field name="city">Rozelle</field>
+        <field name="vat">83914571673</field>
+        <field name="l10n_au_branch_code">110</field>
+    </record>
+
+    <record id="au_hr_department_rd" model="hr.department">
+        <field name="name">R&amp;D AU</field>
+        <field name="company_id" ref="base.demo_company_au"/>
+    </record>
+
+    <record id="res_partner_roger" model="res.partner">
+        <field name="name">Roger Woodrum</field>
+        <field name="street">Hotline St. 82d</field>
+        <field name="city">Adelaide</field>
+        <field name="zip">5169</field>
+        <field name="state_id" ref="base.state_au_5"/>
+        <field name="country_id" ref="base.au"/>
+        <field name="phone">0991 234 765</field>
+        <field name="company_id" ref="base.demo_company_au"/>
+    </record>
+    <record id="res_partner_roger" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_au_hr_payroll.res_partner_roger')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_dennis" model="res.partner">
+        <field name="name">Dennis Cactus</field>
+        <field name="street">Dennaton St. 82d</field>
+        <field name="city">Canberra</field>
+        <field name="state_id" ref="base.state_au_1"/>
+        <field name="zip">2600</field>
+        <field name="country_id" ref="base.au"/>
+        <field name="phone">0431 415 926</field>
+        <field name="company_id" ref="base.demo_company_au"/>
+    </record>
+    <record id="res_partner_dennis" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_au_hr_payroll.res_partner_dennis')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_dennis_work_address" model="res.partner">
+        <field name="name">AU Offices</field>
+        <field name="street">Devolve Blvd. 344</field>
+        <field name="city">Canberra</field>
+        <field name="zip">2600</field>
+        <field name="country_id" ref="base.au"/>
+        <field name="company_id" ref="base.demo_company_au"/>
+    </record>
+
+    <record id="res_partner_dennis_private_address" model="res.partner">
+        <field name="name">Dennis Cactus</field>
+        <field name="company_id" ref="base.demo_company_au"/>
+    </record>
+
+    <record id="user_dennis" model="res.users">
+        <field name="partner_id" ref="l10n_au_hr_payroll.res_partner_dennis"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_dennis')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_dennis')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_au_hr_payroll.res_partner_dennis')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_au'))]"/>
+        <field name="company_id" ref="base.demo_company_au"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_al-image.jpg"/>
+    </record>
+
+    <record id="au_res_bank_amp" model="res.bank">
+        <field name="name">AMP Bank</field>
+        <field name="bic">AMPBAU2SXXX</field>
+        <field name="street">AMP Bank Rd</field>
+        <field name="city">Adelaide</field>
+        <field name="zip">5169</field>
+        <field name="state" ref="base.state_au_5"/>
+        <field name="country" ref="base.au"/>
+        <field name="phone">0991 739 199</field>
+    </record>
+    <record id="au_res_bank_amp" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_au_hr_payroll.au_res_bank_amp')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="au_res_bank_anz" model="res.bank">
+        <field name="name">ANZ Bank</field>
+        <field name="bic">ANZBNZ22XXX</field>
+        <field name="street">ANZ Bank Rd</field>
+        <field name="city">Canberra</field>
+        <field name="zip">2600</field>
+        <field name="state" ref="base.state_au_1"/>
+        <field name="country" ref="base.au"/>
+        <field name="phone">0991 739 199</field>
+    </record>
+    <record id="au_res_bank_anz" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_au_hr_payroll.au_res_bank_anz')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_roger" model="res.partner.bank">
+        <field name="acc_number">999-123 34567890</field>
+        <field name="acc_type">aba</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_au_hr_payroll.au_res_bank_amp"/>
+        <field name="partner_id" ref="l10n_au_hr_payroll.res_partner_roger"/>
+        <field name="company_id" ref="base.demo_company_au"/>
+        <field name="currency_id" ref="base.AUD"/>
+    </record>
+
+    <record id="res_partner_bank_account_dennis" model="res.partner.bank">
+        <field name="acc_number">999-456 09876543</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_au_hr_payroll.au_res_bank_anz"/>
+        <field name="partner_id" ref="l10n_au_hr_payroll.res_partner_dennis"/>
+        <field name="company_id" ref="base.demo_company_au"/>
+        <field name="currency_id" ref="base.AUD"/>
+    </record>
+
+    <function model="res.users" name="write">
+        <value eval="[ref('base.user_admin'), ref('base.user_demo')]"/>
+        <value eval="{'company_ids': [(4, ref('base.demo_company_au'))]}"/>
+    </function>
+
+    <record id="hr_employee_roger" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_roger')).name"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_han-image.jpg"/>
+        <field name="work_contact_id" ref="l10n_au_hr_payroll.res_partner_roger"/>
+        <field name="work_phone">0991 642 183</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_roger')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="company_id" ref="base.demo_company_au"/>
+        <field name="tz">Australia/Adelaide</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_roger')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_roger')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_roger')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_roger')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_roger')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_roger')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_roger')).phone"/>
+        <field name="distance_home_work">5</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_roger')).country_id"/>
+        <field name="identification_id">271828182</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1970, 3, 21).date()"/>
+        <field name="place_of_birth">Adelaide</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_roger')).country_id"/>
+        <field name="emergency_contact">Claier Woodrum</field>
+        <field name="emergency_phone">0991 214 427</field>
+        <field name="certificate">bachelor</field>
+        <field name="study_field">Electrical Engineering</field>
+        <field name="study_school">Central Queensland University</field>
+        <field name="l10n_au_tfn_declaration">provided</field>
+        <field name="l10n_au_tfn">999999846</field>
+        <field name="l10n_au_training_loan">True</field>
+        <field name="l10n_au_nat_3093_amount">150</field>
+        <field name="l10n_au_child_support_garnishee_amount">0.1</field>
+        <field name="l10n_au_child_support_deduction">150</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_au_hr_payroll.res_partner_bank_account_roger'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_au_hr_payroll.au_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_au_hr_payroll.structure_type_schedule_1"/>
+        <field name="wage">5000</field>
+        <field name="date_version" eval="datetime(1975, 1, 1).date()"/>
+        <field name="contract_date_start" eval="datetime(1975, 1, 1).date()"/>
+        <field name="l10n_au_leave_loading">regular</field>
+        <field name="l10n_au_leave_loading_rate">5</field>
+        <field name="l10n_au_workplace_giving">100</field>
+        <field name="l10n_au_salary_sacrifice_superannuation">20</field>
+        <field name="l10n_au_salary_sacrifice_other">20</field>
+    </record>
+
+    <record id="hr_employee_dennis" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_dennis')).name"/>
+        <field name="image_1920" type="base64" file="hr/static/img/employee_al-image.jpg"/>
+        <field name="work_phone">0431 415 926</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_dennis')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="parent_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+        <field name="user_id" ref="l10n_au_hr_payroll.user_dennis"/>
+        <field name="company_id" ref="base.demo_company_au"/>
+        <field name="address_id" ref="l10n_au_hr_payroll.res_partner_dennis_work_address"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Australia/Canberra</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_dennis')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_dennis')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_dennis')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_dennis')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_dennis')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_dennis')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_dennis')).phone"/>
+        <field name="distance_home_work">27</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_dennis')).country_id"/>
+        <field name="identification_id">314159265</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1991, 7, 28).date()"/>
+        <field name="place_of_birth">Sweden</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_au_hr_payroll.res_partner_dennis')).country_id"/>
+        <field name="emergency_contact">Jonathan Cactus</field>
+        <field name="emergency_phone">(058) 3186203</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Computer Science</field>
+        <field name="study_school">Australian National University</field>
+        <field name="marital">single</field>
+        <field name="l10n_au_tfn_declaration">provided</field>
+        <field name="l10n_au_tfn">999999846</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_au_hr_payroll.res_partner_bank_account_dennis'))]"/>
+        <field name="department_id" ref="l10n_au_hr_payroll.au_hr_department_rd"/>
+        <field name="job_id" ref="hr.job_consultant"/>
+        <field name="structure_type_id" ref="l10n_au_hr_payroll.structure_type_schedule_1"/>
+        <field name="wage">4940</field>
+        <field name="wage_type">hourly</field>
+        <field name="hourly_wage">30</field>
+        <field name="l10n_au_casual_loading">.25</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-2, month=1, day=1))"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-2, month=1, day=1))"/>
+        <field name="contract_date_end" eval="(DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2))"/>
+    </record>
+
+    <function name="create_version" model="hr.employee">
+        <value eval="[ref('l10n_au_hr_payroll.hr_employee_dennis')]"/>
+        <value eval="{
+            'date_version': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2) + relativedelta(days=1),
+            'contract_date_start': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2) + relativedelta(days=1),
+            'contract_date_end': False,
+        }"/>
+    </function>
+
+    <function model="hr.employee" name="generate_work_entries">
+        <value model="hr.employee" eval="obj().search([]).ids"/>
+        <value eval="datetime(2023, 7, 1).date()"/>
+        <value eval="datetime(2023, 9, 30).date()"/>
+    </function>
+
+    <record id="hr_payslip_0_au" model="hr.payslip" context="{'allowed_company_ids': [ref('base.demo_company_au')]}">
+        <field name="company_id" ref="base.demo_company_au"/>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+        <field name="name">Roger Payslip Return To Work</field>
+        <field name="date_from" eval="datetime(2023, 7, 1).date()"/>
+        <field name="date_to" eval="datetime(2023, 7, 31).date()"/>
+        <field name="struct_id" ref="l10n_au_hr_payroll.hr_payroll_structure_au_regular"/>
+        <field name="input_line_ids" eval="[(5, 0, 0),
+            (0, 0, {'input_type_id': ref('l10n_au_hr_payroll.input_b2work'), 'amount': 15000})
+        ]"/>
+    </record>
+    <record id="hr_payslip_1_au" model="hr.payslip" context="{'allowed_company_ids': [ref('base.demo_company_au')]}">
+        <field name="company_id" ref="base.demo_company_au"/>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+        <field name="name">Roger Payslip July</field>
+        <field name="date_from" eval="datetime(2023, 7, 1).date()"/>
+        <field name="date_to" eval="datetime(2023, 7, 31).date()"/>
+    </record>
+    <record id="hr_payslip_2_au" model="hr.payslip" context="{'allowed_company_ids': [ref('base.demo_company_au')]}">
+        <field name="company_id" ref="base.demo_company_au"/>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+        <field name="name">Roger Payslip August</field>
+        <field name="date_from" eval="datetime(2023, 8, 1).date()"/>
+        <field name="date_to" eval="datetime(2023, 8, 31).date()"/>
+        <field name="input_line_ids" eval="[(5, 0, 0),
+            (0, 0, {'input_type_id': ref('hr_payroll.input_child_support'), 'amount': 200})
+        ]"/>
+    </record>
+    <record id="hr_payslip_3_au" model="hr.payslip" context="{'allowed_company_ids': [ref('base.demo_company_au')]}">
+        <field name="company_id" ref="base.demo_company_au"/>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+        <field name="name">Roger Payslip September Termination</field>
+        <field name="date_from" eval="datetime(2023, 9, 1).date()"/>
+        <field name="date_to" eval="datetime(2023, 9, 30).date()"/>
+        <field name="l10n_au_termination_type">normal</field>
+        <field name="struct_id" ref="l10n_au_hr_payroll.hr_payroll_structure_au_regular"/>
+        <field name="input_line_ids" eval="[(5, 0, 0),
+            (0, 0, {'input_type_id': ref('l10n_au_hr_payroll.input_severance_pay'), 'amount': 15000}),
+            (0, 0, {'input_type_id': ref('l10n_au_hr_payroll.input_golden_handshake'), 'amount': 20000}),
+            (0, 0, {'input_type_id': ref('l10n_au_hr_payroll.input_genuine_redundancy'), 'amount': 5000}),
+        ]"/>
+    </record>
+
+    <function model="hr.payslip" name="compute_sheet" eval="[[ref('l10n_au_hr_payroll.hr_payslip_0_au')]]"/>
+    <function model="hr.payslip" name="compute_sheet" eval="[[ref('l10n_au_hr_payroll.hr_payslip_1_au')]]"/>
+    <function model="hr.payslip" name="compute_sheet" eval="[[ref('l10n_au_hr_payroll.hr_payslip_2_au')]]"/>
+    <function model="hr.payslip" name="compute_sheet" eval="[[ref('l10n_au_hr_payroll.hr_payslip_3_au')]]"/>
+
+    <function model="hr.payslip" name="action_payslip_done" eval="[[ref('l10n_au_hr_payroll.hr_payslip_0_au')]]"/>
+    <function model="hr.payslip" name="action_payslip_done" eval="[[ref('l10n_au_hr_payroll.hr_payslip_1_au')]]"/>
+    <function model="hr.payslip" name="action_payslip_done" eval="[[ref('l10n_au_hr_payroll.hr_payslip_2_au')]]"/>
+
+    <record id="hr_holidays.hr_leave_type_annual_au" model="hr.leave.type" forcecreate="1">
+        <field name="company_id" ref="base.demo_company_au"/>
+        <field name="country_id" ref="base.au"/>
+        <field name="name">Annual Leave</field>
+        <field name="l10n_au_leave_type">annual</field>
+        <field name="leave_validation_type">no_validation</field>
+        <field name="work_entry_type_id" ref="hr_work_entry.l10n_au_work_entry_type_paid_time_off"/>
+    </record>
+
+    <record id="hr_holidays.hr_leave_type_long_service" model="hr.leave.type" forcecreate="1">
+        <field name="company_id" ref="base.demo_company_au"/>
+        <field name="country_id" ref="base.au"/>
+        <field name="name">Long Service Leave</field>
+        <field name="l10n_au_leave_type">long_service</field>
+        <field name="leave_validation_type">no_validation</field>
+        <field name="work_entry_type_id" ref="hr_work_entry.l10n_au_work_entry_type_long_service_leave"/>
+    </record>
+
+    <record id="hr_holidays.hr_leave_type_personal_leave" model="hr.leave.type" forcecreate="1">
+        <field name="company_id" ref="base.demo_company_au"/>
+        <field name="country_id" ref="base.au"/>
+        <field name="name">Personal Leave</field>
+        <field name="l10n_au_leave_type">personal</field>
+        <field name="leave_validation_type">both</field>
+        <field name="work_entry_type_id" ref="hr_work_entry.l10n_au_work_entry_type_personal_leave"/>
+    </record>
+
+    <record id="hr_leave_allocation_long_service_pre_78" model="hr.leave.allocation">
+        <field name="date_from" eval="datetime(1975, 7, 1).date()"/>
+        <field name="holiday_status_id" ref="hr_holidays.hr_leave_type_long_service"/>
+        <field name="number_of_days">10</field>
+        <field name="state">confirm</field>
+        <field name="validation_type">no_validation</field>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+    </record>
+    <record id="hr_leave_allocation_long_service_78_to_93" model="hr.leave.allocation">
+        <field name="date_from" eval="datetime(1980, 7, 1).date()"/>
+        <field name="holiday_status_id" ref="hr_holidays.hr_leave_type_long_service"/>
+        <field name="number_of_days">10</field>
+        <field name="state">confirm</field>
+        <field name="validation_type">no_validation</field>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+    </record>
+    <record id="hr_leave_allocation_long_service_post_93" model="hr.leave.allocation">
+        <field name="date_from" eval="datetime(1994, 7, 1).date()"/>
+        <field name="holiday_status_id" ref="hr_holidays.hr_leave_type_long_service"/>
+        <field name="number_of_days">10</field>
+        <field name="state">confirm</field>
+        <field name="validation_type">no_validation</field>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+    </record>
+    <record id="hr_leave_allocation_annual_pre_93" model="hr.leave.allocation">
+        <field name="date_from" eval="datetime(1980, 7, 1).date()"/>
+        <field name="holiday_status_id" ref="hr_holidays.hr_leave_type_annual_au"/>
+        <field name="number_of_days">10</field>
+        <field name="state">confirm</field>
+        <field name="validation_type">no_validation</field>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+    </record>
+    <record id="hr_leave_allocation_annual_post_93" model="hr.leave.allocation">
+        <field name="date_from" eval="datetime(1994, 7, 1).date()"/>
+        <field name="holiday_status_id" ref="hr_holidays.hr_leave_type_annual_au"/>
+        <field name="number_of_days">10</field>
+        <field name="state">confirm</field>
+        <field name="validation_type">no_validation</field>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+    </record>
+
+    <function model="hr.leave.allocation" name="action_approve">
+        <value eval="[
+        ref('l10n_au_hr_payroll.hr_leave_allocation_long_service_pre_78'),
+        ref('l10n_au_hr_payroll.hr_leave_allocation_long_service_78_to_93'),
+        ref('l10n_au_hr_payroll.hr_leave_allocation_long_service_post_93'),
+        ref('l10n_au_hr_payroll.hr_leave_allocation_annual_pre_93'),
+        ref('l10n_au_hr_payroll.hr_leave_allocation_annual_post_93'),
+        ]"/>
+    </function>
+
+    <record id="hr_leave_long_service_pre_78" model="hr.leave">
+        <field name="request_date_from" eval="datetime(1975, 8, 2).date()"/>
+        <field name="request_date_to" eval="datetime(1975, 8, 4).date()"/>
+        <field name="number_of_days">2</field>
+        <field name="holiday_status_id" ref="hr_holidays.hr_leave_type_long_service"/>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+        <field name="state">confirm</field>
+    </record>
+    <record id="hr_leave_long_service_78_to_93" model="hr.leave">
+        <field name="request_date_from" eval="datetime(1980, 9, 2).date()"/>
+        <field name="request_date_to" eval="datetime(1980, 9, 4).date()"/>
+        <field name="number_of_days">2</field>
+        <field name="holiday_status_id" ref="hr_holidays.hr_leave_type_long_service"/>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+        <field name="state">confirm</field>
+    </record>
+    <record id="hr_leave_long_service_post_93" model="hr.leave">
+        <field name="request_date_from" eval="datetime(1994, 10, 2).date()"/>
+        <field name="request_date_to" eval="datetime(1994, 10, 4).date()"/>
+        <field name="number_of_days">2</field>
+        <field name="holiday_status_id" ref="hr_holidays.hr_leave_type_long_service"/>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+        <field name="state">confirm</field>
+    </record>
+    <record id="hr_leave_annual_pre_93" model="hr.leave">
+        <field name="request_date_from" eval="datetime(1980, 11, 2).date()"/>
+        <field name="request_date_to" eval="datetime(1980, 11, 4).date()"/>
+        <field name="number_of_days">2</field>
+        <field name="holiday_status_id" ref="hr_holidays.hr_leave_type_annual_au"/>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+        <field name="state">confirm</field>
+    </record>
+    <record id="hr_leave_annual_post_93" model="hr.leave">
+        <field name="request_date_from" eval="datetime(1994, 12, 2).date()"/>
+        <field name="request_date_to" eval="datetime(1994, 12, 4).date()"/>
+        <field name="number_of_days">2</field>
+        <field name="holiday_status_id" ref="hr_holidays.hr_leave_type_annual_au"/>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+        <field name="state">confirm</field>
+    </record>
+
+    <function model="hr.leave" name="action_approve">
+        <value eval="[
+            ref('l10n_au_hr_payroll.hr_leave_long_service_pre_78'),
+            ref('l10n_au_hr_payroll.hr_leave_long_service_78_to_93'),
+            ref('l10n_au_hr_payroll.hr_leave_long_service_post_93'),
+            ref('l10n_au_hr_payroll.hr_leave_annual_pre_93'),
+            ref('l10n_au_hr_payroll.hr_leave_annual_post_93')
+        ]"/>
+    </function>
+
+    <record id="hr_payroll_super_fund_partner" model="res.partner">
+        <field name="name">Fund A Partner</field>
+    </record>
+
+    <record id="hr_payroll_super_fund" model="l10n_au.super.fund">
+        <field name="name">Fund A</field>
+        <field name="abn">2345678912</field>
+        <field name="address_id" eval="ref('l10n_au_hr_payroll.hr_payroll_super_fund_partner')"/>
+        <field name="fund_type">APRA</field>
+        <field name="usi">usi123123123123</field>
+    </record>
+
+    <record id="hr_payroll_super_account" model="l10n_au.super.account">
+        <field name="date_from" eval="datetime(2023, 9, 1).date()"/>
+        <field name="employee_id" ref="l10n_au_hr_payroll.hr_employee_roger"/>
+        <field name="fund_id" ref="l10n_au_hr_payroll.hr_payroll_super_fund"/>
+    </record>
+</odoo>

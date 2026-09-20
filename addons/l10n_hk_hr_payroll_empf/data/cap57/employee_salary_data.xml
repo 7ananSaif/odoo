@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add support for MPF exempt employees by deactivating the mandatory contributions for them -->
+    <record id="l10n_hk_hr_payroll.cap57_employees_salary_eemc" model="hr.salary.rule">
+        <field name="condition_select">python</field>
+        <field name="condition_python">
+first_mpf_date = employee._get_first_version_date() + relativedelta(days=30)
+is_above_mpf_threshold = result_rules['MPF_GROSS']['total'] &gt;= payslip._rule_parameter('l10n_hk_mpf_threshold')
+is_allowed_to_contribute = not employee.birthday or employee.birthday &gt; date.today() - relativedelta(years=65)
+result = is_above_mpf_threshold and first_mpf_date &lt;= payslip.date_from and not version.l10n_hk_mpf_exempt and is_allowed_to_contribute
+        </field>
+    </record>
+
+    <record id="l10n_hk_hr_payroll.cap57_employees_salary_ermc" model="hr.salary.rule">
+        <field name="condition_select">python</field>
+        <field name="condition_python">
+result = not version.l10n_hk_mpf_exempt and (not employee.birthday or employee.birthday &gt; date.today() - relativedelta(years=65))
+        </field>
+    </record>
+
+    <!-- The MPF rules need to be updated to match the new, more versatile system -->
+    <record id="l10n_hk_hr_payroll.cap57_employees_salary_eevc" model="hr.salary.rule">
+        <field name="condition_python">result = version.l10n_hk_member_class_ct_eevc_id</field>
+        <field name="amount_python_compute">
+contribution_type = version.l10n_hk_member_class_ct_eevc_id
+
+if contribution_type.definition_of_income == 'basic_salary':
+    mpf_base = result_rules['BASIC']['total']
+else:  # Relevant Wages
+    mpf_base = result_rules['MPF_GROSS']['total']
+
+is_exempt = version.l10n_hk_mpf_exempt
+if contribution_type.contribution_option == 'percentage':
+    contribution_amount = -((contribution_type.amount / 100) * mpf_base)
+elif contribution_type.contribution_option == 'fixed':
+    contribution_amount = -contribution_type.amount
+else:  # Top up
+    contribution_amount = -max(((contribution_type.amount / 100) * mpf_base) - (0 if is_exempt else payslip._rule_parameter('l10n_hk_mpf_maximum')), 0)
+
+result = contribution_amount
+        </field>
+    </record>
+
+    <record id="l10n_hk_hr_payroll.cap57_employees_salary_ervc" model="hr.salary.rule">
+        <field name="condition_python">result = version.l10n_hk_member_class_ct_ervc_id</field>
+        <field name="amount_python_compute">
+contribution_type = version.l10n_hk_member_class_ct_ervc_id
+
+if contribution_type.definition_of_income == 'basic_salary':
+    mpf_base = result_rules['BASIC']['total']
+else:  # Relevant Wages
+    mpf_base = result_rules['MPF_GROSS']['total']
+
+if contribution_type.contribution_option == 'percentage':
+    contribution_amount = -((contribution_type.amount / 100) * mpf_base)
+elif contribution_type.contribution_option == 'fixed':
+    contribution_amount = -contribution_type.amount
+elif contribution_type.contribution_option == 'match':
+    contribution_amount = result_rules['EEVC']['total']
+else:  # Top up
+    contribution_amount = -max(((contribution_type.amount / 100) * mpf_base) - payslip._rule_parameter('l10n_hk_mpf_maximum'), 0)
+
+result = contribution_amount
+        </field>
+    </record>
+
+    <record id="cap57_employees_salary_ervc_two" model="hr.salary.rule">
+        <field name="category_id" ref="l10n_hk_hr_payroll.ERMPF" />
+        <field name="name">Employer Voluntary Contribution 2</field>
+        <field name="code">ERVC2</field>
+        <field name="sequence">113</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = version.l10n_hk_member_class_ct_ervc2_id</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+contribution_type = version.l10n_hk_member_class_ct_ervc2_id
+
+if contribution_type.definition_of_income == 'basic_salary':
+    mpf_base = result_rules['BASIC']['total']
+else:  # Relevant Wages
+    mpf_base = result_rules['MPF_GROSS']['total']
+
+is_exempt = version.l10n_hk_mpf_exempt
+if contribution_type.contribution_option == 'percentage':
+    contribution_amount = -((contribution_type.amount / 100) * mpf_base)
+elif contribution_type.contribution_option == 'fixed':
+    contribution_amount = -contribution_type.amount
+elif contribution_type.contribution_option == 'match':
+    contribution_amount = result_rules['EEVC']['total']
+else:  # Top up
+    contribution_amount = -max(((contribution_type.amount / 100) * mpf_base) - (0 if is_exempt else payslip._rule_parameter('l10n_hk_mpf_maximum')), 0)
+
+result = contribution_amount
+        </field>
+        <field name="struct_id" ref="l10n_hk_hr_payroll.hr_payroll_structure_cap57_employee_salary" />
+        <field name="appears_on_payslip" eval="False"/>
+    </record>
+</odoo>

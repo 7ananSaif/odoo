@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="pos_enterprise.Orderline">
+        <section
+            class="o_preparation_display_orderline py-2 border-top border-light text-800"
+            t-attf-class="{{ preparation_line.combo_parent_id ? 'ms-4 fst-italic' : '' }}"
+        >
+            <div class="o_pdis_orderline_infos d-flex pe-2">
+                <div class="o_pdis_quantity px-2 text-center text-muted">
+                    <div class="o_pdis_todo" t-esc="`${preparation_line.quantity - preparation_line.cancelled}x`"/>
+                </div>
+                <div
+                    class="o_pdis_product-name flex-grow-1"
+                    t-esc="preparation_line.product_id.display_name"
+                    t-att-class="{ 'o_pdis_orderline--done opacity-25 text-decoration-line-through text-muted': this.props.orderline.todo === false }"
+                    />
+            </div>
+            <div t-if="preparation_line.attribute_value_ids.length > 0" class="ms-4 my-1 text-muted">
+                <div t-foreach="attributeData" t-as="attribute" t-key="attribute.id">
+                    <p class="p-0 m-0">
+                        - <t t-esc="attribute.name" /> : <t t-esc="attribute.value" />
+                    </p>
+                </div>
+            </div>
+
+            <div class="o_pdis_orderline_warning o_pdis_note" t-att-class="{ 'o_pdis_orderline--done': this.props.orderline.todo === false }">
+                <div t-if="customerNotes.length" class="list-inline o_pdis_note d-flex ms-4 px-2">
+                    <i class="fa fa-sticky-note px-1 fa-lg" role="img" aria-label="Line Customer Note" title="Line Customer Note"/>
+                    <div class="col">
+                        <t t-foreach="customerNotes" t-as="subNote" t-key="subNote_index">
+                            <li t-esc="subNote"/>
+                        </t>
+                    </div>
+                </div>
+
+                <div class="d-flex flex-wrap gap-1 pt-2 ms-2 bg-opacity-75"
+                    t-att-class="{ 'o_pdis_orderline_blinking': this.noteState.isActive }">
+                    <TagsList tags="internalNotes"/>
+                </div>
+                <div t-if="preparation_line.cancelled > 0" class="o_pdis--cancelled d-flex w-100 pe-2">
+                    <div
+                        t-if="preparation_line.cancelled > 0"
+                        t-esc="`${preparation_line.quantity}x`"
+                        class="ps-2 pe-3 text-danger opacity-50 small text-decoration-line-through"
+                    />
+                    <div t-esc="`${preparation_line.cancelled} cancelled`"
+                        class="px-2 rounded bg-danger bg-opacity-25 text-danger small"
+                    />
+                </div>
+            </div>
+        </section>
+    </t>
+</templates>

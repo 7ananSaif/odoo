@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ch_tax_return_type" model="account.return.type">
+            <field name="name">Tax</field>
+            <field name="report_id" ref="l10n_ch.tax_report"/>
+            <field name="country_id" ref="base.ch" />
+            <field name="default_deadline_days_delay">60</field>
+        </record>
+    </data>
+</odoo>

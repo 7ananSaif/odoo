@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="sign.import.documents.DocumentImportCogMenu">
+        <DropdownItem onSelected.bind="openDocumentImportWizard">
+            <t t-call="sign.import.documents.DocumentsIcon"/>
+            Import from Documents
+        </DropdownItem>
+    </t>
+    <t t-name="sign.import.documents.DocumentsIcon">
+        <svg viewBox="0 0 50 50" xmlns="http://www.w3.org/2000/svg" class="o_ui_app_icon oi-large">
+            <rect fill="var(--oi-color, #FFB74D)" x="22" y="2" width="25" height="35" rx="6" ry="6" class="opacity-50 opacity-100-hover" transform="rotate(45, 18, 20)"/>
+            <rect fill="var(--oi-color, #EF5350)" x="8" y="3" width="25" height="35" rx="6" ry="6" class="opacity-50 opacity-100-hover" transform="rotate(30, 12, 25)"/>
+            <rect fill="var(--oi-color, #42A5F5)" x="0" y="2" width="25" height="35" rx="6" ry="6" class="opacity-50 opacity-100-hover" transform="rotate(0, 6, 30)"/>
+        </svg>
+    </t>
+</templates>

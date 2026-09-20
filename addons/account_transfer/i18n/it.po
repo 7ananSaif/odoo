@@ -1,0 +1,536 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_auto_transfer
+#
+# Translators:
+# Martin Trigaux, 2022
+# Sergio Zanchetta <primes2h@gmail.com>, 2022
+# "Marianna Ciofani (cima)" <cima@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-10-16 09:06+0000\n"
+"Last-Translator: \"Marianna Ciofani (cima)\" <cima@odoo.com>\n"
+"Language-Team: Italian <https://translate.odoo.com/projects/odoo-19/"
+"account_transfer/it/>\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=3; plural=(n == 1) ? 0 : ((n != 0 && n % 1000000 == "
+"0) ? 1 : 2);\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "<span> to </span>"
+msgstr "<span> fino al </span>"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model_line.py:0
+msgid "A destination account must be set on each line."
+msgstr "È necessario impostare un account di destinazione su ogni riga."
+
+#. module: account_transfer
+#: model:ir.model.fields,help:account_transfer.field_account_transfer_model__conditions
+msgid ""
+"A domain to filter the accounts from which the resulting entry will transfer "
+"amounts."
+msgstr ""
+"Un dominio per filtrare i conti da cui la registrazione risultante "
+"trasferirà gli importi."
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Account"
+msgstr "Conto"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_chart_template
+msgid "Account Chart Template"
+msgstr "Modello piano dei conti"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_transfer_model
+msgid "Account Transfer Model"
+msgstr "Modello trasferimento conto"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_transfer_model_line
+msgid "Account Transfer Model Line"
+msgstr "Riga modello trasferimento conto"
+
+#. module: account_transfer
+#: model:ir.actions.server,name:account_transfer.ir_cron_auto_transfer_ir_actions_server
+msgid "Account transfers: Compute transfer entries"
+msgstr "Trasferimenti conti: calcola registrazioni trasferimenti"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Accounts"
+msgstr "Conti"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__active
+msgid "Active"
+msgstr "Attivo"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_search
+msgid "Archived"
+msgstr "In archivio"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__company_id
+msgid "Company"
+msgstr "Azienda"
+
+#. module: account_transfer
+#: model:ir.model.fields,help:account_transfer.field_account_transfer_model__company_id
+msgid "Company related to this journal"
+msgstr "Azienda correlata al registro"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Compute Transfer"
+msgstr "Calcola trasferimento"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__conditions
+msgid "Conditions"
+msgstr "Condizioni"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__create_uid
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__create_uid
+msgid "Created by"
+msgstr "Creato da"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__create_date
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__create_date
+msgid "Created on"
+msgstr "Data creazione"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Description"
+msgstr "Descrizione"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Destination"
+msgstr "Destinazione"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__account_id
+msgid "Destination Account"
+msgstr "Conto di destinazione"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__line_ids
+msgid "Destination Accounts"
+msgstr "Conti di destinazione"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__journal_id
+msgid "Destination Journal"
+msgstr "Registro di destinazione"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Disable"
+msgstr "Disattiva"
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__state__disabled
+msgid "Disabled"
+msgstr "Disabilitato"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_chart_template__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_journal__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_move__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__display_name
+msgid "Display Name"
+msgstr "Nome visualizzato"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Enable"
+msgstr "Attiva"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__frequency
+msgid "Frequency"
+msgstr "Frequenza"
+
+#. module: account_transfer
+#: model:ir.actions.act_window,name:account_transfer.generated_transfers_action
+msgid "Generated Entries"
+msgstr "Registrazioni generate"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__move_ids
+msgid "Generated Moves"
+msgstr "Movimenti generati"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__has_draft_moves
+msgid "Has Draft Moves"
+msgstr "Ha movimenti in bozza"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_chart_template__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_journal__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_move__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_move_line__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/demo/account_demo.py:0
+msgid "IFRS Transfers"
+msgstr "Trasferimenti IFRS"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/demo/account_demo.py:0
+msgid "IFRS rent expense transfer"
+msgstr "Trasferimento mensile spese di leasing IFRS"
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__state__in_progress
+msgid "In Progress"
+msgstr "In corso"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_journal
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Journal"
+msgstr "Registro"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_move
+msgid "Journal Entry"
+msgstr "Registrazione contabile"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_move_line
+msgid "Journal Item"
+msgstr "Movimento contabile"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Keep Original"
+msgstr "Conserva originale"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__write_uid
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__write_uid
+msgid "Last Updated by"
+msgstr "Ultimo aggiornamento di"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__write_date
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__write_date
+msgid "Last Updated on"
+msgstr "Ultimo aggiornamento il"
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__frequency__month
+msgid "Monthly"
+msgstr "Mensile"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__move_ids_count
+msgid "Move Ids Count"
+msgstr "Totale ID movimenti"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Move Model"
+msgstr "Modello movimento"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_tree
+msgid "Move Models"
+msgstr "Modelli movimento"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__name
+msgid "Name"
+msgstr "Nome"
+
+#. module: account_transfer
+#: model:ir.model.constraint,message:account_transfer.constraint_account_transfer_model_line_unique_account_by_transfer_model
+msgid "Only one account occurrence by transfer model"
+msgstr "Solo un'occorrenza del conto per modello di trasferimento"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__account_ids
+msgid "Origin Accounts"
+msgstr "Conti di origine"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_bank_statement_line__transfer_model_id
+#: model:ir.model.fields,field_description:account_transfer.field_account_move__transfer_model_id
+msgid "Originating Model"
+msgstr "Modello di origine"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__percent
+msgid "Percent"
+msgstr "Percentuale"
+
+#. module: account_transfer
+#: model:ir.model.fields,help:account_transfer.field_account_transfer_model_line__percent
+msgid ""
+"Percentage of the sum of lines from the origin accounts will be transferred "
+"to the destination account"
+msgstr ""
+"Percentuale della somma delle linee dai conti di origine sarà trasferita al "
+"conto di destinazione"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Period"
+msgstr "Periodo"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid ""
+"Puts the transfer model in a state in which it will automatically recompute "
+"its draft entries' values every day."
+msgstr ""
+"Imposta il modello di trasferimento in uno stato in cui ricalcola "
+"automaticamente ogni giorno i valori delle registrazioni provvisorie."
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid ""
+"Puts the transfer model in a state in which it will not automatically "
+"recompute its draft entries' values every day."
+msgstr ""
+"Imposta il modello di trasferimento in uno stato in cui non ricalcola "
+"automaticamente ogni giorno i valori delle registrazioni provvisorie."
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__frequency__quarter
+msgid "Quarterly"
+msgstr "Trimestrale"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Rate (%)"
+msgstr "Tasso (%)"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__sequence
+msgid "Sequence"
+msgstr "Sequenza"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__date_start
+msgid "Start Date"
+msgstr "Data inizio"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__state
+msgid "State"
+msgstr "Stato"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__date_stop
+msgid "Stop Date"
+msgstr "Data fine"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid "The total percentage (%s) should be less or equal to 100!"
+msgstr "La percentuale totale (%s) deve essere inferiore o uguale a 100!"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__total_percent
+msgid "Total Percent"
+msgstr "Percentuale Totale"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid "Transfer (%(percent)s%% from %(account)s)"
+msgstr "Trasferimento (%(percent)s%% da %(account)s)"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid "Transfer (-%(percent)s%% to %(account)s)"
+msgstr "Trasferimento (-%(percent)s%% in %(account)s)"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__transfer_model_id
+msgid "Transfer Model"
+msgstr "Modello trasferimento"
+
+#. module: account_transfer
+#: model:ir.actions.act_window,name:account_transfer.transfer_model_action
+#: model:ir.ui.menu,name:account_transfer.menu_auto_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Transfers"
+msgstr "Trasferimenti"
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__frequency__year
+msgid "Yearly"
+msgstr "Annuale"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/demo/account_demo.py:0
+msgid "Yearly liabilites auto transfers"
+msgstr "Trasferimenti automatici passività annuali"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid ""
+"You cannot delete a transfer model that has draft moves attached ('%s'). "
+"Please delete them before deleting this transfer."
+msgstr ""
+"Non è possibile eliminare un modello di trasferimento a cui sono associate "
+"bozze di trasferimenti (‘%s’). Eliminale prima di eliminare questo "
+"trasferimento."
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid ""
+"You cannot delete a transfer model that has posted moves attached ('%s')."
+msgstr ""
+"Non è possibile eliminare un modello di trasferimento che ha movimenti "
+"registrati in allegato ('%s')."
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/account_move_line.py:0
+msgid "You cannot set Tax on computed Transfer's entries."
+msgstr ""
+"Non è possibile configurare imposte su registrazioni relative a "
+"trasferimenti già calcolate."
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "e.g. Monthly Expense Transfer"
+msgstr "es. Trasferimento spese mensili"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "forever"
+msgstr "per sempre"
+
+#~ msgid "Account automatic transfers: Perform transfers"
+#~ msgstr "Trasferimento automatico conto: esegui trasferimenti"
+
+#~ msgid "Activate"
+#~ msgstr "Attiva"
+
+#~ msgid ""
+#~ "Adds a condition to only transfer the sum of the lines from the origin "
+#~ "accounts that match these analytic accounts to the destination account"
+#~ msgstr ""
+#~ "Aggiunge una condizione per trasferire solo la somma delle linee dai "
+#~ "conti di origine che corrispondono a questi conti analitici al conto di "
+#~ "destinazione"
+
+#~ msgid ""
+#~ "Adds a condition to only transfer the sum of the lines from the origin "
+#~ "accounts that match these partners to the destination account"
+#~ msgstr ""
+#~ "Aggiunge una condizione per trasferire solo la somma delle linee dai "
+#~ "conti di origine che corrispondono a questi partner al conto di "
+#~ "destinazione"
+
+#~ msgid "Analytic Filter"
+#~ msgstr "Filtro analitico"
+
+#~ msgid "Automated Transfer"
+#~ msgstr "Trasferimento automatizzato"
+
+#~ msgid "Automatic Transfer (%s%% from account %s)"
+#~ msgstr "Trasferimento automatico (%s%% dal conto %s)"
+
+#~ msgid "Automatic Transfer (-%s%%)"
+#~ msgstr "Trasferimento automatico (-%s%%)"
+
+#~ msgid ""
+#~ "Automatic Transfer (entries with analytic account(s): %s and partner(s): "
+#~ "%s)"
+#~ msgstr ""
+#~ "Trasferimento automatico (registrazioni con conti analitici: %s e "
+#~ "partner: %s)"
+
+#~ msgid "Automatic Transfer (entries with analytic account(s): %s)"
+#~ msgstr "Trasferimento automatico (registrazioni con conti analitici: %s)"
+
+#~ msgid "Automatic Transfer (entries with partner(s): %s)"
+#~ msgstr "Trasferimento automatico (registrazioni con partner: %s)"
+
+#~ msgid ""
+#~ "Automatic Transfer (from account %s with analytic account(s): %s and "
+#~ "partner(s): %s)"
+#~ msgstr ""
+#~ "Trasferimento automatico (dal conto %s con conti analitici: %s e partner: "
+#~ "%s)"
+
+#~ msgid "Automatic Transfer (from account %s with analytic account(s): %s)"
+#~ msgstr "Trasferimento automatico (dal conto %s con conti analitici: %s)"
+
+#~ msgid "Automatic Transfer (from account %s with partner(s): %s)"
+#~ msgstr "Trasferimento automatico (dal conto %s con partner: %s)"
+
+#~ msgid "Automatic Transfer (to account %s)"
+#~ msgstr "Trasferimento automatico (al conto %s)"
+
+#~ msgid "Automatic Transfers"
+#~ msgstr "Trasferimenti automatici"
+
+#~ msgid "IFRS Automatic Transfers"
+#~ msgstr "Trasferimenti automatici IFRS"
+
+#~ msgid "Monthly IFRS rent expense transfer"
+#~ msgstr "Trasferimento mensile spese di leasing IFRS"
+
+#~ msgid "Partner Filter"
+#~ msgstr "Filtro partner"
+
+#~ msgid "Percent (%)"
+#~ msgstr "Percentuale (%)"
+
+#~ msgid "Percent Is Readonly"
+#~ msgstr "Percento in sola lettura"
+
+#~ msgid "Running"
+#~ msgstr "In corso"
+
+#~ msgid "The analytic filter %s is duplicated"
+#~ msgstr "Il filtro analitico %s è duplicato"
+
+#~ msgid ""
+#~ "The partner filter %s in combination with the analytic filter %s is "
+#~ "duplicated"
+#~ msgstr ""
+#~ "Il filtro partner %s, in combinazione con il filtro analitico %s, è "
+#~ "duplicato"
+
+#~ msgid "The partner filter %s is duplicated"
+#~ msgstr "Il filtro partner %s è duplicato"

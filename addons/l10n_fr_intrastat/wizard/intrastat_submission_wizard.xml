@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="intrastat_submission_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_fr_intrastat.intrastat.submission.wizard.form</field>
+            <field name="model">l10n_fr_intrastat.intrastat.submission.wizard</field>
+            <field name="inherit_id" ref="account_reports.return_submission_wizard_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="instructions" position="replace">
+                    <group>
+                        <group id="instructions">
+                            <separator string="Instructions"/>
+                            <ol colspan="2">
+                                <li>
+                                    <div class="d-inline-block align-top">
+                                        <span>Download your Intrastat return</span><br/>
+                                        <button string='Download XML' name="print_xml" type="object" class="btn-secondary"/>
+                                    </div>
+                                </li>
+                                <li>Log in to the <a href="https://www.douane.gouv.fr/" target="_blank">Customs Portal</a></li>
+                                <li>Upload the XML file</li>
+                                <li>Confirm and send the form</li>
+                            </ol>
+                        </group>
+                    </group>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

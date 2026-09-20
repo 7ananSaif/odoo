@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_salary_rule_category_social_security_employee" model="hr.salary.rule.category">
+        <field name="name">Employee Social Security Deductions</field>
+        <field name="name@nl">Socialezekerheidsbijdragen werknemer</field>
+        <field name="code">SOCIALSECURITYEMPLOYEE</field>
+        <field name="parent_id" ref="hr_payroll.DED"/>
+        <field name="country_id" ref="base.nl"/>
+    </record>
+
+    <record id="hr_salary_rule_category_income_tax" model="hr.salary.rule.category">
+        <field name="name">Income Tax</field>
+        <field name="name@nl">Inkomstenbelasting</field>
+        <field name="code">INCOMETAX</field>
+        <field name="parent_id" ref="hr_payroll.DED"/>
+        <field name="country_id" ref="base.nl"/>
+    </record>
+
+    <record id="hr_salary_rule_category_social_security_employer" model="hr.salary.rule.category">
+        <field name="name">Employer Social Security Deductions</field>
+        <field name="name@nl">Socialezekerheidsbijdragen werkgever</field>
+        <field name="code">SOCIALSECURITYEMPLOYER</field>
+        <field name="country_id" ref="base.nl"/>
+    </record>
+
+    <record id="hr_salary_rule_category_taxable_income" model="hr.salary.rule.category">
+        <field name="name">Taxable Income</field>
+        <field name="name@nl">Belastbaar inkomen</field>
+        <field name="code">TAXABLE</field>
+        <field name="country_id" ref="base.nl"/>
+    </record>
+</odoo>

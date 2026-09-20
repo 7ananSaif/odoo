@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="employee_referral_reward_report_view_pivot" model="ir.ui.view">
+            <field name="name">employee.referral.reward.report.view.pivot</field>
+            <field name="model">hr.referral.reward.report</field>
+            <field name="arch" type="xml">
+                <pivot string="Employees Reward Analysis" sample="1">
+                    <field name="reward_id" type="row"/>
+                    <field name="awarded_employee_id" type="col"/>
+                    <field name="rewarded_employees" type="measure"/>
+                    <field name="cost" invisible="1"/>
+                </pivot>
+            </field>
+        </record>
+
+        <record id="employee_referral_reward_report_view_graph" model="ir.ui.view">
+            <field name="name">employee.referral.reward.report.view.graph</field>
+            <field name="model">hr.referral.reward.report</field>
+            <field name="arch" type="xml">
+                <graph string="Employees Reward Analysis" sample="1">
+                    <field name="reward_id"/>
+                    <field name="awarded_employee_id"/>
+                    <field name="rewarded_employees" type="measure"/>
+                    <field name="cost" invisible="1"/>
+                </graph>
+            </field>
+        </record>
+
+        <record id="hr_referral_reward_report_view_tree" model="ir.ui.view">
+            <field name="name">hr.referral.reward.report.view.list</field>
+            <field name="model">hr.referral.reward.report</field>
+            <field name="arch" type="xml">
+                <list string="Employees Reward" edit="1" editable="bottom">
+                    <field name="reward_id"/>
+                    <field name="awarded_employee_id" optional="show" widget="many2one_avatar_user"/>
+                    <field name="cost" optional="show"/>
+                    <field name="rewarded_employees" optional="show" string="Count"/>
+                    <field name="company_id" groups="base.group_multi_company"/>
+                </list>
+            </field>
+        </record>
+
+        <record id="employee_referral_reward_report_view_search" model="ir.ui.view">
+            <field name="name">employee.referral.reward.report.view.search</field>
+            <field name="model">hr.referral.reward.report</field>
+            <field name="arch" type="xml">
+                <search string="Employees Reward Analysis">
+                    <field name="reward_id"/>
+                    <field name="awarded_employee_id"/>
+                    <field name="write_date"/>
+                    <filter string="Date" name="year" date="write_date" default_period="month"/>
+                    <group>
+                        <filter string="Employee" name="awarded_employee_id" context="{'group_by':'awarded_employee_id'}"/>
+                        <filter string="Reward" name="reward_id" context="{'group_by':'reward_id'}"/>
+                        <filter string="Company" name="company_id" context="{'group_by':'company_id'}" groups="base.group_multi_company"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <record id="employee_referral_reward_report_action" model="ir.actions.act_window">
+            <field name="name">Reward Analysis</field>
+            <field name="res_model">hr.referral.reward.report</field>
+            <field name="view_mode">graph,pivot</field>
+            <field name="search_view_id" ref="employee_referral_reward_report_view_search"/>
+            <field name="context">{
+                'search_default_year': True
+            }</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_empty_folder">
+                    No data to display
+                </p>
+                <p>
+                    This reports allow you to follow the referral rewards and their evolution.
+                </p>
+            </field>
+        </record>
+
+        <menuitem id="menu_report_employee_referral_reward_all"
+            name="Rewards"
+            action="employee_referral_reward_report_action"
+            parent="menu_hr_referral_reporting"
+            groups="hr_referral.group_hr_referral_manager"
+            sequence="2"/>
+    </data>
+</odoo>

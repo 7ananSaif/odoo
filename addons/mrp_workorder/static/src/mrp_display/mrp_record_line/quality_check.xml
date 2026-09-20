@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="mrp_workorder.QualityCheck">
+        <li class="o_mrp_record_line list-group-item d-flex justify-content-between align-items-center gap-3 border-0 cursor-pointer"
+            t-on-click="onClick">
+            <span class="o_line_label text-wrap text-break"
+                  t-att-class="isComplete ? 'text-decoration-line-through opacity-25' : ''"
+                  t-out="label"/>
+            <div class="d-flex align-items-center gap-1 mb-auto">
+                <!-- TODO: separate unit and qty in showQty -->
+                <span t-if="showQty" t-out="showQty" class="o_line_value fw-bold text-end"/>
+                <button t-if="hasInstruction" t-on-click.stop="showWorksheet" class="o_btn_icon btn btn-outline-secondary">
+                    <i class="fa fa-info" role="img"/>
+                </button>
+                <button class="o_btn_icon btn" t-att-class="{'p-0' : showImage}"
+                        t-attf-class="{{isActive ? activeClass : 'btn-outline-secondary'}}"
+                        t-att-barcode_trigger="isActive ? barcode : false"
+                        t-att-style="showImage ? `background: url(${imageUrl}) no-repeat center/contain;` : ''">
+                    <i t-if="!showImage" t-att-class="icon"/>
+                </button>
+            </div>
+        </li>
+        <FileUploader t-if="props.record.data.test_type === 'picture'"
+                      acceptedFileExtensions="'image/*'"
+                      t-key="props.record.resId"
+                      onUploaded.bind="onFileUploaded">
+            <t t-set-slot="toggler"><span t-ref="fileUploaderToggle" class="d-none"/></t>
+        </FileUploader>
+    </t>
+</templates>

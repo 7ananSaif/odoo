@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="sdd_mandate_form_view" model="ir.ui.view">
+            <field name="name">SDD Mandate Form</field>
+            <field name="model">sdd.mandate</field>
+            <field name="inherit_id" ref="account_sepa_direct_debit.account_sepa_direct_debit_mandate_form"/>
+            <field name="arch" type="xml">
+                <button
+                    name="action_validate_mandate" class="btn btn-secondary" position="attributes"
+                >
+                    <attribute name="invisible" add="is_online_payment" separator="or"/>
+                </button>
+                <button name="action_validate_mandate" class="btn btn-secondary" position="after">
+                    <button
+                        string="Validate"
+                        type="object"
+                        name="action_validate_mandate"
+                        class="btn btn-secondary"
+                        invisible="state != 'draft' or is_sent or not is_online_payment"
+                        confirm="This mandate was created from an online payment. Do you want to manually validate it?"
+                    />
+                </button>
+                <button name="action_validate_mandate" class="btn btn-primary" position="attributes">
+                    <attribute name="invisible" add="is_online_payment" separator="or"/>
+                </button>
+                <button name="action_validate_mandate" class="btn btn-primary" position="after">
+                    <button
+                        string="Validate"
+                        type="object"
+                        name="action_validate_mandate"
+                        class="btn btn-primary"
+                        invisible="state != 'draft' or not is_sent or not is_online_payment"
+                        confirm="This mandate was created from an online payment. Do you want to manually validate it?"
+                    />
+                </button>
+                <button name="action_view_payments_to_collect" position="after">
+                    <button
+                        type="object"
+                        name="action_view_payment_transactions"
+                        icon="fa-money"
+                        class="oe_stat_button"
+                    >
+                        <field
+                            name="payment_transaction_count" widget="statinfo" string="Transactions"
+                        />
+                    </button>
+                </button>
+            </field>
+        </record>
+    </data>
+</odoo>

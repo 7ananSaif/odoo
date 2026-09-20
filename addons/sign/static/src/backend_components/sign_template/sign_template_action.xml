@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <div t-name="sign.Template" class="d-flex flex-column h-100">
+        <SignTemplateControlPanel
+            actionType="actionType"
+            hasSignRequests="hasSignRequests"
+            responsibleCount="responsibleCount"
+            signTemplate="signTemplate"
+            goBackToKanban.bind="goBackToKanban"
+            signStatus="signStatus"
+            manageTemplateAccess="manageTemplateAccess"
+            onTemplateSaveClick.bind="onTemplateSaveClick"
+            hasSignersWithoutItems="hasSignersWithoutItems"
+            documentId="this.state.selectedDocumentId"
+            onEditTemplate.bind="onEditTemplate"
+            referenceDoc="referenceDoc"
+            activityId="activityId"
+        />
+        <div class="d-flex flex-grow-1 h-100 overflow-hidden">
+            <SignTemplateSidebar t-if="showSidebar" t-props="signTemplateSidebarProps"/>
+            <div class="o_sign_documents_container">
+                <t t-foreach="this.state.documents" t-as="document" t-key="document.id">
+                    <div t-attf-class="{{document.id == this.state.selectedDocumentId ? 'o_sign_visible_document' : 'o_sign_invisible_document'}}">
+                        <SignTemplateBody t-props="getSignTemplateBodyProps(document.id)"/>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </div>
+</templates>

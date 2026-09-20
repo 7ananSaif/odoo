@@ -1,0 +1,46 @@
+.o_appointment_calendar_event_form_gantt_booking {
+    // fit input to contents to avoid dead space, down to a reasonable width
+    .o_appointment_form_gantt_capacity_field input {
+        min-width: 3rem;
+        field-sizing: content;
+    }
+}
+
+.o_gantt_popover:has(.o_appointment_gantt_popover_kanban_card) {
+    max-width: 400px;
+    min-width: 300px;
+    width: auto;
+
+    @for $i from 1 through length($o-web-calendar-colors) {
+        .popover-header.o_gantt_color_#{$i - 1}{
+            $-calendar-colors-map: nth($o-web-calendar-colors, $i);
+            background-color: map-get($-calendar-colors-map, "popover-background-color");
+            color: map-get($-calendar-colors-map, "popover-color");
+        }
+    }
+}
+
+.o_appointment_gantt_popover_kanban_card {
+    // As it's not an actual kanban card, it's not actually clickable
+    &.cursor-pointer { 
+        cursor: default !important;
+    }
+
+    div.d-flex > i.fa {
+        text-align: center;
+        min-width: 1.25rem;
+    }
+
+    .o_field_many2one.o_readonly_modifier {
+        max-width: 17em;
+    }
+    
+    .o_field_CopyClipboardChar {
+        max-width: 17em;
+    }
+    
+    .o_appointment_gantt_popover_html_field {
+        max-height: 8rem;
+        overflow-y: overlay;
+    }
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <data>
+        <record id="account_reports.annual_statements" model="account.report">
+            <field name="custom_handler_model_id" ref="model_annual_statement_report_handler"/>
+        </record>
+
+        <menuitem
+            id="menu_action_account_report_annual_statements"
+            name="Annual Statements"
+            action="account_reports.action_account_report_asr"
+            sequence="63"
+            parent="account.account_reports_legal_statements_menu"
+            groups="account.group_account_readonly"/>
+    </data>
+</odoo>

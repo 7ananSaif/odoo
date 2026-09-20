@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="sign.TemplateAlertDialog">
+        <Dialog size="'md'" title="props.title" contentClass="props.contentClass">
+            <p>The uploaded files cannot be read, they may be corrupted or encrypted.</p>
+            <p t-out="props.body"/>
+            <t t-set-slot="footer">
+              <button class="btn btn-primary" t-on-click="_confirm" t-esc="props.confirmLabel"/>
+            </t>
+        </Dialog>
+    </t>
+</templates>

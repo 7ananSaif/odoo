@@ -1,8 +1,14 @@
 # Production overlay — merged on top of values.yaml.
 # Secrets are NOT stored here; `secret.existingSecret: true` references a
 # Secret provisioned via AWS Secrets Manager / External Secrets Operator.
+#
+# This is the EKS production target:
+#   - Postgres is Amazon RDS (not in-cluster) -> postgres.enabled: false
+#   - Odoo image pulled from ECR
+#   - Secret populated by External Secrets Operator
 
 postgres:
+  enabled: false # RDS is the database; no in-cluster StatefulSet
   resources:
     requests:
       cpu: 1
@@ -12,12 +18,13 @@ postgres:
       memory: 8Gi
   storage:
     size: 100Gi
-  # In production you typically move Postgres OUT of the cluster to Amazon RDS.
-  # Set `postgres.enabled: false` and point `config.odooDbHost` at the RDS
-  # endpoint instead.
 
 odoo:
   replicaCount: 3
+  image:
+    repository: <account>.dkr.ecr.eu-west-1.amazonaws.com/odoo # <- ECR repo
+    tag: prod-<sha> # <- built image tag
+    pullPolicy: IfNotPresent
   resources:
     requests:
       cpu: "2"
@@ -28,9 +35,11 @@ odoo:
   filestore:
     size: 100Gi
 
-# In prod DB host points at RDS endpoint (or keep `postgres` if in-cluster).
+# DB host is the RDS endpoint, not the in-cluster service.
 config:
-  odooDbHost: postgres # -> replace with RDS endpoint when using RDS
+  odooDbHost: <rds-endpoint>.eu-west-1.rds.amazonaws.com # <- terraform output rds_hostname
+  odooDbPort: "5432"
+  odooDbUser: odoo
 
 secret:
   existingSecret: true

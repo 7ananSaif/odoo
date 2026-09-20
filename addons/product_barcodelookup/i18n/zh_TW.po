@@ -1,0 +1,336 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* product_barcodelookup
+#
+# Translators:
+# Wil Odoo, 2025
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.2+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:46+0000\n"
+"PO-Revision-Date: 2025-05-06 11:01+0000\n"
+"Last-Translator: Wil Odoo, 2025\n"
+"Language-Team: Chinese (Taiwan) (https://app.transifex.com/odoo/teams/41243/"
+"zh_TW/)\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"%(matching_images_count)s matching images have been found for %"
+"(product_count)s products."
+msgstr ""
+"已為 %(product_count)s 個產品找到 %(matching_images_count)s 個匹配的圖片。"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid ""
+"<span invisible=\"nb_products_selected &lt;= 1000\">\n"
+"                            As only 1000 products can be processed per day, "
+"the remaining will be\n"
+"                            done tomorrow.\n"
+"                        </span>"
+msgstr ""
+"<span invisible=\"nb_products_selected &lt;= 1000\">\n"
+"                            由於每天只能處理 1,000 件產品，\n"
+"                            其餘產品將於明天處理。\n"
+"                        </span>"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid ""
+"<strong>Note: </strong>\n"
+"                        Some images may not be royalty-free and should not "
+"be published online."
+msgstr ""
+"<strong>請注意</strong>：\n"
+"                        部份圖片可能須繳付版權稅，因此不應在線上發佈。"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"A task to process products in the background is already running. Please try "
+"again later."
+msgstr "在背景處理產品的任務已經在運行。請稍後再試。"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "API Key:"
+msgstr "API 密鑰："
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_res_config_settings__barcodelookup_api_key
+msgid "API key"
+msgstr "API 密鑰"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "Barcode Database"
+msgstr "條碼資料庫"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,help:product_barcodelookup.field_res_config_settings__barcodelookup_api_key
+msgid "Barcode Lookup API Key for create product from barcode."
+msgstr "條碼查找 API 密鑰，用於從條碼建立產品。"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "Cancel"
+msgstr "取消"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_res_config_settings
+msgid "Config Settings"
+msgstr "配置設定"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "Create products by scanning using"
+msgstr "從掃瞄建立產品時，使用："
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__create_uid
+msgid "Created by"
+msgstr "建立人員"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__create_date
+msgid "Created on"
+msgstr "建立於"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_ir_cron_trigger__display_name
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__display_name
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_product__display_name
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_template__display_name
+#: model:ir.model.fields,field_description:product_barcodelookup.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "顯示名稱"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_product_fetch_image_wizard
+msgid ""
+"Fetch product images from Barcode Lookup based on the product's barcode."
+msgstr "透過條碼查找，根據產品的條碼讀取產品圖片。"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "Get Pictures"
+msgstr "獲取圖片"
+
+#. module: product_barcodelookup
+#: model:ir.actions.act_window,name:product_barcodelookup.product_product_action_get_pic_with_barcode
+#: model:ir.actions.act_window,name:product_barcodelookup.product_template_action_get_pic_with_barcode
+msgid "Get Pictures from Barcode Lookup"
+msgstr "透過條碼查找讀取圖片"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid "Go to Settings"
+msgstr ""
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_ir_cron_trigger__id
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__id
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_product__id
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_template__id
+#: model:ir.model.fields,field_description:product_barcodelookup.field_res_config_settings__id
+msgid "ID"
+msgstr "識別號"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_product__is_image_fetch_pending
+msgid "Is Image Fetch Pending"
+msgstr "是否正等待讀取圖片"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__write_uid
+msgid "Last Updated by"
+msgstr "最後更新者"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__write_date
+msgid "Last Updated on"
+msgstr "最後更新於"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__nb_products_unable_to_process
+msgid "Number of product unprocessable"
+msgstr "不可執行產品數"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__nb_products_to_process
+msgid "Number of products to process"
+msgstr "要執行的產品數量"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__nb_products_selected
+msgid "Number of selected products"
+msgstr "所選產品數量"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "Out of"
+msgstr "在"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_product_template
+msgid "Product"
+msgstr "產品"
+
+#. module: product_barcodelookup
+#: model:ir.actions.server,name:product_barcodelookup.ir_cron_fetch_image_ir_actions_server
+msgid "Product Images: Get product images from Barcode Lookup"
+msgstr "產品圖片：透過條碼查找獲取產品圖片"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_product_product
+msgid "Product Variant"
+msgstr "產品款式"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid "Product images"
+msgstr "產品圖片"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,field_description:product_barcodelookup.field_product_fetch_image_wizard__products_to_process
+msgid "Products To Process"
+msgstr "要執行的產品"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"Products are processed in the background. Images will be updated "
+"progressively."
+msgstr "產品在後台處理。圖片將逐步更新。"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid "The API Key for Barcode Lookup must be set in the General Settings."
+msgstr "條碼查找的 API 密鑰，必須在一般設定頁面中設定。"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"The Barcode Lookup API key is not set properly or it is invalid. Check your "
+"API key in setting and retry."
+msgstr ""
+"條碼查找 API 密鑰未正確設定，或已無效。請前往設定頁面，檢查 API 密鑰，然後再"
+"試。"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,help:product_barcodelookup.field_product_fetch_image_wizard__products_to_process
+msgid ""
+"The list of selected products that meet the criteria (have a barcode and no "
+"image)"
+msgstr "符合條件的選定產品列表（有條碼且無圖像）"
+
+#. module: product_barcodelookup
+#. odoo-python
+#: code:addons/product_barcodelookup/wizard/product_fetch_image_wizard.py:0
+msgid ""
+"The scheduled action \"Product Images: Get product images from Barcode "
+"Lookup\" has been deleted. Please contact your administrator to have the "
+"action restored or to reinstall the module \"product_barcodelookup\"."
+msgstr ""
+"預定的操作「產品圖片：透過條碼查找獲取產品圖片」已被刪除。請聯絡你的系統管理"
+"員以復原操作，或重新安裝「product_barcodelookup」模組。"
+
+#. module: product_barcodelookup
+#: model:ir.model,name:product_barcodelookup.model_ir_cron_trigger
+msgid "Triggered actions"
+msgstr "觸發動作"
+
+#. module: product_barcodelookup
+#: model:ir.model.fields,help:product_barcodelookup.field_product_product__is_image_fetch_pending
+msgid "Whether an image must be fetched for this product. Handled by a cron."
+msgstr "是否必須為該產品獲取圖像。由 cron 處理。"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_8
+msgid "age group"
+msgstr "年齡組別"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "barcodelookup.com"
+msgstr "barcodelookup.com"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_6
+msgid "brand"
+msgstr "品牌"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_1
+msgid "color"
+msgstr "顏色"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.res_config_settings_view_form
+msgid "e.g. d7vctmiv2rwgenebha8bxq7irooudn"
+msgstr "例：d7vctmiv2rwgenebha8bxq7irooudn"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_2
+msgid "gender"
+msgstr "性別"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_5
+msgid "manufacturer"
+msgstr "製造商"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_3
+msgid "material"
+msgstr "物料"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_4
+msgid "pattern"
+msgstr "圖案"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "selected products,"
+msgstr "選取的產品，"
+
+#. module: product_barcodelookup
+#: model:product.attribute,name:product_barcodelookup.product_attribute_lookup_7
+msgid "size"
+msgstr "尺寸"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid "will be processed."
+msgstr "將會被處理。"
+
+#. module: product_barcodelookup
+#: model_terms:ir.ui.view,arch_db:product_barcodelookup.product_fetch_image_wizard_view_form
+msgid ""
+"won't be\n"
+"                            processed because they either already have an "
+"image or\n"
+"                            lack a barcode"
+msgstr ""
+"不會處理，\n"
+"                            因為它們已經有圖像，\n"
+"                            或缺漏條碼"
+
+#~ msgid "This action is already scheduled. Please try again later."
+#~ msgstr "此操作已排定。請稍後再試。"

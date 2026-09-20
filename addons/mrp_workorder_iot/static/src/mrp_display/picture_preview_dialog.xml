@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates xml:space="preserve">
+    <t t-name="mrp_workorder_iot.ImagePreviewDialog">
+        <Dialog title.translate="Preview" size="'lg'">
+            <div class="o_viewer_img_wrapper">
+                    <div class="o_viewer_zoomer">
+                        <img alt="Viewer" class="o_viewer_img" t-att-src="props.src"/>
+                    </div>
+                </div>
+            <t t-set-slot="footer">
+                <button class="btn btn-primary" t-on-click.stop="props.close">Close</button>
+            </t>
+        </Dialog>
+    </t>
+</templates>

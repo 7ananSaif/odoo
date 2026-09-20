@@ -1,0 +1,151 @@
+.stripe_record_card {
+    &:not(.o_kanban_ghost) {
+        padding: 0;
+        border: 0px;
+        background-color: transparent;
+    }
+
+    > div {
+        height:100%;
+        aspect-ratio: 1.586;
+        min-width: 320px;
+        border-radius: 20px;
+        padding: 20px;
+
+        background-color: black;  // Needs to be black, not $o-black because we want to match the real color
+        color: white;
+        display: flex;
+        flex-direction: column;
+
+        .card_name {
+            font-weight: 300;
+        }
+
+        .card_number {
+            font-weight: 700;
+        }
+
+        .card_expiry {
+            font-weight: 400;
+        }
+
+        .card_cvc {
+            font-weight: 400;
+        }
+        
+        .card_icon {
+            color: white;
+            aspect-ratio: 1;
+        }
+    }
+}
+
+.validation-buttons {
+    background-color: var(--StripeCard-validation-buttons-color, $o-gray-200);
+    height: 3.5em;
+    width: 1.2em;
+}
+
+.mastercard-icon {
+    display: inline-block;
+    height: 1em;
+    isolation: isolate;
+    position: relative;
+    line-height: 1em;
+    vertical-align: text-bottom;
+    align-self: flex-end;
+    width: 1.611em;
+}
+
+.mastercard-icon::before,
+.mastercard-icon::after {
+    border-radius: .5em;
+    content: "";
+    display: inline-block;
+    height: 1em;
+    position: absolute;
+    width: 1em;
+}
+
+.mastercard-icon::before {
+    background-color: #eb001b;
+    left: 0;
+    top: 0;
+}
+
+.mastercard-icon::after {
+    background-color: #f79e1b;
+    mix-blend-mode: hard-light;
+    right: 0;
+    top: 0;
+}
+
+
+.stripe_card_text_lg {
+    font-size: 1.4rem;
+}
+
+.stripe_card_text {
+    font-size: 1.1rem;
+}
+
+.stripe_card_text_sm {
+    font-size: 0.9rem;
+}
+
+.stripe_record_card_element {
+    aspect-ratio: 0.629;
+}
+
+@media screen and (min-width: 578px) and (max-width: 767px) { 
+    .stripe_record_card {
+        &:not(.stripe_record_card_private) {
+            .mastercard-icon {
+                height: 2em;
+                width: 3.222em;
+            }
+            .mastercard-icon::before,
+            .mastercard-icon::after {
+                border-radius: 1em;
+                height: 2em;
+                width: 2em;
+            }
+
+            .stripe_card_text_lg {
+                font-size: 2.2rem;
+            }
+            .stripe_card_text {
+                font-size: 2rem;
+            }
+            .stripe_card_text_sm {
+                font-size: 1.6rem;
+            }
+        }
+    }
+}
+
+@media screen and (min-width: 476px) and (max-width: 577px) {
+    .stripe_record_card {
+        &:not(.stripe_record_card_private) {
+            .mastercard-icon {
+                height: 1.5em;
+                width: 2.417em;
+            }
+            .mastercard-icon::before,
+            .mastercard-icon::after {
+                border-radius: 0.75em;
+                height: 1.5em;
+                width: 1.5em;
+            }
+            .stripe_card_text_lg {
+                font-size: 1.8rem;
+            }
+            .stripe_card_text {
+                font-size: 1.5rem;
+            }
+            .stripe_card_text_sm {
+                font-size: 1.2rem;
+            }
+        }
+    }
+}

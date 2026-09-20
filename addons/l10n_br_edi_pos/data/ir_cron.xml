@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ir_cron_l10n_br_edi_pos_check_status" model="ir.cron">
+        <field name="name">BR EDI: Update status of marked POS orders</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="model_id" ref="point_of_sale.model_pos_order"/>
+        <field name="code">model._cron_l10n_br_send_nfce()</field>
+        <field name="state">code</field>
+    </record>
+</odoo>

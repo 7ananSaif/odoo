@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_eg_hr_payroll_structure_eg_employee_salary_basic_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.BASIC"/>
+        <field name="name">Basic Salary</field>
+        <field name="sequence">1</field>
+        <field name="code">BASIC</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = payslip.paid_amount
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="10n_eg_hr_payroll_structure_eg_employee_salary_housing_allowance" model="hr.salary.rule">
+        <field name="name">Housing Allowance</field>
+        <field name="category_id" ref="l10n_eg_hr_payroll.hr_salary_rule_category_eg_basic_alw"/>
+        <field name="code">HOU</field>
+        <field name="sequence">2</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = version.l10n_eg_housing_allowance</field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="egypt_housing_allowance_salary_rule" model="hr.salary.rule">
+        <field name="name">Transportation Allowance</field>
+        <field name="category_id" ref="l10n_eg_hr_payroll.hr_salary_rule_category_eg_basic_alw"/>
+        <field name="code">TA</field>
+        <field name="sequence">3</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = version.l10n_eg_transportation_allowance</field>
+        <field name="struct_id" ref="l10n_eg_hr_payroll.hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="egypt_other_allowances_salary_rule" model="hr.salary.rule">
+        <field name="name">Other Allowances</field>
+        <field name="category_id" ref="l10n_eg_hr_payroll.hr_salary_rule_category_eg_basic_alw"/>
+        <field name="code">OA</field>
+        <field name="sequence">4</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = version.l10n_eg_other_allowances</field>
+        <field name="struct_id" ref="l10n_eg_hr_payroll.hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="10n_eg_hr_payroll_structure_eg_employee_salary_out_of_contract_days_deduction" model="hr.salary.rule">
+        <field name="name">Out of Contract Days Deduction</field>
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="code">OUT</field>
+        <field name="sequence">10</field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'OUT' in worked_days</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+number_of_days_in_month = (payslip.date_to - payslip.date_from).days + 1
+salary = categories['BASIC'] + categories['ALW']
+result = - worked_days['OUT'].number_of_days * (salary / number_of_days_in_month)
+        </field>
+    </record>
+
+    <record id="egypt_social_insurance_contribution_company" model="hr.salary.rule">
+        <field name="name">NOSI - Company Contribution</field>
+        <field name="category_id" ref="hr_payroll.COMP"/>
+        <field name="code">SICOMP</field>
+        <field name="sequence">20</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = version.l10n_eg_social_insurance_reference
+result_rate = 18.75
+        </field>
+        <field name="struct_id" ref="l10n_eg_hr_payroll.hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="egypt_social_insurance_contribution_employee" model="hr.salary.rule">
+        <field name="name">NOSI - Employee Contribution</field>
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="code">SIEMP</field>
+        <field name="sequence">25</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = version.l10n_eg_social_insurance_reference
+result_rate = -11
+        </field>
+        <field name="struct_id" ref="l10n_eg_hr_payroll.hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="10n_eg_hr_payroll_structure_eg_employee_salary_unpaid_leave_decuction" model="hr.salary.rule">
+        <field name="name">Unpaid Leave Deduction</field>
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="code">EGLEAVE90</field>
+        <field name="sequence">30</field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'LEAVE90' in worked_days</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+daily_salary = (categories['BASIC'] + categories['BASICALW']) / 30
+result = -(worked_days['LEAVE90'].number_of_days * daily_salary)
+        </field>
+    </record>
+
+    <record id="10n_eg_hr_payroll_structure_eg_employee_salary_sick_leave_deduction_75" model="hr.salary.rule">
+        <field name="name">Sick Leave Deduction (75% Paid)</field>
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="code">EGSICKLEAVE75</field>
+        <field name="sequence">35</field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'EGSICKLEAVE75' in worked_days</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+salary = categories['BASIC'] + categories['BASICALW']
+result = -worked_days['EGSICKLEAVE75'].number_of_days * (salary / 30) * 0.25
+        </field>
+    </record>
+
+    <record id="10n_eg_hr_payroll_structure_eg_employee_salary_sick_leave_unpaid_deduction" model="hr.salary.rule">
+        <field name="name">Sick Leave Deduction (Un-Paid)</field>
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="code">EGSICKLEAVE0</field>
+        <field name="sequence">37</field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'EGSICKLEAVE0' in worked_days</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+salary = categories['BASIC'] + categories['BASICALW']
+result = - worked_days['EGSICKLEAVE0'].number_of_days * (salary / 30)
+        </field>
+    </record>
+
+    <record id="10n_eg_hr_payroll_structure_eg_employee_salary_overtime_weekdays_daytime" model="hr.salary.rule">
+        <field name="name">OverTime Weekdays Daytime</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="code">OVTWD</field>
+        <field name="sequence">40</field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+        <field name="condition_select">python</field>
+        <field name="condition_python">
+result = 'OVTWD' in inputs and inputs['OVTWD'].amount and version.resource_calendar_id.hours_per_day
+        </field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+salary = categories['BASIC'] + categories['BASICALW']
+result = 1.35 * inputs['OVTWD'].amount * salary / ((payslip.date_to - payslip.date_from).days + 1) / \
+         version.resource_calendar_id.hours_per_day
+        </field>
+    </record>
+
+    <record id="10n_eg_hr_payroll_structure_eg_employee_salary_overtime_weekdays_nighttime" model="hr.salary.rule">
+        <field name="name">OverTime Weekdays Nighttime</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="code">OVTWDN</field>
+        <field name="sequence">40</field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+        <field name="condition_select">python</field>
+        <field name="condition_python">
+result = 'OVTWDN' in inputs and inputs['OVTWDN'].amount and version.resource_calendar_id.hours_per_day
+        </field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+salary = categories['BASIC'] + categories['BASICALW']
+result = 1.70 * inputs['OVTWDN'].amount * salary / ((payslip.date_to - payslip.date_from).days + 1) / \
+         version.resource_calendar_id.hours_per_day
+        </field>
+    </record>
+
+    <record id="10n_eg_hr_payroll_structure_eg_employee_salary_overtime_weekdays_public_holidays" model="hr.salary.rule">
+        <field name="name">OverTime Weekends/Public holidays</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="code">OVTWEND</field>
+        <field name="sequence">40</field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+        <field name="condition_select">python</field>
+        <field name="condition_python">
+result = 'OVTPUB' in inputs and inputs['OVTPUB'].amount and version.resource_calendar_id.hours_per_day
+        </field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+salary = categories['BASIC'] + categories['BASICALW']
+result = 2 * inputs['OVTPUB'].amount * salary / ((payslip.date_to - payslip.date_from).days + 1) / \
+         version.resource_calendar_id.hours_per_day
+        </field>
+    </record>
+
+    <record id="egypt_end_of_service_provision_salary_rule" model="hr.salary.rule">
+        <field name="name">End of Service Provision</field>
+        <field name="category_id" ref="hr_payroll.COMP"/>
+        <field name="code">EOSP</field>
+        <field name="sequence">45</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = employee.departure_date and version.l10n_eg_number_of_days</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = (version.l10n_eg_number_of_days / 12) * ((categories['BASIC'] + categories['BASICALW']) / 30)
+        </field>
+        <field name="struct_id" ref="l10n_eg_hr_payroll.hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="l10n_eg_salary_rule_annual_leave_provision" model="hr.salary.rule">
+        <field name="name">Annual Leave Provision</field>
+        <field name="category_id" ref="hr_payroll.COMP"/>
+        <field name="code">ANNUALP</field>
+        <field name="sequence">50</field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+salary = categories['BASIC'] + categories['BASICALW']
+result = (salary / 30) * version.l10n_eg_total_leave_days / 12
+        </field>
+    </record>
+
+    <record id="l10n_eg_salary_rule_annual_leave_compensation" model="hr.salary.rule">
+        <field name="name">Annual Leave Compensation</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="code">ANNUALCOMP</field>
+        <field name="sequence">55</field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+        <field name="condition_select">python</field>
+        <field name="condition_python">
+result = employee.departure_date and employee.departure_reason_id and employee._l10n_eg_get_annual_remaining_leaves()[employee.id] &gt; 0
+        </field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+daily_salary = (categories['BASIC'] + categories['BASICALW']) / 30
+result = daily_salary * employee._l10n_eg_get_annual_remaining_leaves()[employee.id]
+        </field>
+     </record>
+
+    <record id="egypt_end_of_service_benefit_salary_rule" model="hr.salary.rule">
+        <field name="name">End of Service Benefit</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="code">EOSB</field>
+        <field name="sequence">60</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = employee.departure_date and version.l10n_eg_total_number_of_days</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+compensation = categories['BASIC'] + categories['BASICALW']
+result = (compensation / 30) * (version.l10n_eg_total_number_of_days)
+        </field>
+        <field name="struct_id" ref="l10n_eg_hr_payroll.hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="l10n_eg_hr_payroll_structure_eg_employee_salary_gross_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.GROSS"/>
+        <field name="name">Taxable Salary</field>
+        <field name="sequence">70</field>
+        <field name="code">GROSS</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW']
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="egypt_yearly_gross" model="hr.salary.rule">
+        <field name="name">Gross Salary Yearly</field>
+        <field name="category_id" ref="hr_payroll.NET"/>
+        <field name="code">GROSSY</field>
+        <field name="sequence">75</field>
+        <field name="amount_select">code</field>
+<field name="amount_python_compute">result = (GROSS + categories['DED']) * 12</field>
+        <field name="struct_id" ref="l10n_eg_hr_payroll.hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="egypt_taxable_amount" model="hr.salary.rule">
+        <field name="name">Taxable Amount</field>
+        <field name="category_id" ref="hr_payroll.NET"/>
+        <field name="code">TAXBLEAM</field>
+        <field name="sequence">80</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+personal_exemption = payslip._rule_parameter('l10n_eg_lower_boundary')
+result = max(0, GROSSY - personal_exemption)
+        </field>
+        <field name="struct_id" ref="l10n_eg_hr_payroll.hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="egypt_tax_bracket_total" model="hr.salary.rule">
+        <field name="name">Total Income Tax Deduction</field>
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="code">TOTTB</field>
+        <field name="sequence">90</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -payslip._get_eg_tax(TAXBLEAM) / 12
+        </field>
+        <field name="struct_id" ref="l10n_eg_hr_payroll.hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="l10n_eg_hr_payroll_structure_eg_employee_salary_attachment_of_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Attachment of Salary</field>
+        <field name="sequence">110</field>
+        <field name="code">ATTACH_SALARY</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'ATTACH_SALARY' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['ATTACH_SALARY'].amount
+result_name = inputs['ATTACH_SALARY'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="l10n_eg_hr_payroll_structure_eg_employee_salary_assignment_of_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Assignment of Salary</field>
+        <field name="sequence">110</field>
+        <field name="code">ASSIG_SALARY</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'ASSIG_SALARY' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['ASSIG_SALARY'].amount
+result_name = inputs['ASSIG_SALARY'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="l10n_eg_hr_payroll_structure_eg_employee_salary_child_support" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Child Support</field>
+        <field name="code">CHILD_SUPPORT</field>
+        <field name="amount_select">code</field>
+        <field name="sequence">110</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'CHILD_SUPPORT' in inputs</field>
+        <field name="amount_python_compute">
+result = -inputs['CHILD_SUPPORT'].amount
+result_name = inputs['CHILD_SUPPORT'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="l10n_eg_hr_payroll_structure_eg_employee_salary_deduction_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Deduction</field>
+        <field name="sequence">110</field>
+        <field name="code">DEDUCTION</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'DEDUCTION' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['DEDUCTION'].amount
+result_name = inputs['DEDUCTION'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="l10n_eg_hr_payroll_structure_eg_employee_salary_reimbursement_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="name">Reimbursement</field>
+        <field name="sequence">110</field>
+        <field name="code">REIMBURSEMENT</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'REIMBURSEMENT' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = inputs['REIMBURSEMENT'].amount
+result_name = inputs['REIMBURSEMENT'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="l10n_eg_hr_payroll_structure_eg_employee_salary_expenses_reimbursement" model="hr.salary.rule">
+        <field name="name">Expenses Reimbursement</field>
+        <field name="code">EXPENSES</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="sequence">110</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'EXPENSES' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = inputs['EXPENSES'].amount
+result_name = inputs['EXPENSES'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+    </record>
+
+    <record id="l10n_eg_hr_payroll_structure_eg_employee_salary_net_salary" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.NET"/>
+        <field name="name">Net Salary</field>
+        <field name="sequence">400</field>
+        <field name="code">NET</field>
+        <field name="appears_on_employee_cost_dashboard" eval="True"/>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW'] + categories['DED']
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_eg_employee_salary"/>
+    </record>
+</odoo>

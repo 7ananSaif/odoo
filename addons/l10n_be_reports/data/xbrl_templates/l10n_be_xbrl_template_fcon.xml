@@ -1,0 +1,372 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <template id="xbrl_template_fcon">
+            <xbrl
+                t-att="{'xml:lang': company_lang}"
+                xmlns="http://www.xbrl.org/2003/instance"
+                xmlns:link="http://www.xbrl.org/2003/linkbase"
+                xmlns:xbrldi="http://xbrl.org/2006/xbrldi"
+                xmlns:iso4217="http://www.xbrl.org/2003/iso4217"
+                xmlns:xlink="http://www.w3.org/1999/xlink"
+                xmlns:bas="http://www.nbb.be/be/fr/cbso/dict/dom/bas"
+                xmlns:bkd="http://www.nbb.be/be/fr/cbso/dict/dom/bkd"
+                xmlns:bnf="http://www.nbb.be/be/fr/cbso/dict/dom/bnf"
+                xmlns:cct="http://www.nbb.be/be/fr/cbso/dict/dom/cct"
+                xmlns:cct-enum="http://www.nbb.be/be/fr/cbso/25.0/enum/cct-enum"
+                xmlns:clc="http://www.nbb.be/be/fr/cbso/dict/dom/clc"
+                xmlns:clc-enum="http://www.nbb.be/be/fr/cbso/25.0/enum/clc-enum"
+                xmlns:ctc="http://www.nbb.be/be/fr/cbso/dict/dom/ctc"
+                xmlns:cty="http://www.nbb.be/be/fr/cbso/dict/dom/cty"
+                xmlns:cty-enum="http://www.nbb.be/be/fr/cbso/25.0/enum/cty-enum"
+                xmlns:cvt="http://www.nbb.be/be/fr/cbso/dict/dom/cvt"
+                xmlns:dcl="http://www.nbb.be/be/fr/cbso/dict/dom/dcl"
+                xmlns:dgl="http://www.nbb.be/be/fr/cbso/dict/dom/dgl"
+                xmlns:dim="http://www.nbb.be/be/fr/cbso/dict/dim"
+                xmlns:epc="http://www.nbb.be/be/fr/cbso/dict/dom/epc"
+                xmlns:evt="http://www.nbb.be/be/fr/cbso/dict/dom/evt"
+                xmlns:gdr="http://www.nbb.be/be/fr/cbso/dict/dom/gdr"
+                xmlns:gtd="http://www.nbb.be/be/fr/cbso/dict/dom/gtd"
+                xmlns:hrs="http://www.nbb.be/be/fr/cbso/dict/dom/hrs"
+                xmlns:lgf="http://www.nbb.be/be/fr/cbso/dict/dom/lgf"
+                xmlns:lgf-enum="http://www.nbb.be/be/fr/cbso/25.0/enum/lgf-enum"
+                xmlns:mdp="http://www.nbb.be/be/fr/cbso/dict/dom/mdp"
+                xmlns:met="http://www.nbb.be/be/fr/cbso/dict/met"
+                xmlns:mmt="http://www.nbb.be/be/fr/cbso/dict/dom/mmt"
+                xmlns:ntl="http://www.nbb.be/be/fr/cbso/dict/dom/ntl"
+                xmlns:ntr="http://www.nbb.be/be/fr/cbso/dict/dom/ntr"
+                xmlns:open="http://www.nbb.be/be/fr/cbso/dict/dom/open"
+                xmlns:opn="http://www.nbb.be/be/fr/cbso/dict/dom/opn"
+                xmlns:opn-enum="http://www.nbb.be/be/fr/cbso/25.0/enum/opn-enum"
+                xmlns:part="http://www.nbb.be/be/fr/cbso/dict/dom/part"
+                xmlns:pcd="http://www.nbb.be/be/fr/cbso/dict/dom/pcd"
+                xmlns:pcd-enum="http://www.nbb.be/be/fr/cbso/25.0/enum/pcd-enum"
+                xmlns:pfc="http://www.nbb.be/be/fr/cbso/dict/dom/pfc"
+                xmlns:prd="http://www.nbb.be/be/fr/cbso/dict/dom/prd"
+                xmlns:psn="http://www.nbb.be/be/fr/cbso/dict/dom/psn"
+                xmlns:pub="http://www.nbb.be/be/fr/cbso/dict/dom/pub"
+                xmlns:pub-enum="http://www.nbb.be/be/fr/cbso/25.0/enum/pub-enum"
+                xmlns:qlt="http://www.nbb.be/be/fr/cbso/dict/dom/qlt"
+                xmlns:rls="http://www.nbb.be/be/fr/cbso/dict/dom/rls"
+                xmlns:rsn="http://www.nbb.be/be/fr/cbso/dict/dom/rsn"
+                xmlns:rst="http://www.nbb.be/be/fr/cbso/dict/dom/rst"
+                xmlns:rut="http://www.nbb.be/be/fr/cbso/dict/dom/rut"
+                xmlns:spec="http://www.nbb.be/be/fr/cbso/dict/dom/spec"
+                xmlns:spu="http://www.nbb.be/be/fr/cbso/dict/dom/spu"
+                xmlns:sts="http://www.nbb.be/be/fr/cbso/dict/dom/sts"
+                xmlns:typ="http://www.nbb.be/be/fr/cbso/dict/dom/typ"
+                xmlns:wkr="http://www.nbb.be/be/fr/cbso/dict/dom/wkr"
+                xmlns:wrg="http://www.nbb.be/be/fr/cbso/dict/dom/wrg"
+            >
+
+                <!-- SchemaRef: model-specific -->
+                <t t-if="with_social_balance_sheet">
+                    <link:schemaRef xlink:type="simple"
+                        xlink:href="http://www.nbb.be/be/fr/cbso/fws/25.0/mod/m82/m82-f.xsd" />
+                </t>
+                <t t-else="">
+                    <link:schemaRef xlink:type="simple"
+                        xlink:href="http://www.nbb.be/be/fr/cbso/fws/25.0/mod/m82/m82-a.xsd" />
+                </t>
+
+                <t t-call="l10n_be_reports.xbrl_company_info" />
+
+                <!-- === BALANCE SHEET === -->
+                <t t-call="l10n_be_reports.xbrl_balance_sheet_common" />
+                <t t-call="l10n_be_reports.xbrl_balance_sheet_comp_full_all_abbr" />
+                <t t-call="l10n_be_reports.xbrl_balance_sheet_comp" />
+                <t t-call="l10n_be_reports.xbrl_balance_sheet_comp_full" />
+                <t t-call="l10n_be_reports.xbrl_balance_sheet_full" />
+                <t t-call="l10n_be_reports.xbrl_balance_sheet_con" />
+
+                <!-- === Profit and Loss === -->
+                <t t-call="l10n_be_reports.xbrl_profit_and_loss_common" />
+                <t t-call="l10n_be_reports.xbrl_profit_and_loss_comp" />
+                <t t-call="l10n_be_reports.xbrl_profit_and_loss_full" />
+                <t t-call="l10n_be_reports.xbrl_profit_and_loss_comp_full" />
+
+                <!-- === Social Balance Sheet === -->
+                <t t-if="with_social_balance_sheet">
+                    <t t-call="l10n_be_reports.xbrl_social_balance_sheet" />
+                </t>
+
+                <!-- Units -->
+                <unit id="EUR">
+                    <measure>iso4217:EUR</measure>
+                </unit>
+                <t t-if="with_social_balance_sheet">
+                    <unit id="pure">
+                        <measure>pure</measure>
+                    </unit>
+                </t>
+
+                <!-- === FACTS / DATA POINTS === -->
+
+                <met:str2 contextRef="registration_number" t-out="company_registry" />
+                <met:dte1 contextRef="date" t-out="date" />
+                <met:dte1 contextRef="start_period" t-out="date_from" />
+                <met:dte1 contextRef="end_period" t-out="date_to" />
+                <met:bln1 contextRef="liquidation">false</met:bln1>
+                <met:bln1 contextRef="correction">false</met:bln1>
+                <met:str2 contextRef="company_name" t-out="company_name" />
+                <lgf-enum:list2 contextRef="company_type" t-out="company_type" />
+                <met:str2 contextRef="company_street" t-out="company_street" />
+                <met:str2 contextRef="company_house_number" t-out="company_house_number" />
+                <pcd-enum:list1 contextRef="company_postal_code" t-out="company_postal_code" />
+                <cty-enum:list1 contextRef="company_country" t-out="company_country" />
+                <cct-enum:list1 contextRef="company_region" t-out="company_region" />
+                <met:dte1 contextRef="last_deed_date" t-out="last_deed_date" />
+
+                <met:am1 contextRef="assets_costs" decimals="2" unitRef="EUR" t-out="BE_BS_20" />
+                <met:am1 contextRef="fixed_assets" decimals="2" unitRef="EUR" t-out="BE_BS_F_21_28" />
+                <met:am1 contextRef="intangible_fixed_assets" decimals="2" unitRef="EUR" t-out="BE_BS_21" />
+                <met:am1 contextRef="tangible_fixed_assets" decimals="2" unitRef="EUR" t-out="BE_BS_22_27" />
+                <met:am1 contextRef="land_and_building" decimals="2" unitRef="EUR" t-out="BE_BS_22" />
+                <met:am1 contextRef="installations_machines_equipment" decimals="2" unitRef="EUR" t-out="BE_BS_23" />
+                <met:am1 contextRef="furniture_vehicles" decimals="2" unitRef="EUR" t-out="BE_BS_24" />
+                <met:am1 contextRef="leasing_similar_rights" decimals="2" unitRef="EUR" t-out="BE_BS_25" />
+                <met:am1 contextRef="other_tangible_fixed_assets" decimals="2" unitRef="EUR" t-out="BE_BS_26" />
+                <met:am1 contextRef="assets_under_construction_advance_payments" decimals="2" unitRef="EUR" t-out="BE_BS_27" />
+                <met:am1 contextRef="financial_fixed_assets" decimals="2" unitRef="EUR" t-out="BE_BS_F_28" />
+                <met:am1 contextRef="affiliated_companies" decimals="2" unitRef="EUR" t-out="BE_BS_F_280_1" />
+                <met:am1 contextRef="affiliated_companies_participating_interest" decimals="2" unitRef="EUR" t-out="BE_BS_F_280" />
+                <met:am1 contextRef="affiliated_companies_amounts_receivable" decimals="2" unitRef="EUR" t-out="BE_BS_F_281" />
+                <met:am1 contextRef="linked_by_participating_interest" decimals="2" unitRef="EUR" t-out="BE_BS_F_282_3" />
+                <met:am1 contextRef="linked_by_participating_interest_participating_interest" decimals="2" unitRef="EUR" t-out="BE_BS_F_282" />
+                <met:am1 contextRef="linked_by_participating_interest_amounts_receivable" decimals="2" unitRef="EUR" t-out="BE_BS_F_283" />
+                <met:am1 contextRef="other_financial_fixed_assets" decimals="2" unitRef="EUR" t-out="BE_BS_F_284_8" />
+                <met:am1 contextRef="other_financial_fixed_assets_shares" decimals="2" unitRef="EUR" t-out="BE_BS_F_284" />
+                <met:am1 contextRef="other_financial_fixed_assets_amount_receivable" decimals="2" unitRef="EUR" t-out="BE_BS_F_285_8" />
+                <met:am1 contextRef="current_assets" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_F_29_58" />
+                <met:am1 contextRef="amount_receivable_more_than_one_year" decimals="2" unitRef="EUR" t-out="BE_BS_29" />
+                <met:am1 contextRef="amount_receivable_more_than_one_year_commercial" decimals="2" unitRef="EUR" t-out="BE_BS_290" />
+                <met:am1 contextRef="amount_receivable_more_than_one_year_remainder" decimals="2" unitRef="EUR" t-out="BE_BS_291" />
+                <met:am1 contextRef="stocks_contracts_in_progress" decimals="2" unitRef="EUR" t-out="BE_BS_F_3" />
+                <met:am1 contextRef="stocks_in_progress" decimals="2" unitRef="EUR" t-out="BE_BS_F_30_36" />
+                <met:am1 contextRef="stocks_in_progress_raw_materials" decimals="2" unitRef="EUR" t-out="BE_BS_F_30_31" />
+                <met:am1 contextRef="stocks_in_progress_work_in_progress" decimals="2" unitRef="EUR" t-out="BE_BS_F_32" />
+                <met:am1 contextRef="stocks_in_progress_finished_goods" decimals="2" unitRef="EUR" t-out="BE_BS_F_33" />
+                <met:am1 contextRef="stocks_in_progress_goods_purchased_for_resale" decimals="2" unitRef="EUR" t-out="BE_BS_F_34" />
+                <met:am1 contextRef="stocks_in_progress_immovable_assets_intended_for_sale" decimals="2" unitRef="EUR" t-out="BE_BS_F_35" />
+                <met:am1 contextRef="stocks_in_progress_advance_payments" decimals="2" unitRef="EUR" t-out="BE_BS_F_36" />
+                <met:am1 contextRef="contracts_in_progress" decimals="2" unitRef="EUR" t-out="BE_BS_37" />
+                <met:am1 contextRef="amount_receivable_within_one_year" decimals="2" unitRef="EUR" t-out="BE_BS_40_41" />
+                <met:am1 contextRef="amount_receivable_within_one_year_commercial" decimals="2" unitRef="EUR" t-out="BE_BS_40" />
+                <met:am1 contextRef="amount_receivable_within_one_year_remainder" decimals="2" unitRef="EUR" t-out="BE_BS_41" />
+                <met:am1 contextRef="current_investments" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_F_50_53" />
+                <met:am1 contextRef="current_investments_own_shares" decimals="2" unitRef="EUR" t-out="BE_BS_F_50" />
+                <met:am1 contextRef="current_investments_other" decimals="2" unitRef="EUR" t-out="BE_BS_F_51_53" />
+                <met:am1 contextRef="cash_at_bank_and_in_hand" decimals="2" unitRef="EUR" t-out="BE_BS_54_58" />
+                <met:am1 contextRef="asset_deferrals_and_accruals" decimals="2" unitRef="EUR" t-out="BE_BS_490_1" />
+                <met:am1 contextRef="total_assets" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_F_20_58" />
+                <met:am2 contextRef="equity" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_FCON_10_15" />
+                <met:am1 contextRef="contribution" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_CON_10_11" />
+                <met:am1 contextRef="contribution_available" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_CON_110" />
+                <met:am1 contextRef="contribution_unavailable" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_CON_111" />
+                <met:am1 contextRef="revaluation_surplus" decimals="2" unitRef="EUR" t-out="BE_BS_12" />
+                <met:am1 contextRef="reserves" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_CON_13" />
+                <met:am1 contextRef="unavailable_reserves" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_CON_130_1" />
+                <met:am1 contextRef="unavailable_reserves_statutorily" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_1311" />
+                <met:am1 contextRef="unavailable_reserves_acquisition_own_shares" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_1312" />
+                <met:am1 contextRef="unavailable_reserves_financial_support" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_1313" />
+                <met:am1 contextRef="unavailable_reserves_other" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_1319" />
+                <met:am1 contextRef="untaxed_reserves" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_132" />
+                <met:am1 contextRef="available_reserves" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_133" />
+                <met:am2 contextRef="accumulated_result" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_F_14" />
+                <met:am1 contextRef="investment_grants" decimals="2" unitRef="EUR" t-out="BE_BS_15" />
+                <met:am1 contextRef="advance_to_associates_sharing_out" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_19" />
+                <met:am1 contextRef="provisions_and_deferred_taxes" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_16" />
+                <met:am1 contextRef="provisions_for_liabilities_and_charges" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_160_5" />
+                <met:am1 contextRef="provisions_pensions_and_similar_obligations" decimals="2" unitRef="EUR" t-out="BE_BS_160" />
+                <met:am1 contextRef="provisions_taxes" decimals="2" unitRef="EUR" t-out="BE_BS_161" />
+                <met:am1 contextRef="provisions_major_repair_maintenance" decimals="2" unitRef="EUR" t-out="BE_BS_162" />
+                <met:am1 contextRef="provisions_environmental_obligations" decimals="2" unitRef="EUR" t-out="BE_BS_163" />
+                <met:am1 contextRef="provisions_other_liabilities_and_charges" decimals="2" unitRef="EUR" t-out="BE_BS_164_5" />
+                <met:am1 contextRef="deferred_payable_taxes" decimals="2" unitRef="EUR" t-out="BE_BS_168" />
+                <met:am1 contextRef="amounts_payable" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_F_17_49" />
+                <met:am1 contextRef="amounts_payable_more_than_one_year" decimals="2" unitRef="EUR" t-out="BE_BS_F_17" />
+                <met:am1 contextRef="amounts_payable_more_than_one_year_financial" decimals="2" unitRef="EUR" t-out="BE_BS_F_170_4" />
+                <met:am1 contextRef="amounts_payable_more_than_one_year_financial_loans" decimals="2" unitRef="EUR" t-out="BE_BS_F_170" />
+                <met:am1 contextRef="amounts_payable_more_than_one_year_financial_unsubordinated_debentures" decimals="2" unitRef="EUR" t-out="BE_BS_F_171" />
+                <met:am1 contextRef="amounts_payable_more_than_one_year_financial_leasing" decimals="2" unitRef="EUR" t-out="BE_BS_F_172" />
+                <met:am1 contextRef="amounts_payable_more_than_one_year_credit_institutions" decimals="2" unitRef="EUR" t-out="BE_BS_F_173" />
+                <met:am1 contextRef="amounts_payable_more_than_one_year_other_loans" decimals="2" unitRef="EUR" t-out="BE_BS_F_174" />
+                <met:am1 contextRef="amounts_payable_more_than_one_year_trade_debts" decimals="2" unitRef="EUR" t-out="BE_BS_F_175" />
+                <met:am1 contextRef="amounts_payable_more_than_one_year_suppliers" decimals="2" unitRef="EUR" t-out="BE_BS_F_1750" />
+                <met:am1 contextRef="amounts_payable_more_than_one_year_bills_of_exchange" decimals="2" unitRef="EUR" t-out="BE_BS_F_1751" />
+                <met:am1 contextRef="amounts_payable_more_than_one_year_advance_payments" decimals="2" unitRef="EUR" t-out="BE_BS_176" />
+                <met:am1 contextRef="amounts_payable_more_than_one_year_other" decimals="2" unitRef="EUR" t-out="BE_BS_178_9" />
+                <met:am1 contextRef="amounts_payable_within_one_year" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_42_48" />
+                <met:am1 contextRef="amount_payable_more_than_one_year_due_within_one_year" decimals="2" unitRef="EUR" t-out="BE_BS_42" />
+                <met:am1 contextRef="amounts_payable_within_one_year_financial" decimals="2" unitRef="EUR" t-out="BE_BS_43" />
+                <met:am1 contextRef="amounts_payable_within_one_year_financial_credit_institutions" decimals="2" unitRef="EUR" t-out="BE_BS_430_8" />
+                <met:am1 contextRef="amounts_payable_within_one_year_financial_other_loans" decimals="2" unitRef="EUR" t-out="BE_BS_439" />
+                <met:am1 contextRef="amounts_payable_within_one_year_commercial" decimals="2" unitRef="EUR" t-out="BE_BS_44" />
+                <met:am1 contextRef="amounts_payable_within_one_year_commercial_suppliers" decimals="2" unitRef="EUR" t-out="BE_BS_440_4" />
+                <met:am1 contextRef="amounts_payable_within_one_year_commercial_bill_of_exchange_payable" decimals="2" unitRef="EUR" t-out="BE_BS_441" />
+                <met:am1 contextRef="amounts_payable_within_one_year_on_contracts" decimals="2" unitRef="EUR" t-out="BE_BS_46" />
+                <met:am1 contextRef="amounts_payable_within_one_year_taxes_remuneration_social_security" decimals="2" unitRef="EUR" t-out="BE_BS_45" />
+                <met:am1 contextRef="amounts_payable_within_one_year_taxes" decimals="2" unitRef="EUR" t-out="BE_BS_450_3" />
+                <met:am1 contextRef="amounts_payable_within_one_year_remuneration_social_security" decimals="2" unitRef="EUR" t-out="BE_BS_454_9" />
+                <met:am1 contextRef="amounts_payable_within_one_year_other" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_47_48" />
+                <met:am1 contextRef="equity_liability_deferrals_and_accruals" decimals="2" unitRef="EUR" t-out="BE_BS_492_3" />
+                <met:am1 contextRef="total_equity_liability" decimals="2" unitRef="EUR" t-out="BE_BS_COMP_FCON_10_49" />
+
+                <met:am2 contextRef="pl_operating_income" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_F_70_76A" />
+                <met:am2 contextRef="pl_operating_turnover" decimals="2" unitRef="EUR" t-out="BE_PL_70" />
+                <met:am2 contextRef="pl_stocks_of_finished_goods" decimals="2" unitRef="EUR" t-out="BE_PL_F_71" />
+                <met:am1 contextRef="pl_produced_fixed_assets" decimals="2" unitRef="EUR" t-out="BE_PL_F_72" />
+                <met:am1 contextRef="pl_other_operating_income" decimals="2" unitRef="EUR" t-out="BE_PL_F_74" />
+                <met:am1 contextRef="pl_nonrecurring_operating_income" decimals="2" unitRef="EUR" t-out="BE_PL_76A" />
+                <met:am2 contextRef="pl_operating_costs" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_F_60_66A" />
+                <met:am2 contextRef="pl_costs_raw_materials" decimals="2" unitRef="EUR" t-out="BE_PL_F_60" />
+                <met:am1 contextRef="pl_costs_purchases" decimals="2" unitRef="EUR" t-out="BE_PL_F_600_8" />
+                <met:am2 contextRef="pl_costs_stock_change" decimals="2" unitRef="EUR" t-out="BE_PL_F_609" />
+                <met:am1 contextRef="pl_costs_services" decimals="2" unitRef="EUR" t-out="BE_PL_F_61" />
+                <met:am2 contextRef="pl_costs_personnel" decimals="2" unitRef="EUR" t-out="BE_PL_62" />
+                <met:am1 contextRef="pl_on_formation_expenses" decimals="2" unitRef="EUR" t-out="BE_PL_630" />
+                <met:am2 contextRef="pl_on_stocks" decimals="2" unitRef="EUR" t-out="BE_PL_631_4" />
+                <met:am2 contextRef="pl_provisions_for_liabilities" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_635_8" />
+                <met:am1 contextRef="pl_other_operating_costs" decimals="2" unitRef="EUR" t-out="BE_PL_640_8" />
+                <met:am3 contextRef="pl_costs_as_restructuring_costs" decimals="2" unitRef="EUR" t-out="BE_PL_649" />
+                <met:am2 contextRef="pl_nonrecurring_operating_costs" decimals="2" unitRef="EUR" t-out="BE_PL_66A" />
+                <met:am2 contextRef="pl_operating_result" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_F_9901" />
+                <met:am1 contextRef="pl_financial_income" decimals="2" unitRef="EUR" t-out="BE_PL_F_75_76B" />
+                <met:am1 contextRef="pl_recurring_financial_income" decimals="2" unitRef="EUR" t-out="BE_PL_F_75" />
+                <met:am1 contextRef="pl_income_from_fixed_assets" decimals="2" unitRef="EUR" t-out="BE_PL_F_750" />
+                <met:am1 contextRef="pl_income_from_current_assets" decimals="2" unitRef="EUR" t-out="BE_PL_F_751" />
+                <met:am1 contextRef="pl_other_income" decimals="2" unitRef="EUR" t-out="BE_PL_F_752_9" />
+                <met:am1 contextRef="pl_nonrecurring_financial_income" decimals="2" unitRef="EUR" t-out="BE_PL_76B" />
+                <met:am2 contextRef="pl_financial_costs" decimals="2" unitRef="EUR" t-out="BE_PL_F_65_66B" />
+                <met:am2 contextRef="pl_recurring_financial_costs" decimals="2" unitRef="EUR" t-out="BE_PL_F_65" />
+                <met:am1 contextRef="pl_costs_of_debts" decimals="2" unitRef="EUR" t-out="BE_PL_F_650" />
+                <met:am2 contextRef="pl_costs_of_current_assets" decimals="2" unitRef="EUR" t-out="BE_PL_F_651" />
+                <met:am2 contextRef="pl_other_financial_costs" decimals="2" unitRef="EUR" t-out="BE_PL_F_652_9" />
+                <met:am2 contextRef="pl_nonrecurring_financial_costs" decimals="2" unitRef="EUR" t-out="BE_PL_66B" />
+                <met:am2 contextRef="pl_result_financial_period_before_tax" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_F_9903" />
+                <met:am1 contextRef="pl_transfer_from_deferred_taxes" decimals="2" unitRef="EUR" t-out="BE_PL_780" />
+                <met:am1 contextRef="pl_transfer_to_deferred_taxes" decimals="2" unitRef="EUR" t-out="BE_PL_680" />
+                <met:am1 contextRef="pl_taxes_on_the_result" decimals="2" unitRef="EUR" t-out="BE_PL_F_67_77" />
+                <met:am1 contextRef="pl_adjustment_of_income_tax_on_the_result" decimals="2" unitRef="EUR" t-out="BE_PL_F_77" />
+                <met:am2 contextRef="pl_result_of_financial_period" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_F_9904" />
+                <met:am1 contextRef="pl_transfer_from_untaxed_reserves" decimals="2" unitRef="EUR" t-out="BE_PL_789" />
+                <met:am1 contextRef="pl_transfer_to_untaxed_reserves" decimals="2" unitRef="EUR" t-out="BE_PL_689" />
+                <met:am2 contextRef="pl_result_for_financial_period_for_appropriation" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_F_9905" />
+                <met:am2 contextRef="pl_result_available_for_appropriation" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_F_9906" />
+                <met:am2 contextRef="pl_appropriation_result_of_previous_period" decimals="2" unitRef="EUR" t-out="BE_PL_14P" />
+                <met:am1 contextRef="pl_transfer_from_equity" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_F_791_2" />
+                <met:am1 contextRef="pl_transfer_from_contributions" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_F_791" />
+                <met:am1 contextRef="pl_transfer_from_reserves" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_F_792" />
+                <met:am1 contextRef="pl_appropriation_to_equity" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_691_2" />
+                <met:am1 contextRef="pl_appropriation_to_contributions" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_691" />
+                <met:am1 contextRef="pl_appropriation_to_legal_reserves" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_6920" />
+                <met:am1 contextRef="pl_appropriation_to_other_reserves" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_6921" />
+                <met:am1 contextRef="pl_shareholder_contribution_to_losses" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_794" />
+                <met:am1 contextRef="pl_profit_to_distribute" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_694_7" />
+                <met:am1 contextRef="pl_distribute_to_shareholders" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_694" />
+                <met:am1 contextRef="pl_distribute_to_directors" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_695" />
+                <met:am1 contextRef="pl_distribute_to_employees" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_696" />
+                <met:am1 contextRef="pl_distribute_to_other_beneficiaries" decimals="2" unitRef="EUR" t-out="BE_PL_COMP_697" />
+
+                <t t-if="with_social_balance_sheet">
+                    <met:dec1 contextRef="social_balance_male_female_ft" decimals="5" unitRef="pure" t-out="BE_SBS_1001_TOTAL" />
+                    <met:dec1 contextRef="social_balance_male_female_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1002_TOTAL" />
+                    <met:dec1 contextRef="social_balance_male_female_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1003_TOTAL" />
+                    <met:int4 contextRef="social_balance_male_female_ft_hours" decimals="5" unitRef="pure" t-out="BE_SBS_1011_TOTAL" />
+                    <met:int4 contextRef="social_balance_male_female_pt_hours" decimals="5" unitRef="pure" t-out="BE_SBS_1012_TOTAL" />
+                    <met:int4 contextRef="social_balance_male_female_ft_pt_hours" decimals="5" unitRef="pure" t-out="BE_SBS_1013_TOTAL" />
+                    <met:am2 contextRef="social_balance_male_female_ft_cost" decimals="2" unitRef="EUR" t-out="BE_SBS_1021_TOTAL" />
+                    <met:am2 contextRef="social_balance_male_female_pt_cost" decimals="2" unitRef="EUR" t-out="BE_SBS_1022_TOTAL" />
+                    <met:am2 contextRef="social_balance_male_female_ft_pt_cost" decimals="2" unitRef="EUR" t-out="BE_SBS_1023_TOTAL" />
+                    <met:int3 contextRef="social_balance_end_ft" decimals="5" unitRef="pure" t-out="BE_SBS_105_FT" />
+                    <met:int3 contextRef="social_balance_end_pt" decimals="5" unitRef="pure" t-out="BE_SBS_105_PT" />
+                    <met:dec1 contextRef="social_balance_end_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_105_FTE" />
+                    <met:int3 contextRef="social_balance_end_ft_open_ended" decimals="5" unitRef="pure" t-out="BE_SBS_110_FT" />
+                    <met:int3 contextRef="social_balance_end_pt_open_ended" decimals="5" unitRef="pure" t-out="BE_SBS_110_PT" />
+                    <met:dec1 contextRef="social_balance_end_ft_pt_open_ended" decimals="5" unitRef="pure" t-out="BE_SBS_110_FTE" />
+                    <met:int3 contextRef="social_balance_end_ft_fixed_term" decimals="5" unitRef="pure" t-out="BE_SBS_111_FT" />
+                    <met:int3 contextRef="social_balance_end_pt_fixed_term" decimals="5" unitRef="pure" t-out="BE_SBS_111_PT" />
+                    <met:dec1 contextRef="social_balance_end_ft_pt_fixed_term" decimals="5" unitRef="pure" t-out="BE_SBS_111_FTE" />
+                    <met:int3 contextRef="social_balance_end_ft_work_contract" decimals="5" unitRef="pure" t-out="BE_SBS_112_FT" />
+                    <met:int3 contextRef="social_balance_end_pt_work_contract" decimals="5" unitRef="pure" t-out="BE_SBS_112_PT" />
+                    <met:dec1 contextRef="social_balance_end_ft_pt_work_contract" decimals="5" unitRef="pure" t-out="BE_SBS_112_FTE" />
+                    <met:int3 contextRef="social_balance_end_ft_replacement_agreement" decimals="5" unitRef="pure" t-out="BE_SBS_113_FT" />
+                    <met:int3 contextRef="social_balance_end_pt_replacement_agreement" decimals="5" unitRef="pure" t-out="BE_SBS_113_PT" />
+                    <met:dec1 contextRef="social_balance_end_ft_pt_replacement_agreement" decimals="5" unitRef="pure" t-out="BE_SBS_113_FTE" />
+                    <met:int3 contextRef="social_balance_end_male_ft" decimals="5" unitRef="pure" t-out="BE_SBS_120_FT" />
+                    <met:int3 contextRef="social_balance_end_male_pt" decimals="5" unitRef="pure" t-out="BE_SBS_120_PT" />
+                    <met:dec1 contextRef="social_balance_end_male_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_120_FTE" />
+                    <met:int3 contextRef="social_balance_end_male_prim_edu_ft" decimals="5" unitRef="pure" t-out="BE_SBS_1200_FT" />
+                    <met:int3 contextRef="social_balance_end_male_prim_edu_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1200_PT" />
+                    <met:dec1 contextRef="social_balance_end_male_prim_edu_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1200_FTE" />
+                    <met:int3 contextRef="social_balance_end_male_sec_edu_ft" decimals="5" unitRef="pure" t-out="BE_SBS_1201_FT" />
+                    <met:int3 contextRef="social_balance_end_male_sec_edu_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1201_PT" />
+                    <met:dec1 contextRef="social_balance_end_male_sec_edu_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1201_FTE" />
+                    <met:int3 contextRef="social_balance_end_male_high_edu_ft" decimals="5" unitRef="pure" t-out="BE_SBS_1202_FT" />
+                    <met:int3 contextRef="social_balance_end_male_high_edu_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1202_PT" />
+                    <met:dec1 contextRef="social_balance_end_male_high_edu_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1202_FTE" />
+                    <met:int3 contextRef="social_balance_end_male_uni_ft" decimals="5" unitRef="pure" t-out="BE_SBS_1203_FT" />
+                    <met:int3 contextRef="social_balance_end_male_uni_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1203_PT" />
+                    <met:dec1 contextRef="social_balance_end_male_uni_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1203_FTE" />
+                    <met:int3 contextRef="social_balance_end_female_ft" decimals="5" unitRef="pure" t-out="BE_SBS_121_FT" />
+                    <met:int3 contextRef="social_balance_end_female_pt" decimals="5" unitRef="pure" t-out="BE_SBS_121_PT" />
+                    <met:dec1 contextRef="social_balance_end_female_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_121_FTE" />
+                    <met:int3 contextRef="social_balance_end_female_prim_edu_ft" decimals="5" unitRef="pure" t-out="BE_SBS_1210_FT" />
+                    <met:int3 contextRef="social_balance_end_female_prim_edu_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1210_PT" />
+                    <met:dec1 contextRef="social_balance_end_female_prim_edu_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1210_FTE" />
+                    <met:int3 contextRef="social_balance_end_female_sec_edu_ft" decimals="5" unitRef="pure" t-out="BE_SBS_1211_FT" />
+                    <met:int3 contextRef="social_balance_end_female_sec_edu_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1211_PT" />
+                    <met:dec1 contextRef="social_balance_end_female_sec_edu_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1211_FTE" />
+                    <met:int3 contextRef="social_balance_end_female_high_edu_ft" decimals="5" unitRef="pure" t-out="BE_SBS_1212_FT" />
+                    <met:int3 contextRef="social_balance_end_female_high_edu_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1212_PT" />
+                    <met:dec1 contextRef="social_balance_end_female_high_edu_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1212_FTE" />
+                    <met:int3 contextRef="social_balance_end_female_uni_ft" decimals="5" unitRef="pure" t-out="BE_SBS_1213_FT" />
+                    <met:int3 contextRef="social_balance_end_female_uni_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1213_PT" />
+                    <met:dec1 contextRef="social_balance_end_female_uni_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_1213_FTE" />
+                    <met:int3 contextRef="social_balance_end_management_ft" decimals="5" unitRef="pure" t-out="BE_SBS_130_FT" />
+                    <met:int3 contextRef="social_balance_end_management_pt" decimals="5" unitRef="pure" t-out="BE_SBS_130_PT" />
+                    <met:dec1 contextRef="social_balance_end_management_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_130_FTE" />
+                    <met:int3 contextRef="social_balance_end_employees_ft" decimals="5" unitRef="pure" t-out="BE_SBS_134_FT" />
+                    <met:int3 contextRef="social_balance_end_employees_pt" decimals="5" unitRef="pure" t-out="BE_SBS_134_PT" />
+                    <met:dec1 contextRef="social_balance_end_employees_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_134_FTE" />
+                    <met:int3 contextRef="social_balance_end_workers_ft" decimals="5" unitRef="pure" t-out="BE_SBS_132_FT" />
+                    <met:int3 contextRef="social_balance_end_workers_pt" decimals="5" unitRef="pure" t-out="BE_SBS_132_PT" />
+                    <met:dec1 contextRef="social_balance_end_workers_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_132_FTE" />
+                    <met:int3 contextRef="social_balance_end_others_ft" decimals="5" unitRef="pure" t-out="BE_SBS_133_FT" />
+                    <met:int3 contextRef="social_balance_end_others_pt" decimals="5" unitRef="pure" t-out="BE_SBS_133_PT" />
+                    <met:dec1 contextRef="social_balance_end_others_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_133_FTE" />
+                    <met:int3 contextRef="social_balance_movement_entries_ft" decimals="5" unitRef="pure" t-out="BE_SBS_205_FT" />
+                    <met:int3 contextRef="social_balance_movement_entries_pt" decimals="5" unitRef="pure" t-out="BE_SBS_205_PT" />
+                    <met:dec1 contextRef="social_balance_movement_entries_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_205_FTE" />
+                    <met:int3 contextRef="social_balance_departures_ft" decimals="5" unitRef="pure" t-out="BE_SBS_305_FT" />
+                    <met:int3 contextRef="social_balance_departures_pt" decimals="5" unitRef="pure" t-out="BE_SBS_305_PT" />
+                    <met:dec1 contextRef="social_balance_departures_ft_pt" decimals="5" unitRef="pure" t-out="BE_SBS_305_FTE" />
+                    <met:int3 contextRef="social_balance_formal_male" decimals="5" unitRef="pure" t-out="BE_SBS_5801" />
+                    <met:int3 contextRef="social_balance_formal_female" decimals="5" unitRef="pure" t-out="BE_SBS_5811" />
+                    <met:int4 contextRef="social_balance_formal_male_training_followed" decimals="5" unitRef="pure" t-out="BE_SBS_5802" />
+                    <met:int4 contextRef="social_balance_formal_female_training_followed" decimals="5" unitRef="pure" t-out="BE_SBS_5812" />
+                    <met:am1 contextRef="social_balance_formal_male_cost" decimals="2" unitRef="EUR" t-out="BE_SBS_5803" />
+                    <met:am1 contextRef="social_balance_formal_female_cost" decimals="2" unitRef="EUR" t-out="BE_SBS_5813" />
+                    <met:am1 contextRef="social_balance_formal_male_cost_training" decimals="2" unitRef="EUR" t-out="BE_SBS_58031" />
+                    <met:am1 contextRef="social_balance_formal_female_cost_training" decimals="2" unitRef="EUR" t-out="BE_SBS_58131" />
+                    <met:am1 contextRef="social_balance_formal_male_contributions_deposits" decimals="2" unitRef="EUR" t-out="BE_SBS_58032" />
+                    <met:am1 contextRef="social_balance_formal_female_contributions_deposits" decimals="2" unitRef="EUR" t-out="BE_SBS_58132" />
+                    <met:am1 contextRef="social_balance_formal_male_allowances" decimals="2" unitRef="EUR" t-out="BE_SBS_58033" />
+                    <met:am1 contextRef="social_balance_formal_female_allowances" decimals="2" unitRef="EUR" t-out="BE_SBS_58133" />
+                    <met:int3 contextRef="social_balance_informal_male" decimals="5" unitRef="pure" t-out="BE_SBS_5821" />
+                    <met:int3 contextRef="social_balance_informal_female" decimals="5" unitRef="pure" t-out="BE_SBS_5831" />
+                    <met:int4 contextRef="social_balance_informal_male_training_followed" decimals="5" unitRef="pure" t-out="BE_SBS_5822" />
+                    <met:int4 contextRef="social_balance_informal_female_training_followed" decimals="5" unitRef="pure" t-out="BE_SBS_5832" />
+                    <met:am1 contextRef="social_balance_informal_male_cost" decimals="2" unitRef="EUR" t-out="BE_SBS_5823" />
+                    <met:am1 contextRef="social_balance_informal_female_cost" decimals="2" unitRef="EUR" t-out="BE_SBS_5833" />
+                    <met:int3 contextRef="social_balance_initial_male" decimals="5" unitRef="pure" t-out="BE_SBS_5841" />
+                    <met:int3 contextRef="social_balance_initial_female" decimals="5" unitRef="pure" t-out="BE_SBS_5851" />
+                    <met:int4 contextRef="social_balance_initial_male_training_followed" decimals="5" unitRef="pure" t-out="BE_SBS_5842" />
+                    <met:int4 contextRef="social_balance_initial_female_training_followed" decimals="5" unitRef="pure" t-out="BE_SBS_5852" />
+                    <met:am1 contextRef="social_balance_initial_male_cost" decimals="2" unitRef="EUR" t-out="BE_SBS_5843" />
+                    <met:am1 contextRef="social_balance_initial_female_cost" decimals="2" unitRef="EUR" t-out="BE_SBS_5853" />
+                </t>
+            </xbrl>
+        </template>
+    </data>
+</odoo>

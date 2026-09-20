@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="hrContractSalary.SelectMenu" t-inherit="web.SelectMenu" t-mode="primary">
+        <xpath expr="//button" position="attributes">
+            <attribute name="class" remove="bg-light" add="bg-white" separator=" "/>
+        </xpath>
+        <xpath expr="//div" position="attributes">
+            <attribute name="class" add="mb8" separator=" "/>
+        </xpath>
+        <xpath expr="//t[@t-if='displayInputInToggler']/t[@t-set='inputClass']" position="replace">
+            <t t-set="inputClass" t-value="'o_select_menu_toggler form-control form-select ' + (!displayInputInDropdown ? 'o_select_menu_input ' : '') + props.togglerClass"/>
+        </xpath>
+        <xpath expr="//t[@t-if='displayInputInToggler']//span[@class='o_select_menu_caret align-self-center']" position="replace"/>
+        <xpath expr="//t[@t-if='displayInputInToggler']//t[@t-call='web.SelectMenu.search']" position="attributes">
+            <attribute name="required">props.required</attribute>
+            <attribute name="t-call">hrContractSalary.SelectMenu.search</attribute>
+        </xpath>
+        <xpath expr="//t[@t-if='state.choices.length === 0']" position="replace"/>
+    </t>
+
+    <t t-name="hrContractSalary.SelectMenu.search" t-inherit="web.SelectMenu.search" t-mode="primary">
+        <xpath expr="//input" position="attributes">
+            <attribute name="t-att-required">props.required</attribute>
+        </xpath>
+    </t>
+</templates>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="lu_tax_return_type" model="account.return.type">
+            <field name="name">Tax</field>
+            <field name="report_id" ref="l10n_lu.tax_report"/>
+            <field name="country_id" ref="base.lu"/>
+        </record>
+
+        <record id="lu_ec_sales_list_return_type" model="account.return.type">
+            <field name="name">EC Sales List</field>
+            <field name="report_id" ref="l10n_lu_reports.lux_ec_sales_report"/>
+            <field name="country_id" ref="base.lu"/>
+            <field name="auto_generate" eval="False"/>
+            <field name="default_deadline_days_delay">16</field>
+        </record>
+    </data>
+</odoo>

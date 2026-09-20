@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="l10n_sa_salary_advance_and_loan_Salary_advance" model="hr.salary.rule">
+            <field name="name">Salary Advance</field>
+            <field name="sequence">100</field>
+            <field name="code">ADV</field>
+            <field name="category_id" ref="hr_payroll.NET"/>
+            <field name="condition_select">input</field>
+            <field name="condition_other_input_id" ref="l10n_sa_hr_payroll.l10n_sa_input_salary_advance"/>
+            <field name="amount_select">input</field>
+            <field name="amount_other_input_id" ref="l10n_sa_hr_payroll.l10n_sa_input_salary_advance"/>
+            <field name="struct_id" ref="l10n_sa_hr_payroll.l10n_sa_salary_advance_and_loan"/>
+        </record>
+
+        <record id="l10n_sa_salary_advance_and_loan_loan_amount" model="hr.salary.rule">
+            <field name="name">Loan Amount</field>
+            <field name="category_id" ref="l10n_sa_category_loan_pay"/>
+            <field name="code">LOANDPAY</field>
+            <field name="sequence">100</field>
+            <field name="condition_select">input</field>
+            <field name="condition_other_input_id" ref="l10n_sa_hr_payroll.l10n_sa_input_loan_deduction"/>
+            <field name="amount_select">input</field>
+            <field name="amount_other_input_id" ref="l10n_sa_hr_payroll.l10n_sa_input_loan_deduction"/>
+            <field name="struct_id" ref="l10n_sa_hr_payroll.l10n_sa_salary_advance_and_loan"/>
+        </record>
+
+        <record id="l10n_sa_salary_advance_and_loan_Net_Salary_advance" model="hr.salary.rule">
+            <field name="name">Net</field>
+            <field name="sequence">200</field>
+            <field name="code">NET</field>
+            <field name="category_id" ref="hr_payroll.NET"/>
+            <field name="condition_select">none</field>
+            <field name="amount_select">code</field>
+            <field name="amount_python_compute">
+result = result_rules['ADV']['total'] + categories['LOANPAY']
+            </field>
+            <field name="struct_id" ref="l10n_sa_hr_payroll.l10n_sa_salary_advance_and_loan"/>
+        </record>
+    </data>
+</odoo>

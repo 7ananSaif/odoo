@@ -1,0 +1,29 @@
+[data-embedded="articleIndex"] {
+    margin: 16px 2px;
+    outline: 1px solid $o-gray-300;
+    outline-offset: -1px;
+    border-radius: 5px;
+    overflow: hidden;
+    background-color: $o-gray-100;
+    .o_embedded_articles_index_label {
+        color: $o-gray-600;
+    }
+    .o_embedded_articles_index_content {
+        background-color: $o-view-background-color;
+        ul {
+            list-style: none;
+            padding-left: 32px; // Indentation
+        }
+        a:hover {
+            background: rgba($knowledge-bg--active, 0.2);
+        }
+    }
+}
+
+@media (hover: hover) { // Devices supporting hover
+    [data-embedded="articleIndex"] {
+        a:not(:hover) i.fa-trash {
+            display: none;
+        }
+    }
+}

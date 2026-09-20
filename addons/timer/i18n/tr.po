@@ -1,0 +1,100 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * timer
+#
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# DeepL <noreply-mt-deepl@weblate.org>, 2025.
+# Odoo Turkish Import <dyki+tr@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.4+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:42+0000\n"
+"PO-Revision-Date: 2025-11-21 14:41+0000\n"
+"Last-Translator: Odoo Turkish Import <dyki+tr@odoo.com>\n"
+"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-19/timer/tr/"
+">\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: timer
+#: model:ir.model.fields,field_description:timer.field_timer_timer__create_uid
+msgid "Created by"
+msgstr "Tarafından oluşturuldu"
+
+#. module: timer
+#: model:ir.model.fields,field_description:timer.field_timer_timer__create_date
+msgid "Created on"
+msgstr "Oluşturuldu"
+
+#. module: timer
+#: model:ir.model.fields,field_description:timer.field_timer_mixin__display_name
+#: model:ir.model.fields,field_description:timer.field_timer_parent_mixin__display_name
+#: model:ir.model.fields,field_description:timer.field_timer_timer__display_name
+msgid "Display Name"
+msgstr "İsim Göster"
+
+#. module: timer
+#: model:ir.model.fields,field_description:timer.field_timer_mixin__id
+#: model:ir.model.fields,field_description:timer.field_timer_parent_mixin__id
+#: model:ir.model.fields,field_description:timer.field_timer_timer__id
+msgid "ID"
+msgstr "ID"
+
+#. module: timer
+#. odoo-python
+#: code:addons/timer/models/timer_parent_mixin.py:0
+msgid "Impossible to start a timer if no record exists to link it to."
+msgstr "Bağlantı kurulacak bir kayıt yoksa zamanlayıcı başlatmak imkansızdır."
+
+#. module: timer
+#: model:ir.model.fields,field_description:timer.field_timer_timer__write_uid
+msgid "Last Updated by"
+msgstr "Son Güncelleyen"
+
+#. module: timer
+#: model:ir.model.fields,field_description:timer.field_timer_timer__write_date
+msgid "Last Updated on"
+msgstr "Son Güncelleme"
+
+#. module: timer
+#: model:ir.model.constraint,message:timer.constraint_timer_timer_unique_timer
+msgid "Only one timer occurrence by model, record and user"
+msgstr "Model, kayıt ve kullanıcıya göre yalnızca bir zamanlayıcı oluşumu"
+
+#. module: timer
+#. odoo-python
+#: code:addons/timer/models/timer_parent_mixin.py:0
+msgid "Operation not supported"
+msgstr "Operasyon desteklenmiyor"
+
+#. module: timer
+#: model:ir.model,name:timer.model_timer_parent_mixin
+msgid "Parent Timer Mixin"
+msgstr "Ebeveyn Zamanlayıcı Karışımı"
+
+#. module: timer
+#. odoo-javascript
+#: code:addons/timer/static/src/component/timer_toggle_button/timer_toggle_button.js:0
+msgid "Start"
+msgstr "Başla"
+
+#. module: timer
+#. odoo-javascript
+#: code:addons/timer/static/src/component/timer_toggle_button/timer_toggle_button.js:0
+msgid "Stop"
+msgstr "Durdur"
+
+#. module: timer
+#: model:ir.model,name:timer.model_timer_mixin
+msgid "Timer Mixin"
+msgstr "Zamanlayıcı Karıştırıcı"
+
+#. module: timer
+#: model:ir.model,name:timer.model_timer_timer
+msgid "Timer Module"
+msgstr "Zamanlayıcı Modülü"

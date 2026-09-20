@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="demo_equity_transaction_share_1" model="equity.transaction">
+        <field name="date" eval="datetime.today() + relativedelta(months=-7, day=2)"/>
+        <field name="security_class_id" ref="demo_equity_security_class_ord"/>
+        <field name="transaction_type">issuance</field>
+        <field name="securities">300</field>
+        <field name="security_price">10</field>
+        <field name="subscriber_id" ref="base.partner_demo_portal"/>
+    </record>
+
+    <record id="demo_equity_transaction_share_2" model="equity.transaction">
+        <field name="date" eval="datetime.today() + relativedelta(months=-7, day=12)"/>
+        <field name="security_class_id" ref="demo_equity_security_class_ord"/>
+        <field name="transaction_type">cancellation</field>
+        <field name="securities">290</field>
+        <field name="security_price">10</field>
+        <field name="subscriber_id" ref="base.partner_demo_portal"/>
+    </record>
+
+    <record id="demo_equity_transaction_share_3" model="equity.transaction">
+        <field name="date" eval="datetime.today() + relativedelta(months=-6, day=3)"/>
+        <field name="security_class_id" ref="demo_equity_security_class_a"/>
+        <field name="transaction_type">issuance</field>
+        <field name="securities">10</field>
+        <field name="security_price">12</field>
+        <field name="subscriber_id" ref="base.partner_demo"/>
+    </record>
+
+    <record id="demo_equity_transaction_option_1" model="equity.transaction">
+        <field name="date" eval="datetime.today() + relativedelta(months=-6, day=21)"/>
+        <field name="security_class_id" ref="demo_equity_security_class_pool_1"/>
+        <field name="transaction_type">issuance</field>
+        <field name="securities">500</field>
+        <field name="security_price">13</field>
+        <field name="subscriber_id" ref="base.partner_demo_portal"/>
+        <field name="expiration_date" eval="datetime.today() + relativedelta(months=-3, day=29)"/>
+    </record>
+
+    <record id="demo_equity_transaction_option_1_exercise" model="equity.transaction">
+        <field name="date" eval="datetime.today() + relativedelta(months=-3, day=25)"/>
+        <field name="security_class_id" ref="demo_equity_security_class_pool_1"/>
+        <field name="destination_class_id" ref="demo_equity_security_class_b"/>
+        <field name="transaction_type">exercise</field>
+        <field name="securities">80</field>
+        <field name="security_price">13</field>
+        <field name="subscriber_id" ref="base.partner_demo_portal"/>
+    </record>
+
+    <record id="demo_equity_transaction_sale_1" model="equity.transaction">
+        <field name="date" eval="datetime.today() + relativedelta(months=-5, day=25)"/>
+        <field name="security_class_id" ref="demo_equity_security_class_ord"/>
+        <field name="transaction_type">transfer</field>
+        <field name="securities">5</field>
+        <field name="security_price">14</field>
+        <field name="seller_id" ref="base.partner_demo_portal"/>
+        <field name="subscriber_id" ref="base.partner_demo"/>
+    </record>
+
+    <record id="demo_equity_transaction_sale_2" model="equity.transaction">
+        <field name="date" eval="datetime.today() + relativedelta(months=-4, day=25)"/>
+        <field name="security_class_id" ref="demo_equity_security_class_a"/>
+        <field name="transaction_type">transfer</field>
+        <field name="securities">2</field>
+        <field name="security_price">15</field>
+        <field name="seller_id" ref="base.partner_demo"/>
+        <field name="subscriber_id" ref="base.partner_demo_portal"/>
+    </record>
+
+    <record id="demo_equity_transaction_option_2" model="equity.transaction">
+        <field name="date" eval="datetime.today() + relativedelta(months=-2, day=25)"/>
+        <field name="security_class_id" ref="demo_equity_security_class_pool_2"/>
+        <field name="transaction_type">issuance</field>
+        <field name="securities">120</field>
+        <field name="security_price">15</field>
+    </record>
+
+    <record id="demo_equity_transaction_option_3" model="equity.transaction">
+        <field name="security_class_id" ref="demo_equity_security_class_pool_1"/>
+        <field name="transaction_type">issuance</field>
+        <field name="securities">100</field>
+        <field name="security_price">16</field>
+        <field name="subscriber_id" ref="base.res_partner_address_33"/>
+    </record>
+
+    <record id="demo_equity_transaction_share_other_partner_1" model="equity.transaction">
+        <field name="date" eval="datetime.today() + relativedelta(months=-3, day=25)"/>
+        <field name="partner_id" ref="base.res_partner_12"/>
+        <field name="security_class_id" ref="demo_equity_security_class_b"/>
+        <field name="transaction_type">issuance</field>
+        <field name="securities">100</field>
+        <field name="security_price">16</field>
+        <field name="subscriber_id" ref="base.res_partner_address_33"/>
+    </record>
+
+    <record id="demo_equity_transaction_share_other_partner_2" model="equity.transaction">
+        <field name="date" eval="datetime.today() + relativedelta(months=-3, day=25)"/>
+        <field name="partner_id" ref="base.res_partner_2"/>
+        <field name="security_class_id" ref="demo_equity_security_class_b"/>
+        <field name="transaction_type">issuance</field>
+        <field name="securities">100</field>
+        <field name="security_price">16</field>
+        <field name="subscriber_id" ref="base.res_partner_address_33"/>
+    </record>
+</odoo>

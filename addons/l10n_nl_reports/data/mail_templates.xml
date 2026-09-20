@@ -1,0 +1,70 @@
+<odoo>
+    <template id="vat_payment_details_table">
+        <table style="border:1px solid black; padding:20px; text-align:center">
+            <tr>
+                <td t-if="ctx.get('qr_data', '')">
+                    <img t-att-src="ctx.get('qr_data')" width="150" height="150" alt="payment qr"/>
+                    <p><strong>Scan me with your banking app.</strong></p>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table style="margin:10px; text-align:left; border-spacing: 16px;">
+                        <colgroup>
+                            <col style="width:110px;"/>
+                            <col style="width:auto;"/>
+                        </colgroup>
+                        <tr>
+                            <td>Account Holder</td>
+                            <td><t t-out="object.type_id.payment_partner_id.name or ''"/></td>
+                        </tr>
+                        <tr>
+                            <td>Amount to Pay</td>
+                            <td><t t-out="format_amount(object.total_amount_to_pay, object.amount_to_pay_currency_id)"/></td>
+                        </tr>
+                        <tr>
+                            <td>Due By</td>
+                            <td><t t-out="format_date(object.date_deadline) or ''"/></td>
+                        </tr>
+                        <tr>
+                            <td>IBAN</td>
+                            <td><t t-out="object.type_id.payment_partner_bank_id.acc_number or ''"/></td>
+                        </tr>
+                        <tr>
+                            <td>Communication</td>
+                            <td><t t-out="ctx.get('communication') or ''"/></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </template>
+
+    <record id="email_template_vat_payment_instructions" model="mail.template">
+        <field name="name">VAT payment</field>
+        <field name="model_id" ref="account_reports.model_account_return"/>
+        <field name="email_from">{{ (user.email_formatted or object.company_id.email_formatted) }}</field>
+        <field name="use_default_to" eval="True"/>
+        <field name="subject">VAT return payment instructions</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px;">
+                <p>
+                    Dear <t t-out="object.company_id.name or ''">NL Company</t>,
+                </p>
+                <p>
+                    Based on the documents and information received, the VAT return of <t t-out="object.company_id.name or ''">NL Company</t>
+                    for period <t t-out="object.type_id._get_period_name(object.company_id, object.date_from, object.date_to)"/> has been submitted.
+                </p>
+                <p>
+                    It has been determined that an amount of <t t-out="format_amount(object.total_amount_to_pay, object.amount_to_pay_currency_id)"/> remains payable.
+                </p>
+                <t t-call="l10n_nl_reports.vat_payment_details_table"/>
+                <p>Kind regards,</p>
+                <p><t t-out="user.name">Mitchell Admin</t></p>
+            </div>
+        </field>
+        <field name="lang">{{ user.lang }}</field>
+        <field name="auto_delete" eval="False"/>
+    </record>
+
+</odoo>

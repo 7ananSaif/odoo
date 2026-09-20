@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record id="account_return_check_template_loans_recording" model="account.return.check.template">
+            <field name="name">Loans recording</field>
+            <field name="description">Confirm that all loans recorded in the accounts actually exist and match the loan agreements.</field>
+            <field name="type">check</field>
+            <field name="model" eval="False"/>
+            <field name="cycle">treasury_financing</field>
+            <field name="return_type" ref="account_reports.default_audit_return_type"/>
+            <field name="code">_account_return_check_template_loans_recording</field>
+            <field name="action_id" ref="account_loans.action_view_account_loans"/>
+        </record>
+
+        <record id="account_return_check_template_loans_classification" model="account.return.check.template">
+            <field name="name">Loans classification</field>
+            <field name="description">Ensure that loans are properly classified as current vs. non-current, and disclosed in accordance with Belgian GAAP. 
+Loans payable within 1 year → Account 42
+Loans &gt; 1 year → Account 17</field>
+            <field name="type">check</field>
+            <field name="model" eval="False"/>
+            <field name="cycle">treasury_financing</field>
+            <field name="return_type" ref="account_reports.default_audit_return_type"/>
+            <field name="code">_account_return_check_template_loans_classification</field>
+            <field name="action_id" ref="account_loans.action_view_account_loans"/>
+        </record>
+    </data>
+</odoo>

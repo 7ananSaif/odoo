@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="planning.PlanningGanttRenderer" t-inherit="web_gantt.GanttRenderer">
+        <xpath expr="//div[hasclass('o_gantt_cells')]">
+            <PlanningSplitTool reactive="splitToolHelperReactive"/>
+        </xpath>
+    </t>
+
+    <t t-name="planning.PlanningGanttRenderer.RowHeader" t-inherit="web_gantt.GanttRenderer.RowHeader">
+        <xpath expr="//t[@t-esc='row.name']" position="replace">
+            <Avatar t-if="hasAvatar(row)" t-props="getAvatarProps(row)"/>
+            <Material t-elif="hasMaterial(row)" t-props="getMaterialProps(row)"/>
+            <t t-else="" t-esc="row.name"/>
+        </xpath>
+    </t>
+
+    <t t-name="planning.PlanningGanttRenderer.Pill" t-inherit="web_gantt.GanttRenderer.Pill">
+        <xpath expr="//span[hasclass('o_gantt_pill_title')]" position="after">
+            <t t-if="pill.hasAvatar">
+                <div class="ms-auto o_gantt_pill_avatar" t-att-title="pill.record.employee_id.display_name">
+                    <Avatar t-props="pill.avatarProps"/>
+                </div>
+            </t>
+        </xpath>
+    </t>
+
+    <t t-name="planning.PlanningGanttRenderer.GroupPill" t-inherit="web_gantt.GanttRenderer.GroupPill" owl="1">
+        <xpath expr="//div[hasclass('o_gantt_group_pill')]/div" position="before">
+            <t t-set="workHours" t-value="_computeWorkHours(pill)"/>
+        </xpath>
+        <xpath expr="//div[hasclass('o_gantt_group_pill')]/div" position="attributes">
+            <attribute name="t-attf-class" add="{{ _computeResourceOvertimeColors(pill, workHours) }}"/>
+        </xpath>
+        <xpath expr="//span[hasclass('o_gantt_pill_title')]" position="attributes">
+            <attribute name="t-esc">_computeDisplayName(pill, workHours)</attribute>
+        </xpath>
+    </t>
+
+</templates>

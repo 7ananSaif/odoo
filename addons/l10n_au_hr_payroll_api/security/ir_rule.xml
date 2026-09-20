@@ -1,0 +1,13 @@
+<odoo>
+    <record id="ir_rule_l10n_au_audit_log_multi_company" model="ir.rule">
+        <field name="name">HR Payroll AU Audit Log: Multi Company</field>
+        <field name="model_id" ref="model_l10n_au_audit_log"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+    <record id="ir_rule_l10n_au_employer_registration_multi_company" model="ir.rule">
+        <field name="name">HR Payroll AU Employer Registration: Multi Company</field>
+        <field name="model_id" ref="model_l10n_au_employer_registration"/>
+        <field name="domain_force">[('company_id', 'in', company_ids)]</field>
+    </record>
+
+</odoo>

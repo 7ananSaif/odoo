@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.view.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <group name="payroll_group" position="inside">
+                <group string='Saudi Payroll Information' invisible="company_country_code != 'SA'">
+                    <field name="l10n_sa_employee_code"/>
+                    <label for="l10n_sa_remaining_annual_leave_balance" string="Annual Leave Balance"
+                           help="Number of valid allocated leave days that are annual leave days"/>
+                    <div class="o_row" name="l10n_sa_remaining_annual_leave_balance">
+                        <field name="l10n_sa_remaining_annual_leave_balance" class="o_hr_narrow_field"/>
+                        <span>days</span>
+                    </div>
+
+                    <separator string="Allowances"/>
+                    <label for="l10n_sa_housing_allowance" string="Housing"/>
+                    <div class="o_row" name="l10n_sa_housing_allowance">
+                        <field class="o_hr_narrow_field" name="l10n_sa_housing_allowance"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_sa_transportation_allowance" string="Transportation"/>
+                    <div class="o_row" name="l10n_sa_transportation_allowance">
+                        <field class="o_hr_narrow_field" name="l10n_sa_transportation_allowance"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_sa_other_allowances" string="Other"/>
+                    <div class="o_row" name="l10n_sa_other_allowances">
+                        <field class="o_hr_narrow_field" name="l10n_sa_other_allowances"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_sa_iqama_annual_amount" string="Iqama"/>
+                    <div class="o_row" name="l10n_sa_iqama_annual_amount">
+                        <field name="l10n_sa_iqama_annual_amount" class="o_hr_narrow_field"/>
+                        <span>/ year</span>
+                    </div>
+                    <label for="l10n_sa_medical_insurance_annual_amount" string="Medical Insurance"/>
+                    <div class="o_row" name="l10n_sa_medical_insurance_annual_amount">
+                        <field name="l10n_sa_medical_insurance_annual_amount" class="o_hr_narrow_field"/>
+                        <span>/ year</span>
+                    </div>
+                    <label for="l10n_sa_work_permit_annual_amount" string="Work Permit"/>
+                    <div class="o_row" name="l10n_sa_work_permit_annual_amount">
+                        <field name="l10n_sa_work_permit_annual_amount" class="o_hr_narrow_field"/>
+                        <span>/ year</span>
+                    </div>
+
+                    <separator string="Annual Leaves Provisions"/>
+                    <label for="l10n_sa_number_of_days" string="Eligibility"/>
+                    <div class="o_row" name="l10n_sa_number_of_days">
+                        <field name="l10n_sa_number_of_days" class="o_hr_narrow_field"/>
+                        <span>days / year</span>
+                    </div>
+
+                    <separator string="WPS Information"/>
+                    <field name="l10n_sa_wps_description"/>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

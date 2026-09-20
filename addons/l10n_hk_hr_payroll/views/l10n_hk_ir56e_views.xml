@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_hk_ir56e_view_form" model="ir.ui.view">
+        <field name="name">l10n_hk_ir56e.view.form</field>
+        <field name="model">l10n_hk.ir56e</field>
+        <field name="inherit_id" ref="l10n_hk_hr_payroll.l10n_hk_ird_view_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <form position="attributes">
+                <attribute name="string">IR56E Sheet</attribute>
+            </form>
+            <group name="extra_group" position="attributes">
+                <attribute name="string"/>
+            </group>
+            <header position="replace"/>
+            <group name="first_group" position="replace"/>
+            <field name="type_of_form" position="replace"/>
+            <field name="year_of_employer_return" position="replace"/>
+            <div name="div_xml" position="replace"/>
+        </field>
+    </record>
+
+    <record id="l10n_hk_ir56e_view_tree" model="ir.ui.view">
+        <field name="name">l10n_hk.ir56e.view.list</field>
+        <field name="model">l10n_hk.ir56e</field>
+        <field name="inherit_id" ref="l10n_hk_hr_payroll.l10n_hk_ird_view_list"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="string">IR56E Sheets</attribute>
+            </list>
+        </field>
+    </record>
+
+    <record id="l10n_hk_ir56e_action" model="ir.actions.act_window">
+        <field name="name">IR56E Sheet</field>
+        <field name="res_model">l10n_hk.ir56e</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+</odoo>

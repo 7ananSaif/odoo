@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <t t-name="l10n_es_reports.VatBooksLineName" t-inherit="account_reports.AccountReportLineNameCustomizable">
+        <xpath expr="//button[@t-if='this.props.line.chatter and !this.ui.isSmall']" position="replace"/>
+    </t>
+</templates>

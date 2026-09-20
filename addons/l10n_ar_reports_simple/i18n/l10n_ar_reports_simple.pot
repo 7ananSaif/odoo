@@ -1,0 +1,181 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_ar_reports_simple
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 19:04+0000\n"
+"PO-Revision-Date: 2025-12-30 19:04+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model,name:l10n_ar_reports_simple.model_l10n_ar_arca_activity
+#: model_terms:ir.ui.view,arch_db:l10n_ar_reports_simple.res_config_settings_view_form
+msgid "ARCA Activity"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model,name:l10n_ar_reports_simple.model_account_account
+msgid "Account"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.actions.act_window,name:l10n_ar_reports_simple.act_arca_activity
+#: model:ir.ui.menu,name:l10n_ar_reports_simple.menu_action_arca_activity
+#: model_terms:ir.ui.view,arch_db:l10n_ar_reports_simple.view_arca_activity_list
+msgid "Activities"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,help:l10n_ar_reports_simple.field_l10n_ar_arca_activity__code
+msgid "Activity Code"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,help:l10n_ar_reports_simple.field_l10n_ar_arca_activity__name
+msgid "Activity Description"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.constraint,message:l10n_ar_reports_simple.constraint_l10n_ar_arca_activity_code_unique
+msgid "Activity code must be unique"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.constraint,message:l10n_ar_reports_simple.constraint_l10n_ar_arca_activity_code_length
+msgid "Activity codes must be at most 6 characters long"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,help:l10n_ar_reports_simple.field_account_account__l10n_ar_arca_activity_id
+msgid ""
+"Argentina: This field is to associate a specific activity to use with this "
+"account. If not set, the company's default activity will be used.The "
+"activity will be used to when generating ARCA VAT reports."
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model,name:l10n_ar_reports_simple.model_l10n_ar_tax_report_handler
+msgid "Argentinian Tax Report Custom Handler"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_account_account__l10n_ar_arca_activity_id
+msgid "Associated ARCA Activity"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#. odoo-python
+#: code:addons/l10n_ar_reports_simple/models/l10n_ar_vat_book.py:0
+msgid ""
+"Can only generate CSV files using posted entries. Please remove \"Include "
+"unposted entries\" filter and try again"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_l10n_ar_arca_activity__code
+msgid "Code"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model,name:l10n_ar_reports_simple.model_res_company
+msgid "Companies"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model,name:l10n_ar_reports_simple.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_l10n_ar_arca_activity__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_l10n_ar_arca_activity__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_account_account__display_name
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_l10n_ar_arca_activity__display_name
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_l10n_ar_tax_report_handler__display_name
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_res_company__display_name
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#. odoo-python
+#: code:addons/l10n_ar_reports_simple/models/l10n_ar_vat_book.py:0
+msgid "Generate VAT Simple Report"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_account_account__id
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_l10n_ar_arca_activity__id
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_l10n_ar_tax_report_handler__id
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_res_company__id
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_res_config_settings__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_l10n_ar_arca_activity__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_l10n_ar_arca_activity__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_l10n_ar_arca_activity__name
+msgid "Name"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_res_company__l10n_ar_arca_activity_id
+#: model:ir.model.fields,field_description:l10n_ar_reports_simple.field_res_config_settings__l10n_ar_arca_activity_id
+#: model_terms:ir.ui.view,arch_db:l10n_ar_reports_simple.res_config_settings_view_form
+msgid "Principal Activity"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#: model:ir.model.fields,help:l10n_ar_reports_simple.field_res_company__l10n_ar_arca_activity_id
+#: model:ir.model.fields,help:l10n_ar_reports_simple.field_res_config_settings__l10n_ar_arca_activity_id
+#: model_terms:ir.ui.view,arch_db:l10n_ar_reports_simple.res_config_settings_view_form
+msgid ""
+"Principal registered activity of the company. This is used to generate the "
+"IVA Simple CSV Tax Reports."
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#. odoo-python
+#: code:addons/l10n_ar_reports_simple/models/l10n_ar_vat_book.py:0
+msgid "VAT Simple Report (ZIP)"
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#. odoo-python
+#: code:addons/l10n_ar_reports_simple/models/l10n_ar_vat_book.py:0
+msgid ""
+"Warning, activities are not set as a fallback on the company. As such the "
+"Sales VAT Simple files may be incorrect. Please set a fallback activity on "
+"the company or ignore this warning to generate the file anyway."
+msgstr ""
+
+#. module: l10n_ar_reports_simple
+#. odoo-python
+#: code:addons/l10n_ar_reports_simple/models/l10n_ar_vat_book.py:0
+msgid "ZIP"
+msgstr ""

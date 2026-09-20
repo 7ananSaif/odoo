@@ -1,0 +1,26 @@
+.o_ma_campaign_template_picker_dialog {
+    padding-bottom: 0 !important;
+
+    .o_ma_campaign_picker_page {
+        .o_ma_campaign_picker_card {
+            min-height: 12vh;
+
+            &:hover {
+                background: var(--PickerCard-background-hover, #{$o-gray-200});
+            }
+            &.o_ma_campaign_picker_active {
+                background: $o-component-active-bg;
+                border-color: $o-action;
+            }
+        }
+
+        padding: map-get($spacers, 4) 0 !important;
+        pointer-events: auto;
+    }
+
+    .o_ma_campaign_picker_icon {
+        width: 65% !important;
+        height: 65% !important;
+        padding: map-get($spacers, 1);
+    }
+}

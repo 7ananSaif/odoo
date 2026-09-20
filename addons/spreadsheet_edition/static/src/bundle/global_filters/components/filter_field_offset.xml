@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="spreadsheet_edition.FilterFieldOffset" t-if="props.active">
+        <div class="d-flex flex-row justify-content-start w-100 align-items-right">
+            <span class="text-muted mt-1 w-50">Period offset</span>
+            <div class="o_filter_field_offset d-flex flex-row justify-content-start w-100 align-items-center">
+                <select class="o-input w-100"
+                    t-att-disabled="!props.active"
+                    t-on-change="onOffsetSignChanged"
+                    t-att-title="title"
+                    required="true"
+                    >
+                    <option t-att-selected="!offsetSign" t-att-value="0">No offset</option>
+                    <option t-att-selected="offsetSign &lt; 0" t-att-value="-1">Previous</option>
+                    <option t-att-selected="offsetSign &gt; 0" t-att-value="1">Next</option>
+                </select>
+                <div class="d-flex flex-row align-items-center" t-if="offsetSign">
+                    <input
+                    t-att-disabled="!props.active"
+                    t-on-change="onOffsetSelected"
+                    type="number"
+                    min="1"
+                    class="o_filter_offset_input o_input mx-2 w-25"
+                    t-att-value="Math.abs(props.selectedOffset)"
+                    /> Period(s)
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

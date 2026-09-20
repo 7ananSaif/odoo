@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="sale_timesheet.product_service_order_timesheet" model="product.product">
+            <field name="planning_enabled" eval="True"/>
+            <field name="planning_role_id" ref="planning_role_consultant"/>
+        </record>
+
+        <record id="sale_timesheet.product_service_deliver_timesheet_1" model="product.product">
+            <field name="planning_enabled" eval="True"/>
+            <field name="planning_role_id" ref="planning_role_senior_architect"/>
+        </record>
+
+        <record id="sale_timesheet.product_service_deliver_timesheet_2" model="product.product">
+            <field name="planning_enabled" eval="True"/>
+            <field name="planning_role_id" ref="planning_role_junior_architect"/>
+        </record>
+    </data>
+</odoo>

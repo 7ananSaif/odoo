@@ -1,0 +1,253 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_fiscal_categories
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Noemi Pla Garcia (nopl)" <nopl@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-11-27 16:39+0000\n"
+"Last-Translator: \"Noemi Pla Garcia (nopl)\" <nopl@odoo.com>\n"
+"Language-Team: Spanish <https://translate.odoo.com/projects/odoo-19/"
+"account_fiscal_categories/es/>\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: account_fiscal_categories
+#: model:ir.model,name:account_fiscal_categories.model_account_account
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account_fiscal_rate__related_account_id
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_fiscal_category__account_ids
+msgid "Account"
+msgstr "Cuenta"
+
+#. module: account_fiscal_categories
+#: model:ir.model,name:account_fiscal_categories.model_account_fiscal_category
+msgid "Account Fiscal Category"
+msgstr "Categoría fiscal contable"
+
+#. module: account_fiscal_categories
+#. odoo-python
+#: code:addons/account_fiscal_categories/report/account_fiscal_report_handler.py:0
+msgid "Account(s) with Multiple Fiscal Rates"
+msgstr "Cuentas con múltiples tipos impositivos"
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_fiscal_category__active
+msgid "Active"
+msgstr "Activo"
+
+#. module: account_fiscal_categories
+#: model_terms:ir.actions.act_window,help:account_fiscal_categories.action_account_fiscal_category_list
+msgid "Add a Fiscal Category"
+msgstr "Añadir una categoría fiscal"
+
+#. module: account_fiscal_categories
+#: model:account.report.column,name:account_fiscal_categories.fiscal_report_total_amount
+msgid "Base Total"
+msgstr "Total base"
+
+#. module: account_fiscal_categories
+#: model_terms:ir.ui.view,arch_db:account_fiscal_categories.view_account_fiscal_category_form
+msgid "Category Name"
+msgstr "Nombre de categoría"
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_fiscal_category__code
+#: model_terms:ir.ui.view,arch_db:account_fiscal_categories.view_account_fiscal_category_form
+msgid "Code"
+msgstr "Código"
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account_fiscal_rate__company_id
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_fiscal_category__company_id
+msgid "Company"
+msgstr "Compañía"
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account_fiscal_rate__create_uid
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_fiscal_category__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account_fiscal_rate__create_date
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_fiscal_category__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account__current_rate
+msgid "Current Rate"
+msgstr "Tipo actual"
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account__display_name
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account_fiscal_rate__display_name
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_fiscal_category__display_name
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_fiscal_report_handler__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: account_fiscal_categories
+#: model:account.report.column,name:account_fiscal_categories.fiscal_report_deductible_amount
+msgid "Fiscal Amount"
+msgstr "Importe fiscal"
+
+#. module: account_fiscal_categories
+#: model:ir.actions.act_window,name:account_fiscal_categories.action_account_fiscal_category_list
+#: model:ir.ui.menu,name:account_fiscal_categories.menu_action_account_fiscal_category_list
+msgid "Fiscal Categories"
+msgstr "Categorías fiscales"
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account__fiscal_category_id
+#: model_terms:ir.ui.view,arch_db:account_fiscal_categories.view_account_form
+msgid "Fiscal Category"
+msgstr "Categoría fiscal"
+
+#. module: account_fiscal_categories
+#: model:ir.model,name:account_fiscal_categories.model_account_account_fiscal_rate
+msgid "Fiscal Rate"
+msgstr "Tipo impositivo"
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account_fiscal_rate__rate
+msgid "Fiscal Rate (%)"
+msgstr "Tipo fiscal (%)"
+
+#. module: account_fiscal_categories
+#: model_terms:ir.ui.view,arch_db:account_fiscal_categories.view_account_form
+msgid "Fiscal Rates"
+msgstr "Tipos impositivos"
+
+#. module: account_fiscal_categories
+#: model:account.report,name:account_fiscal_categories.fiscal_report
+#: model:ir.actions.client,name:account_fiscal_categories.action_account_fiscal_report
+#: model:ir.ui.menu,name:account_fiscal_categories.menu_action_account_fiscal_report
+msgid "Fiscal Report"
+msgstr "Informe fiscal"
+
+#. module: account_fiscal_categories
+#: model:ir.model,name:account_fiscal_categories.model_account_fiscal_report_handler
+msgid "Fiscal Report Custom Handler"
+msgstr "Gestor personalizado de informes fiscales"
+
+#. module: account_fiscal_categories
+#: model:ir.model.constraint,message:account_fiscal_categories.constraint_account_fiscal_category_unique_code
+msgid "Fiscal category code should be unique."
+msgstr "El código de la categoría fiscal debe ser único."
+
+#. module: account_fiscal_categories
+#. odoo-python
+#: code:addons/account_fiscal_categories/report/account_fiscal_report_handler.py:0
+msgid "General Ledger"
+msgstr "Libro mayor"
+
+#. module: account_fiscal_categories
+#: model:account.return.check.template,description:account_fiscal_categories.account_return_check_template_meal_expense_adjustment
+msgid ""
+"General: Make sure the deduction for business meals is under the legal limit."
+msgstr ""
+"General: asegúrate de que la deducción por comidas de negocio no exceda el "
+"límite establecido por la ley."
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account__id
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account_fiscal_rate__id
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_fiscal_category__id
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_fiscal_report_handler__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_fiscal_categories
+#. odoo-python
+#: code:addons/account_fiscal_categories/report/account_fiscal_report_handler.py:0
+msgid "Journal Items"
+msgstr "Apuntes contables"
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account_fiscal_rate__write_uid
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_fiscal_category__write_uid
+msgid "Last Updated by"
+msgstr "Última actualización por"
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account_fiscal_rate__write_date
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_fiscal_category__write_date
+msgid "Last Updated on"
+msgstr "Última actualización el"
+
+#. module: account_fiscal_categories
+#: model:account.return.check.template,name:account_fiscal_categories.account_return_check_template_meal_expense_adjustment
+msgid "Meal expense adjustments"
+msgstr "Ajustes por gastos de comida"
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_fiscal_category__name
+msgid "Name"
+msgstr "Nombre"
+
+#. module: account_fiscal_categories
+#: model:account.report.column,name:account_fiscal_categories.fiscal_report_rate
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account__rate_ids
+msgid "Rate"
+msgstr "Tasa"
+
+#. module: account_fiscal_categories
+#: model_terms:ir.ui.view,arch_db:account_fiscal_categories.view_account_fiscal_category_form
+#: model_terms:ir.ui.view,arch_db:account_fiscal_categories.view_account_fiscal_category_tree
+msgid "Related Account(s)"
+msgstr "Cuenta(s) relacionada(s)"
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,help:account_fiscal_categories.field_account_fiscal_category__active
+msgid "Set active to false to hide the category without removing it."
+msgstr ""
+"Establezca el activo como False para ocultar la categoría sin eliminarla."
+
+#. module: account_fiscal_categories
+#: model:ir.model.fields,field_description:account_fiscal_categories.field_account_account_fiscal_rate__date_from
+msgid "Start Date"
+msgstr "Fecha de inicio"
+
+#. module: account_fiscal_categories
+#. odoo-javascript
+#: code:addons/account_fiscal_categories/static/src/components/fiscal_report/warnings.xml:0
+msgid "There are"
+msgstr "Hay"
+
+#. module: account_fiscal_categories
+#. odoo-python
+#: code:addons/account_fiscal_categories/report/account_fiscal_report_handler.py:0
+msgid "Total"
+msgstr "Total"
+
+#. module: account_fiscal_categories
+#: model_terms:ir.ui.view,arch_db:account_fiscal_categories.view_account_fiscal_category_form
+msgid "e.g. 1201"
+msgstr "p. ej. 1201"
+
+#. module: account_fiscal_categories
+#: model_terms:ir.ui.view,arch_db:account_fiscal_categories.view_account_fiscal_category_form
+msgid "e.g. Non-Deductible Tax"
+msgstr "p. ej. impuesto no deducible"
+
+#. module: account_fiscal_categories
+#. odoo-javascript
+#: code:addons/account_fiscal_categories/static/src/components/fiscal_report/warnings.xml:0
+msgid "in this period."
+msgstr "en este período."
+
+#. module: account_fiscal_categories
+#. odoo-javascript
+#: code:addons/account_fiscal_categories/static/src/components/fiscal_report/warnings.xml:0
+msgid "multiple fiscal rates"
+msgstr "múltiples tipos impositivos"

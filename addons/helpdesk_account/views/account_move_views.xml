@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_move_form_helpdesk" model="ir.ui.view">
+            <field name="name">account.move.form.helpdesk</field>
+            <field name="model">account.move</field>
+            <field name="inherit_id" ref="account.view_move_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_open_business_doc']" position="before">
+                    <button name="action_view_helpdesk_ticket" type="object"
+                        class="oe_stat_button" icon="fa-life-ring"
+                        groups="helpdesk.group_helpdesk_user"
+                        invisible="not ticket_id">
+                        <div class="o_form_field o_stat_info">
+                            <span class="o_stat_text">Ticket</span>
+                        </div>
+                    </button>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

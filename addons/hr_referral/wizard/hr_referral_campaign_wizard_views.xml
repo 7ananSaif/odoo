@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_referral_campaign_wizard_view_form" model="ir.ui.view">
+        <field name="name">hr.referral.campaign.wizard.view.form</field>
+        <field name="model">hr.referral.campaign.wizard</field>
+        <field name="arch" type="xml">
+            <form>
+                <field name="job_id" invisible="1"/>
+                <div class="col">
+                    <label for="target" string="Contacted Employees" class="me-2"/>
+                    <field name="target" widget="radio" options="{'horizontal': true}"/>
+                </div>
+                <div class="col" invisible="target == 'all'">
+                    <label for="employee_ids" string="To" class="me-2"/>
+                    <field name="employee_ids"
+                        widget="many2many_avatar_employee"
+                        placeholder="All Employees"/>
+                </div>
+                <hr/>
+                <group name="email">
+                    <field name="mail_subject"/>
+                    <div colspan="2" class="o_hr_referral_campaign_mail_body">
+                        <field name="mail_body" nolabel="1"/>
+                    </div>
+                </group>
+                <footer>
+                    <button name="action_send" string="Send"
+                            type="object" class="btn btn-primary"
+                            data-hotkey="q"/>
+                    <button string="Cancel" class="btn btn-secondary"
+                            special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

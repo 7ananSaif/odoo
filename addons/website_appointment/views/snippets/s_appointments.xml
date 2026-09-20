@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+<template id="remove_external_snippets" inherit_id="website_enterprise.external_snippets">
+    <xpath expr="//t[@id='appointments_snippet']" position="replace"/>
+</template>
+
+<template id="snippets" inherit_id="website.snippets">
+    <xpath expr="//t[@id='appointments_hook']" position="replace">
+        <t t-snippet="website_appointment.s_appointments_card" string="Appointments" group="appointments"/>
+        <t t-snippet="website_appointment.s_appointments_picture" string="Appointments" group="appointments"/>
+        <t t-snippet="website_appointment.s_appointments_list" string="Appointments" group="appointments"/>
+    </xpath>
+    <xpath expr="//t[@id='installed_snippets_hook']" position="after">
+        <t snippet-group="appointments" t-snippet="website.s_snippet_group" string="Appointments"
+            t-thumbnail="/website_enterprise/static/src/img/snippets_thumbs/s_appointments.svg"/>
+    </xpath>
+</template>
+
+<!-- Snippet -->
+<template id="s_appointments" name="Appointments">
+    <t t-call="website.s_dynamic_snippet_template">
+        <t t-set="snippet_name" t-value="'s_appointments'"/>
+        <t t-set="main_page_url" t-value="'/appointment'"/>
+        <t t-out="0"/>
+    </t>
+</template>
+<!-- Multi record snippets -->
+<template id="s_appointments_card" name="Appointments Card">
+    <t t-set="snippet_classes" t-value="'s_appointment_type_card'"/>
+    <t t-call="website_appointment.s_appointments">
+        <t t-call="website_appointment.s_appointments_preview_data"/>
+    </t>
+</template>
+<template id="s_appointments_picture" name="Appointments Picture">
+    <t t-set="snippet_classes" t-value="'s_appointment_type_picture'"/>
+    <t t-call="website_appointment.s_appointments">
+        <t t-call="website_appointment.s_appointments_picture_preview_data"/>
+    </t>
+</template>
+<template id="s_appointments_list" name="Appointments List">
+    <t t-set="snippet_classes" t-value="'s_appointment_type_list'"/>
+    <t t-call="website_appointment.s_appointments">
+        <t t-call="website_appointment.s_appointments_list_preview_data"/>
+    </t>
+</template>
+<!-- Single record snippets (coming soon...) -->
+
+<!-- Templates -->
+<template id="dynamic_filter_template_appointment_type_card" name="Cards">
+    <div t-foreach="records" t-as="data" class="w-100 h-100" data-extra-classes="g-3" data-column-classes="s_appointments_card col-12 col-sm-6 col-lg-4 col-xxl-3">
+        <t t-set="appointment" t-value="data['_record']"/>
+        <div class="card shadow-sm h-100">
+            <t t-if="is_sample">
+                <div class="card-img-top position-relative ratio ratio-16x9">
+                    <div>
+                        <img class="d-block h-100 w-100 object-fit-cover" src="/appointment/static/src/img/appointment_cover_0.jpg"/>
+                        <div class="h5 o_ribbon_right text-bg-primary text-uppercase">Sample</div>
+                    </div>
+                </div>
+            </t>
+            <t t-else="" t-call="website_appointment.appointment_card_top"/>
+            <t t-call="website_appointment.appointment_card_body"/>
+        </div>
+    </div>
+</template>
+
+<template id="dynamic_filter_template_appointment_type_picture" name="Pictures">
+    <div t-foreach="records" t-as="data" data-extra-classes="g-3" data-column-classes="col-12 col-md-6 col-xl-4">
+        <t t-set="appointment" t-value="data['_record']"/>
+        <a t-attf-href="/appointment/#{appointment.id}" t-attf-title="Book {{appointment.name}}" role="button" class="s_appointments_picture_item position-relative d-block rounded overflow-hidden opacity-trigger-hover">
+            <div t-if="is_sample" class="o_ribbon_right h5 text-bg-primary text-uppercase z-1">Sample</div>
+            <div class="bg-600 ratio ratio-1x1">
+                <img t-if="is_sample" src="/appointment/static/src/img/appointment_cover_0.jpg" class="object-fit-cover"/>
+                <div t-else="" t-field="appointment.image_1920" t-options="{'widget': 'image', 'class': 'h-100 w-100 object-fit-cover', 'preview_image': 'image_512'}"/>
+                <div class="bg-black opacity-25 opacity-50-hover transition-base"/>
+            </div>
+            <div class="position-absolute top-0 start-0 d-flex flex-column justify-content-between w-100 h-100 p-3">
+                <div class="d-flex align-items-end h-50 flex-shrink-0">
+                    <div class="s_appointments_picture_head d-flex align-items-center flex-column justify-content-end w-100 transition-base">
+                        <div t-if="appointment.schedule_based_on == 'users' and appointment.staff_user_ids" class="mt-auto mb-2">
+                            <t t-if="len(appointment.staff_user_ids)" t-call="website_appointment.appointment_booking_resource_description">
+                                <t t-set="avatars_max_count" t-value="3"/>
+                            </t>
+                        </div>
+                        <h5 t-attf-class="px-3 fs-3 text-white text-center" t-field="appointment.name"/>
+                        <div class="d-flex gap-2 justify-content-between align-items-center">
+                            <div class="o_wappointment_card_location">
+                                <div class="d-flex gap-1 align-items-center fw-bold smaller text-white">
+                                    <t t-if="appointment.location_id">
+                                        <span t-field="appointment.location_id" t-options="{'widget': 'contact', 'fields': ['name']}"/>
+                                        <i class="fa fa-map-marker" role="presentation"/>
+                                    </t>
+                                    <t t-else="">
+                                        <span class="o_not_editable">Online</span>
+                                        <i class="fa fa-video-camera" role="presentation"/>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mh-auto py-3 overflow-hidden">
+                    <span t-if="not is_html_empty(appointment.message_intro)" class="o_wappointment_message_intro px-3 text-white text-center opacity-0 opacity-100-hover transition-base overflow-hidden" t-field="appointment.message_intro"/>
+                </div>
+                <span class="p-2 text-white text-decoration-none text-center transition-base opacity-0 opacity-100-hover">Book now</span>
+            </div>
+        </a>
+    </div>
+</template>
+
+<template id="dynamic_filter_template_appointment_type_list" name="List">
+    <div t-foreach="records" t-as="data" data-extra-classes="g-2" data-column-classes="s_appointments_list_item px-0" class="o_cc o_cc1 position-relative rounded p-3 overflow-hidden">
+        <t t-set="appointment" t-value="data['_record']"/>
+        <div t-if="is_sample" class="o_ribbon_right smaller text-bg-primary text-uppercase z-1">Sample</div>
+        <div class="row row-gap-3">
+            <div class="col-md-6 d-flex flex-column justify-content-center gap-1 me-auto">
+                <h5 class="mb-0">
+                    <a t-field="appointment.name" t-attf-href="/appointment/#{appointment.id}" t-attf-title="Book {{appointment.name}}" class="stretched-link text-decoration-none text-reset"/>
+                </h5>
+                <div t-if="not is_html_empty(appointment.message_intro)" class="o_wappointment_message_intro overflow-hidden small opacity-75" t-out="appointment.message_intro"/>
+            </div>
+            <div class="col-md-6 d-flex flex-row-reverse flex-md-column-reverse flex-lg-row align-items-center align-items-lg-center align-items-md-end justify-content-end flex-shrink-0 gap-3">
+                <div t-if="appointment.schedule_based_on == 'users' and appointment.staff_user_ids" class="d-flex justify-content-end w-lg-50 ms-auto me-lg-auto">
+                    <t t-if="len(appointment.staff_user_ids)" t-call="website_appointment.appointment_booking_resource_description">
+                        <t t-set="avatars_max_count" t-value="3"/>
+                    </t>
+                </div>
+                <div t-attf-class="d-flex flex-md-column align-items-center align-items-md-end column-gap-3 w-lg-50  {{ is_sample and 'me-5' }}">
+                    <div class="o_wappointment_card_location d-flex gap-1 align-items-start small fw-bold opacity-75">
+                        <t t-if="appointment.location_id">
+                            <i class="fa fa-map-marker lh-base" role="presentation"/>
+                            <span t-field="appointment.location_id" t-options="{'widget': 'contact', 'fields': ['name']}"/>
+                        </t>
+                        <t t-else="">
+                            <i class="fa fa-video-camera lh-base" role="presentation"/>
+                            <span class="o_not_editable">Online</span>
+                        </t>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<asset id="website_appointment.s_appointments_000_scss" name="Appointments 000 SCSS">
+    <bundle>web.assets_frontend</bundle>
+    <path>website_appointment/static/src/snippets/s_appointments/000.scss</path>
+</asset>
+
+</odoo>

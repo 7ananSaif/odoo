@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="knowledge.ReadonlyEmbeddedFoldableSection">
+        <div class="border-bottom">
+            <div class="d-flex bg-100 py-1 align-items-center d-print-none">
+                <div class="form-check form-switch">
+                    <input
+                        t-att-checked="state.showContent"
+                        t-on-change="onInputChange"
+                        class="form-check-input"
+                        type="checkbox"
+                        role="switch"/>
+                </div>
+                <div class="flex-grow-1" t-ref="title"/>
+            </div>
+            <div t-ref="content"
+                class="bg-white pt-3"
+                t-att-class="{'d-none': !state.showContent}"/>
+        </div>
+    </t>
+</templates>

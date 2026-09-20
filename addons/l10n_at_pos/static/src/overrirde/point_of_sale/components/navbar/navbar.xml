@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="l10n_at_pos.Navbar" t-inherit="point_of_sale.Navbar" t-inherit-mode="extension">
+        <xpath expr="//Dropdown//div[hasclass('pos-burger-menu-items')]" position="inside">
+            <DropdownItem t-if="pos.company.l10n_at_is_fon_authenticated" onSelected="() => this.printClosingReceipts()">
+                <t t-esc="menuLabel"/>
+            </DropdownItem>
+        </xpath>
+    </t>
+</templates>

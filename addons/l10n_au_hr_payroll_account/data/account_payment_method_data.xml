@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="account_payment_method_ss_dd" model="account.payment.method">
+        <field name="name">Direct Debit (Super Stream)</field>
+        <field name="code">ss_dd</field>
+        <field name="payment_type">outbound</field>
+    </record>
+
+    <record id="account_payment_method_ss_dd_refund" model="account.payment.method">
+        <field name="name">Direct Debit Refund (Super Stream)</field>
+        <field name="code">ss_dd</field>
+        <field name="payment_type">inbound</field>
+    </record>
+
+</odoo>

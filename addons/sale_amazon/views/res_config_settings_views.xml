@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.sale.amazon</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <div name="amazon_connector" position="inside">
+                <div class="mt16">
+                    <div>
+                        <button
+                            string="Amazon Accounts"
+                            type="action"
+                            name="%(sale_amazon.list_amazon_account_action)d"
+                            icon="oi-arrow-right"
+                            class="btn-link"
+                            invisible="not has_amazon_account"
+                        />
+                        <button
+                            string="Link My Account"
+                            type="action"
+                            name="%(sale_amazon.quick_create_account_action)d"
+                            icon="oi-arrow-right"
+                            class="btn-link"
+                            invisible="has_amazon_account"
+                        />
+                    </div>
+                </div>
+            </div>
+        </field>
+    </record>
+
+</odoo>

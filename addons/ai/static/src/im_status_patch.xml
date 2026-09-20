@@ -1,0 +1,8 @@
+<templates xml:space="preserve">
+    <t t-inherit="mail.ImStatus" t-inherit-mode="extension">
+        <xpath expr="//*[@name='icon']" position="replace">
+            <i t-if="persona.im_status === 'agent'" class="fa fa-circle text-success" title="Online" role="img" aria-label="User is online"/>
+            <t t-else="">$0</t>
+        </xpath>
+    </t>
+</templates>

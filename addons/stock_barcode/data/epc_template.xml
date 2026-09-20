@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- [TDS 2.1] https://ref.gs1.org/standards/tds/2.1.0 -->
+<epc_template>
+    <fields>
+        <field name='header'>
+            <description>EPC Header</description>
+            <encoding>integer</encoding>
+        </field>
+        <field name='filter'>
+            <description>Filter</description>
+            <encoding>integer</encoding>
+        </field>
+        <field name='partition'>
+            <description>Partition</description>
+            <encoding>partition_table</encoding>
+        </field>
+        <field name='company_prefix'>
+            <description>Company Prefix</description>
+            <encoding>integer</encoding>
+        </field>
+        <field name='item_reference'>
+            <description>Item Reference</description>
+            <encoding>integer</encoding>
+        </field>
+        <field name='serial_integer'>
+            <description>Serial (Integer)</description>
+            <encoding>integer</encoding>
+        </field>
+        <field name='serial_string'>
+            <description>Serial (Alphanumeric)</description>
+            <encoding>string</encoding>
+        </field>
+    </fields>
+    <schemes>
+        <scheme name='sgtin-96'>
+            <header_value>30</header_value>  <!--Hexa value-->
+            <bit_size>96</bit_size>
+            <partition_table>sgtin</partition_table>
+            <fields_list>
+                <field name='header' bit_size='8'/>
+                <field name='filter' bit_size='3'/>
+                <field name='partition' bit_size='3'/>
+                <field name='company_prefix' bit_size='0'/>
+                <field name='item_reference' bit_size='0'/>
+                <field name='serial_integer' bit_size='38' ai='21'/>
+            </fields_list>
+        </scheme>
+        <scheme name='sgtin-198'>
+            <header_value>36</header_value>
+            <bit_size>198</bit_size>
+            <partition_table>sgtin</partition_table>
+            <fields_list>
+                <field name='header' bit_size='8'/>
+                <field name='filter' bit_size='3'/>
+                <field name='partition' bit_size='3'/>
+                <field name='company_prefix' bit_size='0'/>
+                <field name='item_reference' bit_size='0'/>
+                <field name='serial_string' bit_size='140' ai='21'/>
+            </fields_list>
+        </scheme>
+    </schemes>
+    <partition_tables>
+        <partition_table name='sgtin' ai_required='01'>
+            <key value="0" left_bit="40" left_digit="12" right_bit="4" right_digit="1"/>
+            <key value="1" left_bit="37" left_digit="11" right_bit="7" right_digit="2"/>
+            <key value="2" left_bit="34" left_digit="10" right_bit="10" right_digit="3"/>
+            <key value="3" left_bit="30" left_digit="9" right_bit="14" right_digit="4"/>
+            <key value="4" left_bit="27" left_digit="8" right_bit="17" right_digit="5"/>
+            <key value="5" left_bit="24" left_digit="7" right_bit="20" right_digit="6"/>
+            <key value="6" left_bit="20" left_digit="6" right_bit="24" right_digit="7"/>
+        </partition_table>
+    </partition_tables>
+</epc_template>

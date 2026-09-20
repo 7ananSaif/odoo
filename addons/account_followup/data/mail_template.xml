@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<odoo>
+    <!-- Mail template is done in a NOUPDATE block
+         so users can freely customize/delete them -->
+    <data noupdate="1">
+        <!--Email template -->
+        <record id="email_template_followup_1" model="mail.template">
+            <field name="name">Payment Reminder</field>
+            <field name="model_id" ref="base.model_res_partner"/>
+            <field name="email_from">{{ object._get_followup_responsible().email_formatted }}</field>
+            <field name="partner_to" eval="False"/>
+            <field name="use_default_to" eval="True"/>
+            <field name="subject">{{ (object.company_id or object._get_followup_responsible().company_id).name }} Payment Reminder - {{ object.commercial_company_name }}</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p>
+                        <t t-if="object.id != object.commercial_partner_id.id">Dear <t t-out="object.name or ''"/> (<t t-out="object.commercial_partner_id.name or ''"/>),</t>
+                        <t t-else="">Dear <t t-out="object.name or ''"/>,</t>
+                    </p>
+                    <p>
+                        We would like to inform you that your account shows an outstanding balance of <b><t t-out="format_amount(object.total_overdue_followup, object.currency_id) or ''"/></b>.
+                        We kindly ask that you settle this amount within the next <b>8 days</b>.
+                    </p>
+                    <p t-if="object._show_pay_now_button()">
+                        <a t-att-href="'/my/invoices/overdue'" style="padding: 8px 12px; font-size: 12px; color: #FFFFFF; text-decoration: none !important; font-weight: 400; background-color: #875A7B; border: 0px solid #875A7B; border-radius:3px">Pay now</a>
+                    </p>
+                    <p>
+                        If payment has already been made, please disregard this notice.
+                        For any questions or if you need assistance, feel free to contact our accounting department.
+                    </p>
+                    <p>
+                        We appreciate your cooperation in resolving this matter.
+                    </p>
+                    <p>
+                        Sincerely,
+                    </p>
+                    <p>
+                        <t t-if="not is_html_empty(object._get_followup_responsible().signature)">
+                            <t t-out="object._get_followup_responsible().signature"/>
+                        </t>
+                        <t t-else="">
+                            <t t-out="object._get_followup_responsible().name"/>
+                        </t>
+                    </p>
+                </div>
+            </field>
+            <field name="lang">{{ object.lang }}</field>
+            <field name="auto_delete" eval="False"/>
+        </record>
+    </data>
+</odoo>

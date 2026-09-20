@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+
+    <t t-name="pos_hr.Navbar" t-inherit="point_of_sale.Navbar" t-inherit-mode="extension">
+        <xpath expr="//Dropdown//div[hasclass('pos-burger-menu-items')]//DropdownItem" position="before">
+            <DropdownItem onSelected="() => this.toggleColorScheme()">
+                <span t-if="this.colorScheme === 'dark'">Switch to Light Mode</span>
+                <span t-else="">Switch to Dark Mode</span>
+            </DropdownItem>
+        </xpath>
+    </t>
+
+</templates>

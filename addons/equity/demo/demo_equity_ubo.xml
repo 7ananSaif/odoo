@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="demo_equity_ubo_1" model="equity.ubo">
+        <field name="partner_id" ref="base.res_partner_12"/>
+        <field name="holder_id" ref="base.res_partner_address_15"/>
+        <field name="start_date" eval="datetime.today() + relativedelta(months=-7, day=2)"/>
+        <field name="control_method">co_1</field>
+        <field name="ownership">0.35</field>
+        <field name="voting_rights">0.30</field>
+    </record>
+
+    <record id="demo_equity_ubo_2" model="equity.ubo">
+        <field name="partner_id" ref="base.res_partner_12"/>
+        <field name="holder_id" ref="base.res_partner_address_16"/>
+        <field name="start_date" eval="datetime.today() + relativedelta(months=-6, day=2)"/>
+        <field name="control_method">co_1</field>
+        <field name="ownership">0.30</field>
+        <field name="voting_rights">0.30</field>
+    </record>
+
+    <record id="demo_equity_ubo_3" model="equity.ubo">
+        <field name="partner_id" ref="base.res_partner_12"/>
+        <field name="holder_id" ref="base.res_partner_address_28"/>
+        <field name="start_date" eval="datetime.today() + relativedelta(months=-2, day=2)"/>
+        <field name="control_method">co_3</field>
+        <field name="auth_rep_role">chairman</field>
+    </record>
+
+    <record id="demo_equity_ubo_4" model="equity.ubo">
+        <field name="partner_id" ref="base.res_partner_10"/>
+        <field name="holder_id" ref="base.res_partner_address_17"/>
+        <field name="start_date" eval="datetime.today() + relativedelta(months=-1, day=2)"/>
+        <field name="control_method">ngo_1</field>
+    </record>
+
+    <record id="demo_equity_ubo_5" model="equity.ubo">
+        <field name="partner_id" ref="base.res_partner_10"/>
+        <field name="holder_id" ref="base.res_partner_address_18"/>
+        <field name="start_date" eval="datetime.today() + relativedelta(months=-3, day=2)"/>
+        <field name="control_method">ngo_2</field>
+        <field name="auth_rep_role">secretary</field>
+    </record>
+</odoo>

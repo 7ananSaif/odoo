@@ -1,0 +1,240 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="hr_appraisal_goal_view_form" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.view.form</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="priority">5</field>
+        <field name="arch" type="xml">
+            <form class="o_appraisal_goal_form" js_class="appraisal_goal_delete_form">
+                <header>
+                    <button name="action_confirm" type="object"
+                            string="Mark as Done" class="oe_highlight"
+                            invisible="progression == '100' or child_ids"/>
+                    <button name="action_save_as_template" type="object"
+                            string="Save as Template" class="btn btn-secondary"
+                            invisible="template_goal_id"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" name="action_open_goal_template" invisible="not parent_id" type="object">
+                            <div class="o_field_widget o_stat_info">
+                                <field name="sibling_goals_ratio" widget="appraisal_percentpie"/>
+                            </div>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="Done" bg_color="text-bg-success" invisible="progression != '100'"/>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="e.g. Improve your English level" readonly="not has_edit_right"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="employee_ids" domain="[['id', 'in', employee_autocomplete_ids]]"
+                                readonly="not is_manager or not has_edit_right"
+                                required="True"
+                                widget="many2many_avatar_employee"/>
+                            <field name="progression" widget="selection_badge" invisible="child_ids"/>
+                        </group>
+                        <group>
+                            <field name="manager_ids" force_save="1" readonly="not is_manager or not has_edit_right" widget="many2many_avatar_employee" required="True"/>
+                            <field name="deadline" readonly="not has_edit_right"/>
+                            <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" readonly="not has_edit_right"/>
+                        </group>
+                    </group>
+                    <group>
+                        <label for="description">Description</label>
+                    </group>
+                    <group>
+                        <field name="description" nolabel='1' readonly="not has_edit_right"
+                            placeholder="Provide visible information on the goal, how the employee can achieve it. Which benefit he will get from it.
+                            Maybe some process or steps to help her/him along the way."/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="hr_appraisal_goal_view_tree" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.view.list</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="priority">10</field>
+        <field name="arch" type="xml">
+            <list sample="1" class="o_goal_list" default_order="deadline asc" js_class="goal_list_view">
+                <field name="name"/>
+                <field name="description" optional="hide"/>
+                <field name="progression" widget="badge" decoration-success="progression == '100'"/>
+                <field name="employee_ids" widget="many2many_avatar_employee" options="{'no_open': True}"/>
+                <field name="manager_ids" widget="many2many_avatar_employee" optional="hide" options="{'no_open': True}"/>
+                <field name="activity_ids" widget="list_activity" optional="hide"/>
+                <field name="tag_ids" widget="many2many_tags" readonly="1" optional="hide" options="{'color_field': 'color'}"/>
+                <field name="deadline" widget="remaining_days"/>
+                <field name="create_date" options="{'show_time': False}" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_appraisal_goal_view_kanban" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.view.kanban</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="priority">15</field>
+        <field name="arch" type="xml">
+            <kanban quick_create="false" class="o_hr_employee_kanban" sample="1" js_class="goal_kanban_view">
+                <templates>
+                    <t t-name="card" class="overflow-hidden">
+                        <field name="name" class="fs-4 mb-1" style="max-width: 70%;"/>
+                        <span t-if="record.progression.raw_value != 100">
+                            Progress:
+                            <field name="progression"/>
+                        </span>
+                        <field name="tag_ids" widget="many2many_tags" options="{'color_field': 'color'}" class="pt-2" invisible="not tag_ids"/>
+                        <footer>
+                            <field name="deadline" />
+                            <field name="activity_ids" widget="kanban_activity" class="ms-auto"/>
+                            <field name="employee_ids" widget="many2many_avatar_employee" />
+                        </footer>
+                        <widget name="web_ribbon" title="Done" bg_color="text-bg-success" invisible="progression != '100'"/>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="hr_appraisal_goal_view_graph" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.view.graph</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <graph string="Goals" type="bar" stacked="0" order="asc" sample="1">
+                <field name="employee_ids"/>
+                <field name="progression"/>
+            </graph>
+        </field>
+    </record>
+
+    <record id="hr_appraisal_goal_view_hierarchy" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.view.hierarchy</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="priority">35</field>
+        <field name="arch" type="xml">
+            <hierarchy child_field="child_ids" draggable="0" class="o_goal_hierarchy_view">
+                <field name="name"/>
+                <field name="deadline"/>
+                <field name="tag_ids"/>
+                <field name="progression"/>
+                <templates>
+                    <t t-name="hierarchy-box">
+                        <div class="d-flex flex-column mx-2">
+                            <div class="d-flex flex-row pt-2">
+                                <field name="name" class="h4 pb-0 text-wrap flex-grow-1 me-1"/>
+                                <field name="progression" widget="badge" decoration-success="progression == '100'"/>
+                            </div>
+                            <div class="d-grid column-gap-2" style="grid-template-columns: min-content minmax(0,1fr);">
+                                <span>Deadline:</span>
+                                <field name="deadline"/>
+                                <span id="span_tag" invisible="not tag_ids">Tags:</span>
+                                <field name="tag_ids" invisible="not tag_ids"
+                                    widget="many2many_tags" options="{'color_field': 'color'}"/>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </hierarchy>
+        </field>
+    </record>
+
+    <record id="hr_appraisal_goal_view_search" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.view.search</field>
+        <field name="model">hr.appraisal.goal</field>
+        <field name="priority">25</field>
+        <field name="arch" type="xml">
+            <search>
+                <field string="Goal or Employee" name="name" filter_domain="['|', ('name', 'ilike', self), ('employee_ids.name', 'ilike', self)]"/>
+                <field name="manager_ids"/>
+                <field name="department_ids"/>
+                <field name="job_ids" groups="hr.group_hr_user"/>
+                <field name="tag_ids"/>
+                <filter string="My Goals" name="filter_my_goals" domain="[('employee_ids.user_id', '=', uid)]"/>
+                <filter string="My Team" name="people_i_manage" domain="[('employee_ids.parent_id.user_id', '=', uid)]" groups="hr_appraisal.group_hr_appraisal_user"/>
+                <separator/>
+                <filter string="In Progress" name="in_progress" domain="[('progression', 'in', ('000','025','050','075'))]"/>
+                <filter string="Done" name="completed" domain="[('progression', '=', '100')]"/>
+                <separator/>
+                <filter string="Late" name="filter_late" domain="[('deadline', '&lt;', 'today')]"/>
+                <filter string="Deadline" name="filter_deadline" date="deadline"/>
+                <filter string='Deadline' name="deadline_group"  context="{'group_by': 'deadline'}"/>
+                <filter string='Employee' name="groupby_employee"  context="{'group_by': 'employee_ids'}"/>
+                <filter string='Manager' name="manager_ids"  context="{'group_by': 'manager_ids'}"/>
+                <separator/>
+                <filter string='Department' name="groupby_department_ids"  context="{'group_by': 'department_ids'}"/>
+                <filter string='Job Position' name="groupby_job_ids"  context="{'group_by': 'job_ids'}" groups="hr.group_hr_user"/>
+                <filter string='Tags' name="groupby_tag_ids"  context="{'group_by': 'tag_ids'}"/>
+                <filter string='Company' name="groupby_company"  context="{'group_by': 'company_id'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_hr_appraisal_goal" model="ir.actions.act_window">
+        <field name="name">Goals</field>
+        <field name="res_model">hr.appraisal.goal</field>
+        <field name="view_mode">list,kanban,form,graph</field>
+        <field name="domain">[('employee_ids', '!=', False), ('child_ids', '=', False)]</field>
+        <field name="context">{'search_default_groupby_employee': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create new goals
+            </p>
+            <p>
+                Assign Goals to motivate your Employees and keep track of their objectives between Appraisals.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_hr_appraisal_goal_view_list" model="ir.actions.act_window.view">
+        <field name="sequence" eval="3"/>
+        <field name="view_mode">list</field>
+        <field name="view_id" ref="hr_appraisal.hr_appraisal_goal_view_tree"/>
+        <field name="act_window_id" ref="hr_appraisal.action_hr_appraisal_goal"/>
+    </record>
+
+    <menuitem name="Goals"
+        parent="menu_hr_appraisal_root"
+        id="menu_hr_appraisal_goal"
+        action="action_hr_appraisal_goal"
+        sequence="2"/>
+
+    <!-- YTI Manage goal security -->
+
+    <record id="hr_appraisal_goal_tag_view_tree" model="ir.ui.view">
+        <field name="name">hr.appraisal.goal.tag.view.list</field>
+        <field name="model">hr.appraisal.goal.tag</field>
+        <field name="arch" type="xml">
+            <list string="Tags" editable="bottom">
+                <field name="name"  placeholder="e.g. Remediation, Team, Improvement plan, Career change, ..."/>
+                <field name="color" widget="color_picker"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="hr_appraisal_goal_tag_action" model="ir.actions.act_window">
+        <field name="name">Goal Tags</field>
+        <field name="res_model">hr.appraisal.goal.tag</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+          <p class="o_view_nocontent_smiling_face">
+            Create a new tag
+          </p><p>
+            Create new tags to use on Employee's goals
+          </p>
+        </field>
+    </record>
+
+    <menuitem
+        id="menu_config_goal_tags"
+        name="Tags"
+        action="hr_appraisal_goal_tag_action"
+        parent="hr_appraisal.menu_config_goal"
+        sequence="25"/>
+
+</odoo>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document" inherit_id="l10n_mx_edi.report_invoice_document">
+        <xpath expr="//table[@name='invoice_line_table']" position="before">
+            <t t-set="customs_dates" t-value="o._l10n_mx_edi_get_formatted_date_per_customs_number()" />
+        </xpath>
+        <xpath expr="//td[@name='account_invoice_line_name']/span[@t-field='line.name']" position="after">
+            <p t-if="line.l10n_mx_edi_can_use_customs_invoicing and line.name" class="mb-0 mt-1">
+                <t t-set="customs_number" t-value="line._l10n_mx_edi_get_custom_numbers()" />
+                <t t-set="customs_dates_list" t-value="[customs_dates.get(customs) for customs in customs_number]" />
+                <t t-set="formatted_dates" t-value="','.join([date for date in customs_dates_list if date])" />
+                <t t-if="formatted_dates">
+                    <span>Customs Number Date: </span>
+                    <span t-out="formatted_dates" />
+                </t>
+            </p>
+        </xpath>
+    </template>
+</odoo>

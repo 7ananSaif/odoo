@@ -1,0 +1,11 @@
+<templates>
+    <t t-name="documents.DocumentsDatetimeBtnField">
+        <button
+            t-ref="datetime-btn"
+            t-attf-class="btn #{this.props.btnClasses ? this.props.btnClasses : 'btn-primary'}"
+            t-att-title="props.label"
+            t-on-click.prevent="() => dateTimePicker.open()">
+            <i t-attf-class="fa fa-fw fa-#{this.props.icon ? this.props.icon : 'calendar'}"/>
+        </button>
+    </t>
+</templates>

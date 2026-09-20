@@ -1,0 +1,366 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_basic_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.BASIC"/>
+        <field name="name">Basic Salary</field>
+        <field name="sequence">1</field>
+        <field name="code">BASIC</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = payslip.paid_amount
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="jordan_housing_allowance_salary_rule" model="hr.salary.rule">
+        <field name="name">Housing Allowance</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="code">HOUALLOW</field>
+        <field name="sequence">10</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = bool(version.l10n_jo_housing_allowance)</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = version.l10n_jo_housing_allowance</field>
+        <field name="struct_id" ref="l10n_jo_hr_payroll.hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="jordan_transportation_allowance_salary_rule" model="hr.salary.rule">
+        <field name="name">Transportation Allowance</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="code">TRAALLOW</field>
+        <field name="sequence">20</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = bool(version.l10n_jo_transportation_allowance)</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = version.l10n_jo_transportation_allowance</field>
+        <field name="struct_id" ref="l10n_jo_hr_payroll.hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="jordan_other_allowances_salary_rule" model="hr.salary.rule">
+        <field name="name">Other Allowances</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="code">OTALLOW</field>
+        <field name="sequence">30</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = bool(version.l10n_jo_other_allowances)</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = version.l10n_jo_other_allowances</field>
+        <field name="struct_id" ref="l10n_jo_hr_payroll.hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="jordan_ssc_contribution" model="hr.salary.rule">
+        <field name="name">SSC Company Contribution</field>
+        <field name="category_id" ref="hr_payroll.COMP"/>
+        <field name="code">SSC</field>
+        <field name="sequence">35</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = min(payslip._rule_parameter('l10n_jo_min_ssc_contrib'), (categories['BASIC'] + categories['ALW']))
+result_rate = payslip._rule_parameter('l10n_jo_ssc_rate')
+        </field>
+        <field name="struct_id" ref="l10n_jo_hr_payroll.hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="jordan_sse_deduction" model="hr.salary.rule">
+        <field name="name">SSC Employee Contribution</field>
+        <field name="category_id" ref="l10n_jo_hr_payroll.hr_salary_rule_category_jo_ssd"/>
+        <field name="code">SSE</field>
+        <field name="sequence">40</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = min(payslip._rule_parameter('l10n_jo_min_sse_ded'), (categories['BASIC'] + categories['ALW']))
+result_rate = payslip._rule_parameter('l10n_jo_sse_rate')
+        </field>
+        <field name="struct_id" ref="l10n_jo_hr_payroll.hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_sick_leave_unpaid" model="hr.salary.rule">
+        <field name="name">Sick Leave (Un-Paid)</field>
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="code">SICKLEAVE0</field>
+        <field name="sequence">45</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'SICKLEAVE0' in worked_days</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result_qty = worked_days['SICKLEAVE0'].number_of_days
+result = - (payslip._l10n_jo_get_gross_wage() / 30)
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_rest_days_overtime" model="hr.salary.rule">
+        <field name="name">Rest Days Overtime</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="code">ROVT</field>
+        <field name="sequence">50</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">
+result = 'ROVT' in inputs and inputs['ROVT'].amount and version.resource_calendar_id.hours_per_day
+        </field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+overtime_rate = payslip._rule_parameter('l10n_jo_rest_days_overtime_rate')
+number_of_days = (payslip.date_to - payslip.date_from).days  + 1
+
+gross_wage = payslip._l10n_jo_get_gross_wage()
+
+result_rate = overtime_rate * 100
+result_qty = inputs['ROVT'].amount
+if version.resource_calendar_id:
+    result =  gross_wage / number_of_days / version.resource_calendar_id.hours_per_day
+elif version.company_id.resource_calendar_id:
+    result =  gross_wage / number_of_days / version.company_id.resource_calendar_id.hours_per_day
+else:
+    result =  gross_wage / number_of_days / 8.0
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_week_days_overtime" model="hr.salary.rule">
+        <field name="name">Weekdays Overtime</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="code">WOVT</field>
+        <field name="sequence">50</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">
+result = 'WOVT' in inputs and inputs['WOVT'].amount and version.resource_calendar_id.hours_per_day
+        </field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+overtime_rate = payslip._rule_parameter('l10n_jo_work_days_overtime_rate')
+number_of_days = (payslip.date_to - payslip.date_from).days + 1
+
+gross_wage = payslip._l10n_jo_get_gross_wage()
+
+result_rate = overtime_rate * 100
+result_qty = inputs['WOVT'].amount
+if version.resource_calendar_id:
+    result =  gross_wage / number_of_days / version.resource_calendar_id.hours_per_day
+elif version.company_id.resource_calendar_id:
+    result =  gross_wage / number_of_days / version.company_id.resource_calendar_id.hours_per_day
+else:
+    result =  gross_wage / number_of_days / 8.0
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_end_of_service_provision" model="hr.salary.rule">
+        <field name="name">End of Service Provision</field>
+        <field name="category_id" ref="hr_payroll.COMP"/>
+        <field name="code">EOSPROV</field>
+        <field name="sequence">55</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+salary = payslip._l10n_jo_get_gross_wage()
+result = salary  / 12
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_Annual_Leave_provision" model="hr.salary.rule">
+        <field name="name">Annual Leave Provision</field>
+        <field name="category_id" ref="hr_payroll.COMP"/>
+        <field name="code">ANNUALP</field>
+        <field name="sequence">60</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+salary = payslip._l10n_jo_get_gross_wage()
+result = (salary / 30) * version.l10n_jo_number_of_leave_days  / 12
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_gross_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.GROSS"/>
+        <field name="name">Taxable Salary (Gross)</field>
+        <field name="sequence">100</field>
+        <field name="code">GROSS</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW']
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="jordan_yearly_gross" model="hr.salary.rule">
+        <field name="name">Taxable Yearly Gross</field>
+        <field name="category_id" ref="hr_payroll.GROSS"/>
+        <field name="code">GROSSY</field>
+        <field name="sequence">115</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+exemption_amount = payslip._rule_parameter('l10n_jo_taxable_yearly_gross_exemption_amount')
+if employee.is_non_resident:
+    exemption_amount = 0
+elif employee.l10n_jo_is_blind:
+    exemption_amount = GROSS * 12
+elif employee.l10n_jo_has_dependants:
+    exemption_amount += 12000
+result = max((GROSS * 12) - exemption_amount, 0)
+        </field>
+        <field name="struct_id" ref="l10n_jo_hr_payroll.hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="jordan_tax_tax_bracket_total" model="hr.salary.rule">
+        <field name="name">TAX Bracket Deduction</field>
+        <field name="category_id" ref="l10n_jo_hr_payroll.hr_salary_rule_category_jo_tax_brackets"/>
+        <field name="code">TXB</field>
+        <field name="sequence">145</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = (payslip._l10n_jo_get_tax(GROSSY)) &gt; 0</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -payslip._l10n_jo_get_tax(GROSSY) / 12
+        </field>
+        <field name="struct_id" ref="l10n_jo_hr_payroll.hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_end_of_service_benefit" model="hr.salary.rule">
+        <field name="name">End of Service Benefit</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="code">EOSB</field>
+        <field name="sequence">150</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">
+result = employee.departure_date and employee.departure_reason_id and employee.l10n_jo_is_eligible_for_eos
+        </field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+start_date = employee._get_first_version_date()
+end_date = version.date_end
+difference = relativedelta(end_date, start_date)
+total_years = difference.years + difference.months / 12 + difference.days / 365
+
+gross_wage = payslip._l10n_jo_get_gross_wage()
+
+result_qty = total_years
+result = gross_wage
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_remaining_leave_compensation" model="hr.salary.rule">
+        <field name="name">Remaining Leaves Compensation</field>
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="code">EOSLEAVES</field>
+        <field name="sequence">155</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">
+result = employee.departure_reason_id
+        </field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+remaining_annual_leave_balance = employee.company_id.l10n_jo_annual_leave_type_id.get_allocation_data(employee).get(employee, False)
+if remaining_annual_leave_balance:
+    employee_remaining_leaves = remaining_annual_leave_balance[0][1]['remaining_leaves']
+else:
+     employee_remaining_leaves = 0
+deserved_leaves = version.l10n_jo_number_of_leave_days / 12 * payslip.date_to.month
+
+if employee_remaining_leaves &gt;= deserved_leaves:
+    diff = deserved_leaves
+else:
+    diff = employee_remaining_leaves - deserved_leaves
+
+result = diff * (payslip._l10n_jo_get_gross_wage() / 30)
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_end_of_service_tax_deduction" model="hr.salary.rule">
+        <field name="name">End of Service Tax Deduction</field>
+        <field name="category_id" ref="l10n_jo_hr_payroll.hr_salary_rule_category_jo_tax_brackets"/>
+        <field name="code">EOSTXD</field>
+        <field name="sequence">160</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">
+result = employee.departure_date and employee.departure_reason_id and employee.l10n_jo_is_eligible_for_eos
+        </field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+exemption_amount = payslip._rule_parameter('l10n_jo_eos_exemption')
+taxable_amount = EOSB - exemption_amount
+result = - payslip._l10n_jo_get_tax(taxable_amount) if taxable_amount &gt; 0 else 0
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_assignment_of_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Assignment of Salary</field>
+        <field name="sequence">174</field>
+        <field name="code">ASSIG_SALARY</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'ASSIG_SALARY' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['ASSIG_SALARY'].amount
+result_name = inputs['ASSIG_SALARY'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_child_support" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Child Support</field>
+        <field name="code">CHILD_SUPPORT</field>
+        <field name="amount_select">code</field>
+        <field name="sequence">174</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'CHILD_SUPPORT' in inputs</field>
+        <field name="amount_python_compute">
+result = -inputs['CHILD_SUPPORT'].amount
+result_name = inputs['CHILD_SUPPORT'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_deduction_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Deduction</field>
+        <field name="sequence">198</field>
+        <field name="code">DEDUCTION</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'DEDUCTION' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['DEDUCTION'].amount
+result_name = inputs['DEDUCTION'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_reimbursement_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="name">Reimbursement</field>
+        <field name="sequence">199</field>
+        <field name="code">REIMBURSEMENT</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'REIMBURSEMENT' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = inputs['REIMBURSEMENT'].amount
+result_name = inputs['REIMBURSEMENT'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+
+    <record id="l10n_jo_hr_payroll_structure_jo_employee_salary_net_salary" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.NET"/>
+        <field name="name">Net Salary</field>
+        <field name="sequence">200</field>
+        <field name="code">NET</field>
+        <field name="appears_on_employee_cost_dashboard" eval="True"/>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW'] + categories['DED']
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_jo_employee_salary"/>
+    </record>
+</odoo>

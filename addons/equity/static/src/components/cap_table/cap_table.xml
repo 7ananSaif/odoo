@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="equity.CapTable">
+        <div class="d-flex flex-column h-100 o_cap_table">
+            <ControlPanel>
+                <t t-set-slot="control-panel-create-button">
+                    <button class="btn btn-primary" t-on-click="() => this.createTransaction()">New Transaction</button>
+                </t>
+            </ControlPanel>
+
+            <div class="flex-grow-1 overflow-auto o_list_renderer o_content">
+                <t t-if="this.isSample">
+                    <ActionHelper noContentHelp="this.noContentHelp" showRibbon="true"/>
+                </t>
+                <t t-foreach="Object.keys(this.partnerHolderData)" t-as="partnerId" t-key="partnerId">
+                    <div t-att-class="{'o_view_sample_data': this.isSample, 'table-responsive': 1}">
+                        <table class="o_list_table table table-sm table-striped table-hover position-relative mb-0">
+                            <thead>
+                                <tr class="o_cap_table_header">
+                                    <th/>
+                                    <t t-foreach="this.getHeaders(partnerId)" t-as="cell" t-key="cell_index">
+                                        <th class="opacity-trigger-hover w-print-auto" t-att-class="{'o_list_number_th': cell_index > 0}">
+                                            <t t-call="equity.CapTableCell"/>
+                                        </th>
+                                    </t>
+                                    <th/>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Total row -->
+                                <tr class="o_group_header">
+                                    <td/>
+                                    <t t-foreach="this.getRow(partnerId, null, 'Securities')" t-as="cell" t-key="cell_index">
+                                        <td t-att-class="{'o_list_number': cell_index > 0, 'ps-1': cell_index == 0}">
+                                            <t t-call="equity.CapTableCell"/>
+                                        </td>
+                                    </t>
+                                    <td/>
+                                </tr>
+                                <!-- securities rows -->
+                                <t t-foreach="Object.keys(this.partnerHolderData[partnerId]).map(holderId => this.getRow(partnerId, holderId)).filter(row => row)" t-as="row" t-key="row_index">
+                                    <tr>
+                                        <td/>
+                                        <t t-foreach="row" t-as="cell" t-key="cell_index">
+                                            <td t-att-class="{'o_list_number': cell_index > 0, 'ps-3': cell_index == 0}">
+                                                <t t-call="equity.CapTableCell"/>
+                                            </td>
+                                        </t>
+                                        <td/>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+    <t t-name="equity.CapTableCell">
+        <img
+            t-if="cell.partnerId"
+            class="o_avatar rounded ms-2"
+            t-att-src="this.getPartnerAvatarSrc(cell.partnerId)"
+            alt="Contact"/>
+        <a t-if="cell.onClick" t-on-click="() => cell.onClick()" t-esc="cell.label" class="ms-1"/>
+        <span t-else="" t-esc="cell.label" class="ms-1"/>
+        <a t-if="cell.partnerId"
+            class="hover-button float-end"
+            t-on-click="() => this.sendToPartner(cell.partnerId)">
+            <i class="fa fa-send"/> Send </a>
+    </t>
+</templates>

@@ -1,0 +1,54 @@
+<odoo>
+    <data>
+        <record id="hr_expense_stripe_topup_wizard_form" model="ir.ui.view">
+            <field name="name">hr.expense.stripe.topup.wizard.form</field>
+            <field name="model">hr.expense.stripe.topup.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <div class="bg-secondary-subtle border rounded p-3 mb-4">
+                        <strong>Top up your Stripe Issuing account to ensure your balance covers upcoming expenses.</strong>
+                        <ul class="mb-0 mt-2 ps-3" invisible="pull_push_funds == 'pull'">
+                            <li>Transfer funds using the IBAN and BIC below</li>
+                            <li>Choose any amount — the QR code updates automatically</li>
+                            <li>Funds go to a prepaid balance used by your expense cards</li>
+                            <li>If the balance is too low, card payments will be declined</li>
+                            <li>Transfers usually take 2–3 business days</li>
+                        </ul>
+                    </div>
+                    <group invisible="pull_push_funds == 'pull'">
+                        <group>
+                            <field name="currency_id" invisible="True"/>  <!-- Needed for the amount fields -->
+                            <field name="amount" widget="monetary"/>
+                            <field name="partner_bank_id"/>
+                            <field name="bic"/>
+                        </group>
+                        <group>
+                            <field name="qr_code" nolabel="1" class="text-center"/>
+                        </group>
+                    </group>
+                    <group invisible="pull_push_funds == 'push'">
+                        <group>
+                            <field name="amount" widget="monetary"/>
+                            <field name="statement_description"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <!-- US PULL BUTTONS -->
+                        <button name="action_topup" class="btn btn-primary us_topup" type="object"
+                                invisible="not is_live_mode or pull_push_funds == 'push'">
+                            Topup
+                        </button>
+                        <button special="cancel" class="btn btn-secondary" type="object"
+                                invisible="pull_push_funds == 'push'"
+                                string="Close"/>
+
+                        <!-- REST OF THE WORLD PULL BUTTONS -->
+                        <button special="cancel" class="btn btn-primary eu_done" type="object"
+                                invisible="not is_live_mode or pull_push_funds == 'pull'"
+                                string="Done"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

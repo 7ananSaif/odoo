@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+        <record id="account_tag_281_50_commissions" model="account.account.tag">
+            <field name="name">281.50 - Commissions</field>
+            <field name="name@nl">281.50 - Commissies</field>
+            <field name="name@fr">281.50 - Commissions</field>
+            <field name="name@de">281.50 - Provisionen</field>
+            <field name="applicability">accounts</field>
+            <field name="country_id" ref="base.be"/>
+        </record>
+
+        <record id="account_tag_281_50_fees" model="account.account.tag">
+            <field name="name">281.50 - Fees</field>
+            <field name="name@nl">281.50 - Kosten</field>
+            <field name="name@fr">281.50 - Frais</field>
+            <field name="name@de">281.50 - Honorare</field>
+            <field name="applicability">accounts</field>
+            <field name="country_id" ref="base.be"/>
+        </record>
+
+        <record id="account_tag_281_50_atn" model="account.account.tag">
+            <field name="name">281.50 - ATN</field>
+            <field name="name@nl">281.50 - VAA</field>
+            <field name="name@fr">281.50 - ATN</field>
+            <field name="name@de">281.50 - VJA</field>
+            <field name="applicability">accounts</field>
+            <field name="country_id" ref="base.be"/>
+        </record>
+
+        <record id="account_tag_281_50_exposed_expenses" model="account.account.tag">
+            <field name="name">281.50 - Exposed Expenses</field>
+            <field name="name@nl">281.50 - Uitgegeven kosten</field>
+            <field name="name@fr">281.50 - Frais exposés</field>
+            <field name="name@de">281.50 - Ausgelegte Kosten</field>
+            <field name="applicability">accounts</field>
+            <field name="country_id" ref="base.be"/>
+        </record>
+
+        <record id="account_tag_281_50_sportsman_remuneration" model="account.account.tag">
+            <field name="name">281.50 - Sportsman remuneration</field>
+            <field name="name@nl">281.50 - Sportbeoefenaars beloning</field>
+            <field name="name@fr">281.50 - Rémunération sportive</field>
+            <field name="name@de">281.50 - Sportvergütung</field>
+            <field name="applicability">accounts</field>
+            <field name="country_id" ref="base.be"/>
+        </record>
+
+        <record id="account_tag_281_50_trainer_remuneration" model="account.account.tag">
+            <field name="name">281.50 - Trainer remuneration</field>
+            <field name="name@nl">281.50 - Trainers beloning</field>
+            <field name="name@fr">281.50 - Rémunération d'entraineur</field>
+            <field name="name@de">281.50 - Trainervergütung</field>
+            <field name="applicability">accounts</field>
+            <field name="country_id" ref="base.be"/>
+        </record>
+
+        <record id="res_partner_tag_281_50" model="res.partner.category">
+            <field name="name">281.50</field>
+            <field name="name@nl">281.50</field>
+            <field name="name@fr">281.50</field>
+            <field name="color" eval="2"/>
+        </record>
+
+</odoo>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="report_saleorder_pro_forma" inherit_id="sale.report_saleorder_pro_forma">
+        <xpath expr='//t[@t-call="sale.report_saleorder_document"]' position="attributes">
+            <attribute name="t-if" add="doc.country_code != 'MX'" separator=" and "/>
+        </xpath>
+        <xpath expr='//t[@t-call="sale.report_saleorder_document"]' position="after">
+            <t t-elif="doc.country_code == 'MX'"
+               t-call="l10n_mx_edi_sale.report_saleorder_document_proforma" t-lang="doc.partner_id.lang"/>
+        </xpath>
+    </template>
+
+    <template id="report_saleorder_document_proforma" inherit_id="sale.report_saleorder_document" primary="True">
+        <t t-set="address" position="inside">
+            <t t-if="doc.partner_id.l10n_mx_edi_fiscal_regime">
+                Fiscal Regime: <span t-field="doc.partner_id.l10n_mx_edi_fiscal_regime"/>
+            </t>
+        </t>
+
+        <div id='informations' position="inside">
+            <div t-if="doc.l10n_mx_edi_payment_method_id and doc.country_code == 'MX'" class="col-auto col-3 mw-100 mb-2">
+                <span class="fw-bold">Payment Way:</span><br/>
+                <span class="m-0" t-field="doc.l10n_mx_edi_payment_method_id">To be defined</span>
+            </div>
+            <div t-if="doc.l10n_mx_edi_payment_policy and doc.country_code == 'MX'" class="col-auto mw-100 mb-2">
+                <span class="fw-bold">Payment Method:</span><br/>
+                <span class="m-0" t-field="doc.l10n_mx_edi_payment_policy">PUE</span>
+            </div>
+            <div t-if="doc.l10n_mx_edi_usage and doc.country_code == 'MX'" class="col-auto mw-100 mb-2">
+                <span class="fw-bold">Usage:</span><br/>
+                <span class="m-0" t-field="doc.l10n_mx_edi_usage">General expenses</span>
+            </div>
+        </div>
+
+
+        <!-- Add new column on invoice lines: Product Code -->
+        <th name="th_quantity" position="before">
+            <th class="text-end">
+                <span>Product code</span>
+            </th>
+        </th>
+
+        <td name="td_product_quantity" position="before">
+            <td class="text-end">
+                <span t-field="line.product_id.unspsc_code_id.code">01010101</span>
+            </td>
+        </td>
+
+        <!-- Add new column on invoice lines: Unit Code -->
+        <th name="th_discount" position="after">
+            <th class="text-end">
+                <span>Unit code</span>
+            </th>
+        </th>
+        <td name="td_product_discount" position="after">
+            <td class="text-end">
+                <span t-field="line.product_id.uom_id.unspsc_code_id.code">01010101</span>
+            </td>
+        </td>
+    </template>
+</odoo>

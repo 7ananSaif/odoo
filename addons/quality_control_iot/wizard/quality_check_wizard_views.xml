@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_quality_check_wizard_inherit_iot" model="ir.ui.view">
+        <field name="name">quality_check_wizard_inherit_iot</field>
+        <field name="model">quality.check.wizard</field>
+        <field name="inherit_id" ref="quality_control.view_quality_check_wizard"/>
+        <field name="arch" type="xml">
+            <field name="test_type" position="after">
+                <field name="ip" invisible="1"/>
+                <field name="identifier" invisible="1"/>
+                <field name="iot_box_id" invisible="1"/>
+            </field>
+            <xpath expr="//footer/button[@name='do_pass']" position="before">
+                <widget name="iot_picture" btn_name="Take Picture" invisible="test_type != 'picture'"/>
+            </xpath>
+            <xpath expr="//footer/button[@name='do_measure']" position="before">
+                <widget name="iot_measure" btn_name="Get Measurement" invisible="test_type != 'measure'"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

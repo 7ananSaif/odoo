@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="project_enterprise.ProjectGanttController" t-inherit="web_gantt.GanttController" t-inherit-mode="primary">
+        <button class="o_gantt_button_add btn btn-primary" position="replace">
+            <ProjectTemplateDropdown t-if="model.metaData.canCreate"
+                onCreate="() => this.onNewClicked()"
+                newButtonClasses="'o_gantt_button_add btn btn-primary'"
+                hotkey="r"
+                context="props.context"
+                getAdditionalContext.bind="getAdditionalContext"
+            /> 
+        </button>
+    </t>
+</templates>

@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="knowledge.PermissionPanel">
+        <div class="o_knowledge_permission_panel px-3 py-2 gap-2 overflow-y-auto">
+            <div class="d-flex align-items-center py-1 knowledge_restriction_message" t-if="data.is_desynchronized and state.isArticleLoaded">
+                <i class="fa fa-fw fa-shield fa-2x mx-1"/>
+                <div class="flex-grow-1 px-3">
+                    Access Restricted. <t t-if="parentArticle.id">May not be shared with everyone from</t>
+                    <a t-if="parentArticle.id" class="ps-1" href="#" t-on-click="() => this.openArticle(parentArticle.id)" t-out="parentArticle.name"/>
+                </div>
+                <button t-if="userIsInternalEditor" class="btn btn-link" t-on-click="restoreArticle">Restore</button>
+            </div>
+            <div class="o_internal_permission d-flex align-items-center py-1" t-if="userIsInternal and state.isArticleLoaded">
+                <i class="fa fa-fw fa-building ms-1 fs-3"/>
+                <div class="flex-grow-1 min-w-0 px-3">
+                    <div class="text-truncate">General Access</div>
+                    <div t-if="data.inherited_permission_parent_id" class="knowledge_internal_permission_based_on_text text-truncate text-muted">
+                        Based on <a href="#" t-on-click="() => this.openArticle(this.inheritedPermissionParent.id)" t-out="inheritedPermissionParent.name"/>
+                    </div>
+                </div>
+                <Dropdown menuClass="'d-flex flex-column min-w-0'">
+                    <button class="btn fw-normal"
+                            t-att-class="{
+                                'disabled': !userCanEdit,
+                            }"
+                            t-out="internalPermissions[this.data.inherited_permission]"
+                    />
+                    <t t-set-slot="content">
+                        <t t-foreach="internalPermissions" t-as="permission" t-key="permission">
+                            <DropdownItem onSelected="() => this.selectInternalPermission(permission)"
+                                            class="{ 'flex-grow-1': true, active: permission === data.inherited_permission }"
+                                            t-out="permission_value"
+                            />
+                        </t>
+                    </t>
+                </Dropdown>
+            </div>
+            <div t-if="userIsInternal and isRootArticle and data.inherited_permission !== 'none' and state.isArticleLoaded" class="o_internal_visibility d-flex align-items-center">
+                <i class="fa fa-fw fa-eye ms-1 fs-3"/>
+                <div class="flex-grow-1 px-3">Show in Workspace</div>
+                <Dropdown menuClass="'d-flex flex-column min-w-0'">
+                    <button class="btn fw-normal"
+                            t-att-class="{
+                                'disabled': !userCanEdit,
+                            }"
+                            t-out="visibilities[this.visibility]"
+                    />
+                    <t t-set-slot="content">
+                        <t t-foreach="visibilities" t-as="visibilityValue" t-key="visibilityValue">
+                            <DropdownItem onSelected="() => this.selectInternalVisibility(visibilityValue)"
+                                            class="{ 'flex-grow-1': true, active: visibilityValue === this.visibility }"
+                                            t-out="visibilityValue_value"
+                            />
+                        </t>
+                    </t>
+                </Dropdown>
+            </div>
+            <hr class="mx-n3 my-2" t-if="userIsInternal and state.isArticleLoaded"/>
+            <div class="d-flex align-items-center py-1" t-if="userIsInternalEditor">
+                <i class="fa fa-fw fa-user-plus ms-2 fs-3"/>
+                <div t-on-click="openInviteDialog" class="input-group ps-3">
+                    <span class="form-control text-truncate text-muted cursor-pointer">Add people...</span>
+                    <span class="btn btn-primary">Invite</span>
+                </div>
+            </div>
+            <div class="py-3 text-center" t-if="!state.isArticleLoaded">
+                <i class="fa fa-circle-o-notch fa-2x fa-spin"/>
+            </div>
+            <div t-if="members and state.isArticleLoaded" class="o_knowledge_permission_panel_members">
+                <div class="d-flex align-items-center py-1" t-foreach="members"
+                        t-as="member" t-key="member.id">
+                    <t t-set="isUniqueWriter" t-value="hasUniqueWriter and member.canWrite"/>
+                    <t t-set="noRightsEscalation"
+                        t-value="member.isCurrentUser and ((userIsInternal and permissionLevel[member.permission] gte permissionLevel[data.inherited_permission]) or userIsAdmin)"/>
+                    <t t-set="canEditOtherMember"
+                        t-value="!member.isCurrentUser and !isUniqueWriter and userIsInternalEditor"/>
+                    <div>
+                        <img t-if="userIsInternal and !member.partner_share" class="rounded cursor-pointer"
+                            t-att-src="member.avatarUrl"
+                            t-on-click="() => this.onMemberClick(member)"/>
+                        <img t-else="" class="rounded" t-att-src="member.avatarUrl"/>
+                    </div>
+                    <div class="flex-grow-1 text-truncate px-3">
+                        <div class="d-flex flex-row gap-1">
+                            <div class="text-truncate" t-out="member.name"/>
+                            <span t-if="member.isCurrentUser" class="text-muted">(You)</span>
+                            <span t-elif="member.partner_share" class="text-muted">(Guest)</span>
+                            <span t-if="member.isCurrentUser and userIsAdmin">
+                                <i class="fa fa-cog pe-1"/>
+                            </span>
+                        </div>
+                        <div class="text-muted text-truncate">
+                            <span t-if="member.email" t-out="member.email" t-att-title="member.email"/>
+                        </div>
+                        <div t-if="member.based_on" class="text-muted text-truncate">
+                            Based on
+                            <a href="#" t-on-click="() => this.openArticle(member.based_on)" t-out="member.basedOnName"/>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <Dropdown menuClass="'d-flex flex-column min-w-0'">
+                            <button class="btn fw-normal"
+                                    t-att-class="{
+                                        disabled: !noRightsEscalation and !canEditOtherMember,
+                                    }" t-out="permissions[member.permission]"
+                            />
+                            <t t-set-slot="content">
+                                <t t-if="!isUniqueWriter and userIsInternalEditor and data.category !== 'private'" t-foreach="permissions" t-as="permission" t-key="permission">
+                                    <DropdownItem class="{'flex-grow-1': true, active: permission === member.permission}" onSelected="() => this.selectMemberPermission(member, permission)" t-out="permission_value"/>
+                                </t>
+                                <hr class="dropdown-divider"/>
+                                <DropdownItem onSelected="() => this.removeMember(member)" class="'o_knowledge_permission_panel_remove_member flex-grow-1'">
+                                    <t t-if="member.isCurrentUser">Leave</t>
+                                    <t t-else="">Remove</t>
+                                </DropdownItem>
+                            </t>
+                        </Dropdown>
+                    </div>
+                </div>
+                <div t-if="userIsAdmin and data.user_permission !== 'write'" class="d-flex align-items-center py-1 my-1 text-muted">
+                    <i class="d-flex align-items-center ps-2"><i class="fa fa-cog me-4 pe-1"/>As an administrator, you can always edit this article.</i>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

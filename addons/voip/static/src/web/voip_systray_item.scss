@@ -1,0 +1,30 @@
+@keyframes voipRingingAnimation {
+    0% { transform: translate3d(0em, 0, 0); }
+    2% { transform: translate3d(0.075em, 0, 0); }
+    4% { transform: translate3d(-0.075em, 0, 0); }
+    6% { transform: translate3d(0.075em, 0, 0); }
+    8% { transform: translate3d(-0.075em, 0, 0); }
+    10% { transform: translate3d(0.075em, 0, 0); }
+    12% { transform: translate3d(-0.075em, 0, 0); }
+    14% { transform: translate3d(0.075em, 0, 0); }
+    16% { transform: translate3d(-0.075em, 0, 0); }
+    18% { transform: translate3d(0.075em, 0, 0); }
+    20% { transform: translate3d(-0.075em, 0, 0); }
+    22% { transform: translate3d(0.075em, 0, 0); }
+    24% { transform: translate3d(-0.075em, 0, 0); }
+    26% { transform: translate3d(0.075em, 0, 0); }
+    28% { transform: translate3d(-0.075em, 0, 0); }
+    30% { transform: translate3d(0.075em, 0, 0); }
+    32% { transform: translate3d(-0.075em, 0, 0); }
+    34% { transform: translate3d(0.075em, 0, 0); }
+    36% { transform: translate3d(-0.075em, 0, 0); }
+    38% { transform: translate3d(0.075em, 0, 0); }
+    40% { transform: translate3d(-0.075em, 0, 0); }
+    42% { transform: translate3d(0.075em, 0, 0); }
+    44% { transform: translate3d(-0.075em, 0, 0); }
+    46% { transform: translate3d(0em, 0, 0); }
+}
+
+.o-voip-RingingAnimation {
+    animation: voipRingingAnimation 3000ms infinite;
+}

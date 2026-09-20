@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_account_fiscal_report" model="ir.actions.client">
+            <field name="name">Fiscal Report</field>
+            <field name="path">fiscal-report</field>
+            <field name="tag">account_report</field>
+            <field name="context" eval="{'report_id': ref('account_fiscal_categories.fiscal_report')}" />
+        </record>
+
+        <menuitem id="menu_action_account_fiscal_report"
+                  name="Fiscal Report"
+                  action="action_account_fiscal_report"
+                  parent="account.account_reports_taxes_and_fiscal_menu"
+                  sequence="40"
+                  groups="account.group_account_readonly"/>
+    </data>
+</odoo>

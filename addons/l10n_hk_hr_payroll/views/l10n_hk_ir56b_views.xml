@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_hk_ir56b_view_form" model="ir.ui.view">
+        <field name="name">l10n_hk_ir56b.view.form</field>
+        <field name="model">l10n_hk.ir56b</field>
+        <field name="inherit_id" ref="l10n_hk_hr_payroll.l10n_hk_ird_view_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <form position="attributes">
+                <attribute name="string">IR56B Sheet</attribute>
+            </form>
+            <header position="inside">
+                <button
+                    string="Create XML"
+                    name="action_generate_xml"
+                    type="object"
+                    class="btn-primary"
+                    invisible="not lines_count"/>
+            </header>
+            <button name="action_generate_declarations" class="btn-primary" position="attributes">
+                <attribute name="options">{'reload_on_button': true}</attribute>
+            </button>
+            <button name="action_generate_declarations" class="btn-secondary" position="attributes">
+                <attribute name="options">{'reload_on_button': true}</attribute>
+            </button>
+            <group name="group_start" position="after">
+                <group>
+                    <field name="end_year" class="o_hr_narrow_field" options="{'type': 'number'}" />
+                    <field name="end_month" class="o_hr_narrow_field"/>
+                </group>
+            </group>
+            <p name="xml_name" position="inside">
+                IR56B
+            </p>
+        </field>
+    </record>
+
+    <record id="l10n_hk_ir56b_view_tree" model="ir.ui.view">
+        <field name="name">l10n_hk.ir56b.view.list</field>
+        <field name="model">l10n_hk.ir56b</field>
+        <field name="inherit_id" ref="l10n_hk_hr_payroll.l10n_hk_ird_view_list"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <list position="attributes">
+                <attribute name="string">IR56B sheets</attribute>
+            </list>
+            <field name="display_name" position="after">
+                <field name="type_of_form" />
+                <field name="submission_date" />
+            </field>
+        </field>
+    </record>
+
+    <record id="l10n_hk_ir56b_action" model="ir.actions.act_window">
+        <field name="name">IR56B Sheet</field>
+        <field name="res_model">l10n_hk.ir56b</field>
+        <field name="view_mode">list,form</field>
+        <field name="target">current</field>
+    </record>
+</odoo>

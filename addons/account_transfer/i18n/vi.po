@@ -1,0 +1,520 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_auto_transfer
+#
+# Translators:
+# Martin Trigaux, 2022
+# Nancy Momoland <thanhnguyen.icsc@gmail.com>, 2023
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# "Thi Huong Nguyen (thng)" <thng@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-12-06 09:50+0000\n"
+"Last-Translator: \"Thi Huong Nguyen (thng)\" <thng@odoo.com>\n"
+"Language-Team: Vietnamese <https://translate.odoo.com/projects/odoo-19/"
+"account_transfer/vi/>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "<span> to </span>"
+msgstr "<span> tới </span>"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model_line.py:0
+msgid "A destination account must be set on each line."
+msgstr "Một tài khoản đích phải được thiết lập trên mỗi dòng."
+
+#. module: account_transfer
+#: model:ir.model.fields,help:account_transfer.field_account_transfer_model__conditions
+msgid ""
+"A domain to filter the accounts from which the resulting entry will transfer "
+"amounts."
+msgstr ""
+"Một bộ lọc có điều kiện để lọc các tài khoản từ đó bút toán kết quả sẽ kết "
+"chuyển số tiền."
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Account"
+msgstr "Tài khoản"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_chart_template
+msgid "Account Chart Template"
+msgstr "Mẫu sơ đồ tài khoản"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_transfer_model
+msgid "Account Transfer Model"
+msgstr "Đối tượng kết chuyển"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_transfer_model_line
+msgid "Account Transfer Model Line"
+msgstr "Chi tiết đối tượng kết chuyển"
+
+#. module: account_transfer
+#: model:ir.actions.server,name:account_transfer.ir_cron_auto_transfer_ir_actions_server
+msgid "Account transfers: Compute transfer entries"
+msgstr "Kết chuyển tài khoản: Tính toán các bút toán kết chuyển"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Accounts"
+msgstr "Các tài khoản"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__active
+msgid "Active"
+msgstr "Đang hoạt động"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_search
+msgid "Archived"
+msgstr "Đã lưu trữ"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__company_id
+msgid "Company"
+msgstr "Công ty"
+
+#. module: account_transfer
+#: model:ir.model.fields,help:account_transfer.field_account_transfer_model__company_id
+msgid "Company related to this journal"
+msgstr "Công ty liên quan tới sổ nhật ký này"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Compute Transfer"
+msgstr "Tính toán kết chuyển"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__conditions
+msgid "Conditions"
+msgstr "Điều kiện"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__create_uid
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__create_uid
+msgid "Created by"
+msgstr "Được tạo bởi"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__create_date
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__create_date
+msgid "Created on"
+msgstr "Được tạo vào"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Description"
+msgstr "Mô tả"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Destination"
+msgstr "Điểm đến"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__account_id
+msgid "Destination Account"
+msgstr "Mã tài khoản đích"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__line_ids
+msgid "Destination Accounts"
+msgstr "Tài khoản đích"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__journal_id
+msgid "Destination Journal"
+msgstr "Sổ nhật ký đích"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Disable"
+msgstr "Vô hiệu hóa"
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__state__disabled
+msgid "Disabled"
+msgstr "Đã vô hiệu"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_chart_template__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_journal__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_move__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__display_name
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__display_name
+msgid "Display Name"
+msgstr "Tên hiển thị"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Enable"
+msgstr "Bật"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__frequency
+msgid "Frequency"
+msgstr "Thời điểm nhắc nhở"
+
+#. module: account_transfer
+#: model:ir.actions.act_window,name:account_transfer.generated_transfers_action
+msgid "Generated Entries"
+msgstr "Bút toán đã tạo"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__move_ids
+msgid "Generated Moves"
+msgstr "Bút toàn được tạo"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__has_draft_moves
+msgid "Has Draft Moves"
+msgstr "Có bút toán nháp"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_chart_template__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_journal__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_move__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_move_line__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__id
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/demo/account_demo.py:0
+msgid "IFRS Transfers"
+msgstr "Kết chuyển IFRS"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/demo/account_demo.py:0
+msgid "IFRS rent expense transfer"
+msgstr "Luân chuyển chi phí thuê IRRS"
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__state__in_progress
+msgid "In Progress"
+msgstr "Đang thực hiện"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_journal
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Journal"
+msgstr "Sổ nhật ký"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_move
+msgid "Journal Entry"
+msgstr "Bút toán sổ nhật ký"
+
+#. module: account_transfer
+#: model:ir.model,name:account_transfer.model_account_move_line
+msgid "Journal Item"
+msgstr "Hạng mục bút toán"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Keep Original"
+msgstr "Giữ lại Bản gốc"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__write_uid
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__write_uid
+msgid "Last Updated by"
+msgstr "Cập nhật lần cuối bởi"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__write_date
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__write_date
+msgid "Last Updated on"
+msgstr "Cập nhật lần cuối vào"
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__frequency__month
+msgid "Monthly"
+msgstr "Hàng tháng"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__move_ids_count
+msgid "Move Ids Count"
+msgstr "Số bút toàn id"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Move Model"
+msgstr "Đối tượng chuyển"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_tree
+msgid "Move Models"
+msgstr "Các đối tượng chuyển"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__name
+msgid "Name"
+msgstr "Tên"
+
+#. module: account_transfer
+#: model:ir.model.constraint,message:account_transfer.constraint_account_transfer_model_line_unique_account_by_transfer_model
+msgid "Only one account occurrence by transfer model"
+msgstr "Một tài khoản chỉ được phép xuất hiện 1 lần trong đối tượng kết chuyển"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__account_ids
+msgid "Origin Accounts"
+msgstr "Tài khoản"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_bank_statement_line__transfer_model_id
+#: model:ir.model.fields,field_description:account_transfer.field_account_move__transfer_model_id
+msgid "Originating Model"
+msgstr "Đối tượng gốc"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__percent
+msgid "Percent"
+msgstr "Phần trăm"
+
+#. module: account_transfer
+#: model:ir.model.fields,help:account_transfer.field_account_transfer_model_line__percent
+msgid ""
+"Percentage of the sum of lines from the origin accounts will be transferred "
+"to the destination account"
+msgstr ""
+"Tỷ lệ phần trăm tổng số dòng từ tài khoản gốc sẽ được chuyển sang tài khoản "
+"đích"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Period"
+msgstr "Chu kỳ"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid ""
+"Puts the transfer model in a state in which it will automatically recompute "
+"its draft entries' values every day."
+msgstr ""
+"Đặt mô hình kết chuyển vào trạng thái mà nó sẽ tự động tính lại giá trị của "
+"các bút toán nháp mỗi ngày."
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid ""
+"Puts the transfer model in a state in which it will not automatically "
+"recompute its draft entries' values every day."
+msgstr ""
+"Đặt mô hình kết chuyển vào trạng thái mà trong đó nó sẽ không tự động tính "
+"lại giá trị các bút toán nháp mỗi ngày."
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__frequency__quarter
+msgid "Quarterly"
+msgstr "Hàng quý"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Rate (%)"
+msgstr "Tỷ lệ (%)"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__sequence
+msgid "Sequence"
+msgstr "Trình tự"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__date_start
+msgid "Start Date"
+msgstr "Ngày bắt đầu"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__state
+msgid "State"
+msgstr "Trạng thái"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__date_stop
+msgid "Stop Date"
+msgstr "Ngày dừng"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid "The total percentage (%s) should be less or equal to 100!"
+msgstr "Tổng tỷ lệ phần trăm (%s) phải nhỏ hơn hoặc bằng 100!"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model__total_percent
+msgid "Total Percent"
+msgstr "Tổng phần trăm"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid "Transfer (%(percent)s%% from %(account)s)"
+msgstr "Kết chuyển (%(percent)s%% từ %(account)s)"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid "Transfer (-%(percent)s%% to %(account)s)"
+msgstr "Kết chuyển (%(percent)s%% đến %(account)s)"
+
+#. module: account_transfer
+#: model:ir.model.fields,field_description:account_transfer.field_account_transfer_model_line__transfer_model_id
+msgid "Transfer Model"
+msgstr "Đối tượng kết chuyển"
+
+#. module: account_transfer
+#: model:ir.actions.act_window,name:account_transfer.transfer_model_action
+#: model:ir.ui.menu,name:account_transfer.menu_auto_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "Transfers"
+msgstr "Điều chuyển hàng"
+
+#. module: account_transfer
+#: model:ir.model.fields.selection,name:account_transfer.selection__account_transfer_model__frequency__year
+msgid "Yearly"
+msgstr "Hàng năm"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/demo/account_demo.py:0
+msgid "Yearly liabilites auto transfers"
+msgstr "Luân chuyển tự động nợ hàng năm"
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid ""
+"You cannot delete a transfer model that has draft moves attached ('%s'). "
+"Please delete them before deleting this transfer."
+msgstr ""
+"Bạn không thể xóa một mô hình kết chuyển khi nó còn gắn với các bút toán "
+"nháp ('%s'). Vui lòng xóa các bút toán đó trước khi xóa kết chuyển này."
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/transfer_model.py:0
+msgid ""
+"You cannot delete a transfer model that has posted moves attached ('%s')."
+msgstr ""
+"Bạn không thể xóa một mô hình kết chuyển khi nó còn gắn với các bút toán đã "
+"ghi sổ ('%s')."
+
+#. module: account_transfer
+#. odoo-python
+#: code:addons/account_transfer/models/account_move_line.py:0
+msgid "You cannot set Tax on computed Transfer's entries."
+msgstr ""
+"Bạn không thể thiết lập Thuế trên các bút toán kết chuyển được tính toán."
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "e.g. Monthly Expense Transfer"
+msgstr "ví dụ. Chi phí kết chuyển hàng tháng"
+
+#. module: account_transfer
+#: model_terms:ir.ui.view,arch_db:account_transfer.view_transfer_model_form
+msgid "forever"
+msgstr "mãi mãi"
+
+#~ msgid "Activate"
+#~ msgstr "Kích hoạt"
+
+#~ msgid ""
+#~ "Adds a condition to only transfer the sum of the lines from the origin "
+#~ "accounts that match these analytic accounts to the destination account"
+#~ msgstr ""
+#~ "Thêm một điều kiện để chỉ chuyển tổng các dòng từ tài khoản gốc khớp với "
+#~ "các tài khoản phân tích này sang tài khoản đích"
+
+#~ msgid ""
+#~ "Adds a condition to only transfer the sum of the lines from the origin "
+#~ "accounts that match these partners to the destination account"
+#~ msgstr ""
+#~ "Thêm một điều kiện để chỉ chuyển tổng số dòng từ tài khoản gốc khớp với "
+#~ "các đối tác này sang tài khoản đích"
+
+#~ msgid "Analytic Filter"
+#~ msgstr "Bộ lọc phân tích"
+
+#~ msgid "Automated Transfer"
+#~ msgstr "Tự động kết chuyển"
+
+#~ msgid "Automatic Transfer (%s%% from account %s)"
+#~ msgstr "Tự động kết chuyển (%s%% từ tài khoản %s)"
+
+#~ msgid "Automatic Transfer (-%s%%)"
+#~ msgstr "Tự động kết chuyển (-%s%%)"
+
+#~ msgid ""
+#~ "Automatic Transfer (entries with analytic account(s): %s and partner(s): "
+#~ "%s)"
+#~ msgstr ""
+#~ "Tự động kết chuyển (bút toàn từ tài khoản phân tích %s và đối tác: %s)"
+
+#~ msgid "Automatic Transfer (entries with analytic account(s): %s)"
+#~ msgstr "Tự động kết chuyển (bút toàn từ tài khoản phân tích: %s)"
+
+#~ msgid "Automatic Transfer (entries with partner(s): %s)"
+#~ msgstr "Tự động kết chuyển (bút toàn từ đối tác: %s)"
+
+#~ msgid ""
+#~ "Automatic Transfer (from account %s with analytic account(s): %s and "
+#~ "partner(s): %s)"
+#~ msgstr ""
+#~ "Tự động kết chuyển (từ tài khoản %s với tài khoản phân tích: %s và đối "
+#~ "tác: %s)"
+
+#~ msgid "Automatic Transfer (from account %s with analytic account(s): %s)"
+#~ msgstr "Tự động kết chuyển (từ tài khoản %s với tài khoản phân tích: %s)"
+
+#~ msgid "Automatic Transfer (from account %s with partner(s): %s)"
+#~ msgstr "Tự động kết chuyển (từ tài khoản %s với đối tác: %s)"
+
+#~ msgid "Automatic Transfer (to account %s)"
+#~ msgstr "Tự động kết chuyển (tới tài khoản %s)"
+
+#~ msgid "Automatic Transfers"
+#~ msgstr "Tự động kết chuyểns"
+
+#~ msgid "Partner Filter"
+#~ msgstr "Bộ lọc đối tác"
+
+#~ msgid "Percent (%)"
+#~ msgstr "Phần trăm (%)"
+
+#~ msgid "Percent Is Readonly"
+#~ msgstr "Phần trăm là chỉ đọc"
+
+#~ msgid "Running"
+#~ msgstr "Đang chạy"
+
+#~ msgid "The analytic filter %s is duplicated"
+#~ msgstr "Bộ lọc phân tích %s bị trùng"
+
+#~ msgid ""
+#~ "The partner filter %s in combination with the analytic filter %s is "
+#~ "duplicated"
+#~ msgstr "Bộ lọc đối tác %s kết hợp với bộ lọc phân tích %s bị trùng"
+
+#~ msgid "The partner filter %s is duplicated"
+#~ msgstr "Bộ lọc đối tác %s bị trùng"

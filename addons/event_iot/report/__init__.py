@@ -1,0 +1,1 @@
+from . import event_registration_badge_printer_report

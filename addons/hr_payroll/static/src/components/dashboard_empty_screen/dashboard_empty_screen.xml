@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<template>
+    <t t-name="hr_payroll.DashboardEmptyScreen">
+        <div class="h-100 d-flex flex-column align-items-center justify-content-center">
+            <div class="d-flex flex-column align-items-center text-center">
+                <h1>Ready to simplify your payroll?</h1>
+                <h2>Let's start by creating your first employees!</h2>
+                <button class="btn btn-primary mt-2" t-on-click="openEmployeeCreate">
+                    Create employees
+                </button>
+            </div>
+            <div t-if="!env.isSmall" class="d-grid schema-grid">
+                <div class="diagram-container">
+                    <div class="time-off-icon">
+                        <img src="/hr_holidays/static/description/icon.svg"/>
+                        <div class="label text-black-50">Time Off</div>
+                    </div>
+                    <div class="attendance-icon">
+                        <img src="/hr_attendance/static/description/icon.svg"/>
+                        <div class="label text-black-50">Attendances</div>
+                    </div>
+                    <div class="planning-icon">
+                        <img src="/planning/static/description/icon.svg"/>
+                        <div class="label text-black-50">Planning</div>
+                    </div>
+                    <div class="employee-icon">
+                        <img src="/hr/static/description/icon.svg"/>
+                        <div class="label fw-bold">Employees</div>
+                    </div>
+                </div>
+                <div class="arrow-icon">
+                    <img class="w-100" src="/hr_payroll/static/img/green_arrow_sm_03.svg"/>
+                    <div class="label text-black-50">generates</div>
+                </div>
+                <div class="d-flex flex-column position-relative align-self-center text-align-center">
+                    <div class="align-self-center" style="width: 50px; height: 50px;">
+                        <div class="dashboard-work-entry-icon position-relative inline-block">
+                            <i class="fa fa-file-text fa-fw text-primary"></i>
+                            <div class="clock-icon">
+                                <i class="fa fa-clock-o fa-fw text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="label fw-bold">Work Entries</div>
+                    <img class="corner-asset-top" src="/hr_payroll/static/img/green_corner.svg"/>
+                    <img class="corner-asset-bottom" src="/hr_payroll/static/img/green_corner.svg"/>
+                </div>
+                <div class="arrow-icon">
+                    <img class="w-100" src="/hr_payroll/static/img/green_arrow_sm_03.svg"/>
+                    <div class="label text-black-50">used to</div>
+                </div>
+                <div class="position-relative align-self-center text-align-center">
+                    <img src="/hr_payroll/static/description/icon.svg"/>
+                    <div class="label fw-bold">Run Payroll</div>
+                    <img class="underline-asset" src="/hr_payroll/static/img/green_highlight_scribble_02.svg"/>
+                </div>
+            </div>
+        </div>
+    </t>
+</template>

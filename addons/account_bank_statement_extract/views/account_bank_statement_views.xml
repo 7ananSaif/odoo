@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="bank_statement_extract_view_form_bank_rec_widget" model="ir.ui.view">
+        <field name="name">bank.statement.extract.view.form.bank.rec.widget</field>
+        <field name="model">account.bank.statement</field>
+        <field name="inherit_id" ref="account_accountant.view_bank_statement_form_bank_rec_widget"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="js_class">account_bank_statement_form</attribute>
+            </xpath>
+            <xpath expr="//sheet" position='before'>
+                <field name="extract_error_message" invisible="1"/> <!-- extract_error_message required for the extract_state_header -->
+                <field name="extract_document_uuid" invisible="1"/> <!-- extract_document_uuid required for the extract_state_header -->
+                <field name="extract_attachment_id" invisible="1"/> <!-- extract_attachment_id required for the JS part -->
+                <field name="extract_state" class="d-block" invisible="not is_in_extractable_state or extract_state == 'waiting_validation'" widget="extract_state_header"/>
+            </xpath>
+            <xpath expr="//field[@name='line_ids']//field[@name='amount']" position='before'>
+                <field name="debit" optional="hide"/>
+                <field name="credit" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

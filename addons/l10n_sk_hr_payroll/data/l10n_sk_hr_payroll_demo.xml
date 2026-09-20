@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="base.partner_demo_company_sk" model="res.partner" forcecreate="1">
+        <field name="name">My Slovak Company</field>
+        <field name="country_id" ref="base.sk"/>
+    </record>
+
+    <record id="base.demo_company_sk" model="res.company" forcecreate="1">
+        <field name="name">My Slovak Company</field>
+        <field name="partner_id" ref="base.partner_demo_company_sk"/>
+        <field name="currency_id" ref="base.EUR"/>
+        <field name="street">Dúbravská cesta 9</field>
+        <field name="zip">80000</field>
+        <field name="city">Bratislava</field>
+        <field name="country_id" ref="base.sk"/>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_sk'))]"/>
+    </record>
+
+    <record id="base.user_demo" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_sk'))]"/>
+    </record>
+
+    <record id="sk_hr_department_rd" model="hr.department">
+        <field name="name">R&amp;D SK</field>
+        <field name="company_id" ref="base.demo_company_sk"/>
+    </record>
+
+    <record id="res_partner_richard" model="res.partner">
+        <field name="name">Richard Hečko</field>
+        <field name="street">Galandova 2843</field>
+        <field name="city">Bratislava</field>
+        <field name="zip">81106</field>
+        <field name="country_id" ref="base.sk"/>
+        <field name="phone">999/237-8937</field>
+        <field name="company_id" ref="base.demo_company_sk"/>
+    </record>
+    <record id="res_partner_richard" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_sk_hr_payroll.res_partner_richard')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_frantiska" model="res.partner">
+        <field name="name">Františka Kubáňová</field>
+        <field name="street">Buš Ridges 8790</field>
+        <field name="city">Trebejov</field>
+        <field name="zip">35926</field>
+        <field name="country_id" ref="base.sk"/>
+        <field name="phone">999/342-8279</field>
+        <field name="company_id" ref="base.demo_company_sk"/>
+    </record>
+    <record id="res_partner_frantiska" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="user_frantiska" model="res.users">
+        <field name="partner_id" ref="l10n_sk_hr_payroll.res_partner_frantiska"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_sk'))]"/>
+        <field name="company_id" ref="base.demo_company_sk"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="l10n_sk_hr_payroll/static/img/hr_employe_frantiska.jpg"/>
+    </record>
+
+    <record id="sk_res_bank_slovenska_sporitelna" model="res.bank">
+        <field name="name">Slovenská Sporiteľňa</field>
+        <field name="bic">GIBASKBXXXX</field>
+        <field name="street">Slovenská Sporiteľňa Street</field>
+        <field name="city">Bratislava</field>
+        <field name="zip">80103</field>
+        <field name="country" ref="base.sk"/>
+        <field name="phone">999/349-9381</field>
+    </record>
+    <record id="sk_res_bank_slovenska_sporitelna" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_sk_hr_payroll.sk_res_bank_slovenska_sporitelna')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="sk_res_bank_vub_banka" model="res.bank">
+        <field name="name">VUB Banka</field>
+        <field name="bic">SUBASKBXXXX</field>
+        <field name="street">VUB Banka Rd</field>
+        <field name="city">Trebejov</field>
+        <field name="zip">898912</field>
+        <field name="country" ref="base.sk"/>
+        <field name="phone">999/019-8391</field>
+    </record>
+    <record id="sk_res_bank_vub_banka" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_sk_hr_payroll.sk_res_bank_vub_banka')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_richard" model="res.partner.bank">
+        <field name="acc_number">SK8975000000000032165471</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_sk_hr_payroll.sk_res_bank_slovenska_sporitelna"/>
+        <field name="partner_id" ref="l10n_sk_hr_payroll.res_partner_richard"/>
+        <field name="company_id" ref="base.demo_company_sk"/>
+        <field name="currency_id" ref="base.EUR"/>
+    </record>
+
+    <record id="res_partner_bank_account_frantiska" model="res.partner.bank">
+        <field name="acc_number">SK3193779311764615225576</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_sk_hr_payroll.sk_res_bank_vub_banka"/>
+        <field name="partner_id" ref="l10n_sk_hr_payroll.res_partner_frantiska"/>
+        <field name="company_id" ref="base.demo_company_sk"/>
+        <field name="currency_id" ref="base.EUR"/>
+    </record>
+
+    <record id="hr_employee_richard" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_richard')).name"/>
+        <field name="job_title">Technical Lead</field>
+        <field name="image_1920" type="base64" file="l10n_sk_hr_payroll/static/img/hr_employee_richard.jpg"/>
+        <field name="work_phone">999/093-7982</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_richard')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="work_contact_id" ref="l10n_sk_hr_payroll.res_partner_richard"/>
+        <field name="tz">Europe/Bratislava</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_richard')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_richard')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_richard')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_richard')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_richard')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_richard')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_richard')).phone"/>
+        <field name="distance_home_work">12</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_richard')).country_id"/>
+        <field name="identification_id">9609130123</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1996, 9, 13).date()"/>
+        <field name="place_of_birth">Martin</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_richard')).country_id"/>
+        <field name="emergency_contact">Linda Hečko</field>
+        <field name="emergency_phone">999/890-4281</field>
+        <field name="certificate">other</field>
+        <field name="study_field">Frontend developer</field>
+        <field name="study_school">Univerzita Komenského</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_sk_hr_payroll.res_partner_bank_account_richard'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_sk_hr_payroll.sk_hr_department_rd"/>
+        <field name="company_id" ref="base.demo_company_sk"/>
+        <field name="structure_type_id" ref="l10n_sk_hr_payroll.structure_type_employee_sk"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">14000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_sk').id)], limit=1)"/>
+    </record>
+
+    <record id="hr_employee_frantiska" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).name"/>
+        <field name="image_1920" type="base64" file="l10n_sk_hr_payroll/static/img/hr_employe_frantiska.jpg"/>
+        <field name="work_phone">999/093-7983</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="parent_id" ref="l10n_sk_hr_payroll.hr_employee_richard"/>
+        <field name="user_id" ref="l10n_sk_hr_payroll.user_frantiska"/>
+        <field name="company_id" ref="base.demo_company_sk"/>
+        <field name="tz">Europe/Bratislava</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).phone"/>
+        <field name="distance_home_work">27</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).country_id"/>
+        <field name="identification_id">9401190123</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1994, 1, 19).date()"/>
+        <field name="place_of_birth">Trnava</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_sk_hr_payroll.res_partner_frantiska')).country_id"/>
+        <field name="emergency_contact">Kamila Kubáňová</field>
+        <field name="emergency_phone">999/473-8209</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Computer Science</field>
+        <field name="study_school">Comenius University Bratislava</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_sk_hr_payroll.res_partner_bank_account_frantiska'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_sk_hr_payroll.sk_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_sk_hr_payroll.structure_type_employee_sk"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">3000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-2, month=1, day=1))"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-2, month=1, day=1))"/>
+        <field name="contract_date_end" eval="(DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_sk').id)], limit=1)"/>
+        <field name="l10n_sk_meal_voucher_employee">6.40</field>
+        <field name="l10n_sk_meal_voucher_employer">3.52</field>
+    </record>
+
+    <function name="create_version" model="hr.employee">
+        <value eval="[ref('l10n_sk_hr_payroll.hr_employee_frantiska')]"/>
+        <value eval="{
+            'date_version': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2) + relativedelta(days=1),
+            'contract_date_start': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2) + relativedelta(days=1),
+            'contract_date_end': False,
+            'wage': 3600.00
+        }"/>
+    </function>
+</odoo>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <t t-name="equity.UboForm">
+        <table class="o_ubo_form table table-sm table-striped table-hover">
+            <thead class="border-top border-bottom">
+                <t t-foreach="this.headers" t-as="header" t-key="header_index">
+                    <th class="p-1" t-att-class="{'text-end': numericRowsIndices.includes(header_index)}" t-out="header"/>
+                </t>
+            </thead>
+            <tbody>
+                <t t-foreach="this.rows" t-as="row" t-key="row_index">
+                    <tr class="cursor-pointer" t-on-click="() => this.holderEdit(row_index) ">
+                        <t t-foreach="row" t-as="cell" t-key="cell_index">
+                            <td t-out="cell" t-att-class="{'text-end': numericRowsIndices.includes(cell_index)}"/>
+                        </t>
+                        <td class="text-end">
+                            <i
+                                t-if="!holderEnded(row_index)"
+                                t-on-click.stop="() => this.holderEnd(row_index)"
+                                class="fa fa-remove text-danger"
+                                data-tooltip="You can remove any shareholder holding less than 25% of the shares or voting rights."/>
+                            <i
+                                t-else=""
+                                t-on-click.stop="() => this.holderReturn(row_index)"
+                                class="fa fa-undo"
+                                data-tooltip="Remove holder exit date."
+                            />
+                        </td>
+                    </tr>
+                </t>
+            </tbody>
+        </table>
+        <button class="btn btn-secondary mb-3" t-on-click.prevent="this.holderEdit">Add Beneficial Owner</button>
+        <div>
+            <span>Signature of Representative</span>
+            <div class="d-flex">
+                <div class="m-3 w-50">
+                    <label class="col-form-label">Your Name</label>
+                    <input placeholder="Name" name="rep_name" class="form-control" required="1"/>
+                </div>
+                <div class="m-3 w-50">
+                    <label class="col-form-label">Your Position</label>
+                    <input placeholder="Position" name="rep_position" class="form-control" required="1"/>
+                </div>
+            </div>
+        </div>
+        <div class="mb-2">
+            I hereby declare on honor that the information provided is truthful and accurate.
+        </div>
+
+        <button type="submit" class="btn btn-primary mb-3" t-on-click.prevent="submit">Submit</button>
+    </t>
+</odoo>

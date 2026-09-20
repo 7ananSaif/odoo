@@ -1,0 +1,27 @@
+# -*- coding: utf-8 -*-
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+{
+    'name': "Barcode Expiry",
+    'category': 'Supply Chain/Inventory',
+    'version': '1.0',
+    'depends': ['stock_barcode', 'product_expiry'],
+    'auto_install': True,
+    'author': 'Odoo S.A.',
+    'license': 'OEEL-1',
+    'data': [
+        'views/stock_move_line_views.xml',
+    ],
+    'assets': {
+        'web.assets_backend': [
+            'stock_barcode_product_expiry/static/src/**/*',
+        ],
+        'web.assets_tests': [
+            'stock_barcode_product_expiry/static/tests/tours/**/*',
+        ],
+        'web.assets_unit_tests': [
+            'stock_barcode_product_expiry/static/tests/**/*',
+            ('remove', 'stock_barcode_product_expiry/static/tests/tours/**/*'),
+        ]
+    },
+}

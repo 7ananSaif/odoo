@@ -1,0 +1,12 @@
+// = VOIP Softphone
+// ============================================================================
+// No CSS hacks, variables overrides only
+
+.o-voip-Softphone {
+    --voipCalling__closeButton-filter: none;
+    --voipCalling__highlightedLetter-color: #{map-get($o-theme-text-colors, 'primary')};
+
+    .o-voip-avatar-bg {
+        --Avatar-background-color: #{$gray-900};
+    }
+}

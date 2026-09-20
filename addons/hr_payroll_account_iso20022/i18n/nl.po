@@ -1,0 +1,230 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * hr_payroll_account_sepa
+#
+# Translators:
+# Martin Trigaux, 2022
+# Jolien De Paepe, 2022
+#
+# Bren Driesen <brdri@odoo.com>, 2025.
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:45+0000\n"
+"PO-Revision-Date: 2025-11-27 14:13+0000\n"
+"Last-Translator: Odoo Translation Bot <c3p@odoo.com>\n"
+"Language-Team: Dutch <https://translate.odoo.com/projects/odoo-19/"
+"hr_payroll_account_iso20022/nl/>\n"
+"Language: nl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payroll_payment_report_wizard__journal_id
+msgid "Bank Journal"
+msgstr "Bankdagboek"
+
+#. module: hr_payroll_account_iso20022
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_iso20022.hr_payslip_view_form
+msgid "Create Payment Report"
+msgstr "Betalingsrapport maken"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payroll_payment_report_wizard__display_name
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip__display_name
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip_run__display_name
+msgid "Display Name"
+msgstr "Weergavenaam"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model,name:hr_payroll_account_iso20022.model_hr_employee
+msgid "Employee"
+msgstr "Werknemer"
+
+#. module: hr_payroll_account_iso20022
+#: model:hr.payroll.dashboard.warning,name:hr_payroll_account_iso20022.hr_payroll_dashboard_warning_employee_invalid_bank_account
+msgid "Employees With Invalid IBAN Bank Accounts"
+msgstr "Werknemers met ongeldige IBAN-rekeningnummers"
+
+#. module: hr_payroll_account_iso20022
+#: model:hr.payroll.dashboard.warning,name:hr_payroll_account_iso20022.hr_payroll_dashboard_warning_employee_no_country
+msgid "Employees Without Any Country"
+msgstr "Werknemers zonder land"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payroll_payment_report_wizard__export_format
+msgid "Export Format"
+msgstr "Exportformaat"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model,name:hr_payroll_account_iso20022.model_hr_payroll_payment_report_wizard
+msgid "HR Payroll Payment Report Wizard"
+msgstr "Wizard HR-Loonrapportage"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_employee__id
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payroll_payment_report_wizard__id
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip__id
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip_run__id
+msgid "ID"
+msgstr "ID"
+
+#. module: hr_payroll_account_iso20022
+#. odoo-javascript
+#: code:addons/hr_payroll_account_iso20022/static/src/components/payrun_card/payrun_card.xml:0
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_iso20022.hr_payslip_run_view_kanban
+msgid "Mark as Paid"
+msgstr "Markeren als betaald"
+
+#. module: hr_payroll_account_iso20022
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_iso20022.hr_payslip_view_form
+msgid "Mark as paid"
+msgstr "Markeren als betaald"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model,name:hr_payroll_account_iso20022.model_hr_payslip_run
+msgid "Pay Run"
+msgstr "Betaalronde"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model,name:hr_payroll_account_iso20022.model_hr_payslip
+msgid "Pay Slip"
+msgstr "Loonstrook"
+
+#. module: hr_payroll_account_iso20022
+#. odoo-javascript
+#: code:addons/hr_payroll_account_iso20022/static/src/components/payrun_card/payrun_card.xml:0
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_iso20022.hr_payslip_run_view_kanban
+msgid "Payment Report"
+msgstr "Betalingsrapport"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields.selection,name:hr_payroll_account_iso20022.selection__hr_payroll_payment_report_wizard__export_format__sepa
+msgid "SEPA"
+msgstr "SEPA"
+
+#. module: hr_payroll_account_iso20022
+#. odoo-python
+#: code:addons/hr_payroll_account_iso20022/wizard/hr_payroll_payment_report_wizard.py:0
+msgid "Some employees (%s) don't have a valid name on the work contact."
+msgstr "Sommige werknemers (%s) hebben geen geldige naam op het werkcontact."
+
+#. module: hr_payroll_account_iso20022
+#. odoo-python
+#: code:addons/hr_payroll_account_iso20022/wizard/hr_payroll_payment_report_wizard.py:0
+msgid "Some employees (%s) don't have a work contact."
+msgstr "Sommige werknemers (%s) hebben geen werkcontact."
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields.selection,name:hr_payroll_account_iso20022.selection__hr_payroll_payment_report_wizard__export_format__iso20022_ch
+msgid "Swiss ISO20022"
+msgstr "Zwitserse ISO20022"
+
+#. module: hr_payroll_account_iso20022
+#. odoo-python
+#: code:addons/hr_payroll_account_iso20022/wizard/hr_payroll_payment_report_wizard.py:0
+msgid ""
+"The journal '%s' requires a proper IBAN account to pay via SEPA. Please "
+"configure it first."
+msgstr ""
+"Het dagboek '%s' vereist een geldig IBAN account bij betalingen via SEPA. "
+"Stel dit eerst in."
+
+#. module: hr_payroll_account_iso20022
+#. odoo-python
+#: code:addons/hr_payroll_account_iso20022/wizard/hr_payroll_payment_report_wizard.py:0
+msgid "The payment date cannot be in the past."
+msgstr "De betalingsdatum kan niet in het verleden liggen."
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip__iso20022_uetr
+msgid "UETR"
+msgstr "UETR"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,help:hr_payroll_account_iso20022.field_hr_payslip__iso20022_uetr
+msgid "Unique end-to-end transaction reference"
+msgstr "Unique end-to-end transaction reference"
+
+#~ msgid "Cancel"
+#~ msgstr "Annuleren"
+
+#~ msgid "Confirm"
+#~ msgstr "Bevestigen"
+
+#~ msgid "Created by"
+#~ msgstr "Aangemaakt door"
+
+#~ msgid "Created on"
+#~ msgstr "Aangemaakt op"
+
+#~ msgid "Employees With Invalid Bank Accounts"
+#~ msgstr "Werknemers met ongeldige bankrekeningen"
+
+#~ msgid "Export file related to this payslip"
+#~ msgstr "Exportbestand gerelateerd aan deze loonstrook"
+
+#~ msgid "Exported File"
+#~ msgstr "Geëxporteerd bestand"
+
+#~ msgid "Exported SEPA .xml file"
+#~ msgstr "Geëxporteerd SEPA .xml bestand"
+
+#~ msgid "Exported SEPA .xml file name"
+#~ msgstr "Geëxporteerde SEPA .xml bestandsnaam"
+
+#~ msgid "File Name"
+#~ msgstr "Bestandsnaam"
+
+#~ msgid "File name"
+#~ msgstr "Bestandsnaam"
+
+#~ msgid "Generation Date"
+#~ msgstr "Anmaakdatum"
+
+#~ msgid "HR Payslip Run SEPA Wizard"
+#~ msgstr "HR loonstrook run SEPA-wizard"
+
+#~ msgid "HR Payslip SEPA Wizard"
+#~ msgstr "HR loonstrook SEPA wizard"
+
+#~ msgid ""
+#~ "Invalid bank account for the following employees:\n"
+#~ "%s"
+#~ msgstr ""
+#~ "Ongeldige bankrekening van de volgende werknemers:\n"
+#~ "%s"
+
+#~ msgid "Last Updated by"
+#~ msgstr "Laatst bijgewerkt door"
+
+#~ msgid "Last Updated on"
+#~ msgstr "Laatst bijgewerkt op"
+
+#~ msgid "Name of the export file generated for this payslip"
+#~ msgstr "Naam van het exportbestand genereerd voor deze loonstrook"
+
+#~ msgid "Payslip Batches"
+#~ msgstr "Loonstrookbatches"
+
+#~ msgid "SEPA File"
+#~ msgstr "SEPA bestand"
+
+#~ msgid "Select a bank journal."
+#~ msgstr "Selecteer een bankdagboek."
+
+#~ msgid "Some employees (%s) don't have a bank account."
+#~ msgstr "Sommige werknemers (%s) hebben geen bankrekening."
+
+#~ msgid "Some employees (%s) don't have a private address."
+#~ msgstr "Sommige werknemers (%s) hebben geen privé adres"
+
+#~ msgid "Some employees (%s) don't have a valid name on the private address."
+#~ msgstr "Sommige werknemers (%s) hebben geen geldige naam op het privéadres."

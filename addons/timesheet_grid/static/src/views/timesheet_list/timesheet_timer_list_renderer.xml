@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="timesheet_grid.TimesheetTimerListRenderer" t-inherit="web.ListRenderer" t-inherit-mode="primary">
+        <xpath expr="//div[hasclass('o_list_renderer')]" position="before">
+            <div t-if="timesheetTimerHook.showTimer" class="pinned_header d-flex align-items-center bg-view border-bottom">
+                <div class="flex-grow-1 w-100" t-key="timesheetTimerHook.timerState.timesheet?.resId">
+                    <TimesheetTimerHeader
+                        timesheet="timesheetTimerHook.timerState.timesheet"
+                        onTimerStarted="() => this.timesheetTimerHook.startTimer()"
+                        onTimerStopped="() => this.timesheetTimerHook.stopTimer()"
+                        onTimerUnlinked="() => this.timesheetTimerHook.deleteTimer()"
+                        onClick="() => this.timesheetTimerHook.onTimesheetTimerHeaderClick()"
+                    />
+                </div>
+            </div>
+        </xpath>
+    </t>
+
+</templates>

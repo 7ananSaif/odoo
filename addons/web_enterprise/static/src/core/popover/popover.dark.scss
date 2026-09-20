@@ -1,0 +1,24 @@
+// = Popovers
+// ============================================================================
+// No CSS hacks, variables overrides only
+
+.o_popover {
+    --border-color: #{$popover-border-color};
+
+    .table {
+        --table-bg: #{$popover-bg};
+    }
+
+    .o_input {
+        --o-input-border-color: #{$popover-border-color};
+    }
+
+    .form-range {
+        &::-moz-range-track {
+            background: darken($popover-bg, 10%);
+        }
+        &::-webkit-slider-runnable-track {
+            background: darken($popover-bg, 10%);
+        }
+    }
+}

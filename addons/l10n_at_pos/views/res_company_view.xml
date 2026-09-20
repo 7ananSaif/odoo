@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_company_form" model="ir.ui.view">
+        <field name="name">res.company.form.inherit.account</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <page name="general_info" position="after">
+                <page string="Fiskaly" name="fiskaly" invisible="country_code != 'AT'">
+                    <group>
+                        <group>
+                            <field name="l10n_at_pos_test_mode" widget="boolean_toggle" help="Enable this to use fiskaly services for testing purpose"/>
+                        </group>
+                        <group>
+                            <field name="l10n_at_is_odoo_managed_org" widget="boolean_toggle" readonly="l10n_at_fiskaly_access_token"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="Fiskaly Credentials">
+                            <field name="l10n_at_fiskaly_api_key" string="API Key" readonly="l10n_at_is_odoo_managed_org"/>
+                            <field name="l10n_at_fiskaly_api_secret" string="API Secret" password="1" readonly="l10n_at_is_odoo_managed_org"/>
+                            <button name="action_auth_fiskaly_credentials" groups="base.group_erp_manager" string="Authenticate Keys" type="object"
+                                class="btn-primary" invisible="not l10n_at_fiskaly_api_key or not l10n_at_fiskaly_api_secret"/>
+                            <button name="action_generate_fiskaly_credentials" string="Generate Credentials" type="object"
+                                class="btn-primary" invisible="not l10n_at_is_odoo_managed_org"
+                                confirm="It will generate a new API key and secret or retrieve an existing one if unavailable in the system. Would you like to proceed?"/>
+                        </group>
+                        <group string="FON Credentials" invisible="not l10n_at_fiskaly_access_token">
+                            <field name="l10n_at_fon_participant_id"/>
+                            <field name="l10n_at_fon_user_id"/>
+                            <field name="l10n_at_fon_user_pin" password="1"/>
+                            <button name="action_l10n_at_authenticate_fon_credentials" groups="base.group_erp_manager" string="Authenticate FON" type="object"
+                                class="btn-primary" invisible="not l10n_at_fon_participant_id or not l10n_at_fon_user_id or not l10n_at_fon_user_pin"/>
+                        </group>
+                    </group>
+                </page>
+            </page>
+            <field name="currency_id" position="after">
+                <field name="l10n_at_pos_is_tax_exempted"/>
+            </field>
+            <xpath expr="//field[@name='country_id']" position="attributes">
+                <attribute name="readonly">l10n_at_fiskaly_access_token</attribute>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

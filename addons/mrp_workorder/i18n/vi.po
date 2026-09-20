@@ -1,0 +1,2217 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * mrp_workorder
+#
+# Translators:
+# Martin Trigaux, 2023
+# Thi Huong Nguyen, 2023
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-11-16 17:56+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Vietnamese <https://translate.odoo.com/projects/odoo-19/"
+"mrp_workorder/vi/>\n"
+"Language: vi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/wizard/propose_change.py:0
+msgid "%(user_name)s suggests to delete this instruction"
+msgstr "%(user_name)s đề xuất xoá hướng dẫn này"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/wizard/propose_change.py:0
+msgid "%(user_name)s suggests to use this document as instruction"
+msgstr "%(user_name)s đề xuất sử dụng tài liệu này làm hướng dẫn"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.res_config_settings_view_form
+msgid "<i class=\"fa fa-print\"/> Print barcode commands"
+msgstr "<i class=\"fa fa-print\"/> In lệnh mã vạch"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_bom_form_view_inherited
+msgid "<span class=\"o_stat_text order-2\">Instructions</span>"
+msgstr ""
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_bom_form_view_inherited
+msgid "<span class=\"o_stat_text order-2\">Operations</span>"
+msgstr ""
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_tablet
+msgid "<span invisible=\"employee_name\">Log In </span>"
+msgstr "<span invisible=\"employee_name\">Đăng nhập </span>"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_gantt
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.workcenter_line_gantt_production
+msgid "<strong>Start Date: </strong>"
+msgstr "<strong>Ngày bắt đầu:</strong>"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_gantt
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.workcenter_line_gantt_production
+msgid "<strong>Stop Date: </strong>"
+msgstr "<strong>Ngày kết thúc:</strong>"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_gantt
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.workcenter_line_gantt_production
+msgid "<strong>Workcenter: </strong>"
+msgstr "<strong>Khu vực sản xuất:</strong>"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.js:0
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "Activate your Work Centers"
+msgstr ""
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__activity_ids
+msgid "Activities"
+msgstr "Hoạt động"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "Hoạt động ngoại lệ"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__activity_state
+msgid "Activity State"
+msgstr "Trạng thái hoạt động"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "Biểu tượng loại hoạt động"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/control_panel.xml:0
+msgid "Add"
+msgstr "Thêm"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+msgid "Add By-product"
+msgstr "Thêm phụ phẩm"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+msgid "Add Component"
+msgstr "Thêm thành phần"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_production.py:0
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_mrp_production_additional_workorder_wizard
+msgid "Add Work Order"
+msgstr "Thêm công đoạn"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/control_panel.xml:0
+msgid "Add Workcenter"
+msgstr "Thêm khu vực sản xuất"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+msgid "Add a Step"
+msgstr "Thêm một bước"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_record_line/stock_move.js:0
+msgid "Add line: %(productName)s"
+msgstr "Thêm dòng: %(productName)s"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_production.py:0
+msgid "Add log note"
+msgstr "Thêm ghi chú nhật ký"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_mrp_production_additional_workorder
+msgid "Additional Workorder"
+msgstr "Công đoạn bổ sung"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_production_form_view
+msgid ""
+"Additional instructions that can be created and visualised from both here "
+"and the shop floor interface."
+msgstr ""
+"Các hướng dẫn bổ sung có thể được tạo và trực quan hóa cả tại đây và giao "
+"diện xưởng."
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__all_employees_allowed
+msgid "All Employees Allowed"
+msgstr "Cho phép tất cả nhân viên"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__allow_producing_quantity_change
+msgid "Allow Changes to Producing Quantity"
+msgstr "Cho phép thay đổi số lượng đang sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point_test_type__allow_registration
+msgid "Allow Registration"
+msgstr "Cho phép ghi nhận"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_mrp_production__picking_type_auto_close
+#: model:ir.model.fields,help:mrp_workorder.field_stock_picking_type__auto_close_production
+msgid ""
+"Allow users to close MO in last work order operation or from the overview "
+"tab."
+msgstr ""
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workcenter_form_view_inherit
+msgid "Allowed Employees"
+msgstr "Nhân viên được phép"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_quantity_dialog.xml:0
+msgid "Apply"
+msgstr "Áp dụng"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_view_employee_filter
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_routing_steps_search
+msgid "Archived"
+msgstr "Đã lưu trữ"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__employee_assigned_ids
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_mrp_production_workorder_form_view_filter_my_work_orders
+msgid "Assigned"
+msgstr "Đã phân công"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_employee_form_account
+msgid "Attendance/Point of Sale/Manufacturing"
+msgstr "Chấm công/POS/Sản xuất"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_production_tree_view_planning
+msgid "Availability"
+msgstr "Tình trạng còn hàng"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "Back"
+msgstr "Quay lại"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__component_barcode
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_move__product_barcode
+msgid "Barcode"
+msgstr "Mã vạch"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder___barcode_scanned
+msgid "Barcode Scanned"
+msgstr "Mã vạch được quét"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_mrp_bom
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point__bom_id
+msgid "Bill of Material"
+msgstr "Danh mục vật tư"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/components/viewer.xml:0
+msgid "Binary file"
+msgstr "Tập tin nhị phân"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+msgid "Block"
+msgstr "Chặn"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/search_model.js:0
+msgid "Blocked"
+msgstr "Đã bị chặn"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/wizard/propose_change.py:0
+msgid "BoM feedback %(step)s (%(production)s - %(operation)s)"
+msgstr "Phản hồi BoM %(step)s (%(production)s - %(operation)s)"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/quality.py:0
+msgid "BoM feedback (%(production)s - %(operation)s)"
+msgstr "Phản hồi BoM (%(production)s - %(operation)s)"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point__bom_product_ids
+msgid "Bom Product"
+msgstr "Sản phẩm BoM"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_record_line/stock_move.js:0
+msgid "By-product: %(productName)s"
+msgstr ""
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_tablet
+msgid "CONTINUE"
+msgstr "TIẾP TỤC"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/components/pin_popup.xml:0
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_workcenter_dialog.xml:0
+msgid "Cancel"
+msgstr "Hủy"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_change_production_qty
+msgid "Change Production Qty"
+msgstr "Thay đổi SL sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__check_ids
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_move__check_id
+msgid "Check"
+msgstr "Kiểm tra"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production__check_ids
+msgid "Checks"
+msgstr "Kiểm tra"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/employees_panel.xml:0
+msgid "Choose Operator"
+msgstr "Chọn người vận hành"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_register_production_dialog.xml:0
+msgid "Clear"
+msgstr "Xoá"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_log_note_dialog.xml:0
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_register_production_dialog.xml:0
+#: code:addons/mrp_workorder/static/src/mrp_display/employees_panel.xml:0
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.quality_point_worksheet_document_preview_form
+msgid "Close"
+msgstr "Đóng"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production__picking_type_auto_close
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_picking_type__auto_close_production
+msgid "Close Manufacturing Orders"
+msgstr ""
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display_record.xml:0
+msgid "Close Production"
+msgstr "Đóng sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_propose_change__comment
+msgid "Comment"
+msgstr "Bình luận"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__company_id
+msgid "Company"
+msgstr "Công ty"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__component_id
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point__component_ids
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_mrp_production_filter_shop_floor
+msgid "Component"
+msgstr "Thành phần"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__component_uom_id
+msgid "Component Unit"
+msgstr "Đơn vị thành phần"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_res_config_settings
+msgid "Config Settings"
+msgstr "Cài đặt cấu hình"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.stock_picking_type_view_kanban
+msgid "Configuration"
+msgstr "Cấu hình"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_workcenter_dialog.xml:0
+msgid "Configure later"
+msgstr "Cấu hình sau"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/components/pin_popup.xml:0
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_workcenter_dialog.xml:0
+msgid "Confirm"
+msgstr "Xác nhận"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__connected_employee_ids
+msgid "Connected Employee"
+msgstr "Nhân viên được kết nối"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__consumption
+msgid "Consumption"
+msgstr "Lượng sử dụng"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workcenter_productivity__total_cost
+msgid "Cost"
+msgstr "Chi phí"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/components/viewer.js:0
+msgid "Could not display the selected %s"
+msgstr "Không thể hiển thị %s đã chọn"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_record_line/stock_move.js:0
+msgid "Create Move Line for %(product)s"
+msgstr ""
+
+#. module: mrp_workorder
+#: model_terms:ir.actions.act_window,help:mrp_workorder.mrp_stock_picking_type_action
+msgid "Create a new operation type"
+msgstr "Tạo loại hoạt động mới"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_workcenter_dialog.xml:0
+msgid "Create new work center"
+msgstr ""
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__create_uid
+#: model:ir.model.fields,field_description:mrp_workorder.field_propose_change__create_uid
+msgid "Created by"
+msgstr "Được tạo bởi"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__create_date
+#: model:ir.model.fields,field_description:mrp_workorder.field_propose_change__create_date
+msgid "Created on"
+msgstr "Được tạo vào"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_tablet
+msgid "Creates a new serial/lot number"
+msgstr "Tạo số lô/sê-ri mới"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workcenter__currency_id
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workcenter_productivity__currency_id
+msgid "Currency"
+msgstr "Tiền tệ"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__current_quality_check_id
+msgid "Current Quality Check"
+msgstr "Kiểm tra chất lượng hiện tại"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__product_description_variants
+msgid "Custom Description"
+msgstr "Mô tả tùy chỉnh"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_inherit_workorder
+msgid "Date"
+msgstr "Ngày"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__date_start
+msgid "Date Start"
+msgstr "Ngày bắt đầu"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_routing_workcenter__default_picking_type_ids
+msgid "Default Picking Type"
+msgstr ""
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_quality_point__test_type_id
+msgid "Defines the type of the quality control point."
+msgstr "Xác định loại điểm kiểm tra chất lượng."
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+msgid "Delete a Step"
+msgstr "Xoá bước"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__is_deleted
+msgid "Deleted in production"
+msgstr "Đã xoá trong sản xuất"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.add_quality_check_from_tablet
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_mrp_production_additional_workorder_wizard
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_propose_change_wizard
+msgid "Discard"
+msgstr "Huỷ bỏ"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_change_production_qty__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_backorder__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_routing_workcenter__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workcenter__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workcenter_productivity__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_propose_change__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_alert__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point_test_type__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_report_mrp_report_mo_overview__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_move__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_move_line__display_name
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_picking_type__display_name
+msgid "Display Name"
+msgstr "Tên hiển thị"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.add_quality_check_from_tablet
+msgid "Document"
+msgstr "Tài liệu"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_employee_dialog.xml:0
+msgid "Done"
+msgstr "Hoàn tất"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__done_check_ids
+msgid "Done Check"
+msgstr "Kiểm tra hoàn tất"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_employee_dialog.xml:0
+#: code:addons/mrp_workorder/static/src/mrp_display/employees_panel.xml:0
+msgid "Edit Operators"
+msgstr "Chỉnh sửa người vận hành"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_hr_employee
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__employee_assigned_ids
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workcenter_productivity__employee_id
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__employee_id
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__employee_id
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_view_employee_filter
+msgid "Employee"
+msgstr "Nhân viên"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_routing_workcenter__employee_ratio
+msgid "Employee Capacity"
+msgstr "Khả năng nhân viên"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__employee_costs_hour
+msgid "Employee Cost per hour"
+msgstr ""
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workcenter__employee_costs_hour
+msgid "Employee Hourly Cost"
+msgstr "Chi phí theo Giờ của Nhân viên"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__employee_name
+msgid "Employee Name"
+msgstr "Tên nhân viên"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_view_employee_filter
+msgid "Employees"
+msgstr "Nhân viên"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_quality_check__component_tracking
+#: model:ir.model.fields,help:mrp_workorder.field_quality_check__product_tracking
+msgid "Ensure the traceability of a storable product in your warehouse."
+msgstr ""
+"Đảm bảo truy xuất nguồn gốc của một sản phẩm lưu kho trong kho hàng của bạn."
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/components/pin_popup.xml:0
+msgid "Enter your pin"
+msgstr ""
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/hooks/employee_hooks.js:0
+msgid "Error during log out!"
+msgstr "Đã xảy ra lỗi khi đăng xuất!"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/report/mrp_report_mo_overview.py:0
+msgid "Estimated employee cost: %(operation_name)s"
+msgstr ""
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__duration_expected
+msgid "Expected Duration"
+msgstr "Thời lượng dự kiến"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "Feedback Loop"
+msgstr "Vòng phản hồi"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_inherit_workorder
+msgid "Finished Lot/Serial Number"
+msgstr "Số lô/sê-ri đã hoàn thành"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__finished_product_check_ids
+msgid "Finished Product Check"
+msgstr "Kiểm tra thành phẩm"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__finished_product_sequence
+msgid "Finished Product Sequence Number"
+msgstr "Số trình tự thành phẩm"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_mrp_bom__activity_type_icon
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "Font biểu tượng, ví dụ: fa-tasks"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_register_production_dialog.xml:0
+msgid "Generate Lot"
+msgstr ""
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_register_production_dialog.xml:0
+msgid "Generate Serial"
+msgstr ""
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_change_production_qty__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_hr_employee__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_backorder__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_routing_workcenter__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workcenter__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workcenter_productivity__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_propose_change__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_alert__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point_test_type__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_report_mrp_report_mo_overview__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_res_config_settings__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_move__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_move_line__id
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_picking_type__id
+msgid "ID"
+msgstr "ID"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__activity_exception_icon
+msgid "Icon"
+msgstr "Biểu tượng"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_mrp_bom__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "Biểu tượng cho thấy một hoạt động ngoại lệ."
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__worksheet_document
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point__worksheet_document
+msgid "Image/PDF"
+msgstr "Hình ảnh/PDF"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+msgid "Improvement Suggestion"
+msgstr "Gợi ý cải thiện"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/search_model.js:0
+msgid "In Progress"
+msgstr "Đang thực hiện"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/employees_panel.xml:0
+msgid "Inactive"
+msgstr "Không hoạt động"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.js:0
+msgid "Indicate after which step you would like to add this one"
+msgstr "Cho biết bạn muốn thêm bước này sau bước nào"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__blocked_by_workorder_id
+msgid "Insert after operation"
+msgstr "Chèn sau hoạt động"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "Install App"
+msgstr "Cài đặt ứng dụng"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.add_quality_check_from_tablet
+msgid "Instruction"
+msgstr "Hướng dẫn"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/quality.py:0
+#: code:addons/mrp_workorder/wizard/propose_change.py:0
+msgid "Instruction:"
+msgstr "Hướng dẫn:"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_routing_workcenter__quality_point_count
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_operation_form_view
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_inherit_workorder
+msgid "Instructions"
+msgstr "Hướng dẫn"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__quality_point_count
+msgid "Instructions Count"
+msgstr ""
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_quality_check__component_barcode
+#: model:ir.model.fields,help:mrp_workorder.field_stock_move__product_barcode
+msgid "International Article Number used for product identification."
+msgstr "Mã số quốc tế được sử dụng để xác định sản phẩm."
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_mrp_workorder__move_line_ids
+msgid "Inventory moves for which you must scan a lot number at this work order"
+msgstr "Dịch chuyển tồn kho mà bạn phải quét số lô tại công đoạn này"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__component_tracking
+msgid "Is Component Tracked"
+msgstr "Là thành phần được theo dõi"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__is_last_unfinished_wo
+msgid "Is Last Work Order To Process"
+msgstr "Là công đoạn cuối cùng cần thực hiện"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__is_last_lot
+msgid "Is Last lot"
+msgstr "Là lô cuối cùng"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__is_first_started_wo
+msgid "Is The first Work Order"
+msgstr "Là công đoạn đầu tiên"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point__is_workorder_step
+msgid "Is Workorder Step"
+msgstr "Là bước công đoạn"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__is_user_working
+msgid "Is the Current User Working"
+msgstr "Là người dùng hiện đang làm"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__write_uid
+#: model:ir.model.fields,field_description:mrp_workorder.field_propose_change__write_uid
+msgid "Last Updated by"
+msgstr "Cập nhật lần cuối bởi"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__write_date
+#: model:ir.model.fields,field_description:mrp_workorder.field_propose_change__write_date
+msgid "Last Updated on"
+msgstr "Cập nhật lần cuối vào"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/employees_panel.xml:0
+msgid "Last seen"
+msgstr "Xem lần cuối"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "Load All Manufacturing Orders"
+msgstr ""
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "Load Samples"
+msgstr "Độ tải mẫu"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display_record.js:0
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_production_view_form_log_note
+msgid "Log Note"
+msgstr "Ghi chú nhật ký"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production__log_note
+msgid "Log note"
+msgstr "Ghi chú"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/hooks/employee_hooks.js:0
+msgid "Logged in!"
+msgstr "Đã đăng nhập!"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/hooks/employee_hooks.js:0
+msgid "Logged out!"
+msgstr "Đã đăng xuất!"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_tablet
+msgid "Lot"
+msgstr "Lô"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__finished_lot_ids
+msgid "Lot/Serial Number"
+msgstr "Số lô/sê-ri"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_report_mrp_report_mo_overview
+msgid "MO Overview Report"
+msgstr "Báo cáo tổng quan MO"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_mrp_production_filter_shop_floor
+msgid "MO Pending"
+msgstr "MO đang chờ"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_mrp_production_filter_shop_floor
+msgid "MO Ready"
+msgstr "MO sẵn sàng"
+
+#. module: mrp_workorder
+#: model:res.groups,name:mrp_workorder.group_mrp_wo_tablet_timer
+msgid "Manage Work Order timer on Shop Floor"
+msgstr "Quản lý đồng hồ tính giờ công đoạn trong Xưởng"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.res_config_settings_view_form
+msgid "Manage your manufacturing orders from the shop floor app"
+msgstr "Quản lý các lệnh sản xuất của bạn từ ứng dụng xưởng"
+
+#. module: mrp_workorder
+#: model:res.groups,name:mrp_workorder.group_mrp_wo_shop_floor
+msgid "Manage your manufacturing orders from the shop floor display app"
+msgstr "Quản lý các lệnh sản xuất của bạn từ ứng dụng xưởng"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_mrp_production
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_mrp_production_filter_shop_floor
+msgid "Manufacturing Order"
+msgstr "Lệnh sản xuất"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_production_gantt_view
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_production_tree_view_planning
+msgid "Manufacturing Orders"
+msgstr "Lệnh sản xuất"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display_record.xml:0
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_inherit_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_tablet
+msgid "Mark as Done"
+msgstr "Đánh dấu là hoàn tất"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_tablet
+msgid "Mark as Done and Close MO"
+msgstr "Đánh dấu là hoàn tất và đóng MO"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_res_config_settings__wo_shop_floor_maximum_card_count
+msgid "Maximum number of cards per page"
+msgstr ""
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid "Menu"
+msgstr "Menu"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+msgid "Modify Routing"
+msgstr ""
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_move__move_line_ids_picked
+msgid "Move Line Ids Picked"
+msgstr "ID dòng chuyển hàng đã lấy"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+msgid "Move to work center"
+msgstr "Chuyển đến khu vực sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__move_line_ids
+msgid "Moves to Track"
+msgstr "Dịch chuyển cần theo dõi"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "Thời hạn hoạt động của tôi"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_view_employee_filter
+msgid "My Department"
+msgstr "Phòng ban của tôi"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_view_employee_filter
+msgid "My Team"
+msgstr "Đội của tôi"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.js:0
+msgid "My WO"
+msgstr "Công đoạn của tôi"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_mrp_production_workorder_form_view_filter_my_work_orders
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_mrp_production_workorder_form_view_search_my_work_orders
+msgid "My Work Orders"
+msgstr "Công đoạn của tôi"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_propose_change__note
+msgid "New Instruction"
+msgstr "Hướng dẫn mới"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/wizard/propose_change.py:0
+msgid "New Instruction suggested by %(user_name)s"
+msgstr "Hướng dẫn mới được đề xuất bởi %(user_name)s"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/quality.py:0
+msgid "New Step suggested by %(user_name)s"
+msgstr "Bước mới được đề xuất bởi %(user_name)s"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/wizard/propose_change.py:0
+msgid "New Title suggested:"
+msgstr "Tiêu đề mới được đề xuất:"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_view_employee_filter
+msgid "Newly Hired"
+msgstr "Mới được tuyển dụng"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__activity_calendar_event_id
+msgid "Next Activity Calendar Event"
+msgstr "Sự kiện trên lịch cho hoạt động tiếp theo"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "Thời hạn cho hoạt động tiếp theo"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__activity_summary
+msgid "Next Activity Summary"
+msgstr "Tóm tắt hoạt động tiếp theo"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__activity_type_id
+msgid "Next Activity Type"
+msgstr "Loại hoạt động tiếp theo"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__next_check_id
+msgid "Next Check"
+msgstr "Kiểm tra tiếp theo"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/employees_panel.xml:0
+msgid "No operators connected"
+msgstr ""
+
+#. module: mrp_workorder
+#: model_terms:ir.actions.act_window,help:mrp_workorder.mrp_workorder_action_tablet
+msgid "No work orders to do!"
+msgstr "Không có công đoạn nào cần thực hiện!"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.quality_point_view_form_inherit_mrp
+msgid "No worksheet yet !"
+msgstr ""
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_move__note
+msgid "Note"
+msgstr "Ghi chú"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_production_form_view
+msgid "Notes"
+msgstr "Ghi chú"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_mrp_routing_workcenter__employee_ratio
+msgid "Number of employees needed to complete operation."
+msgstr "Số lượng nhân viên cần để hoàn thành hoạt động"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+msgid "Open Manufacturing Order"
+msgstr "Mở lệnh sản xuất"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_inherit_workorder
+msgid "Open Shop Floor"
+msgstr "Mở xưởng"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_alert__workorder_id
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__workorder_id
+msgid "Operation"
+msgstr "Hoạt động"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workcenter_form_view_inherit
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_gantt
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.workcenter_line_gantt_production
+msgid "Operations"
+msgstr "Hoạt động"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_inherit_workorder
+msgid "Operator"
+msgstr "Người vận hành"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/employees_panel.xml:0
+msgid "Operators"
+msgstr "Người đại diện"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display_record.js:0
+msgid "Options"
+msgstr "Tùy chọn"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.js:0
+#: model:ir.actions.act_window,name:mrp_workorder.mrp_stock_picking_type_action
+#: model:ir.actions.server,name:mrp_workorder.action_view_mrp_overview
+#: model:ir.ui.menu,name:mrp_workorder.menu_mrp_dashboard
+msgid "Overview"
+msgstr "Tổng quan"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_tablet
+msgid "PAUSE"
+msgstr "TẠM NGỪNG"
+
+#. module: mrp_workorder
+#: model:ir.model.fields.selection,name:mrp_workorder.selection__quality_point__test_report_type__pdf
+msgid "PDF"
+msgstr "PDF"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/components/viewer.xml:0
+msgid "PDF file"
+msgstr "Tệp PDF"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_stock_picking_type
+msgid "Picking Type"
+msgstr "Kiểu lấy hàng"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__picture
+#: model:ir.model.fields,field_description:mrp_workorder.field_propose_change__picture
+msgid "Picture"
+msgstr "Hình ảnh"
+
+#. module: mrp_workorder
+#: model:ir.ui.menu,name:mrp_workorder.menu_mrp_workorder_production
+msgid "Planning by Production"
+msgstr "Lập kế hoạch theo sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.ui.menu,name:mrp_workorder.menu_mrp_workorder_workcenter
+msgid "Planning by Workcenter"
+msgstr "Lập kế hoạch theo khu vực sản xuất"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid ""
+"Please set the quantity you are currently producing. It should be different "
+"from zero."
+msgstr "Hãy đặt số lượng hiện tại bạn đang sản xuất. Đó phải là số khác 0."
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid "Please unblock the work center to start the work order"
+msgstr "Vui lòng bỏ chặn khu vực sản xuất để bắt đầu công đoạn"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/quality.py:0
+msgid "Please upload a picture."
+msgstr "Hãy tải lên một hình ảnh"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_move__picking_type_prefill_shop_floor_lots
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_picking_type__prefill_shop_floor_lots
+msgid "Pre fill lot/serial numbers in shop floor moves "
+msgstr "Điền sẵn số lô/sê-ri trong điều chuyển xưởng "
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__previous_check_id
+msgid "Previous Check"
+msgstr "Kiểm tra trước đó"
+
+#. module: mrp_workorder
+#: model:quality.point.test_type,name:mrp_workorder.test_type_print_label
+msgid "Print label"
+msgstr "In nhãn"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_stock_move_line
+msgid "Product Moves (Stock Move Line)"
+msgstr "Điều chuyển sản phẩm (Dòng điều chuyển tồn kho)"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point__component_id
+msgid "Product To Register"
+msgstr "Sản phẩm cần ghi nhận"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__production_id
+msgid "Production"
+msgstr "Sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_alert__production_id
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__production_id
+msgid "Production Order"
+msgstr "Lệnh sản xuất"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_tablet
+msgid "Production Workcenter"
+msgstr "Khu vực sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point__product_ids
+msgid "Products"
+msgstr "Sản phẩm"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.add_quality_check_from_tablet
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_propose_change_wizard
+msgid "Propose Change"
+msgstr "Đề xuất thay đổi"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_propose_change
+msgid "Propose a change in the production"
+msgstr "Đề xuất thay đổi trong sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_quality_alert
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__quality_alert_ids
+msgid "Quality Alert"
+msgstr "Cảnh báo chất lượng"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__quality_alert_count
+msgid "Quality Alert Count"
+msgstr "Số cảnh báo chất lượng"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_quality_check
+msgid "Quality Check"
+msgstr "Kiểm tra chất lượng"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__quality_check_fail
+msgid "Quality Check Fail"
+msgstr "Kiểm tra chất lượng Không đạt"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__quality_check_todo
+msgid "Quality Check Todo"
+msgstr "Kiểm tra chất lượng Việc cần làm"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "Quality Control"
+msgstr "Kiểm soát chất lượng"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_quality_point
+msgid "Quality Control Point"
+msgstr "Điểm kiểm soát chất lượng"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_quality_point_test_type
+msgid "Quality Control Test Type"
+msgstr "Kiểm tra chất lượng Cách kiểm tra"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_routing_workcenter__quality_point_ids
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__quality_point_ids
+msgid "Quality Point"
+msgstr "Điểm chất lượng"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_routing_steps_search
+msgid "Quality Point Steps"
+msgstr "Bước điểm chất lượng"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_quality_point__product_ids
+msgid "Quality Point will apply to every selected Products."
+msgstr "Điểm chất lượng sẽ được áp dụng cho mọi sản phẩm được chọn."
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__quality_state
+msgid "Quality State"
+msgstr "Trạng thái chất lượng"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_quantity_dialog.xml:0
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_production_tree_view_planning
+msgid "Quantity"
+msgstr "Số lượng"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_register_production_dialog.xml:0
+msgid "Quantity Produced"
+msgstr "Số lượng đã sản xuất"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/wizard/propose_change.py:0
+msgid "Reason:"
+msgstr "Lý do:"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_tablet
+msgid "Record production"
+msgstr "Ghi nhận sản xuất"
+
+#. module: mrp_workorder
+#: model:quality.point.test_type,name:mrp_workorder.test_type_register_byproducts
+msgid "Register By-products"
+msgstr "Ghi nhận phụ phẩm"
+
+#. module: mrp_workorder
+#: model:quality.point.test_type,name:mrp_workorder.test_type_register_consumed_materials
+msgid "Register Consumed Materials"
+msgstr "Ghi nhận nguyên liệu đã sử dụng"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "Register Materials"
+msgstr "Ghi nhận nguyên liệu"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+#: model:quality.point.test_type,name:mrp_workorder.test_type_register_production
+msgid "Register Production"
+msgstr "Ghi nhận sản xuất"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+msgid "Register Production / Serial"
+msgstr "Ghi nhận sản xuất/sê-ri"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display_record.js:0
+msgid "Register Production: %s"
+msgstr "Ghi nhận sản xuất: %s"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point__bom_active
+msgid "Related Bill of Material Active"
+msgstr "Danh mục vật tư liên quan đang hoạt động"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "Reload Data"
+msgstr "Tải lại dữ liệu"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_quantity_dialog.xml:0
+msgid "Remove"
+msgstr "Gỡ"
+
+#. module: mrp_workorder
+#: model:ir.model.fields.selection,name:mrp_workorder.selection__propose_change__change_type__remove_step
+msgid "Remove Current Step"
+msgstr "Loại bỏ bước hiện tại"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point__test_report_type
+msgid "Report Type"
+msgstr "Loại báo cáo"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__user_id
+msgid "Responsible"
+msgstr "Người phụ trách"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_bom__activity_user_id
+msgid "Responsible User"
+msgstr "Người phụ trách"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__result
+msgid "Result"
+msgstr "Kết quả"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+msgid "Scrap"
+msgstr "Loại bỏ"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_mrp_production_filter_shop_floor
+msgid "Search Production"
+msgstr "Tìm kiếm sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.actions.act_window,name:mrp_workorder.action_open_employee_list
+msgid "Select Employee"
+msgstr "Chọn nhân viên"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "Select Operator"
+msgstr "Chọn người vận hành"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.js:0
+msgid "Select a new work center"
+msgstr "Chọn một khu vực sản xuất mới"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.js:0
+msgid "Select the step you want to modify"
+msgstr "Chọn bước bạn muốn sửa đổi"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_tablet
+msgid "Serial"
+msgstr "Sê-ri"
+
+#. module: mrp_workorder
+#: model:ir.model.fields.selection,name:mrp_workorder.selection__propose_change__change_type__set_picture
+msgid "Set Picture"
+msgstr "Đặt hình ảnh"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+msgid "Set a New picture"
+msgstr "Đặt một hình ảnh mới"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_workcenter_dialog.js:0
+#: model:ir.actions.client,name:mrp_workorder.action_mrp_display
+#: model:ir.model.fields,field_description:mrp_workorder.field_res_config_settings__group_mrp_wo_shop_floor
+#: model:ir.ui.menu,name:mrp_workorder.menu_mrp_workorder_root
+#: model:ir.ui.menu,name:mrp_workorder.menu_shop_floor
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_production_form_view
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_picking_type_form_inherit_mrp_workorder
+msgid "Shop Floor"
+msgstr "Xưởng"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "Shop Floor Control Panel"
+msgstr "Bảng điều khiển xưởng"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "Shop Floor Onboarding Image"
+msgstr ""
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.res_config_settings_view_form
+msgid "Show the timer on the work order screen"
+msgstr "Hiển thị thời gian trên màn hình công đoạn"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/components/viewer.xml:0
+msgid "Slides viewer"
+msgstr "Slides viewer"
+
+#. module: mrp_workorder
+#: model:product.template,description_sale:mrp_workorder.product_template_stool
+msgid "Small wooden stool"
+msgstr "Ghế đẩu gỗ nhỏ"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production__state_color
+msgid "State Color"
+msgstr ""
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_mrp_bom__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+"Trạng thái dựa trên hoạt động\n"
+"Quá hạn: Hạn chót hạn đã qua\n"
+"Hôm nay: Hôm nay là ngày phải thực hiện\n"
+"Kế hoạch: Cần thực hiện trong tương lai."
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point__operation_id
+msgid "Step"
+msgstr "Bước"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_propose_change__step_id
+msgid "Step to change"
+msgstr "Bước cần thay đổi"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__quality_point_count
+msgid "Steps"
+msgstr "Bước"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_stock_move
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__move_id
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__move_id
+msgid "Stock Move"
+msgstr "Điều chuyển tồn kho"
+
+#. module: mrp_workorder
+#: model:product.template,name:mrp_workorder.product_template_stool
+msgid "Stool"
+msgstr "Ghế đẩu"
+
+#. module: mrp_workorder
+#: model:product.template,name:mrp_workorder.product_template_stool_foot
+msgid "Stool Foot"
+msgstr "Chân ghế đẩu"
+
+#. module: mrp_workorder
+#: model:product.template,name:mrp_workorder.product_template_stool_top
+msgid "Stool Top"
+msgstr "Mặt ghế đẩu"
+
+#. module: mrp_workorder
+#: model:ir.actions.client,name:mrp_workorder.tablet_client_action
+msgid "Tablet Client Action"
+msgstr "Tác vụ máy khách máy tính bảng"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__test_type
+msgid "Technical name"
+msgstr "Tên kỹ thuật"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__test_type_id
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_point__test_type_id
+msgid "Test Type"
+msgstr "Cách kiểm tra"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_production_kanban_view_inherit
+msgid "The deadline of this MO is on"
+msgstr ""
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.js:0
+msgid "The operation has been successfully moved."
+msgstr ""
+
+#. module: mrp_workorder
+#: model_terms:ir.actions.act_window,help:mrp_workorder.mrp_stock_picking_type_action
+msgid ""
+"The operation type system allows you to assign each stock\n"
+"            operation a specific type which will alter its views "
+"accordingly.\n"
+"            On the operation type you could e.g. specify if packing is "
+"needed by default,\n"
+"            if it should show the customer."
+msgstr ""
+"Hệ thống loại hoạt động cho phép bạn gán cho mỗi hoạt động tồn kho \n"
+"             một loại cụ thể, theo đó chế độ xem của nó sẽ được điều chỉnh "
+"cho phù hợp.\n"
+"             Ví dụ: Trong loại hoạt động, bạn có thể xác định có cần đóng "
+"gói theo\n"
+"             mặc định hay không, có hiển thị khách hàng hay không."
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.js:0
+msgid "The quality alert has been successfully created."
+msgstr ""
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.js:0
+msgid "The scrap order has been successfully registered."
+msgstr ""
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid "There is no session chief. Please log in."
+msgstr "Không có ca trưởng. Vui lòng đăng nhập."
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_mrp_production_filter_shop_floor
+msgid "This Station"
+msgstr "Xưởng này"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid ""
+"This workcenter isn't expected to have open workorders during this period. "
+"Work hours :"
+msgstr ""
+"Khu vực sản xuất này dự kiến sẽ không có công đoạn nào mở trong khoảng thời "
+"gian này. Giờ làm việc :"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "Time Clock"
+msgstr ""
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid "Time Tracking: %(user)s"
+msgstr "Theo dõi thời gian: %(user)s"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_res_config_settings__group_mrp_wo_tablet_timer
+msgid "Timer"
+msgstr "Đồng hồ tính giờ"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__name
+#: model:ir.model.fields,field_description:mrp_workorder.field_propose_change__title
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__title
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.add_quality_check_from_tablet
+msgid "Title"
+msgstr "Tiêu đề"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/quality.py:0
+msgid "Title:"
+msgstr "Tiêu đề:"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/search_model.js:0
+msgid "To Do"
+msgstr "Việc cần làm"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.stock_picking_type_view_kanban
+msgid "To Process"
+msgstr "Cần xử lý"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_production_tree_view_planning
+msgid "Total Qty"
+msgstr "Tổng SL"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid ""
+"Track work orders, show instructions and record manufacturing operations "
+"from here:\n"
+"                                quality control, consumed quantities, lot/"
+"serial numbers, etc."
+msgstr ""
+"Theo dõi công đoạn, hiển thị chỉ dẫn và ghi lại hoạt động sản xuất từ đây:\n"
+"                               kiểm soát chất lượng, số lượng đã tiêu thụ, "
+"số lô/sê-ri,..."
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__product_tracking
+msgid "Tracking"
+msgstr "Theo dõi"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.quality_check_workorder_form
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.quality_point_routing_view_tree
+msgid "Type"
+msgstr "Loại"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_propose_change__change_type
+msgid "Type of Change"
+msgstr "Loại thay đổi"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_mrp_bom__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "Loại hoạt động ngoại lệ trong bản ghi."
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_production.py:0
+msgid ""
+"Unable to load samples when you already have existing manufacturing orders"
+msgstr "Không thể tải mẫu khi bạn đã có sẵn lệnh sản xuất"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_tablet
+msgid "Unblock"
+msgstr "Bỏ chặn"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display_record.js:0
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_record_line/stock_move.js:0
+msgid "Unit"
+msgstr "Đơn vị"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display_record.js:0
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_record_line/stock_move.js:0
+msgid "Units"
+msgstr "Đơn vị"
+
+#. module: mrp_workorder
+#: model:ir.actions.server,name:mrp_workorder.production_order_unplan_server_action
+msgid "Unplan orders"
+msgstr "Bỏ hoạch định đơn hàng"
+
+#. module: mrp_workorder
+#: model:ir.model.fields.selection,name:mrp_workorder.selection__propose_change__change_type__update_step
+msgid "Update Current Step"
+msgstr "Cập nhật bước hiện tại"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.xml:0
+msgid "Update Instructions"
+msgstr "Cập nhật hướng dẫn"
+
+#. module: mrp_workorder
+#: model_terms:ir.actions.act_window,help:mrp_workorder.mrp_workorder_action_tablet
+msgid ""
+"Use the table work center control panel to register operations in the shop "
+"floor directly.\n"
+"            The tablet provides worksheets for your workers and allow them "
+"to scrap products, track time,\n"
+"            launch a maintenance request, perform quality tests, etc."
+msgstr ""
+"Sử dụng bảng điều khiển khu vực sản xuất để bàn để ghi nhận trực tiếp hoạt "
+"động tại xưởng.\n"
+"            Máy tính bảng cung cấp bảng công tác cho công nhân và cho phép "
+"họ loại bỏ sản phẩm, theo dõi thời gian, \n"
+"            kích hoạt yêu cầu bảo dưỡng, tiến hành kiểm tra chất lượng,..."
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_register_production_dialog.xml:0
+msgid "Validate"
+msgstr "Xác thực"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_mrp_workorder___barcode_scanned
+msgid "Value of the last barcode scanned."
+msgstr "Giá trị mã vạch quét cuối cùng."
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/search_bar.xml:0
+msgid "WO"
+msgstr "Công đoạn"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display.xml:0
+msgid "WO Filters"
+msgstr "Bộ lọc công đoạn"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_stock_move__picking_type_prefill_shop_floor_lots
+#: model:ir.model.fields,help:mrp_workorder.field_stock_picking_type__prefill_shop_floor_lots
+msgid ""
+"When enabled, reserved lots for component moves will be displayed in the "
+"shop floor. When disabled, lots will always need to be selected manually "
+"when processing components in the shop floor."
+msgstr ""
+"Khi bật, các lô được đặt trước cho điều chuyển thành phần sẽ hiển thị trong "
+"xưởng sản xuất. Khi tắt, bạn luôn phải chọn lô theo cách thủ công khi xử lý "
+"thành phần trong xưởng."
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_mrp_production_additional_workorder_wizard
+msgid "Will be placed at the beginning if empty"
+msgstr ""
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_mrp_production_backorder
+msgid "Wizard to mark as done or create back order"
+msgstr "Công cụ để đánh dấu là đã hoàn tất hoặc tạo đơn hàng chậm trễ"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_mrp_workcenter
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production_additional_workorder__workcenter_id
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_alert__workcenter_id
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__workcenter_id
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.quality_alert_view_search_inherit_mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.view_mrp_production_filter_shop_floor
+msgid "Work Center"
+msgstr "Khu vực sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_mrp_routing_workcenter
+msgid "Work Center Usage"
+msgstr "Sử dụng khu vực sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_mrp_workorder
+msgid "Work Order"
+msgstr "Công đoạn"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.quality_point_view_form_inherit_mrp
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.quality_point_view_tree
+msgid "Work Order Operation"
+msgstr "Hoạt động của công đoạn"
+
+#. module: mrp_workorder
+#: model:ir.actions.act_window,name:mrp_workorder.mrp_workorder_action_tablet
+#: model:ir.ui.menu,name:mrp_workorder.mrp_workorder_menu_planning
+msgid "Work Orders"
+msgstr "Công đoạn"
+
+#. module: mrp_workorder
+#: model:ir.actions.server,name:mrp_workorder.action_mrp_workorder_dependencies_production
+#: model:ir.actions.server,name:mrp_workorder.action_mrp_workorder_dependencies_workcenter
+msgid "Work Orders Planning"
+msgstr "Lập kế hoạch công đoạn"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workcenter_view_kanban_inherit_workorder
+msgid "Work orders"
+msgstr "Công đoạn"
+
+#. module: mrp_workorder
+#: model_terms:ir.actions.act_window,help:mrp_workorder.mrp_workorder_action_tablet
+msgid ""
+"Work orders are operations to do as part of a manufacturing order.\n"
+"            Operations are defined in the bill of materials or added in the "
+"manufacturing order directly."
+msgstr ""
+"Công đoạn là các hoạt động thành phần của một lệnh sản xuất. \n"
+"                    Các hoạt động được nêu rõ trong danh mục vật tư hoặc "
+"thêm trực tiếp vào lệnh sản xuất."
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.stock_picking_type_view_kanban
+msgid "Workcenter Control Panel"
+msgstr "Bảng điều khiển khu vực sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.model,name:mrp_workorder.model_mrp_workcenter_productivity
+msgid "Workcenter Productivity Log"
+msgstr "Nhật ký sản xuất của khu vực sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_quality_check__working_state
+msgid "Workcenter Status"
+msgstr "Trạng thái khu vực sản xuất"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__employee_ids
+msgid "Working employees"
+msgstr "Nhân viên đang làm việc"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_propose_change__workorder_id
+msgid "Workorder"
+msgstr "Công đoạn"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_worksheet_dialog.xml:0
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.quality_point_routing_view_tree
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.quality_point_view_form_inherit_mrp
+msgid "Worksheet"
+msgstr "Bảng công tác"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_stock_move__worksheet_document
+msgid "Worksheet Image/PDF"
+msgstr "Hình ảnh/PDF bảng công tác"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/quality.py:0
+msgid "Worksheet Preview"
+msgstr ""
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__worksheet_page
+msgid "Worksheet page"
+msgstr "Trang bảng công tác"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/hooks/employee_hooks.js:0
+msgid "Wrong password!"
+msgstr "Mật khẩu không chính xác!"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid "You are not allow to work on some of these work orders."
+msgstr "Bạn không được phép thực hiện một số công đoạn ở đây."
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid "You are not allowed to work on the workorder"
+msgstr "Bạn không được phép thực hiện công đoạn này."
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/wizard/change_production_qty.py:0
+msgid ""
+"You cannot update the quantity to do of an ongoing manufacturing order for "
+"which quality checks have been performed."
+msgstr ""
+"Bạn không thể cập nhật số lượng cần thực hiện của một lệnh sản xuất đã được "
+"kiểm tra chất lượng."
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/quality.py:0
+msgid "You did not set a lot/serial number for the final product"
+msgstr "Bạn không thể đặt số lô/sê-ri mới cho thành phẩm"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid "You must be logged in to process some of these work orders."
+msgstr "Bạn phải đăng nhập để thực hiện một số công đoạn ở đây."
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid ""
+"You need to complete Quality Checks using the Shop Floor before marking Work "
+"Order as Done."
+msgstr ""
+"Bạn cần hoàn thành Kiểm tra chất lượng bằng Xưởng trước khi đánh dấu Hoàn "
+"tất Công đoạn."
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid ""
+"You need to define at least one productivity loss in the category "
+"'Productive'. Create one from the Manufacturing app, menu: Configuration / "
+"Productivity Losses."
+msgstr ""
+"Bạn cần xác định ít nhất một hao hụt năng suất trong danh mục 'Năng suất'. "
+"Tạo trong ứng dụng Sản xuất: Cấu hình/Hao hụt năng suất."
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid ""
+"You need to link this user to an employee of this company to process the "
+"work order"
+msgstr ""
+"Bạn cần liên kết người dùng này với một nhân viên của công ty này để thực "
+"hiện công đoạn"
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid "You need to log in to process this work order."
+msgstr "Bạn phải đăng nhập để thực hiện công đoạn này."
+
+#. module: mrp_workorder
+#. odoo-python
+#: code:addons/mrp_workorder/models/mrp_workorder.py:0
+msgid "You still need to do the quality checks!"
+msgstr "Bạn vẫn cần kiểm tra chất lượng!"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/dialog/mrp_menu_dialog.js:0
+msgid "Your suggestion to delete the %s step was successfully created."
+msgstr "Đề xuất xóa bước %s của bạn đã được tạo thành công."
+
+#. module: mrp_workorder
+#: model:ir.model.fields.selection,name:mrp_workorder.selection__quality_point__test_report_type__zpl
+msgid "ZPL"
+msgstr "ZPL"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_tablet
+msgid "back"
+msgstr "trở lại"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_mrp_workcenter_productivity__employee_id
+msgid "employee that record this working time"
+msgstr "nhân viên ghi nhận thời gian làm việc này"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workcenter_productivity__employee_cost
+msgid "employee_cost"
+msgstr "employee_cost"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workcenter__employee_ids
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_workorder__allowed_employees
+msgid "employees with access"
+msgstr "nhân viên có quyền truy cập"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,help:mrp_workorder.field_mrp_workcenter__employee_ids
+#: model:ir.model.fields,help:mrp_workorder.field_mrp_workorder__allowed_employees
+msgid "if left empty, all employees can log in to the workcenter"
+msgstr "nếu để trống, tất cả nhân viên có thể đăng nhập vào khu vực sản xuất"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workorder_view_form_tablet
+msgid "menu"
+msgstr "menu"
+
+#. module: mrp_workorder
+#: model_terms:ir.ui.view,arch_db:mrp_workorder.mrp_workcenter_form_view_inherit
+msgid "per employee"
+msgstr "mỗi nhân viên"
+
+#. module: mrp_workorder
+#. odoo-javascript
+#: code:addons/mrp_workorder/static/src/mrp_display/mrp_display_record.xml:0
+msgid "start"
+msgstr "bắt đầu"
+
+#. module: mrp_workorder
+#: model:product.template,description_sale:mrp_workorder.product_template_stool_foot
+msgid "wooden stool foot"
+msgstr "chân ghế đẩu gỗ"
+
+#. module: mrp_workorder
+#: model:product.template,description_sale:mrp_workorder.product_template_stool_top
+msgid "wooden stool top"
+msgstr "mặt ghế đẩu gỗ"
+
+#. module: mrp_workorder
+#: model:ir.model.fields,field_description:mrp_workorder.field_mrp_production__employee_ids
+msgid "working employees"
+msgstr "nhân viên đang làm việc"
+
+#~ msgid "<span class=\"o_stat_text\">Instructions</span>"
+#~ msgstr "<span class=\"o_stat_text\">Hướng dẫn</span>"
+
+#~ msgid "Add By-Product"
+#~ msgstr "Thêm phụ phẩm"
+
+#~ msgid "Add product"
+#~ msgstr "Thêm sản phẩm"
+
+#~ msgid "Additional Product"
+#~ msgstr "Sản phẩm bổ sung"
+
+#~ msgid "Best Time! Congratulations!"
+#~ msgstr "Tuyệt vời! Chúc mừng bạn!"
+
+#~ msgid "BoM feedback %s (%s)"
+#~ msgstr "Phản hồi về ĐMNL %s (%s)"
+
+#~ msgid "By-Product"
+#~ msgstr "Phụ phẩm"
+
+#~ msgid "CONTINUE PRODUCTION"
+#~ msgstr "TIẾP TỤC SẢN XUẤT"
+
+#~ msgid "Category"
+#~ msgstr "Danh mục"
+
+#~ msgid "Color"
+#~ msgstr "Màu sắc"
+
+#~ msgid "Completion Time:"
+#~ msgstr "Thời gian hoàn thành:"
+
+#~ msgid "Component Qty To Do"
+#~ msgstr "Số lượng nguyên liệu cần thực hiện"
+
+#~ msgid ""
+#~ "Conversion between Units of Measure can only occur if they belong to the "
+#~ "same category. The conversion will be made based on the ratios."
+#~ msgstr ""
+#~ "Việc chuyển đổi qua lại giữa các Đơn vị tính chỉ có thể khả dụng nếu "
+#~ "chúng cùng loại. Việc chuyển đổi sẽ được thực hiện dựa trên tỉ lệ."
+
+#~ msgid "Custom"
+#~ msgstr "Tùy chỉnh"
+
+#~ msgid "Delete this Step"
+#~ msgstr "Xoá bước này"
+
+#~ msgid "Finished Lot/Serial"
+#~ msgstr "Lô/sê-ri đã hoàn thành"
+
+#~ msgid "Finished Steps"
+#~ msgstr "Bước đã hoàn thành"
+
+#~ msgid "Good Job!"
+#~ msgstr "Tốt lắm!"
+
+#~ msgid "Google Slide Link"
+#~ msgstr "Liên kết Google Slide"
+
+#~ msgid "Google doc URL"
+#~ msgstr "URL Google Doc"
+
+#~ msgid ""
+#~ "In case of Quality Check by Quantity, Move Line on which the Quality "
+#~ "Check applies"
+#~ msgstr ""
+#~ "Trong trường hợp kiểm tra chất lượng theo số lượng, mục dịch chuyển áp "
+#~ "dụng kiểm tra chất lượng"
+
+#~ msgid "Lot/Serial"
+#~ msgstr "Lô/sê-ri"
+
+#~ msgid "Manage Work Order timer on Tablet View"
+#~ msgstr "Quản lý đồng hồ tính giờ công đoạn trong chế độ xem máy tính bảng"
+
+#~ msgid "Next"
+#~ msgstr "Tiếp theo"
+
+#~ msgid "No manufacturing steps defined yet!"
+#~ msgstr "Chưa có bước sản xuất nào được xác định!"
+
+#~ msgid "Open Tablet View"
+#~ msgstr "Mở chế độ xem máy tính bảng"
+
+#~ msgid "Please ensure the quantity to produce is greater than 0."
+#~ msgstr "Bảo đảm số lượng cần sản xuất lớn hơn 0. "
+
+#~ msgid "Please enter a Lot/SN."
+#~ msgstr "Hãy nhập lô/sê-ri"
+
+#~ msgid "Please enter a positive quantity."
+#~ msgstr "Hãy nhập số lượng lớn hơn 0. "
+
+#~ msgid "Print Labels"
+#~ msgstr "In nhãn"
+
+#~ msgid "Product"
+#~ msgstr "Sản phẩm"
+
+#~ msgid "Product Uom"
+#~ msgstr "Đơn vị tính sản phẩm"
+
+#~ msgid "Quality"
+#~ msgstr "Chất lượng"
+
+#~ msgid "Register additional product"
+#~ msgstr "Ghi nhận sản phẩm bổ sung"
+
+#~ msgid "Remaining Quantity for Component"
+#~ msgstr "Số lượng còn lại của nguyên liệu"
+
+#~ msgid "Show Instructions"
+#~ msgstr "Hiển thị hướng dẫn"
+
+#~ msgid "Specific Page of Operation Worksheet"
+#~ msgstr "Trang cụ thể của Bảng công tác hoạt động"
+
+#~ msgid "Step Document"
+#~ msgstr "Tài liệu của bước"
+
+#~ msgid "Stock Move Line"
+#~ msgstr "Mục dịch chuyển tồn kho"
+
+#~ msgid "Suggest a Worksheet improvement"
+#~ msgstr "Đề xuất cải thiện bảng công tác"
+
+#~ msgid "Unit of Measure"
+#~ msgstr "Đơn vị tính"
+
+#~ msgid "UoM"
+#~ msgstr "ĐVT"
+
+#~ msgid "Upload your PDF file."
+#~ msgstr "Tải lên tập tin PDF của bạn."
+
+#~ msgid ""
+#~ "Use steps to show instructions on a worksheet to operators, or trigger "
+#~ "quality checks at specific steps of the work order."
+#~ msgstr ""
+#~ "Sử dụng các bước để hiển thị hướng dẫn lên bảng công tác cho người vận "
+#~ "hành hoặc kích hoạt kiểm tra chất lượng ở các bước cụ thể của công đoạn."
+
+#~ msgid "VALIDATE"
+#~ msgstr "XÁC NHẬN"
+
+#~ msgid "Well done, you're in the Top 10!"
+#~ msgstr "Rất tốt! Bạn nằm trong top 10!"
+
+#~ msgid "Worksheet Page"
+#~ msgstr "Trang bảng công tác"
+
+#~ msgid "Wow, you made the Top 5!"
+#~ msgstr "Wow! Bạn đã lọt vào top 5!"
+
+#~ msgid "You should provide a lot/serial number for the final product"
+#~ msgstr "Bạn nên cung cấp số lô/sê-ri cho thành phẩm. "
+
+#~ msgid "minutes"
+#~ msgstr "phút"
+
+#~ msgid "title"
+#~ msgstr "tiêu đề"

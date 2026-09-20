@@ -1,0 +1,16 @@
+# Part of Odoo. See LICENSE file for full copyright and licensing details.
+
+from odoo import models
+
+
+class ProjectTaskType(models.Model):
+    _inherit = 'project.task.type'
+
+    def _get_default_project_ids(self):
+        # Call super first to take into account the context
+        default_project_ids = super()._get_default_project_ids()
+        default_user_id = self.env.context.get('default_user_id')  # To check if it is a personal stage
+        if self.env.context.get('fsm_mode') and not default_project_ids and not default_user_id:
+            default_project = self.env['project.project'].search([('is_fsm', '=', True)])
+            default_project_ids = default_project.ids
+        return default_project_ids

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="account_accountant.BankRecReconcileDialogListRenderer" t-inherit="web.ListRenderer" t-inherit-mode="primary">
+        <xpath expr="//th[@t-if='hasOpenFormViewColumn']" position="replace">
+            <th class="o_list_open_form_view w-print-0 p-print-0"/>
+        </xpath>
+    </t>
+
+    <t t-name="account_accountant.BankRecReconcileDialogListRenderer.RecordRow" t-inherit="web.ListRenderer.RecordRow" t-inherit-mode="primary">
+        <xpath expr="//t[@t-if='hasOpenFormViewColumn']" position="replace">
+            <td class="o_list_record_open_form_view w-print-0 p-print-0 text-center"
+                t-custom-click.stop="() => this.openMoveView(record)"
+            >
+                <button class="btn btn-link align-top text-end"
+                        name="Open in form view"
+                        aria-label="Open in form view"
+                >View</button>
+            </td>
+        </xpath>
+    </t>
+</templates>

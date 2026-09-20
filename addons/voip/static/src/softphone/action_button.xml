@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip.ActionButton">
+    <button t-if="props.inCallPad" t-attf-class="btn btn-{{ props.type }} d-flex flex-column justify-content-center align-items-center p-2 {{ props.disabled and 'opacity-25' }} {{ props.extraClass or '' }}" t-att-title="props.title or props.name" t-att-disabled="props.disabled" t-on-click="props.onClick">
+        <i t-attf-class="o-voip-ActionButton-icon {{ iconLib }} {{ props.icon }} p-1" aria-hidden="true"/>
+        <span t-if="!props.hideLabel" class="text-center smaller text-truncate" t-esc="props.name"/>
+    </button>
+    <div t-else="" class="position-relative d-flex flex-column align-items-center gap-1" t-att-class="props.extraClass">
+        <button t-attf-class="o-voip-ActionButton btn btn-{{ props.type }} d-flex rounded-circle {{ props.isSmall ? 'p-2' : 'p-3' }}" t-att-class="{ 'o-label-hidden': props.hideLabel }" t-att-title="props.title or props.name" t-on-click="props.onClick" t-att-disabled="props.disabled">
+            <i t-attf-class="o-voip-ActionButton-icon {{ iconLib }} {{ props.icon }}" aria-hidden="true"/>
+        </button>
+        <span t-if="!props.hideLabel" class="text-center smaller" t-esc="props.name"/>
+    </div>
+</t>
+</templates>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_stock_quant_tree_editable" model="ir.ui.view">
+        <field name="name">stock.quant.list.editable.inherit.l10n.mx.edi.landing</field>
+        <field name="model">stock.quant</field>
+        <field name="inherit_id" ref="stock.view_stock_quant_tree_editable"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='lot_id']" position="before">
+                <field name="l10n_mx_edi_customs_number" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,368 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * pos_settle_due
+#
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:42+0000\n"
+"PO-Revision-Date: 2025-11-08 20:13+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
+"projects/odoo-19/pos_settle_due/zh_Hans/>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "(with cart:"
+msgstr "（有购物车："
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_account_bank_statement_line__pos_amount_unsettled
+#: model:ir.model.fields,field_description:pos_settle_due.field_account_move__pos_amount_unsettled
+msgid "Amount To Pay In POS"
+msgstr "销售点待付款金额"
+
+#. module: pos_settle_due
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.customer_due_pos_order_list_view
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.due_account_move_list_view
+msgid "Amount total"
+msgstr "合计金额"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__commercial_partner_id
+msgid "Commercial Entity"
+msgstr "商业实体"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_res_company
+msgid "Companies"
+msgstr "公司"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_res_partner
+msgid "Contact"
+msgstr "联系方式"
+
+#. module: pos_settle_due
+#: model:ir.model,website_form_label:pos_settle_due.model_res_partner
+msgid "Create a Customer"
+msgstr "创建客户"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_list.xml:0
+msgid "Credit limit reached!"
+msgstr "达到信用额度！"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Credit limit:"
+msgstr "信用额度："
+
+#. module: pos_settle_due
+#: model:product.template,name:pos_settle_due.product_product_deposit_product_template
+msgid "Deposit"
+msgstr "存款"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_config__deposit_product_id
+msgid "Deposit Product"
+msgstr "存款产品"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Deposit money"
+msgstr "存入款项"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Deposited:"
+msgstr "已收款："
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_account_move__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_ir_ui_view__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_config__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order_line__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_session__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_company__display_name
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_partner__display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Do you want to deposit %s to %s?"
+msgstr "您想把%s存到%s吗？"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid ""
+"Do you want to deposit money to a specific customer? If so, first select him/"
+"her."
+msgstr "您想给某个客户存款吗？如果是，请先选择他/她。"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__customer_due_total
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.due_account_move_list_view
+msgid "Due"
+msgstr "截止"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Empty Order"
+msgstr "空订单"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Empty orders cannot be invoiced."
+msgstr "空订单不能开发票。"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Error"
+msgstr "错误"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_account_move__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_ir_ui_view__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_config__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order_line__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_session__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_company__id
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_partner__id
+msgid "ID"
+msgstr "ID"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__init_customer_due_total
+msgid "Initial due (before any settlement)"
+msgstr "初始应付款（任何结算前）"
+
+#. module: pos_settle_due
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.due_account_move_list_view
+msgid "Invoice Date"
+msgstr "发票日期"
+
+#. module: pos_settle_due
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.due_account_move_list_view
+msgid "Invoices"
+msgstr "发票"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_account_move
+msgid "Journal Entry"
+msgstr "日记账分录"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__settled_orders_count
+msgid "Number of settled orders"
+msgstr "已结算订单数量"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_account_bank_statement_line__pos_order_line_ids
+#: model:ir.model.fields,field_description:pos_settle_due.field_account_move__pos_order_line_ids
+msgid "Order lines settling the invoice"
+msgstr "结算发票的订单资料行"
+
+#. module: pos_settle_due
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.customer_due_pos_order_list_view
+msgid "POS Orders"
+msgstr "POS单"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_pos_config
+msgid "Point of Sale Configuration"
+msgstr "POS 配置"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_pos_order_line
+msgid "Point of Sale Order Lines"
+msgstr "POS订单明细"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_pos_order
+msgid "Point of Sale Orders"
+msgstr "POS 订单"
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_pos_session
+msgid "Point of Sale Session"
+msgstr "POS会话"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/services/pos_store.js:0
+msgid "Select the payment method to deposit money"
+msgstr "选择存入资金的付款方式"
+
+#. module: pos_settle_due
+#: model:product.template,name:pos_settle_due.product_product_settle_product_template
+msgid "Settle Due"
+msgstr "到期结算"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_config__settle_due_product_id
+msgid "Settle Due Product"
+msgstr "结算到期产品"
+
+#. module: pos_settle_due
+#: model:product.template,name:pos_settle_due.product_product_settle_invoice_product_template
+msgid "Settle Invoice"
+msgstr "结算发票"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_config__settle_invoice_product_id
+msgid "Settle Invoice Product"
+msgstr "结算发票产品"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Settle due amount"
+msgstr "结算到期金额"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Settle due orderlines"
+msgstr "结算到期订单"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Settle invoices"
+msgstr "结算发票"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Settle orders"
+msgstr "结算订单"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order_line__settled_invoice_id
+msgid "Settled Invoice"
+msgstr "结算发票"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order_line__settled_order_id
+msgid "Settled Order"
+msgstr "已结算订单"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_pos_order__settled_order_line_ids
+msgid "Settled Order Lines"
+msgstr "已结算订单行"
+
+#. module: pos_settle_due
+#. odoo-python
+#: code:addons/pos_settle_due/models/pos_order.py:0
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.pos_order_form_inherit_pos_settle_due
+msgid "Settled Orders"
+msgstr "已结算订单"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_partner__pos_orders_amount_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_users__pos_orders_amount_due
+msgid "Sum of customers PoS orders's due amount"
+msgstr "所有客户 PoS 订单的应付金额总和"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_partner__invoices_amount_due
+#: model:ir.model.fields,field_description:pos_settle_due.field_res_users__invoices_amount_due
+msgid "Sum of customers's invoice due amount"
+msgstr "所有客户发票的应付金额总和"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "The order is empty"
+msgstr "该订单是空的"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid ""
+"The selected customer is not in the list of partners of the ongoing settling "
+"orderlines."
+msgstr "所选客户不在正在进行的结算订单的合作伙伴列表中。"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,help:pos_settle_due.field_pos_config__settle_due_product_id
+msgid "This product is used as to settle due of customer account."
+msgstr "该产品用于结算客户的应付账款。"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,help:pos_settle_due.field_pos_config__settle_invoice_product_id
+msgid "This product is used as to settle invoices of customer."
+msgstr "此产品用于结算客户发票。"
+
+#. module: pos_settle_due
+#: model:ir.model.fields,help:pos_settle_due.field_pos_config__deposit_product_id
+msgid "This product is used to deposit money on customer account."
+msgstr "该产品用于将资金存入客户账户。"
+
+#. module: pos_settle_due
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.customer_due_pos_order_list_view
+#: model_terms:ir.ui.view,arch_db:pos_settle_due.due_account_move_list_view
+msgid "Total due"
+msgstr "到期总额"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/partner_list/partner_line/partner_line.xml:0
+msgid "Total due:"
+msgstr "到期总额："
+
+#. module: pos_settle_due
+#: model:ir.model,name:pos_settle_due.model_ir_ui_view
+msgid "View"
+msgstr "视图"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "Yes"
+msgstr "是"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "You can not deposit zero amount."
+msgstr "不可存入数值为0的金额"
+
+#. module: pos_settle_due
+#. odoo-javascript
+#: code:addons/pos_settle_due/static/src/app/screens/payment_screen/payment_screen.js:0
+msgid "You cannot refund a deposit/settling order."
+msgstr "订金订单或正在完成收款的订单，不可作退款。"
+
+#. module: pos_settle_due
+#. odoo-python
+#: code:addons/pos_settle_due/models/pos_order.py:0
+msgid "id"
+msgstr "id"
+
+#~ msgid "One of the selected orders is already being settled."
+#~ msgstr "其中一个选定的订单，已在结算中。"

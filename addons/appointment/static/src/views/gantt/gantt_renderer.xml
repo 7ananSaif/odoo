@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="appointment.AppointmentBookingGanttRendererPill" t-inherit="web_gantt.GanttRenderer.Pill" t-inherit-mode="primary">
+        <xpath expr="//span[hasclass('o_gantt_pill_title')]/t" position="attributes">
+            <attribute name="t-if">pill.record.appointment_status !== "no_show"</attribute>
+        </xpath>
+        <xpath expr="//span[hasclass('o_gantt_pill_title')]/t" position="after">
+            <strike t-elif="pill.record.appointment_status === 'no_show'" t-out="pill.displayName"></strike>
+        </xpath>
+    </t>
+</templates>

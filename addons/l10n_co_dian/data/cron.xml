@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="ir_cron_update_event_status" model="ir.cron">
+        <field name="name">Colombian EDI: Update Invoice Commercial States</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=18, minute=0, second=0) + timedelta(days=1)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        <field name="model_id" ref="model_account_move"/>
+        <field name="state">code</field>
+        <field name="code">model._l10n_co_dian_cron_update_event_status()</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

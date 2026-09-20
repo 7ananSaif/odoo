@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data noupdate="1">
+    <record id="hr_work_entry.work_entry_type_attendance" model="hr.work.entry.type">
+        <field name="meal_voucher">True</field>
+        <field name="leave_right">True</field>
+    </record>
+
+    <record id="hr_work_entry.work_entry_type_leave" model="hr.work.entry.type">
+        <field name="leave_right">True</field>
+        <field name="representation_fees">True</field>
+        <field name="dmfa_code">1</field>
+    </record>
+
+    <record id="hr_work_entry.work_entry_type_compensatory" model="hr.work.entry.type">
+        <field name="leave_right">True</field>
+        <field name="dmfa_code">1</field> <!-- 1, as this is paid, unpaid would be 20 -->
+    </record>
+
+    <record id="hr_work_entry.work_entry_type_home_working" model="hr.work.entry.type">
+        <field name="leave_right">True</field>
+    </record>
+
+    <record id="hr_work_entry.work_entry_type_legal_leave" model="hr.work.entry.type">
+        <field name="leave_right">True</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_bank_holiday" model="hr.work.entry.type">
+        <field name="representation_fees">True</field>
+        <field name="dmfa_code">1</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_solicitation_time_off" model="hr.work.entry.type">
+        <field name="leave_right" eval="True"/>
+        <field name="dmfa_code">1</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_unjustified_reason" model="hr.work.entry.type">
+        <field name="dmfa_code">30</field>
+    </record>
+
+    <record id="hr_work_entry.work_entry_type_attendance" model="hr.work.entry.type">
+        <field name="dmfa_code">1</field>
+        <field name="private_car">True</field>
+        <field name="representation_fees">True</field>
+    </record>
+
+    <record id="hr_work_entry.work_entry_type_home_working" model="hr.work.entry.type">
+        <field name="dmfa_code">1</field>
+        <field name="meal_voucher">True</field>
+        <field name="representation_fees">True</field>
+    </record>
+
+    <record id="hr_work_entry.work_entry_type_unpaid_leave" model="hr.work.entry.type">
+        <field name="dmfa_code">30</field>
+    </record>
+
+    <record id="hr_work_entry.work_entry_type_sick_leave" model="hr.work.entry.type">
+        <field name="dmfa_code">1</field>
+        <field name="representation_fees" eval="True"/>
+        <field name="leave_right">True</field>
+    </record>
+
+    <record id="hr_work_entry.work_entry_type_legal_leave" model="hr.work.entry.type">
+        <field name="dmfa_code">1</field>
+        <field name="representation_fees">True</field>
+    </record>
+
+    <record id="hr_work_entry.hr_work_entry_type_out_of_contract" model="hr.work.entry.type">
+        <field name="meal_voucher" eval="False"/>
+        <field name="leave_right" eval="False"/>
+        <field name="is_unforeseen" eval="False"/>
+        <field name="dmfa_code">-1</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_small_unemployment" model="hr.work.entry.type">
+        <field name="dmfa_code">1</field>   <!-- YTI: 1 as it is paid, would be 70 otherwise -->
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_small_unemployment_birth" model="hr.work.entry.type">
+        <field name="dmfa_code">1</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_economic_unemployment" model="hr.work.entry.type">
+        <field name="dmfa_code">71</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_corona" model="hr.work.entry.type">
+        <field name="dmfa_code">77</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_maternity" model="hr.work.entry.type">
+        <field name="dmfa_code">51</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_paternity_company" model="hr.work.entry.type">
+        <field name="dmfa_code">1</field>
+        <field name="representation_fees">True</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_paternity_legal" model="hr.work.entry.type">
+        <field name="dmfa_code">52</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_unpredictable" model="hr.work.entry.type">
+        <field name="dmfa_code">24</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_training" model="hr.work.entry.type">
+        <field name="meal_voucher">True</field>
+        <field name="private_car">True</field>
+        <field name="representation_fees">True</field>
+        <field name="dmfa_code">1</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_training_time_off" model="hr.work.entry.type">
+        <field name="dmfa_code">5</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_flemish_training_time_off" model="hr.work.entry.type">
+        <field name="dmfa_code">5</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_long_sick" model="hr.work.entry.type">
+        <!-- 50, not 30 -->
+        <field name="dmfa_code">50</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_breast_feeding" model="hr.work.entry.type">
+        <field name="meal_voucher">True</field>
+        <field name="private_car">True</field>
+        <field name="representation_fees">True</field>
+        <field name="dmfa_code">51</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_medical_assistance" model="hr.work.entry.type">
+        <field name="dmfa_code">-1</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_youth_time_off" model="hr.work.entry.type">
+        <field name="dmfa_code">73</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_recovery_additional" model="hr.work.entry.type">
+        <field name="dmfa_code">1</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_additional_paid" model="hr.work.entry.type">
+        <field name="dmfa_code">1</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_notice" model="hr.work.entry.type">
+        <field name="dmfa_code">1</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_phc" model="hr.work.entry.type">
+        <field name="dmfa_code">1</field>
+        <field name="representation_fees" eval="True"/>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_extra_legal" model="hr.work.entry.type">
+        <field name="representation_fees">True</field>
+        <field name="dmfa_code">1</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_part_sick" model="hr.work.entry.type">
+        <field name="dmfa_code">50</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_recovery" model="hr.work.entry.type">
+        <field name="representation_fees">True</field>
+        <field name="dmfa_code">1</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_european" model="hr.work.entry.type">
+        <field name="dmfa_code">14</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_credit_time" model="hr.work.entry.type">
+        <field name="dmfa_code">-1</field>
+        <field name="l10n_be_is_time_credit" eval="True"/>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_parental_time_off" model="hr.work.entry.type">
+        <field name="dmfa_code">-1</field>
+        <field name="l10n_be_is_time_credit" eval="True"/>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_simple_holiday_pay_variable_salary" model="hr.work.entry.type">
+        <field name="dmfa_code">1</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_work_accident" model="hr.work.entry.type">
+        <field name="dmfa_code">1</field>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_partial_incapacity" model="hr.work.entry.type">
+        <field name="is_unforeseen" eval="False"/>
+        <field name="leave_right" eval="True"/>
+        <field name="dmfa_code">50</field>
+        <field name="l10n_be_is_time_credit" eval="True"/>
+    </record>
+
+    <record id="hr_work_entry.l10n_be_work_entry_type_strike" model="hr.work.entry.type">
+        <field name="dmfa_code">21</field>
+        <field name="meal_voucher" eval="False"/>
+        <field name="private_car" eval="False"/>
+        <field name="representation_fees" eval="False"/>
+        <field name="leave_right" eval="True"/>
+    </record>
+</data>
+</odoo>

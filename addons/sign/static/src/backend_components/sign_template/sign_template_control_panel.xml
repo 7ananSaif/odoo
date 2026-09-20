@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="sign.SignTemplateControlPanel">
+        <ControlPanel display="controlPanelDisplay">
+            <t t-set-slot="control-panel-always-buttons">
+                <button t-if="['', 'sign_send_request'].includes(props.actionType)" type="button" class="btn btn-primary o_sign_template_send" t-on-click="onSendClick">Send</button>
+                <button t-if="['', 'sign_send_request'].includes(props.actionType)" type="button" class="btn btn-primary o_sign_template_sign_now text-nowrap" t-on-click="onSignNowClick">Sign Now</button>
+                <button t-if="showShareButton and ['', 'sign_send_request'].includes(props.actionType)" type="button" class="btn btn-secondary o_sign_template_share" t-on-click="onShareClick">Share</button>
+                <button t-if="props.actionType === 'sign_template_edit'" type="button" class="btn btn-primary o_sign_template_save" t-on-click="props.goBackToKanban">Save</button>
+                <button t-if="nextTemplate and props.actionType === 'sign_template_edit'" type="button" class="btn btn-primary o_sign_template_next" t-on-click="onNextDocumentClick">
+                    Next Document
+                </button>
+            </t>
+            <t t-set-slot="control-panel-additional-actions">
+                <SignTemplateCustomCogMenu t-props="customCogMenuProps"/>
+                <SignTemplateHeaderTags t-props="templateHeaderTagsProps"/>
+            </t>
+            <t t-set-slot="control-panel-status-indicator">
+                <SignStatusIndicator
+                    signStatus="props.signStatus"
+                />
+            </t>
+        </ControlPanel>
+    </t>
+</templates>

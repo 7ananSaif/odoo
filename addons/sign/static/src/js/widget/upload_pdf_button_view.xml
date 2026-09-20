@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates>
+    <t t-name="sign.upload_pdf_button">
+        <input type="file" multiple="true" t-ref="uploadFileInput" accept="application/pdf, application/x-pdf, application/vnd.cups-pdf" 
+                class="o_sign_template_file_input o_input_file o_hidden" t-on-change.stop="onFileInputChange"/>
+        <a t-att-class="props.btnClass" type="object" t-on-click="() => this.onClickUpload('sign_send_request')">
+            <t t-out="this.props.title"/>
+        </a>
+    </t>
+</templates>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_es_reports_trial_balance" model="account.report">
+        <field name="name">Trial Balance with Period Balance</field>
+        <field name="name@es">Balance de Sumas y Saldos</field>
+        <field name="country_id" ref="base.es"/>
+        <field name="root_report_id" ref="account_reports.trial_balance_report"/>
+        <field name="custom_handler_model_id" ref="account_reports.model_account_trial_balance_report_handler"/>
+        <field name="column_ids">
+            <record id="l10n_es_reports_trial_balance_debit" model="account.report.column">
+                <field name="name">Debit</field>
+                <field name="name@es">Débito</field>
+                <field name="expression_label">debit</field>
+            </record>
+            <record id="l10n_es_reports_trial_balance_credit" model="account.report.column">
+                <field name="name">Credit</field>
+                <field name="name@es">Crédito</field>
+                <field name="expression_label">credit</field>
+            </record>
+            <record id="l10n_es_reports_trial_balance_balance" model="account.report.column">
+                <field name="name">Period Total</field>
+                <field name="name@es">Período Total</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="l10n_es_reports_trial_balance_all" model="account.report.line">
+                <field name="name">Trial Balance</field>
+                <field name="name@es">Balance general</field>
+                <field name="code">TB</field>
+                <field name="groupby">account_id</field>
+                <field name="foldable" eval="False"/>
+                <field name="expression_ids">
+                    <record id="l10n_es_reports_trial_balance_all_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">custom</field>
+                        <field name="auditable">True</field>
+                        <field name="formula">_report_custom_engine_trial_balance</field>
+                        <field name="subformula">balance</field>
+                    </record>
+                    <record id="l10n_es_reports_trial_balance_all_debit" model="account.report.expression">
+                        <field name="label">debit</field>
+                        <field name="engine">custom</field>
+                        <field name="auditable">True</field>
+                        <field name="formula">_report_custom_engine_trial_balance</field>
+                        <field name="subformula">debit</field>
+                    </record>
+                    <record id="l10n_es_reports_trial_balance_all_credit" model="account.report.expression">
+                        <field name="label">credit</field>
+                        <field name="engine">custom</field>
+                        <field name="auditable">True</field>
+                        <field name="formula">_report_custom_engine_trial_balance</field>
+                        <field name="subformula">credit</field>
+                    </record>
+                </field>
+            </record>
+        </field>
+    </record>
+</odoo>

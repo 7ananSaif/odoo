@@ -1,0 +1,387 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* l10n_be_intervat
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-11-25 09:39+0000\n"
+"PO-Revision-Date: 2025-11-25 09:39+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,help:l10n_be_intervat.field_res_company__l10n_be_intervat_mode
+#: model:ir.model.fields,help:l10n_be_intervat.field_res_config_settings__l10n_be_intervat_mode
+msgid ""
+"\n"
+"            - Production: Connected to the Intervat API in production mode\n"
+"            - Test: Connected to the Intervat API in test mode\n"
+"            - Disabled: Disconnected from the Intervat server\n"
+"        "
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model,name:l10n_be_intervat.model_account_return
+msgid "Accounting Return"
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/res_company.py:0
+msgid "An error has occurred when trying to verify your subscription."
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/controllers/main.py:0
+msgid "Authentication Failed"
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/controllers/main.py:0
+msgid "Authentication Successful"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model,name:l10n_be_intervat.model_l10n_be_reports_vat_return_lock_wizard
+msgid "Belgian Periodic VAT Report Lock Wizard"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model,name:l10n_be_intervat.model_l10n_be_tax_report_handler
+msgid "Belgian Tax Report Custom Handler"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model,name:l10n_be_intervat.model_certificate_certificate
+msgid "Certificate"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model,name:l10n_be_intervat.model_res_company
+msgid "Companies"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model,name:l10n_be_intervat.model_res_config_settings
+msgid "Config Settings"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_vat_declaration__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_vat_declaration__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields.selection,name:l10n_be_intervat.selection__res_company__l10n_be_intervat_mode__disabled
+msgid "Disabled"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_account_return__display_name
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_certificate_certificate__display_name
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_reports_vat_return_lock_wizard__display_name
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_tax_report_handler__display_name
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_vat_declaration__display_name
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_company__display_name
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/controllers/main.py:0
+msgid "Error"
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/res_company.py:0
+msgid "Error while generating the certificate."
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model_terms:ir.ui.view,arch_db:l10n_be_intervat.l10n_be_intervat_account_return_kanban_view
+msgid "Fetch from Intervat"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_account_return__id
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_certificate_certificate__id
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_reports_vat_return_lock_wizard__id
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_tax_report_handler__id
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_vat_declaration__id
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_company__id
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_config_settings__id
+msgid "ID"
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/res_company.py:0
+msgid ""
+"If you just submitted your declaration, you might need to wait until "
+"tomorrow to fetch the documents. You can still retrieve them from the "
+"Intervat Portal."
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/res_company.py:0
+msgid "Impossible to check the response signature."
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model_terms:ir.ui.view,arch_db:l10n_be_intervat.res_config_settings_view_form
+msgid "Intervat"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_company__l10n_be_intervat_client_id
+msgid "Intervat Client ID"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_company__l10n_be_intervat_certificate_id
+msgid "Intervat JWT Certificate"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_company__l10n_be_intervat_private_key
+msgid "Intervat Private Key"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_company__l10n_be_intervat_mode
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_config_settings__l10n_be_intervat_mode
+msgid "Intervat Server Mode"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_config_settings__l10n_be_intervat_ecb
+msgid "Intervat VAT number"
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/res_company.py:0
+msgid "Intervat is not activated. You can activate it in the settings."
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_company__l10n_be_intervat_access_token
+msgid "L10N Be Intervat Access Token"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_company__l10n_be_intervat_code_challenge
+msgid "L10N Be Intervat Code Challenge"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_company__l10n_be_intervat_code_verifier
+msgid "L10N Be Intervat Code Verifier"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_certificate_certificate__l10n_be_intervat_jwk_kid
+msgid "L10N Be Intervat Jwk Kid"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_certificate_certificate__l10n_be_intervat_jwk_token
+msgid "L10N Be Intervat Jwk Token"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_company__l10n_be_intervat_last_call_date
+msgid "L10N Be Intervat Last Call Date"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_res_company__l10n_be_intervat_refresh_token
+msgid "L10N Be Intervat Refresh Token"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_vat_declaration__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_vat_declaration__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/account_report.py:0
+msgid "No VAT declaration found for this period."
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_vat_declaration__pdf_ref
+msgid "Pdf Ref"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields.selection,name:l10n_be_intervat.selection__res_company__l10n_be_intervat_mode__prod
+msgid "Production"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_reports_vat_return_lock_wizard__is_rectification_needed
+#: model_terms:ir.ui.view,arch_db:l10n_be_intervat.intervat_vat_return_lock_wizard
+msgid "Rectification"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_vat_declaration__rectification_declaration_id
+msgid "Rectification Declaration"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_reports_vat_return_lock_wizard__rectification_ref
+msgid "Reference"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,help:l10n_be_intervat.field_l10n_be_reports_vat_return_lock_wizard__rectification_ref
+msgid ""
+"Reference of the declaration to correct (Declaration No. - VAT No. - Period)"
+" that is available in Intervat."
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model,name:l10n_be_intervat.model_l10n_be_vat_declaration
+msgid "Represents a declaration sent through the Intervat API"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_vat_declaration__return_id
+msgid "Return"
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/controllers/main.py:0
+msgid "Send your declaration now."
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model_terms:ir.ui.view,arch_db:l10n_be_intervat.res_config_settings_view_form
+msgid "Server Mode"
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/res_company.py:0
+msgid "Set Intervat mode"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model_terms:ir.ui.view,arch_db:l10n_be_intervat.res_config_settings_view_form
+msgid "Submit and fetch your VAT returns via Intervat using the API."
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields.selection,name:l10n_be_intervat.selection__res_company__l10n_be_intervat_mode__test
+msgid "Test"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,help:l10n_be_intervat.field_res_config_settings__l10n_be_intervat_ecb
+msgid ""
+"The Tax Identification Number. Values here will be validated based on the "
+"country format. You can use '/' to indicate that the partner is not subject "
+"to tax."
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/res_company.py:0
+msgid "The signature of the JWT is not matching."
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/res_company.py:0
+msgid "The token is not valid yet."
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model_terms:ir.ui.view,arch_db:l10n_be_intervat.res_config_settings_view_form
+msgid "VAT Number"
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/account_return.py:0
+msgid ""
+"VAT return of period %(date_from)s -> %(date_to)s has been sent with the "
+"following references"
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_vat_declaration__xml_ref
+msgid "Xml Ref"
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/res_company.py:0
+msgid "You do not have an Odoo Enterprise subscription."
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/res_company.py:0
+msgid "You reached the call limit. Please try again in a moment."
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/res_company.py:0
+msgid "Your database UUID does not exist."
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/res_company.py:0
+msgid "Your database is not used for a production environment."
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/models/res_company.py:0
+msgid "Your database is not yet activated."
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/controllers/main.py:0
+msgid "Your declaration has been fetched."
+msgstr ""
+
+#. module: l10n_be_intervat
+#. odoo-python
+#: code:addons/l10n_be_intervat/controllers/main.py:0
+msgid "Your declaration has been sent."
+msgstr ""
+
+#. module: l10n_be_intervat
+#: model:ir.model.fields,field_description:l10n_be_intervat.field_l10n_be_vat_declaration__declaration_file
+msgid "ZIP File"
+msgstr ""

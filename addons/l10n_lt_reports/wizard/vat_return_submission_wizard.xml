@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="l10n_lt_reports_vat_return_submission_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_lt_reports.vat.return.submission.wizard.form</field>
+            <field name="model">l10n_lt_reports.vat.return.submission.wizard</field>
+            <field name="inherit_id" ref="account_reports.return_submission_wizard_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="instructions" position="replace">
+                    <group id="instructions">
+                        <ol colspan="2">
+                            <li>
+                                <div class="d-inline-block align-top">
+                                    <span>Download the VAT statement</span><br/>
+                                    <button string='Download XML' name="print_xml" type="object" class="btn-secondary"/>
+                                </div>
+                            </li>
+                            <li>Log in to <a href="https://www.vmi.lt/evmi/" target="_blank">VMI</a> using your electronic ID</li>
+                            <li>Find the i.SAF</li>
+                            <li>Upload the XML file from your computer and click "Submit"</li>
+                            <li>Validate the VAT return</li>
+                        </ol>
+                    </group>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

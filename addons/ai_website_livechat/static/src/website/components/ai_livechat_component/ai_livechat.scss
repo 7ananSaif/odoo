@@ -1,0 +1,96 @@
+.o_ai_livechat_message_content {
+    p {
+        margin-bottom: 0 !important;
+    }
+}
+
+.o_show_on_message_hover {
+    visibility: hidden;
+}
+
+.o_ai_livechat_message_with_copy_button:hover {
+    .o_show_on_message_hover {
+        visibility: visible;
+    }
+}
+
+.s_ai_livechat {
+    .ai_website_livechat_form {
+        &:focus-within {
+            // Use BS default :focus rules but apply them on :focus-within to
+            // ensure that the wrapper is correctly focused.
+            color: $input-focus-color;
+            background-color: $input-focus-bg;
+            border-color: $input-focus-border-color;
+            outline: 0;
+            @if $enable-shadows {
+                @include box-shadow($input-box-shadow, $input-focus-box-shadow);
+            } @else {
+                box-shadow: $input-focus-box-shadow;
+            }
+        }
+
+        textarea {
+            background: inherit;
+            color: inherit;
+            padding: 0;
+            min-height: $input-font-size * $line-height-base;
+        }
+
+        .ai_website_livechat_form_button {
+            --btn-color: inherit;
+            --btn-disabled-opacity: 0.5;
+
+            &:not(:hover):not(.disabled) {
+                opacity: 0.8;
+            }
+        }
+    }
+
+    // ==== The full-screen chatter mode  is active
+    &.s_ai_livechat_fullscreen {
+        padding-top: 0!important; // override user settings
+        padding-bottom: 0!important;
+
+        .o_ai_livechat_container {
+            transition: all .6s ease-in-out;
+        }
+
+        .o_ai_livechat_container {
+            --o_ai_livechat_gap: #{map-get($spacers, 2)};
+
+            min-height: calc(100dvh - calc(var(--o_ai_livechat_gap) * 2));
+            padding-top: var(--o_ai_livechat_gap);
+            padding-bottom: var(--o_ai_livechat_gap);
+
+            @include media-breakpoint-up(lg) {
+                --o_ai_livechat_gap: #{map-get($spacers, 3)};
+            }
+            @include media-breakpoint-up(xl) {
+                --o_ai_livechat_gap: #{map-get($spacers, 4)};
+            }
+
+            .ai_livechat_component {
+                display: flex;
+                flex-direction: column;
+                flex-grow: 1;
+            }
+
+            .o_ai_livechat_form_container_sticky {
+                bottom: var(--o_ai_livechat_gap);
+            }
+        }
+
+        .o_we_shape {
+            // Decrease but keep visible any background shape
+            opacity: .4;
+        }
+    }
+
+    // ==== Edit Mode
+    .ai_livechat_component > br {
+        // Hide editor elements suggesting user edition is places where we don't
+        // want to.
+        display: none;
+    }
+}

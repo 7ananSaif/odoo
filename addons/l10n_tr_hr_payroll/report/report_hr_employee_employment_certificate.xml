@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_employment_certificate" model="ir.actions.report">
+        <field name="name">Certificate of Employment</field>
+        <field name="model">hr.employee</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_tr_hr_payroll.report_emp_employement_cert</field>
+        <field name="report_file">l10n_tr_hr_payroll.report_emp_employement_cert</field>
+        <field name="print_report_name">'Certificate of Employment - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="hr.model_hr_employee"/>
+        <field name="binding_type">report</field>
+        <field name="domain" eval="[('company_id.country_code', '=', 'TR')]"/>
+    </record>
+</odoo>

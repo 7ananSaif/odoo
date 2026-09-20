@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Workcenter views-->
+    <record id="mrp_workcenter_view_form_iot" model="ir.ui.view">
+        <field name="name">mrp.workcenter.form.iot</field>
+        <field name="model">mrp.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_workcenter_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="IoT Triggers" name="iot_triggers">
+                    <field name="trigger_ids">
+                        <list editable="top">
+                            <field name="sequence" widget="handle"/>
+                            <field name="device_id"/>
+                            <field name="key"/>
+                            <field name="action"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="iot_device_view_form" model="ir.ui.view">
+        <field name="name">iot.device.view.form.inherit.mrp.workorder.iot</field>
+        <field name="model">iot.device</field>
+        <field name="inherit_id" ref="iot.iot_device_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <page string="IoT Triggers" name="iot_triggers" invisible="type != 'keyboard'">
+                    <field name="trigger_ids">
+                        <list>
+                            <field name="workcenter_id"/>
+                            <field name="key"/>
+                            <field name="action"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

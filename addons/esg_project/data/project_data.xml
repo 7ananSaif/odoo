@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="esg_project_stage_0" model="project.task.type">
+            <field name="sequence">10</field>
+            <field name="name">Ideas 🌱</field>
+        </record>
+
+        <record id="esg_project_stage_1" model="project.task.type">
+            <field name="sequence">20</field>
+            <field name="name">In Progress 🌳</field>
+        </record>
+
+        <record id="esg_project_stage_2" model="project.task.type">
+            <field name="sequence">30</field>
+            <field name="name">Done 🌳🌲</field>
+        </record>
+
+        <record id="esg_project_project_0" model="project.project" context="{'default_allow_billable': False, 'default_allow_timesheets': False}">
+            <field name="name">Initiatives</field>
+            <field name="type_ids" eval="[(4, ref('esg_project_stage_0')), (4, ref('esg_project_stage_1')), (4, ref('esg_project_stage_2'))]"/>
+            <field name="task_properties_definition">[{"name": "59354fc8ddc4d325", "type": "float", "string": "Reduced Emissions (kgCO²e)", "default": 0}]</field>
+        </record>
+    </data>
+</odoo>

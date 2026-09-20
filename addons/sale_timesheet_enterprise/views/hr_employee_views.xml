@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_employee_form" model="ir.ui.view">
+        <field name="name">view.employee.form.inherit.hr.employee.billable.time.target</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <group name="contract" position="after">
+                <field name="show_billable_time_target" invisible="1"/>
+                <group name="timesheets" string="Timesheets" invisible="not show_billable_time_target" groups="hr_timesheet.group_hr_timesheet_user">
+                    <span class="o_wrap_label" >
+                        <label for="billable_time_target"/>
+                    </span>
+                    <span class="d-flex w-50" name="billable_time_target">
+                        <field name="billable_time_target" widget="timesheet_uom_no_toggle"/>
+                        <span class="m-14 w-100">per month</span>
+                    </span>
+                </group>
+            </group>
+        </field>
+    </record>
+
+    <record id="sale_timesheet_employee_list_inherit" model="ir.ui.view">
+        <field name="name">sale.timesheet.employee.list.inherit</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.hr_employee_list_view"></field>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="open_form_view">True</attribute>
+            </xpath>
+            <xpath expr="//field[@name='parent_id']" position="after">
+                <field name="timesheet_manager_id" optional="hide" string="Timesheet Approver" widget="many2one_avatar_user"/>
+            </xpath>
+            <xpath expr="//field[@name='resource_calendar_id']" position="after">
+                <field string="Monthly Billing Time Target" name="billable_time_target" widget="timesheet_uom_no_toggle" avg="Average"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_open_view_employee" model="ir.actions.act_window">
+        <field name="name">Employees</field>
+        <field name="path">employee-timesheet</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('company_id', 'in', allowed_company_ids)]</field>
+        <field name="context">{'chat_icon': True}</field>
+        <field name="view_id" ref="hr.hr_employee_list_view"/>
+        <field name="search_view_id" ref="hr.view_employee_filter"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No employees found
+            </p><p>
+                Set a billing time target for employees whose timesheets you approve.
+            </p>
+        </field>
+    </record>
+</odoo>

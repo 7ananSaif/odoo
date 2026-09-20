@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <t t-name="hr_appraisal.HrEmployeeSelection.buttons" t-inherit="web.ListView.Buttons" t-inherit-mode="primary">
+        <xpath expr="." position="inside">
+            <button class="btn btn-primary" t-on-click="onSelect" t-att-disabled="!hasSelectedRecords">
+                Add Goals to Employees
+            </button>
+            <button type="button" class="btn btn-secondary" t-on-click.stop="onClose">Discard</button>
+        </xpath>
+    </t>
+</odoo>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <div t-name="spreadsheet_edition.RelationFilterEditorSidePanel" class="o_spreadsheet_filter_editor_side_panel">
+        <Section title.translate="Label">
+            <TextInput
+                placeholder="store.labelPlaceholder"
+                class="'o_global_filter_label' + (store.missingLabelError ? ' o_field_invalid' : '')"
+                value="store.filter.label"
+                onChange.bind="setLabel"
+                autofocus="true"
+            />
+        </Section>
+        <t t-if="store.isValid">
+            <div class="o-section o_side_panel_related_model">
+                <div class="o-section-title">Related model</div>
+                <div t-att-class="missingModel ? 'o_field_invalid' : ''" class="mb-2">
+                    <ModelSelector
+                        value="store.relationModelLabel"
+                        onModelSelected.bind="onModelSelected"
+                    />
+                </div>
+            </div>
+            <t t-if="store.filter.modelName and store.filter.modelName !== store.relationModelLabel">
+                <div class="o-section">
+                    <div class="o-section-title">Default value</div>
+                    <div class="pivot_filter_input" t-if="store.filter.defaultValue?.ids !== 'current_user'">
+                        <MultiRecordSelector
+                            resModel="store.filter.modelName"
+                            resIds="store.filter.defaultValue?.ids ?? []"
+                            t-key="store.filter.modelName"
+                            placeholder="''"
+                            domain="store.evaluatedDomain"
+                            update.bind="onValuesSelected"
+                        />
+                    </div>
+                    <div t-if="store.isResUserRelation" class="o-checkbox mt-2">
+                        <Checkbox
+                            name="'user_automatic_filter'"
+                            label.translate="Automatically filter on the current user"
+                            value="store.filter.defaultValue?.ids === 'current_user'"
+                            onChange.bind="toggleDefaultsToCurrentUser"
+                        />
+                    </div>
+                </div>
+                <Section title.translate="Possible values">
+                    <Checkbox
+                        className="'mb-1'"
+                        label.translate="Restrict values with a domain"
+                        onChange.bind="toggleDomainRestriction"
+                        value="state.domainRestriction"
+                    />
+                    <SidePanelDomain
+                        t-if="state.domainRestriction"
+                        resModel="store.filter.modelName"
+                        domain="store.filter.domainOfAllowedValues or '[]'"
+                        onUpdate.bind="onDomainUpdate"
+                    />
+                </Section>
+            </t>
+            <t t-if="store.shouldDisplayFieldMatching">
+                <SidePanelCollapsible isInitiallyCollapsed="!store.isNew" title.translate="Field matching">
+                    <t t-set-slot="content">
+                        <Section class="'pt-0'">
+                            <FilterEditorFieldMatching
+                                fieldMatchings="store.fieldsMatching"
+                                selectField.bind="store.updateFieldMatching"
+                                filterModelFieldSelectorField="(field, path) => this.store.filterModelFieldSelectorField(field, path, store.filter.modelName)"
+                            />
+                        </Section>
+                    </t>
+                </SidePanelCollapsible>
+            </t>
+        </t>
+        <Section t-else="1">
+            <ValidationMessages messages="[invalidModel]" msgType="'error'"/>
+        </Section>
+        <GlobalFilterFooter t-props="footerProps"/>
+    </div>
+</templates>

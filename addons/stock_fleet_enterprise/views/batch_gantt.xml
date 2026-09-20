@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <record id="stock_picking_batch_view_kanban" model="ir.ui.view">
+        <field name="name">stock.picking.batch.view.kanban</field>
+        <field name="model">stock.picking.batch</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile oe_stock_picking_batch" sample="1">
+                <field name="company_id"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex">
+                            <field name="name" class="fw-bolder fs-5"/>
+                            <field name="state" widget="label_selection" class="ms-auto"/>
+                        </div>
+                        <footer class="d-flex flex-column gap-2 mt-1">
+                            <div class="d-flex w-100 justify-content-between">
+                                <field name="dock_id" invisible="not dock_id"/>
+                                <field name="user_id" widget="many2one_avatar_user" readonly="state not in ['draft', 'in_progress']"/>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <field name="scheduled_date" readonly="state in ['cancel', 'done']" class="me-2"/>
+                                <span class="mx-2">
+                                    <i class="fa fa-long-arrow-right mx-2" title="Arrow"></i>
+                                </span>
+                                <field name="end_date" readonly="state in ['cancel', 'done']"/>
+                            </div>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="view_stock_picking_batch_gantt" model="ir.ui.view">
+            <field name="name">stock.picking.batch.gantt</field>
+            <field name="model">stock.picking.batch</field>
+            <field name="arch" type="xml">
+                <gantt string="Dispatches"
+                    decoration-info="state == 'draft'"
+                    date_start="scheduled_date"
+                    date_stop="end_date"
+                    default_group_by="picking_type_id,dock_id"
+                    color="vehicle_id"
+                    total_row="True"
+                    default_scale="week"
+                    create="0" delete="0" sample="1"
+                    pill_label="True"
+                    kanban_view_id="%(stock_fleet_enterprise.stock_picking_batch_view_kanban)d"
+                    >
+                    <field name="scheduled_date"/>
+                    <field name="state"/>
+                    <field name="user_id"/>
+                    <field name="driver_id"/>
+
+                    <templates>
+                        <div t-name="gantt-popover" class="container-fluid">
+                            <footer>
+                                <button name="action_open_batch_from_gantt_view" type="object" string="Edit" class="btn btn-sm btn-primary"/>
+                            </footer>
+                        </div>
+                    </templates>
+
+                </gantt>
+            </field>
+    </record>
+
+    <record id="stock_picking_batch.stock_picking_batch_action" model="ir.actions.act_window">
+        <field name="view_mode">list,kanban,form,gantt,graph,pivot,calendar</field>
+    </record>
+</odoo>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- VAT return -->
+        <record id="partner_fps_belgium" model="res.partner">
+            <field name="name">VAT Revenue Services</field>
+            <field name="name@fr">SPF Fin TVA Recettes-CTI</field>
+            <field name="name@nl">BTW ontvangsten Brussel</field>
+        </record>
+
+        <data noupdate="1">
+            <record id="fps_vat_current_account" model="res.partner.bank">
+                <field name="acc_number">BE22679200300047</field>
+                <field name="partner_id" ref="partner_fps_belgium"/>
+                <field name="allow_out_payment">True</field>
+            </record>
+        </data>
+
+        <record id="be_vat_return_type" model="account.return.type">
+            <field name="name">VAT</field>
+            <field name="report_id" ref="l10n_be.tax_report_vat"/>
+            <field name="country_id" ref="base.be" />
+            <field name="payment_partner_bank_id" ref="l10n_be_reports.fps_vat_current_account"/>
+        </record>
+
+        <!-- VAT listing -->
+        <record id="be_vat_listing_return_type" model="account.return.type">
+            <field name="name">VAT Listing</field>
+            <field name="report_id" ref="l10n_be_reports.l10n_be_partner_vat_listing"/>
+            <field name="country_id" ref="base.be" />
+            <field name="default_deadline_periodicity">year</field>
+            <field name="states_workflow">generic_state_review_submit</field>
+        </record>
+
+        <!-- EC sales list -->
+        <record id="be_ec_sales_list_return_type" model="account.return.type">
+            <field name="name">EC Sales List</field>
+            <field name="report_id" ref="l10n_be_reports.belgian_ec_sales_report"/>
+            <field name="country_id" ref="base.be"/>
+            <field name="auto_generate" eval="False"/>
+        </record>
+
+        <!-- ISOC Prepayment-->
+        <record id="partner_centre_de_perception_belgium" model="res.partner">
+            <field name="name">Collection Center - Advance Payment Service</field>
+            <field name="name@fr">SPF Finances - AGPR Versements anticipés</field>
+            <field name="name@nl">Inningscentrum - Dienst voorafbetalingen</field>
+        </record>
+
+        <data noupdate="1">
+            <record id="centre_de_perception_current_account" model="res.partner.bank">
+                <field name="acc_number">BE61679200229117</field>
+                <field name="partner_id" ref="partner_centre_de_perception_belgium"/>
+                <field name="allow_out_payment">True</field>
+            </record>
+        </data>
+
+        <record id="be_isoc_prepayment_return_type" model="account.return.type">
+            <field name="name">Advance Payment</field>
+            <field name="name@nl">Voorafbetaling</field>
+            <field name="name@fr">Versement anticipé</field>
+            <field name="name@de">Vorauszahlung</field>
+            <field name="default_deadline_periodicity">trimester</field>
+            <field name="country_id" ref="base.be" />
+            <field name="payment_partner_bank_id" ref="l10n_be_reports.centre_de_perception_current_account"/>
+            <field name="states_workflow">generic_state_only_pay</field>
+        </record>
+
+        <!-- Audit (BE) -->
+        <record id="l10n_be_audit_return_type" model="account.return.type">
+            <field name="name">Audit (BE)</field>
+            <field name="category">audit</field>
+            <field name="country_id" ref="base.be"/>
+            <field name="default_deadline_periodicity">year</field>
+        </record>
+    </data>
+</odoo>

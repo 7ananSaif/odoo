@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="eu_oss_sales_tax_return_type" model="account.return.type">
+            <field name="name">OSS Sales Return (CG)</field>
+            <field name="default_deadline_periodicity">trimester</field>
+            <field name="report_id" ref="l10n_eu_oss_reports.oss_sales_report"/>
+            <field name="auto_generate" eval="False"/>
+        </record>
+
+        <record id="eu_oss_imports_tax_return_type" model="account.return.type">
+            <field name="name">OSS Imports Return (CG)</field>
+            <field name="default_deadline_periodicity">monthly</field>
+            <field name="report_id" ref="l10n_eu_oss_reports.oss_imports_report"/>
+            <field name="auto_generate" eval="False"/>
+        </record>
+    </data>
+</odoo>

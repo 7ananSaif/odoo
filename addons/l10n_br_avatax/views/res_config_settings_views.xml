@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.account.l10n.br.avatax</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='account']/block" position="after">
+                <block title="AvaTax Brazil" id="brazil_avatax" invisible="country_code != 'BR'">
+                    <setting id="l10n_br_edi_avatax_steps_settings" string="AvaTax Configuration Steps"
+                             help="Steps to configure tax calculation &amp; electronic invoicing"
+                             documentation="/applications/finance/fiscal_localizations/brazil.html#configure-avatax-integration">
+                        <div class="text-muted">
+                            <p class="m-0">Set up to calculate taxes and issue electronic invoices with Avalara AvaTax Brazil.</p>
+                            <ul>
+                                <li>
+                                    The Avatax portal email is used to create an Avalara account from Odoo. Complete the account setup in the
+                                    <t invisible="l10n_br_avalara_environment != 'sandbox'">
+                                        <a target="_blank" href="https://portal.sandbox.avalarabrasil.com.br">sandbox Avalara portal</a>.
+                                    </t>
+                                    <t invisible="l10n_br_avalara_environment != 'production'">
+                                        <a target="_blank" href="https://portal.avalarabrasil.com.br">Avalara portal</a>.
+                                    </t>
+                                    Click <i>Meu primeiro acesso</i>, enter the email used here, and request a password.
+                                </li>
+                                <li>Accounts in sandbox and production are independent. Create a new account in each environment when needed. It is not recommended to use sandbox credentials on a production database.</li>
+                                <li>Finish the Avalara setup before using Odoo.</li>
+                                <li>See <a target="_blank" href="https://www.odoo.com/documentation/latest/applications/finance/fiscal_localizations/brazil.html">the Odoo documentation</a> for detailed setup instructions and the onboarding process.</li>
+                            </ul>
+                        </div>
+                    </setting>
+                    <setting id="l10n_br_edi_avatax_credentials_settings" string="AvaTax Credentials"
+                             help="Set up your AvaTax account"
+                             documentation="/applications/finance/fiscal_localizations/brazil.html#configure-avatax-integration"
+                             company_dependent="1">
+                        <div class="content-group">
+                            <field name="l10n_br_avatax_api_identifier" invisible="1"/>
+                            <field name="l10n_br_avatax_api_key" invisible="1"/>
+                            <div class="row">
+                                <label string="Environment" for="l10n_br_avalara_environment"
+                                       class="col-lg-3 o_light_label"/>
+                                <field name="l10n_br_avalara_environment"/>
+                            </div>
+                            <div class="row">
+                                <field name="l10n_br_avatax_show_overwrite_warning" invisible="1"/>
+                                <label string="Avatax Portal Email" for="l10n_br_avatax_portal_email"
+                                       class="col-lg-3 o_light_label"/>
+                                <field name="l10n_br_avatax_portal_email"/>
+                                <div class="mt16">
+                                    <button name="create_account" type="object" class="btn-link" noSaveDialog="1"
+                                            invisible="not l10n_br_avatax_show_overwrite_warning"
+                                            groups="base.group_no_one"
+                                            confirm="Creating a new account will permanently remove your current Avatax account from Odoo, but it won't delete the account on the Avatax side. Do you wish to proceed?">
+                                        <i title="Create a new account" role="img" aria-label="Create a new account"
+                                           class="fa fa-plug fa-fw"/>
+                                        Create a new account
+                                    </button>
+                                    <button name="create_account" type="object" class="btn-link" noSaveDialog="1"
+                                            invisible="l10n_br_avatax_show_overwrite_warning or not l10n_br_avatax_show_existing_account_warning"
+                                            confirm="Warning: An Avalara account already exists in this database. Creating a new one may cause issues when issuing electronic invoices if credentials or certificates are linked incorrectly. Only continue if you intend to manage separate Avalara accounts per company (e.g., with different IT teams). Otherwise, it is recommended to add your company to the existing Avalara account.">
+                                        <i title="Create account" role="img" aria-label="Create account"
+                                           class="fa fa-plug fa-fw"/>
+                                        Create account
+                                    </button>
+                                    <button name="create_account" type="object" class="btn-link" noSaveDialog="1"
+                                            invisible="l10n_br_avatax_show_overwrite_warning or l10n_br_avatax_show_existing_account_warning">
+                                        <i title="Create account" role="img" aria-label="Create account"
+                                           class="fa fa-plug fa-fw"/>
+                                        Create account
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="mt16"
+                                 invisible="l10n_br_avatax_api_identifier in (False, '') or l10n_br_avatax_api_key in (False, '')">
+                                <button name="button_l10n_br_avatax_ping" type="object" class="btn-link">
+                                    <i title="Test connection" role="img" aria-label="Test connection"
+                                       class="fa fa-plug fa-fw"/>
+                                    Test connection
+                                </button>
+                            </div>
+                            <div class="mt16">
+                                <button name="button_l10n_br_avatax_log" type="object" class="btn-link">
+                                    <i title="Start logging for 30 minutes" role="img"
+                                       aria-label="Start logging for 30 minutes" class="fa fa-file-text-o"/>
+                                    Start logging for 30 minutes
+                                </button>
+                                <button name="l10n_br_avatax.ir_logging_avalara_action" type="action" class="btn-link">
+                                    <i title="Show logs" role="img" aria-label="Show logs" class="fa fa-file-text-o"/>
+                                    Show logs
+                                </button>
+                            </div>
+                        </div>
+                        <div groups="base.group_no_one">
+                            <span class="o_form_label">Transfer Avalara API credentials</span>
+                            <div class="text-muted">
+                                Use this only when you already created an Avalara account in another Odoo database or company and wish to reuse it.
+                            </div>
+                            <div class="content-group">
+                                <div class="row">
+                                    <label string="API ID" for="l10n_br_avatax_api_identifier"
+                                           class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_br_avatax_api_identifier"/>
+                                </div>
+                                <div class="row">
+                                    <label string="API Key" for="l10n_br_avatax_api_key" class="col-lg-3 o_light_label"/>
+                                    <field name="l10n_br_avatax_api_key"/>
+                                </div>
+                            </div>
+                        </div>
+                    </setting>
+                    <setting id="l10n_br_edi_avatax_company_configuration_settings" string="AvaTax Company Configuration"
+                             help="Configure your company to work with AvaTax"
+                             documentation="/applications/finance/fiscal_localizations/brazil.html#configure-avatax-integration"
+                             company_dependent="1">
+                        <div class="content-group">
+                            <div class="row" title="Main CNAE code registered with the government.">
+                                <label string="CNAE Code" for="l10n_br_cnae_code_id"
+                                       class="col-lg-3 o_light_label"/>
+                                <field name="l10n_br_cnae_code_id" class="w-50"/>
+                            </div>
+                            <field name="l10n_br_tax_regime" invisible="1"/>
+                            <div class="row" title="This only applies if you are a simplified tax regime company."
+                                 invisible="l10n_br_tax_regime != 'simplified'">
+                                <label for="l10n_br_icms_rate" class="col-lg-3 o_light_label"/>
+                                <field name="l10n_br_icms_rate" class="w-50"/>
+                            </div>
+                            <div class="d-flex mt4 align-items-center">
+                                <button name="button_l10n_br_avatax_open_company_partner" type="object" icon="oi-arrow-right" string="Configure your company" class="btn-link"/>
+                            </div>
+                        </div>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

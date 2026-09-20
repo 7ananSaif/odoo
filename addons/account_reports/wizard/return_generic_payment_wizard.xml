@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="return_generic_payment_wizard_form" model="ir.ui.view">
+        <field name="name">account.return.payment.wizard.form</field>
+        <field name="model">account.return.payment.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Pay">
+                <h2>
+                    <group>
+                        <field name="currency_id" invisible="1"/>
+                        <field name="amount_to_pay" readonly="1"/>
+                    </group>
+                </h2>
+                <footer>
+                    <button name="action_mark_as_paid" string="Mark Paid" type="object" class="btn-primary" data-hotkey="q"/>
+                    <button name="action_send_email_instructions" string="Send" type="object" class="btn-secondary" data-hotkey="s"/>
+                    <button string="Discard" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+           </form>
+        </field>
+    </record>
+</odoo>

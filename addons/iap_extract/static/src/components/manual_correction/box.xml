@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="iap_extract.Box">
+        <div
+            t-attf-class="o_extract_mixin_box
+                #{state.isHighlighted ? 'highlighted' : ''}
+                #{state.backgroundFadeout ? 'fadeout' : ''}"
+            t-att-data-id="state.id"
+            t-att-data-field-name="state.feature"
+            t-att-style="style"
+            t-on-click="onClick"
+            t-on-mousedown.stop.prevent=""
+        />
+    </t>
+    <t t-name="iap_extract.BoxLayer">
+        <div t-if="state.isSelecting" t-attf-class="o_extract_selection_box" t-att-style="selectionStyle" />
+
+        <div t-ref="boxLayer"
+             t-attf-class="o_extract_mixin_box_layer #{state.isSelecting ? 'is-selecting' : ''}"
+             t-att-style="style"
+             t-on-click.stop=""
+             t-on-mousedown.prevent="onMouseDown"
+             t-on-mouseup="onMouseUp"
+             t-on-mousemove="onMouseMove">
+            <t t-foreach="state.boxes" t-as="box" t-key="box.id">
+                <Box
+                    box="box"
+                    pageWidth="pageWidth"
+                    pageHeight="pageHeight"
+                    onClickBoxCallback="props.onClickBoxCallback"
+                />
+            </t>
+        </div>
+    </t>
+</templates>

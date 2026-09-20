@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="knowledge.SidebarSection">
+        <section
+            t-attf-class="o_section #{sectionClass || ''}"
+            t-att-class="{'folded': state.isFolded}"
+            t-att-data-section="getSectionIdentifier()">
+            <div class="o_section_header d-flex align-items-center mb-0">
+                <div class="o_section_header_label flex-grow-1 align-content-center text-muted text-truncate cursor-pointer"
+                    t-out="sectionName"
+                    t-on-click="toggleSidebarSection"
+                    title="Fold/unfold the section"/>
+                <t t-out="headerButtons"/>
+            </div>
+            <t t-if="!state.isFolded">
+                <ul t-if="props.rootIds.length" class="o_tree mb-2">
+                    <t t-foreach="props.rootIds" t-as="rootId" t-key="rootId">
+                        <KnowledgeSidebarRow article="env.getArticle(rootId)" unfolded="props.unfoldedIds.has(rootId)" unfoldedIds="props.unfoldedIds" record="props.record"/>
+                    </t>
+                </ul>
+                <t t-elif="noContentHelper" t-out="noContentHelper" />
+            </t>
+        </section>
+    </t>
+
+    <t t-name="knowledge.SidebarFavoriteSection">
+        <t t-call="knowledge.SidebarSection">
+            <t t-set="sectionName">Favorites</t>
+        </t>
+    </t>
+
+    <t t-name="knowledge.SidebarWorkspaceSection">
+        <t t-call="knowledge.SidebarSection">
+            <t t-set="sectionName">Workspace</t>
+            <t t-if="isInternalUser" t-set="headerButtons">
+                <a class="o_knowledge_join_article_members rounded p-1 opacity-75 opacity-100-hover text-muted"
+                    t-on-click="searchHiddenArticle" role="button" title="Join a hidden article">
+                    <i class="fa fa-fw fa-eye"/>
+                </a>
+                <a t-if="canCreateArticle" class="o_section_create rounded p-1 opacity-75 opacity-100-hover text-muted"
+                    t-on-click="createRoot" role="button" title="Create a new article in workspace">
+                    <i class="fa fa-fw fa-plus"/>
+                </a>
+            </t>
+            <t t-set="noContentHelper">
+                <div class="o_knowledge_empty_info text-muted">
+                    There are no Articles in your Workspace.
+                </div>
+            </t>
+        </t>
+    </t>
+
+    <t t-name="knowledge.SidebarSharedSection">
+        <t t-call="knowledge.SidebarSection" t-if="props.rootIds.length">
+            <t t-set="sectionName">Shared</t>
+        </t>
+    </t>
+
+    <t t-name="knowledge.SidebarPrivateSection">
+        <t t-call="knowledge.SidebarSection">
+            <t t-set="sectionName">Private</t>
+            <t t-set="sectionClass" t-value="'flex-fill'"/>
+            <t t-set="headerButtons">
+                <a t-if="canCreateArticle" class="o_section_create rounded p-1 opacity-75 opacity-100-hover text-muted"
+                    t-on-click="createRoot" role="button" title="Create a new private article">
+                    <i class="fa fa-fw fa-plus"/>
+                </a>
+            </t>
+            <t t-set="noContentHelper">
+                <div class="o_knowledge_empty_info text-muted">
+                    You have no private Article.
+                </div>
+            </t>
+        </t>
+    </t>
+</templates>

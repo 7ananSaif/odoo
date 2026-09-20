@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="appointment.AppointmentBookingActionHelper">
+        <div class="o_view_nocontent">
+            <div class="o_nocontent_help d-none d-sm-flex flex-column justify-content-center align-items-center rounded-circle p-5">
+                <div class="w-50">
+                    <t t-call="Appointment.appointment_svg"/>
+                </div>
+                <p>No Bookings Found</p>
+                <div class="px-5">
+                    <p>Share this appointment type via link or schedule an appointment manually</p>
+                    <button class="btn btn-primary mx-3" t-on-click="openShareDialog">Copy Link</button>
+                    <button class="btn btn-secondary" t-on-click="props.onNewClicked">Create Booking</button>
+                </div>
+            </div>
+        </div>
+    </t>
+</templates>

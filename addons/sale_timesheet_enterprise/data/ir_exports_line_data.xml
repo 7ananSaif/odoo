@@ -1,0 +1,37 @@
+<odoo>
+    <!-- Employee export template -->
+    <record id="employee_costs_billing_targets_export_template" model="ir.exports">
+        <field name="name">Employee Costs &amp; Billing Targets</field>
+        <field name="resource">hr.employee</field>
+    </record>
+
+    <record id="employee_costs_billing_targets_export_template_line_id" model="ir.exports.line">
+        <field name="export_id" ref="employee_costs_billing_targets_export_template"/>
+        <field name="name">id</field>
+    </record>
+
+     <record id="employee_costs_billing_targets_export_template_line_name" model="ir.exports.line">
+        <field name="export_id" ref="employee_costs_billing_targets_export_template"/>
+        <field name="name">name</field>
+    </record>
+
+    <record id="employee_costs_billing_targets_export_template_line_department_id" model="ir.exports.line">
+        <field name="export_id" ref="employee_costs_billing_targets_export_template"/>
+        <field name="name">department_id</field>
+    </record>
+
+    <record id="employee_costs_billing_targets_export_template_line_job_id" model="ir.exports.line">
+        <field name="export_id" ref="employee_costs_billing_targets_export_template"/>
+        <field name="name">job_id</field>
+    </record>
+
+    <record id="employee_costs_billing_targets_export_template_line_billable_time_target" model="ir.exports.line">
+        <field name="export_id" ref="employee_costs_billing_targets_export_template"/>
+        <field name="name">billable_time_target</field>
+    </record>
+
+    <record id="employee_costs_billing_targets_export_template_line_hourly_cost" model="ir.exports.line">
+        <field name="export_id" ref="employee_costs_billing_targets_export_template"/>
+        <field name="name">hourly_cost</field>
+    </record>
+</odoo>

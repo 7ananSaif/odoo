@@ -56,3 +56,6 @@ ignore_missing_imports = true
 # - `ruff check custom_addons/invoice_agent --config pyproject.toml`
 # - `ruff format custom_addons/invoice_agent --config pyproject.toml --check`
 # ruff check custom_addons/invoice_agent --config pyproject.toml; ruff format custom_addons/invoice_agent --config pyproject.toml --check; git status --short; git diff --stat
+
+# cd invoice-ai
+# ruff check app tests scripts --config pyproject.toml --fix

@@ -136,6 +136,6 @@ resource "aws_elasticache_replication_group" "redis" {
   }
 
   lifecycle {
-    prevent_destroy = true
+    prevent_destroy = false
   }
 }

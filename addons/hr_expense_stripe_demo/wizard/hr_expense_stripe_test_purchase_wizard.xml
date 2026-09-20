@@ -1,0 +1,35 @@
+<odoo>
+    <data>
+        <record id="hr_expense_stripe_test_purchase_wizard" model="ir.ui.view">
+            <field name="name">hr.expense.stripe.test.purchase.wizard.form</field>
+            <field name="model">hr.expense.stripe.test.purchase.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <group>
+                            <field name="card_currency_id" invisible="True"/> <!-- Needed for monetary widget -->
+                            <field name="merchant_name"/>
+                            <field name="merchant_country_id"/>
+                            <field name="amount_currency" widget="monetary"/>
+                            <field name="currency_id" options="{'can_create': False, 'can_edit': False, 'can_open': False}"/>
+                            <field name="authorization_method"/>
+                            <field name="mcc_id" options="{'can_edit': False, 'can_create': False, 'can_open': False}"/>
+                        </group>
+                        <group>
+                            <field name="atm_fee"/>
+                            <field name="cashback_amount" widget="monetary"/>
+                            <field name="capture"/>
+                            <field name="force_capture" invisible="not capture"/>
+                            <field name="capture_surcharge" invisible="not capture or force_capture"/>
+                            <field name="split_capture" invisible="not capture"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="action_test_purchase" class="btn btn-primary" type="object">Simulate Purchase</button>
+                        <button special="cancel" class="btn btn-secondary" type="object" string="Discard"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

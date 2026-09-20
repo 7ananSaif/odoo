@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<factura id="comprobante" version="1.1.0">
+    <infoTributaria>
+        <ambiente>1</ambiente>
+        <tipoEmision>1</tipoEmision>
+        <razonSocial>EMPRESA PRUEBA S.A.</razonSocial>
+        <nombreComercial>PRUEBA COMERCIAL</nombreComercial>
+        <ruc>1790012345001</ruc>
+        <claveAcceso>2025031801179001234500110010010000000011234567890</claveAcceso>
+        <codDoc>01</codDoc>
+        <estab>001</estab>
+        <ptoEmi>002</ptoEmi>
+        <secuencial>000000123</secuencial>
+        <dirMatriz>Av. Amazonas y Naciones Unidas, Quito</dirMatriz>
+    </infoTributaria>
+    <infoFactura>
+        <fechaEmision>19/03/2025</fechaEmision>
+        <dirEstablecimiento>Av. 10 de Agosto y Patria, Quito</dirEstablecimiento>
+        <contribuyenteEspecial>5368</contribuyenteEspecial>
+        <obligadoContabilidad>SI</obligadoContabilidad>
+        <tipoIdentificacionComprador>04</tipoIdentificacionComprador>
+        <razonSocialComprador>CLIENTE FICTIF S.A.</razonSocialComprador>
+        <identificacionComprador>0999999999001</identificacionComprador>
+        <totalSinImpuestos>1000.00</totalSinImpuestos>
+        <totalDescuento>50.00</totalDescuento>
+        <totalConImpuestos>
+            <totalImpuesto>
+                <codigo>2</codigo>
+                <codigoPorcentaje>2</codigoPorcentaje>
+                <baseImponible>950.00</baseImponible>
+                <valor>114.00</valor>
+            </totalImpuesto>
+        </totalConImpuestos>
+        <propina>0.00</propina>
+        <importeTotal>1064.00</importeTotal>
+        <moneda>USD</moneda>
+    </infoFactura>
+    <detalles>
+        <detalle>
+            <codigoPrincipal>test_product_1</codigoPrincipal>
+            <descripcion>Producto de prueba 1</descripcion>
+            <cantidad>5</cantidad>
+            <precioUnitario>200.00</precioUnitario>
+            <descuento>50.00</descuento>
+            <precioTotalSinImpuesto>950.00</precioTotalSinImpuesto>
+            <impuestos>
+                <impuesto>
+                    <codigo>2</codigo>
+                    <codigoPorcentaje>2</codigoPorcentaje>
+                    <tarifa>15</tarifa>
+                    <baseImponible>950.00</baseImponible>
+                    <valor>114.00</valor>
+                </impuesto>
+            </impuestos>
+        </detalle>
+        <detalle>
+            <codigoPrincipal>test_product_2</codigoPrincipal>
+            <descripcion>Producto de prueba 2</descripcion>
+            <cantidad>5</cantidad>
+            <precioUnitario>200.00</precioUnitario>
+            <descuento>50.00</descuento>
+            <precioTotalSinImpuesto>950.00</precioTotalSinImpuesto>
+            <impuestos>
+                <impuesto>
+                    <codigo>2</codigo>
+                    <codigoPorcentaje>2</codigoPorcentaje>
+                    <tarifa>15</tarifa>
+                    <baseImponible>950.00</baseImponible>
+                    <valor>114.00</valor>
+                </impuesto>
+            </impuestos>
+        </detalle>
+    </detalles>
+    <infoAdicional>
+        <campoAdicional nombre="E-MAIL">cliente@ejemplo.com</campoAdicional>
+        <campoAdicional nombre="Teléfono">0999999999</campoAdicional>
+        <campoAdicional nombre="Dirección">Av. República 123, Quito</campoAdicional>
+    </infoAdicional>
+</factura>

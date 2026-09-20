@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="due_account_move_list_view" model="ir.ui.view">
+        <field name="name">account.move.list</field>
+        <field name="model">account.move</field>
+        <field name="arch" type="xml">
+            <list string="Invoices">
+                <field name="currency_id" column_invisible="True"/>  <!-- Monetary field -->
+                <field name="name"/>
+                <field string="Invoice Date" name="invoice_date"/>
+                <field name="invoice_date_due" widget="remaining_days" optional="show" invisible="payment_state in ('paid', 'in_payment', 'reversed') or state == 'cancel'"/>
+                <field name="amount_total" sum="Amount total" widget="monetary" decoration-bf="1"/>
+                <field string="Due" name="pos_amount_unsettled" sum="Total due" widget="monetary"/>
+                <field name="payment_state" optional="show"
+                        decoration-info="payment_state in ('partial','in_payment')"
+                        decoration-success="payment_state == 'paid'"
+                        decoration-danger="payment_state in ('reversed','not_paid')"
+                        widget="badge" invisible="state in ['draft', 'submit', 'cancel']"/>
+            </list>
+        </field>
+    </record>
+</odoo>

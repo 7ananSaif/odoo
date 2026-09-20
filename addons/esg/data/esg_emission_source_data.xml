@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="esg_emission_source_direct_1" model="esg.emission.source">
+        <field name="name">Stationary Combustion</field>
+        <field name="scope">direct</field>
+    </record>
+    <record id="esg_emission_source_direct_2" model="esg.emission.source">
+        <field name="name">Mobile Combustion</field>
+        <field name="scope">direct</field>
+    </record>
+    <record id="esg_emission_source_direct_3" model="esg.emission.source">
+        <field name="name">Process Emissions</field>
+        <field name="scope">direct</field>
+    </record>
+    <record id="esg_emission_source_direct_4" model="esg.emission.source">
+        <field name="name">Fugitive Emissions</field>
+        <field name="scope">direct</field>
+    </record>
+    
+    <record id="esg_emission_source_indirect_1" model="esg.emission.source">
+        <field name="name">Purchased Electricity</field>
+        <field name="scope">indirect</field>
+    </record>
+    <record id="esg_emission_source_indirect_2" model="esg.emission.source">
+        <field name="name">Purchased Steam, Heat or Cooling</field>
+        <field name="scope">indirect</field>
+    </record>
+
+    <record id="esg_emission_source_neutral" model="esg.emission.source">
+        <field name="name">Neutral</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">upstream</field>
+    </record>
+
+    <record id="esg_emission_source_upstream_1" model="esg.emission.source">
+        <field name="name">Purchased Goods and Services</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">upstream</field>
+    </record>
+    <record id="esg_emission_source_upstream_2" model="esg.emission.source">
+        <field name="name">Capital Goods</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">upstream</field>
+    </record>
+    <record id="esg_emission_source_upstream_3" model="esg.emission.source">
+        <field name="name">Fuel and Energy-Related Activites</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">upstream</field>
+    </record>
+    <record id="esg_emission_source_upstream_4" model="esg.emission.source">
+        <field name="name">Upstream Transportation and Distribution</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">upstream</field>
+    </record>
+    <record id="esg_emission_source_upstream_5" model="esg.emission.source">
+        <field name="name">Waste Generated in Operations</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">upstream</field>
+    </record>
+    <record id="esg_emission_source_upstream_6" model="esg.emission.source">
+        <field name="name">Business Travel</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">upstream</field>
+    </record>
+    <record id="esg_emission_source_upstream_7" model="esg.emission.source">
+        <field name="name">Employee Commuting</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">upstream</field>
+    </record>
+    <record id="esg_emission_source_upstream_8" model="esg.emission.source">
+        <field name="name">Upstream Leased Assets</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">upstream</field>
+    </record>
+
+    <record id="esg_emission_source_downstream_1" model="esg.emission.source">
+        <field name="name">Downstream Transportation and Distribution</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">downstream</field>
+    </record>
+    <record id="esg_emission_source_downstream_2" model="esg.emission.source">
+        <field name="name">Processing of Sold Products</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">downstream</field>
+    </record>
+    <record id="esg_emission_source_downstream_3" model="esg.emission.source">
+        <field name="name">Use of Sold Products</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">downstream</field>
+    </record>
+    <record id="esg_emission_source_downstream_4" model="esg.emission.source">
+        <field name="name">End-of-Life Treatment of Sold Products</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">downstream</field>
+    </record>
+    <record id="esg_emission_source_downstream_5" model="esg.emission.source">
+        <field name="name">Downstream Leased Assets</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">downstream</field>
+    </record>
+    <record id="esg_emission_source_downstream_6" model="esg.emission.source">
+        <field name="name">Franchises</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">downstream</field>
+    </record>
+    <record id="esg_emission_source_downstream_7" model="esg.emission.source">
+        <field name="name">Investments</field>
+        <field name="scope">indirect_others</field>
+        <field name="activity_flow_indirect_others">downstream</field>
+    </record>
+</odoo>

@@ -1,0 +1,41 @@
+<odoo>
+    <record id="hr_contract_template_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.template.view.form.inherit.l10_jo_hr_payroll</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+            <group name="salary_info" position="inside">
+                <group string="Allowances" invisible="country_code != 'JO'">
+                    <label for="l10n_jo_housing_allowance" string="Housing"/>
+                    <div class="o_row" name="l10n_jo_housing_allowance">
+                        <field name="l10n_jo_housing_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_jo_transportation_allowance" string="Transportation"/>
+                    <div class="o_row" name="l10n_jo_transportation_allowance">
+                        <field name="l10n_jo_transportation_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_jo_other_allowances" string="Other"/>
+                    <div class="o_row" name="l10n_jo_other_allowances">
+                        <field name="l10n_jo_other_allowances" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_jo_tax_exemption" string="Tax Exemption"/>
+                    <div class="o_row" name="l10n_jo_tax_exemption">
+                        <field name="l10n_jo_tax_exemption" class="o_hr_narrow_field"/>
+                        <span>/ year</span>
+                    </div>
+                    <field name="l10n_jo_is_commission_based" string="Is Commission based"/>
+
+                    <separator string="Annual Leave Provision"/>
+                    <label for="l10n_jo_number_of_leave_days" string="Number of Leave"/>
+                    <div class="o_row" name="l10n_jo_number_of_leave_days">
+                        <field name="l10n_jo_number_of_leave_days" class="o_hr_narrow_field"/>
+                        <span>days</span>
+                    </div>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

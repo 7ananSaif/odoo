@@ -1,0 +1,65 @@
+.o_frontdesk_kiosk_mode {
+    --kiosk-searchBar-height: 70px;
+    --kiosk-searchBar-height--mobile: 130px;
+    --kiosk-sidebar-width: 320px;
+    
+    .o_pager_counter {
+        min-width: max-content;
+    }
+    
+    .o_cp_searchview {
+        .o_searchview_input_container input {
+            outline: none;
+            font-size: inherit;
+            padding: 0.5rem;
+            background: transparent;
+            
+            &::placeholder {
+                color: inherit;
+                opacity: 0.7;
+            }
+        }
+    
+        .o_searchview_icon {
+            color: var(--bs-gray-600);
+        }
+    
+        .border {
+            border-color: var(--border-color) !important;
+        }
+    }
+}
+
+.o_frontdesk_sidebar {
+    height: calc(100dvh - var(--kiosk-searchBar-height));
+    min-width: var(--kiosk-sidebar-width);
+}
+
+.o_frontdesk_manual_selection {
+    height: calc(100dvh - var(--kiosk-searchBar-height));
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-rows: max-content;
+
+    img {
+        width: 4rem;
+    }
+
+    @include media-breakpoint-down(md) {
+        height: calc(100dvh - var(--kiosk-searchBar-height--mobile));
+    }
+}
+
+.o_frontdesk_manual_selection .card {
+    cursor: pointer;
+    transition: transform 0.15s ease;
+    border-radius: 0.75rem;
+    border: 1px solid var(--bs-border-color);
+    min-height: 140px;
+
+    img {
+        border-radius: 50%;
+        object-fit: cover;
+        height: 4rem;
+        width: 4rem;
+    }
+}

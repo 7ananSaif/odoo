@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_at_pos.fiskaly_register_report" model="ir.actions.report">
+        <field name="name">DEP7 Report</field>
+        <field name="model">pos.config</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">l10n_at_pos.report_config_audit_template</field>
+        <field name="report_file">l10n_at_pos.report_config_audit_template</field>
+    </record>
+
+    <template id="l10n_at_pos.report_config_audit_template">
+        <t t-set="duration_msg" t-value="data['report_duration']"/>
+        <t t-foreach="data['config_reports']" t-as="config">
+            <t t-foreach="config.items()" t-as="config_data">
+                <t t-call="web.html_container">
+                    <t t-set="belege_list" t-value="config_data[1].get('Belege-Gruppe', [])[0].get('Belege-kompakt', [])"/>
+                    <div class="page small">
+                        <t t-if="belege_list">
+                            <t t-call="web.external_layout">
+                                <div style="overflow-x: auto; padding: 1rem;">
+                                    <p class="text-lg">
+                                        Config (Cash Register) : <t t-esc="config_data[0]"/><br/>
+                                        <t t-esc="duration_msg"/>
+                                    </p>
+                                    <table class="table table-sm table-borderless border border-end-0 border-start-0 border-info w-100"
+                                        style="table-layout: fixed; border-collapse: collapse;">
+                                        <thead class="border-bottom">
+                                            <tr class="py-2">
+                                                <th class="text-start fs-6" t-translation="off">Belege-kompakt</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <t t-foreach="belege_list" t-as="belege">
+                                                <tr class="py-2">
+                                                    <td class="px-2 py-2 text-start small">
+                                                        <t t-esc="belege" />
+                                                    </td>
+                                                </tr>
+                                            </t>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </t>
+                        </t>
+                        <t t-else="">
+                            <t t-call="web.external_layout">
+                                <p style="padding: 1rem;">
+                                    Config: <t t-esc="config_data[0]"/><br/>
+                                    <t t-esc="duration_msg"/>, having no signed receipts between selected time periods.
+                                </p>
+                            </t>
+                        </t>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

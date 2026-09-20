@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="databases_synchronization_wizard_view_form" model="ir.ui.view">
+            <field name="name">databases.synchronization.wizard.view.form</field>
+            <field name="model">databases.synchronization.wizard</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div>
+                            <field name="summary_message" readonly="1" nolabel="1" colspan="2"/>
+                        </div>
+                        <div invisible="not error_message">
+                            <field name="error_message" readonly="1" decoration-danger="1" nolabel="1" widget="text" colspan="2"/>
+                        </div>
+                        <group invisible="not new_properties">
+                            <div>
+                                <label for="new_properties" class="fw-normal mt-3 mb-1"/>
+                                <field name="new_properties" widget="json_checkboxes" class="ms-3" options="{'stacked': True}"/>
+                            </div>
+                        </group>
+                    </sheet>
+                    <footer>
+                        <button name="action_add_metrics_to_dashboard" type="object"
+                                string="Continue" class="oe_highlight" data-hotkey="q"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

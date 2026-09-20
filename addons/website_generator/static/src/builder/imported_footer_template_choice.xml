@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+<t t-name="website_generator.ImportedFooterTemplateChoice">
+    <BuilderSelectItem title="props.title" actionParam="{ view: props.view, vars: { 'footer-template': props.varName } }" label="label">
+        <div class="position-relative">
+            <Img attrs="{ style: 'width: 100%;' }" src="props.imgSrc"/>
+            <span class="badge bg-info position-absolute" style="top: 10px; left: 4px;">
+                <i class="fa fa-gears"></i>
+                Imported
+            </span>
+        </div>
+    </BuilderSelectItem>
+</t>
+
+</templates>

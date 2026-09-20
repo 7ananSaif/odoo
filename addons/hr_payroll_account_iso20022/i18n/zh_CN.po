@@ -1,0 +1,226 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * hr_payroll_account_sepa
+#
+# Translators:
+# Martin Trigaux, 2022
+# Raymond Yu <cl_yu@hotmail.com>, 2022
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:45+0000\n"
+"PO-Revision-Date: 2025-11-12 13:02+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
+"projects/odoo-19/hr_payroll_account_iso20022/zh_Hans/>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payroll_payment_report_wizard__journal_id
+msgid "Bank Journal"
+msgstr "银行日记账"
+
+#. module: hr_payroll_account_iso20022
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_iso20022.hr_payslip_view_form
+msgid "Create Payment Report"
+msgstr "创建付款报表"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payroll_payment_report_wizard__display_name
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip__display_name
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip_run__display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model,name:hr_payroll_account_iso20022.model_hr_employee
+msgid "Employee"
+msgstr "员工"
+
+#. module: hr_payroll_account_iso20022
+#: model:hr.payroll.dashboard.warning,name:hr_payroll_account_iso20022.hr_payroll_dashboard_warning_employee_invalid_bank_account
+msgid "Employees With Invalid IBAN Bank Accounts"
+msgstr "银行账户 IBAN 无效的员工"
+
+#. module: hr_payroll_account_iso20022
+#: model:hr.payroll.dashboard.warning,name:hr_payroll_account_iso20022.hr_payroll_dashboard_warning_employee_no_country
+msgid "Employees Without Any Country"
+msgstr "未设置国家/地区的员工"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payroll_payment_report_wizard__export_format
+msgid "Export Format"
+msgstr "导出格式"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model,name:hr_payroll_account_iso20022.model_hr_payroll_payment_report_wizard
+msgid "HR Payroll Payment Report Wizard"
+msgstr "人力资源薪资支付报告向导"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_employee__id
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payroll_payment_report_wizard__id
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip__id
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip_run__id
+msgid "ID"
+msgstr "ID"
+
+#. module: hr_payroll_account_iso20022
+#. odoo-javascript
+#: code:addons/hr_payroll_account_iso20022/static/src/components/payrun_card/payrun_card.xml:0
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_iso20022.hr_payslip_run_view_kanban
+msgid "Mark as Paid"
+msgstr "标记为已付款"
+
+#. module: hr_payroll_account_iso20022
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_iso20022.hr_payslip_view_form
+msgid "Mark as paid"
+msgstr "标记为已支付"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model,name:hr_payroll_account_iso20022.model_hr_payslip_run
+msgid "Pay Run"
+msgstr "发薪操作"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model,name:hr_payroll_account_iso20022.model_hr_payslip
+msgid "Pay Slip"
+msgstr "工资单"
+
+#. module: hr_payroll_account_iso20022
+#. odoo-javascript
+#: code:addons/hr_payroll_account_iso20022/static/src/components/payrun_card/payrun_card.xml:0
+#: model_terms:ir.ui.view,arch_db:hr_payroll_account_iso20022.hr_payslip_run_view_kanban
+msgid "Payment Report"
+msgstr "付款报表"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields.selection,name:hr_payroll_account_iso20022.selection__hr_payroll_payment_report_wizard__export_format__sepa
+msgid "SEPA"
+msgstr "SEPA"
+
+#. module: hr_payroll_account_iso20022
+#. odoo-python
+#: code:addons/hr_payroll_account_iso20022/wizard/hr_payroll_payment_report_wizard.py:0
+msgid "Some employees (%s) don't have a valid name on the work contact."
+msgstr "一些员工 (%s) 的工作联系人姓名无效。"
+
+#. module: hr_payroll_account_iso20022
+#. odoo-python
+#: code:addons/hr_payroll_account_iso20022/wizard/hr_payroll_payment_report_wizard.py:0
+msgid "Some employees (%s) don't have a work contact."
+msgstr "一些员工 (%s) 未填写工作联系人。"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields.selection,name:hr_payroll_account_iso20022.selection__hr_payroll_payment_report_wizard__export_format__iso20022_ch
+msgid "Swiss ISO20022"
+msgstr "瑞士 ISO 20022"
+
+#. module: hr_payroll_account_iso20022
+#. odoo-python
+#: code:addons/hr_payroll_account_iso20022/wizard/hr_payroll_payment_report_wizard.py:0
+msgid ""
+"The journal '%s' requires a proper IBAN account to pay via SEPA. Please "
+"configure it first."
+msgstr "日记账 '%s' 需要一个正确的IBAN 账号来通过SEPA付费。请先配置它。"
+
+#. module: hr_payroll_account_iso20022
+#. odoo-python
+#: code:addons/hr_payroll_account_iso20022/wizard/hr_payroll_payment_report_wizard.py:0
+msgid "The payment date cannot be in the past."
+msgstr ""
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,field_description:hr_payroll_account_iso20022.field_hr_payslip__iso20022_uetr
+msgid "UETR"
+msgstr "UETR"
+
+#. module: hr_payroll_account_iso20022
+#: model:ir.model.fields,help:hr_payroll_account_iso20022.field_hr_payslip__iso20022_uetr
+msgid "Unique end-to-end transaction reference"
+msgstr "独特的端到端交易参考"
+
+#~ msgid "Cancel"
+#~ msgstr "取消"
+
+#~ msgid "Confirm"
+#~ msgstr "确认"
+
+#~ msgid "Created by"
+#~ msgstr "创建人"
+
+#~ msgid "Created on"
+#~ msgstr "创建时间"
+
+#~ msgid "Employees With Invalid Bank Accounts"
+#~ msgstr "拥有无效银行账户的员工"
+
+#~ msgid "Export file related to this payslip"
+#~ msgstr "导出这个工资单的相关文件"
+
+#~ msgid "Exported File"
+#~ msgstr "文件导出"
+
+#~ msgid "Exported SEPA .xml file"
+#~ msgstr "导出SEPA xml文件"
+
+#~ msgid "Exported SEPA .xml file name"
+#~ msgstr "导出SEPA xml文件名称"
+
+#~ msgid "File Name"
+#~ msgstr "文件名称"
+
+#~ msgid "File name"
+#~ msgstr "文件名"
+
+#~ msgid "Generation Date"
+#~ msgstr "生成日期"
+
+#~ msgid "HR Payslip Run SEPA Wizard"
+#~ msgstr "HR工资单运行SEPA向导"
+
+#~ msgid "HR Payslip SEPA Wizard"
+#~ msgstr "HR工资单SPA向导"
+
+#~ msgid ""
+#~ "Invalid bank account for the following employees:\n"
+#~ "%s"
+#~ msgstr ""
+#~ "以下雇员的银行账户无效。\n"
+#~ "%s"
+
+#~ msgid "Last Updated by"
+#~ msgstr "最后更新人"
+
+#~ msgid "Last Updated on"
+#~ msgstr "最后更新时间"
+
+#~ msgid "Name of the export file generated for this payslip"
+#~ msgstr "这个工资单生成的导出文件名称"
+
+#~ msgid "Payslip Batches"
+#~ msgstr "工资单批处理"
+
+#~ msgid "SEPA File"
+#~ msgstr "SEPA文件"
+
+#~ msgid "Select a bank journal."
+#~ msgstr "选择一个银行日记账"
+
+#~ msgid "Some employees (%s) don't have a bank account."
+#~ msgstr "一些员工（%s）没有银行账户信息。"
+
+#~ msgid "Some employees (%s) don't have a private address."
+#~ msgstr "一些员工（%s）没有私人地址信息。"
+
+#~ msgid "Some employees (%s) don't have a valid name on the private address."
+#~ msgstr "一些雇员（%s）在私人地址上没有有效的名字。"

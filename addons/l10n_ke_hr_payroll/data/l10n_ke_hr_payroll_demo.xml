@@ -1,0 +1,262 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="base.partner_demo_company_ke" model="res.partner" forcecreate="1">
+        <field name="name">My Kenyan Company</field>
+        <field name="country_id" ref="base.ke"/>
+    </record>
+
+    <record id="base.demo_company_ke" model="res.company" forcecreate="1">
+        <field name="name">My Kenyan Company</field>
+        <field name="partner_id" ref="base.partner_demo_company_ke"/>
+        <field name="currency_id" ref="base.KES"/>
+        <field name="street">97-01028 Gatukuyu</field>
+        <field name="zip">01000</field>
+        <field name="city">Thika</field>
+        <field name="country_id" ref="base.ke"/>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_ke'))]"/>
+    </record>
+
+    <record id="base.user_demo" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_ke'))]"/>
+    </record>
+
+    <record id="res_partner_ke_work_address" model="res.partner">
+        <field name="name">Kenyan Offices</field>
+        <field name="street">21-60103 Runyenjes</field>
+        <field name="city">Embu</field>
+        <field name="zip">00453</field>
+        <field name="country_id" ref="base.ke"/>
+        <field name="company_id" ref="base.demo_company_ke"/>
+    </record>
+
+    <record id="ke_hr_department_rd" model="hr.department">
+        <field name="name">R&amp;D KE</field>
+        <field name="company_id" ref="base.demo_company_ke"/>
+    </record>
+
+    <record id="res_partner_ahmed" model="res.partner">
+        <field name="name">Ahmed Kalejaiye</field>
+        <field name="street">Red Hill Rd</field>
+        <field name="city">Nairobi</field>
+        <field name="zip">00501</field>
+        <field name="state_id" ref="base.state_ke_30"/>
+        <field name="country_id" ref="base.ke"/>
+        <field name="phone">0202 224167</field>
+        <field name="company_id" ref="base.demo_company_ke"/>
+    </record>
+    <record id="res_partner_ahmed" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_ke_hr_payroll.res_partner_ahmed')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_barack" model="res.partner">
+        <field name="name">Barack Akintola</field>
+        <field name="street">Dunga Close Off Dunga Rd</field>
+        <field name="city">Nairobi</field>
+        <field name="zip">00501</field>
+        <field name="state_id" ref="base.state_ke_30"/>
+        <field name="country_id" ref="base.ke"/>
+        <field name="phone">0999 987043</field>
+        <field name="company_id" ref="base.demo_company_ke"/>
+    </record>
+    <record id="res_partner_barack" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_ke_hr_payroll.res_partner_barack')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="user_barack" model="res.users">
+        <field name="partner_id" ref="l10n_ke_hr_payroll.res_partner_barack"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_barack')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_barack')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_ke_hr_payroll.res_partner_barack')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_ke'))]"/>
+        <field name="company_id" ref="base.demo_company_ke"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="l10n_ke_hr_payroll/static/img/hr_employee_barack.jpg"/>
+    </record>
+
+    <record id="ke_res_bank_kcb" model="res.bank">
+        <field name="name">KCB Bank</field>
+        <field name="bic">KCBLKENAXXX</field>
+        <field name="street">KCB Bank Rd</field>
+        <field name="city">Nairobi</field>
+        <field name="zip">00501</field>
+        <field name="state" ref="base.state_ke_30"/>
+        <field name="country" ref="base.ke"/>
+        <field name="phone">0999 709321</field>
+    </record>
+    <record id="ke_res_bank_kcb" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_ke_hr_payroll.ke_res_bank_kcb')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="ke_res_bank_equity" model="res.bank">
+        <field name="name">Equity Bank</field>
+        <field name="bic">EQBLKENAXXX</field>
+        <field name="street">Equity Bank Rd</field>
+        <field name="city">Nairobi</field>
+        <field name="zip">00501</field>
+        <field name="state" ref="base.state_ke_30"/>
+        <field name="country" ref="base.ke"/>
+        <field name="phone">0999 217390</field>
+    </record>
+    <record id="ke_res_bank_equity" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_ke_hr_payroll.ke_res_bank_equity')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_ahmed" model="res.partner.bank">
+        <field name="acc_number">KE040203419675925796</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="ke_res_bank_kcb"/>
+        <field name="partner_id" ref="l10n_ke_hr_payroll.res_partner_ahmed"/>
+        <field name="company_id" ref="base.demo_company_ke"/>
+        <field name="currency_id" ref="base.KES"/>
+    </record>
+
+    <record id="res_partner_bank_account_barack" model="res.partner.bank">
+        <field name="acc_number">KE030103599935698356</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="ke_res_bank_equity"/>
+        <field name="partner_id" ref="l10n_ke_hr_payroll.res_partner_barack"/>
+        <field name="company_id" ref="base.demo_company_ke"/>
+        <field name="currency_id" ref="base.KES"/>
+    </record>
+
+    <record id="hr_employee_ahmed" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_ahmed')).name"/>
+        <field name="address_id" ref="l10n_ke_hr_payroll.res_partner_ke_work_address"/>
+        <field name="image_1920" type="base64" file="l10n_ke_hr_payroll/static/img/hr_employee_ahmed.jpg"/>
+        <field name="work_phone">0999 432209</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_ahmed')).name.replace(' ', '.').lower() + '@example.com'"/> <field name="company_id" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_ahmed')).company_id"/>
+        <field name="work_contact_id" ref="l10n_ke_hr_payroll.res_partner_ahmed"/>
+        <field name="resource_calendar_id" ref="l10n_ke_hr_payroll.resource_calendar_std_45h"/>
+        <field name="tz">Africa/Nairobi</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_ahmed')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_ahmed')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_ahmed')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_ahmed')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_ahmed')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_ahmed')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_ahmed')).phone"/>
+        <field name="distance_home_work">18</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_ahmed')).country_id"/>
+        <field name="identification_id">AW8752027</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1978, 10, 19).date()"/>
+        <field name="place_of_birth">Nairobi</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_ahmed')).country_id"/>
+        <field name="emergency_contact">Peter Kalejaiye</field>
+        <field name="emergency_phone">0999 082842</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Computer Science</field>
+        <field name="study_school">University of Nairobi</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_ke_hr_payroll.res_partner_bank_account_ahmed'))]"/>
+        <field name="l10n_ke_mortgage">19500</field>
+        <field name="l10n_ke_kra_pin">0101</field>
+        <field name="l10n_ke_nssf_number">230115</field>
+        <field name="l10n_ke_nhif_number">871024</field>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_ke_hr_payroll.ke_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_ke_hr_payroll.structure_type_employee_ken"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">98650</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="date_generated_from" eval="(DateTime.today() + relativedelta(years=-1, month=1, day=1))"/>
+        <field name="date_generated_to" eval="(DateTime.today() + relativedelta(years=-1, month=1, day=1))"/>
+        <field name="resource_calendar_id" ref="l10n_ke_hr_payroll.resource_calendar_std_45h"/>
+        <field name="l10n_ke_pension_contribution">17000</field>
+        <field name="l10n_ke_food_allowance">4000</field>
+        <field name="l10n_ke_airtime_allowance">3000</field>
+        <field name="l10n_ke_pension_allowance">6000</field>
+        <field name="l10n_ke_commuter_allowance">2500</field>
+        <field name="l10n_ke_housing_allowance_fixed">500</field>
+        <field name="l10n_ke_voluntary_medical_insurance">3917</field>
+        <field name="l10n_ke_life_insurance">0</field>
+        <field name="l10n_ke_education">0</field>
+    </record>
+
+    <record id="hr_employee_barack" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_barack')).name"/>
+        <field name="address_id" ref="l10n_ke_hr_payroll.res_partner_ke_work_address"/>
+        <field name="image_1920" type="base64" file="l10n_ke_hr_payroll/static/img/hr_employee_barack.jpg"/>
+        <field name="work_phone">0999 724290</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_barack')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="parent_id" ref="l10n_ke_hr_payroll.hr_employee_ahmed"/>
+        <field name="user_id" ref="l10n_ke_hr_payroll.user_barack"/>
+        <field name="company_id" ref="base.demo_company_ke"/>
+        <field name="resource_calendar_id" ref="l10n_ke_hr_payroll.resource_calendar_std_45h"/>
+        <field name="tz">Africa/Nairobi</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_barack')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_barack')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_barack')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_barack')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_barack')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_barack')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_barack')).phone"/>
+        <field name="distance_home_work">25</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_barack')).country_id"/>
+        <field name="identification_id">EJ5202736</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1991, 7, 28).date()"/>
+        <field name="place_of_birth">Nairobi</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_ke_hr_payroll.res_partner_barack')).country_id"/>
+        <field name="emergency_contact">Mohamed Akintola</field>
+        <field name="emergency_phone">0999 726293</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Software Engineering</field>
+        <field name="study_school">University of Nairobi</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_ke_hr_payroll.res_partner_bank_account_barack'))]"/>
+        <field name="l10n_ke_mortgage">21000</field>
+        <field name="l10n_ke_kra_pin">4321</field>
+        <field name="l10n_ke_nssf_number">160465</field>
+        <field name="l10n_ke_nhif_number">871542</field>
+        <field name="l10n_ke_shif_number">245178</field>
+        <field name="job_id" ref="hr.job_consultant"/>
+        <field name="department_id" ref="l10n_ke_hr_payroll.ke_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_ke_hr_payroll.structure_type_employee_ken"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">100000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-2, month=1, day=1))"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-2, month=1, day=1))"/>
+        <field name="contract_date_end" eval="(DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-1))"/>
+        <field name="resource_calendar_id" ref="l10n_ke_hr_payroll.resource_calendar_std_45h"/>
+        <field name="l10n_ke_pension_contribution">17000</field>
+        <field name="l10n_ke_food_allowance">4000</field>
+        <field name="l10n_ke_airtime_allowance">3000</field>
+        <field name="l10n_ke_pension_allowance">6000</field>
+        <field name="l10n_ke_commuter_allowance">2500</field>
+        <field name="l10n_ke_housing_allowance_percentage">0.12</field>
+        <field name="l10n_ke_housing_allowance_unit">percentage</field>
+        <field name="l10n_ke_voluntary_medical_insurance">3917</field>
+        <field name="l10n_ke_life_insurance">0</field>
+        <field name="l10n_ke_education">0</field>
+    </record>
+
+    <function name="create_version" model="hr.employee">
+        <value eval="[ref('l10n_ke_hr_payroll.hr_employee_barack')]"/>
+        <value eval="{
+            'date_version': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-1) + relativedelta(days=1),
+            'contract_date_start': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-1) + relativedelta(days=1),
+            'contract_date_end': False,
+            'wage': 74542.00
+        }"/>
+    </function>
+
+    <!-- Work Entries for Barack -->
+
+    <function model="hr.version" name="_generate_work_entries">
+        <value model="hr.version" search="[('employee_id', '=', ref('l10n_ke_hr_payroll.hr_employee_barack'))]"/>
+        <value eval="(DateTime.today() + relativedelta(years=-1, month=1, day=1))"/>
+        <value eval="DateTime.today()"/>
+    </function>
+
+    <record id="tax_deduction_card" model="l10n_ke.tax.deduction.card"
+        context="{'allowed_company_ids': [ref('base.demo_company_ke')]}">
+        <field name="name">Tax Deduction Card - Demo</field>
+    </record>
+</odoo>

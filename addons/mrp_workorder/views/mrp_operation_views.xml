@@ -1,0 +1,20 @@
+<odoo>
+    <record id="mrp_workorder_operation_form_view" model="ir.ui.view">
+        <field name="name">mrp_workorder.mrp_workorder.operation.form.view</field>
+        <field name="model">mrp.routing.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_routing_workcenter_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='workorder']/field[@name='company_id']" position="before">
+                <field name="employee_ratio" groups="base.group_no_one"/>
+            </xpath>
+            <xpath expr="//sheet/group//group[last()]" position="after">
+                <notebook>
+                    <page string="Instructions" name="checks">
+                        <field name="default_picking_type_ids" invisible="1"/>
+                        <field name="quality_point_ids" widget="one2many" context="{'default_operation_id': id, 'default_picking_type_ids': default_picking_type_ids, 'list_view_ref': 'mrp_workorder.quality_point_routing_view_tree', 'form_view_ref': 'mrp_workorder.quality_point_routing_view_form'}"/>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+</odoo>

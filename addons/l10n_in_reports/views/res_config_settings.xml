@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_l10n_in_gstr" model="ir.ui.view">
+        <field name="name">res.config.settings.form.inherit.l10n_in_gstr</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@id='india_gst_number']" position="inside">
+                <label for="l10n_in_gstr_gst_username" string="GST Username" class="col-3 col-lg-4 o_light_label"/>
+                <field name="l10n_in_gstr_gst_username" nolabel="1" required="l10n_in_gst_efiling_feature or l10n_in_fetch_vendor_edi_feature"/>
+            </xpath>
+            <xpath expr="//div[@id='india_gst_number']" position="after">
+                <button name="l10n_in_gstr_logout_gst"
+                        type="object"
+                        string="Logout from GST Portal"
+                        icon="oi-arrow-right"
+                        class="btn btn-link text-danger"
+                        groups="base.group_no_one"
+                        invisible="not l10n_in_gstr_gst_token_valid"/>
+            </xpath>
+            <xpath expr="//setting[@name='india_gstr_api']" position="inside">
+                <field name="l10n_in_gstr_activate_einvoice_fetch" widget="radio" class="oe_inline" string="Fetch Vendor E-Invoiced Document" invisible="not l10n_in_fetch_vendor_edi_feature"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+<data>
+    <record id="survey_survey_view_form" model="ir.ui.view">
+        <field name="name">survey.survey.view.form.inherit.documents_spreadsheet_survey</field>
+        <field name="model">survey.survey</field>
+        <field name="inherit_id" ref="survey.survey_survey_view_form" />
+
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_result_survey']" position="after">
+                <button class="btn-group"
+                        name="action_survey_open_linked_spreadsheet"
+                        string="Analyze results"
+                        type="object"
+                        invisible="answer_done_count &lt;= 0"/>
+            </xpath>
+        </field>
+    </record>
+</data>
+</odoo>

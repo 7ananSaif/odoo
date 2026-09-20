@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- TODO: lost do this for be also 'l10n_be: Make sure the deduction for business meals is limited to 69% (VAT included).' -->
+        <record id="account_return_check_template_meal_expense_adjustment" model="account.return.check.template">
+            <field name="name">Meal expense adjustments</field>
+            <field name="description">General: Make sure the deduction for business meals is under the legal limit.</field>
+            <field name="type">check</field>
+            <field name="model" eval="False"/>
+            <field name="cycle">operating_expenses</field>
+            <field name="return_type" ref="account_reports.default_audit_return_type"/>
+            <field name="code">_account_return_check_template_meal_expense_adjustment</field>
+            <field name="action_id" ref="account_fiscal_categories.action_account_fiscal_report"/>
+            <field name="additional_action_params">{
+                'options': {
+                    'date': {
+                        'date_from': return_start_date,
+                        'date_to': return_end_date,
+                        'filter': 'custom',
+                        'mode': 'range',
+                    },
+                    'selected_variant_id': ref('account_fiscal_categories.fiscal_report'),
+                    'sections_source_id': ref('account_fiscal_categories.fiscal_report'),
+                    'tax_unit': 'company_only',
+                },
+                'ignore_session': True
+            }</field>
+        </record>
+    </data>
+</odoo>

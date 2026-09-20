@@ -1,0 +1,85 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * l10n_co_edi_mandate
+#
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 19:05+0000\n"
+"PO-Revision-Date: 2025-11-18 17:10+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Spanish (Latin America) <https://translate.odoo.com/projects/"
+"odoo-19-l10n/l10n_co_edi_mandate/es_419/>\n"
+"Language: es_419\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: l10n_co_edi_mandate
+#: model:ir.model.fields,field_description:l10n_co_edi_mandate.field_account_edi_xml_ubl_dian__display_name
+#: model:ir.model.fields,field_description:l10n_co_edi_mandate.field_account_move__display_name
+#: model:ir.model.fields,field_description:l10n_co_edi_mandate.field_product_template__display_name
+msgid "Display Name"
+msgstr "Nombre para mostrar"
+
+#. module: l10n_co_edi_mandate
+#: model:ir.model.fields,field_description:l10n_co_edi_mandate.field_account_edi_xml_ubl_dian__id
+#: model:ir.model.fields,field_description:l10n_co_edi_mandate.field_account_move__id
+#: model:ir.model.fields,field_description:l10n_co_edi_mandate.field_product_template__id
+msgid "ID"
+msgstr "ID"
+
+#. module: l10n_co_edi_mandate
+#: model:ir.model,name:l10n_co_edi_mandate.model_account_move
+msgid "Journal Entry"
+msgstr "Asiento Contable"
+
+#. module: l10n_co_edi_mandate
+#: model:ir.model.fields,field_description:l10n_co_edi_mandate.field_product_product__l10n_co_dian_mandate_contract
+#: model:ir.model.fields,field_description:l10n_co_edi_mandate.field_product_template__l10n_co_dian_mandate_contract
+msgid "Mandate Contract"
+msgstr "Contrato de Mandato"
+
+#. module: l10n_co_edi_mandate
+#: model:ir.model.fields,field_description:l10n_co_edi_mandate.field_account_bank_statement_line__l10n_co_dian_mandate_principal
+#: model:ir.model.fields,field_description:l10n_co_edi_mandate.field_account_move__l10n_co_dian_mandate_principal
+msgid "Mandate Principal"
+msgstr "Mandante"
+
+#. module: l10n_co_edi_mandate
+#. odoo-python
+#: code:addons/l10n_co_edi_mandate/models/account_edi_xml_ubl_dian.py:0
+msgid ""
+"One or more products in the invoice are marked as Mandate Contracts. Please "
+"select 'Mandatos' as the Operation Type (CO), or remove those products from "
+"the invoice."
+msgstr ""
+"La factura contiene uno o más productos clasificados como Contratos de "
+"Mandato. Selecciona 'Mandatos' como Tipo de Operación o elimina dichos "
+"productos antes de continuar."
+
+#. module: l10n_co_edi_mandate
+#: model:ir.model,name:l10n_co_edi_mandate.model_product_template
+msgid "Product"
+msgstr "Producto"
+
+#. module: l10n_co_edi_mandate
+#. odoo-python
+#: code:addons/l10n_co_edi_mandate/models/account_edi_xml_ubl_dian.py:0
+msgid ""
+"The 'Mandatos' option was selected as the Operation Type (CO), but the "
+"invoice does not contain any products marked as Mandate Contracts. Adjust "
+"the invoice type or check the listed products."
+msgstr ""
+"La opción 'Mandatos' fue seleccionada como Tipo de Operación, pero la "
+"factura no contiene productos marcados como Contratos de Mandato. Ajusta el "
+"tipo de factura o verifica los productos."
+
+#. module: l10n_co_edi_mandate
+#: model:ir.model,name:l10n_co_edi_mandate.model_account_edi_xml_ubl_dian
+msgid "UBL DIAN Mandate extension"
+msgstr ""

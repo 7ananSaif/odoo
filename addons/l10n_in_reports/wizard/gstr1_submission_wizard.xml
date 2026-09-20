@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="gtr1_submission_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_in.gstr1.submission.wizard.form</field>
+            <field name="model">l10n_in.gstr1.submission.wizard</field>
+            <field name="inherit_id" ref="account_reports.return_submission_wizard_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">                
+                <field name="instructions" position="replace">
+                    <h5>Are you sure you want to push the data to GSTN?</h5>
+                </field>
+                <xpath expr="//button[@name='action_proceed_with_submission']" position="attributes">
+                    <attribute name="string">Push Data</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    </data>
+</odoo>

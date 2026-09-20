@@ -1,0 +1,445 @@
+<?xml version="1.0"?>
+<odoo>
+    <template id="report_payslip_mx_cfdi">
+        <t t-call="web.basic_layout">
+            <div class="page">
+                <t t-set="cfdi" t-value="o._l10n_mx_edi_add_payslip_cfdi_values()"/>
+                <t t-if="cfdi">
+                    <div class="pt-3"/>
+                    <h2 class="mb-3 o_title_cfdi">
+                        <span t-field="o.employee_id.name"/> (<span t-field="o.date_from"/> - <span t-field="o.date_to"/>)
+                    </h2>
+                    <t t-set="is_invalid" t-value="o._is_invalid()"/>
+                    <div t-if="is_invalid">
+                        <strong id="invalid_warning">
+                            <span t-out="is_invalid">This payslip is not signed by the government. This is not a legal document.</span>
+                        </strong>
+                    </div>
+
+                    <!-- CFDI de Nómina -->
+                    <div class="d-flex">
+                        <div style="width: 51%"/>
+                        <table class="o_table_cfdi_info table table-borderless" style="width: 49%">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">CFDI de Nómina</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="table table-borderless m-0">
+                                            <thead>
+                                                <tr>
+                                                    <th>Serie</th>
+                                                    <th>Folio</th>
+                                                    <th>Lugar</th>
+                                                    <th>Fecha y hora</th>
+                                                    <th>Periodo</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><strong t-out="cfdi['serie']"/></td>
+                                                    <td><strong t-out="cfdi['folio']"/></td>
+                                                    <td><strong t-out="cfdi['lugar_expedicion']"/></td>
+                                                    <td><strong t-out="cfdi['fecha']"/></td>
+                                                    <td><strong t-out="cfdi['periodo']"/></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Datos del emisor / Datos del receptor -->
+                    <div class="d-flex align-items-start">
+                        <table class="o_table_cfdi_info table table-borderless" style="width: 49%">
+                            <thead>
+                                <tr>
+                                    <th>Datos del emisor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div><strong t-out="o.company_id.name.upper()"/></div>
+                                        <div>
+                                            RFC
+                                            <strong class="ms-1" t-field="o.company_id.vat"/>
+                                            <span class="ms-3" t-if="o.company_id.l10n_mx_curp">CURP</span>
+                                            <strong t-if="o.company_id.l10n_mx_curp" t-field="o.company_id.l10n_mx_curp"/>
+                                        </div>
+                                        <div>
+                                            <strong>Régimen fiscal</strong>
+                                            <span class="ms-1" t-out="o.company_id.l10n_mx_edi_fiscal_regime"/> -
+                                            <span t-field="o.company_id.l10n_mx_edi_fiscal_regime"/>
+                                        </div>
+                                        <div>
+                                            <strong>Registro patronal</strong>
+                                            <span class="ms-1" t-out="o.company_id.l10n_mx_imss_id"/>
+                                        </div>
+                                        <div>
+                                            <strong>Nómina</strong>
+                                            <span class="ms-1" t-out="o.struct_id.l10n_mx_payroll_type"/> -
+                                            <span t-field="o.struct_id.l10n_mx_payroll_type"/>
+                                            <strong class="ms-3 me-1">Exportación</strong> 01
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="width: 2%"/>
+                        <table class="o_table_cfdi_info table table-borderless" style="width: 49%">
+                            <thead>
+                                <tr>
+                                    <th>Datos del receptor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <strong t-out="o.employee_id.legal_name.upper()"/>
+                                        </div>
+                                        <div>
+                                            RFC
+                                            <strong class="ms-1" t-field="o.employee_id.l10n_mx_rfc"/>
+                                            <span class="ms-3">CURP</span>
+                                            <strong class="ms-1" t-field="o.employee_id.l10n_mx_curp"/>
+                                        </div>
+                                        <div>
+                                            <strong class="me-1">Régimen</strong>
+                                            605 - Sueldos y Salarios e Ingresos Asimilados a Salarios
+                                        </div>
+                                        <div>
+                                            <strong>Domicilio</strong>
+                                            <span class="ms-1" t-field="o.version_id.private_zip"/>
+                                            <strong class="ms-3">Entidad Federativa</strong>
+                                            <span class="ms-1" t-field="o.employee_id.work_contact_id.state_id.code"/>
+                                        </div>
+                                        <div>
+                                            <strong>NSS</strong>
+                                            <span class="ms-1" t-field="o.version_id.ssnid"/>
+                                            <strong class="ms-3">N° de empleado</strong>
+                                            <span class="ms-1" t-field="o.employee_id.registration_number"/>
+                                        </div>
+                                        <div class="mt-2">
+                                            <strong>Inicio Laboral</strong>
+                                            <span class="ms-1" t-field="o.version_id.contract_date_start"/>
+                                            <strong class="ms-3">Tipo de Contrato</strong>
+                                            <span class="ms-1" t-out="o.version_id.contract_type_id.code"/>
+                                            <strong class="ms-3">Riesgo del Puesto</strong>
+                                            <span class="ms-1" t-out="o.company_id.l10n_mx_risk_type"/>
+                                        </div>
+                                        <div>
+                                            <strong>Tipo de Régimen</strong>
+                                            <span class="ms-1" t-out="o.version_id.l10n_mx_regime_type"/>
+                                            <strong class="ms-3">Departamento</strong>
+                                            <span class="ms-1" t-field="o.employee_id.department_id"/>
+                                            <strong class="ms-3">Tipo Jornada</strong>
+                                            <span class="ms-1" t-out="o.version_id.l10n_mx_shift_type"/>
+                                        </div>
+                                        <div>
+                                            <strong class="me-1">Sindicalizado</strong>
+                                            No
+                                            <strong class="ms-3">Puesto</strong>
+                                            <span class="ms-1" t-field="o.employee_id.job_title"/>
+                                            <strong class="ms-3">Antigüedad</strong>
+                                            <span class="ms-1" t-out="cfdi['nomina_receptor']['antigüedad']"/>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Percepciones / Deducciones -->
+                    <div class="d-flex align-items-start">
+                        <table class="o_table_cfdi_info table table-borderless" style="width: 49%">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Percepciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="o_table_cfdi_concepts table table-borderless">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 10%;">Tipo</th>
+                                                    <th>Concepto</th>
+                                                    <th class="text-center">Exento</th>
+                                                    <th class="text-center">Gravado</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="cfdi['percepcion_list']" t-as="perception">
+                                                    <tr>
+                                                        <td><span t-out="perception['tipo_percepcion']"/></td>
+                                                        <td><span t-out="perception['concepto']"/></td>
+                                                        <td class="text-end"><span t-out="perception['importe_exento']" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/></td>
+                                                        <td class="text-end"><span t-out="perception['importe_gravado']" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/></td>
+                                                    </tr>
+                                                </t>
+                                                <tr>
+                                                    <td/>
+                                                    <td class="text-end">Total</td>
+                                                    <td class="text-end"><span t-out="sum([perception['importe_exento'] for perception in cfdi['percepcion_list']])" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/></td>
+                                                    <td class="text-end"><span t-out="sum([perception['importe_gravado'] for perception in cfdi['percepcion_list']])" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="width: 2%"/>
+                        <table class="o_table_cfdi_info table table-borderless" style="width: 49%">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Deducciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="o_table_cfdi_concepts table table-borderless">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 10%;">Tipo</th>
+                                                    <th>Descripción</th>
+                                                    <th class="text-center">Importe</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="cfdi['deduccion_list']" t-as="deduction">
+                                                    <tr>
+                                                        <td><span t-out="deduction['tipo_deduccion']"/></td>
+                                                        <td><span t-out="deduction['concepto']"/></td>
+                                                        <td class="text-end"><span t-out="deduction['importe']" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/></td>
+                                                    </tr>
+                                                </t>
+                                                <tr>
+                                                    <td/>
+                                                    <td class="text-end">Total</td>
+                                                    <td class="text-end"><span t-out="sum([deduction['importe'] for deduction in cfdi['deduccion_list']])" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Otros pagos -->
+                    <div class="d-flex align-items-start">
+                        <table class="o_table_cfdi_info table table-borderless" style="width: 49%">
+                            <thead>
+                                <tr>
+                                    <th class="text-center">Otros pagos</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <table class="o_table_cfdi_concepts table table-borderless">
+                                            <thead>
+                                                <tr>
+                                                    <th style="width: 10%;">Tipo</th>
+                                                    <th>Descripción</th>
+                                                    <th class="text-center">Importe</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <t t-foreach="cfdi['otro_pago_list']" t-as="other_payment">
+                                                    <tr>
+                                                        <td><span t-out="other_payment['tipo_otro_pago']"/></td>
+                                                        <td><span t-out="other_payment['concepto']"/></td>
+                                                        <td class="text-end"><span t-out="other_payment['importe']" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/></td>
+                                                    </tr>
+                                                </t>
+                                                <tr>
+                                                    <td/>
+                                                    <td class="text-end">Total</td>
+                                                    <td class="text-end"><span t-out="sum([other_payment['importe'] for other_payment in cfdi['otro_pago_list']])" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/></td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="3">
+                                                        Subsidio Causado:
+                                                        <span t-out="sum([other_payment['subsidio_causado'] for other_payment in cfdi['otro_pago_list']])" t-options="{'widget': 'monetary', 'display_currency': o.company_id.currency_id}"/>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div style="width: 2%;"/>
+                        <table class="o_table_cfdi_info table table-borderless" style="width: 49%">
+                            <thead>
+                                <tr>
+                                    <th class="text-center" style="background-color: #714B67; color: #FFFFFF;">Pago</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div>
+                                            <span>Comunicación de pago</span>
+                                            <strong class="ms-1" t-field="o.move_id.name"/>
+                                        </div>
+                                        <div>
+                                            <span>Cuenta bancaria</span>
+                                            <strong class="ms-1" t-out="cfdi['nomina_receptor']['cuenta_bancaria']"/>
+                                            <strong class="mx-1">-</strong>
+                                            <strong t-out="o.employee_id.bank_account_ids[0].bank_name"/>
+                                        </div>
+                                        <div>
+                                            <span>Importe</span>
+                                            <strong class="ms-1" t-field="o.net_wage"/>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Signing Information -->
+                    <t t-set="cfdi" t-value="o._l10n_mx_edi_get_extra_report_values()"/>
+                    <div class="d-flex align-items-start mt-5">
+                        <div style="width: 19%;">
+                            <img class="w-100" alt="Barcode" t-att-src="cfdi['barcode_src']"/>
+                        </div>
+                        <div style="width: 2%;"/>
+                        <div class="flex-column" style="width: 35%;">
+                            <table class="o_table_cfdi_complement table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th>Folio fiscal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <strong t-field="o.l10n_mx_edi_cfdi_uuid"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table class="o_table_cfdi_complement table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th>RFC proveedor de certificación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <span t-out="cfdi['pat_rfc']"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table class="o_table_cfdi_complement table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th>Cadena original del timbre</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <span t-out="cfdi['cadena']" style="font-size: 7px;"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="width: 2%;"/>
+                        <div class="flex-column" style="width: 20%;">
+                            <table class="o_table_cfdi_complement table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th>Número de certificado SAT</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <span t-out="cfdi['certificate_sat_number']"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table class="o_table_cfdi_complement table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th>Sello digital del SAT</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <span t-out="cfdi['sello_sat']" style="font-size: 7px;"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="width: 2%;"/>
+                        <div class="flex-column" style="width: 20%;">
+                            <table class="o_table_cfdi_complement table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha y hora de certificación</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <span t-out="cfdi['stamp_date']"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <table class="o_table_cfdi_complement table table-borderless">
+                                <thead>
+                                    <tr>
+                                        <th>Sello digital del CFDI</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <span t-out="cfdi['sello']" style="font-size: 7px;"/>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="w-100 text-center">
+                        <span class="o_text_cfdi" style="font-size: 10px;">
+                            Este documento es una representación impresa de un CFDI versión 4.0
+                        </span>
+                    </div>
+                </t>
+            </div>
+        </t>
+    </template>
+
+    <template id="report_payslip_mx_cfdi_lang">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="o" t-value="o.with_context(lang=o.employee_id.lang or o.env.lang)"/>
+                <t t-call="l10n_mx_hr_payroll_account_edi.report_payslip_mx_cfdi" t-lang="o.env.lang"/>
+            </t>
+        </t>
+    </template>
+</odoo>

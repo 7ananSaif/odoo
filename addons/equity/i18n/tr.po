@@ -1,0 +1,2150 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * equity
+#
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# DeepL <noreply-mt-deepl@weblate.org>, 2025.
+# Odoo Turkish Import <dyki+tr@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:41+0000\n"
+"PO-Revision-Date: 2025-11-21 14:20+0000\n"
+"Last-Translator: Odoo Turkish Import <dyki+tr@odoo.com>\n"
+"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-19/equity/"
+"tr/>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__securities
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__securities
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "# Securities"
+msgstr "# Menkul Kıymetler"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__shares
+msgid "# Shares"
+msgstr "# Hisseler"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_valuation.py:0
+msgid "%(partner_name)s %(amount)s"
+msgstr "%(partner_name)s %(amount)s"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_ubo.py:0
+msgid "%(partner_name)s (%(holder_name)s)"
+msgstr "%(partner_name)s (%(holder_name)s)"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+msgid "%(partner_name)s's Transactions"
+msgstr "%(partner_name)s'nin İşlemleri"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+msgid "%(partner_name)s's Valuations"
+msgstr "%(partner_name)s'nin Değerlemeleri"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "%(transaction_type)s %(securities).2f %(class_name)s"
+msgstr "%(transaction_type)s %(securities).2f %(class_name)s"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+msgid "(Completed through portal Form)"
+msgstr "(Portal Formu üzerinden doldurulur)"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "(ID"
+msgstr "(KIMLIK)"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "(Non-positive options don't expire)"
+msgstr "(Pozitif olmayan opsiyonların süresi dolmaz)"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "(Optional)"
+msgstr "(İsteğe bağlı)"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "(expired)"
+msgstr "(süresi doldu)"
+
+#. module: equity
+#: model:ir.actions.report,print_report_name:equity.action_equity_ubo_report
+msgid "(object._get_ubo_report_filename())"
+msgstr "(object._get_ubo_report_filename())"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "/ Security"
+msgstr "/ Güvenlik"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid ""
+"<br/>\n"
+"                                            Politically Exposed Person:"
+msgstr ""
+"<br/>\n"
+"                                            Siyasi Açığa Çıkmış Kişi:"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "<br/> Nationality:"
+msgstr "<br/> Uyruk:"
+
+#. module: equity
+#: model:mail.template,body_html:equity.equity_shareholder_email_template
+msgid ""
+"<div>\n"
+"                    <p> Hello <t t-out=\"ctx.get('holder_name')\"/>,<br/>\n"
+"                        You will find your latest transaction and valuations "
+"in the following link: <br/>\n"
+"                        <a t-attf-href=\"/my/equity?"
+"access_token={{ctx.get('equity_access_token')}}\" class=\"btn btn-"
+"primary\">Show Equity</a> <br/> <br/>\n"
+"                        Best,\n"
+"                        <t t-if=\"user_id.signature\">\n"
+"                            <br/>--<br/>\n"
+"                            <t t-out=\"user_id.signature or ''\">Mitchell "
+"Admin</t>\n"
+"                        </t>\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+"<div>\n"
+"                    <p> Merhaba <t t-out=\"ctx.get('holder_name')\"/>,<br/>\n"
+"                        En son işlemlerinizi ve değerlemelerinizi aşağıdaki "
+"bağlantıda bulabilirsiniz: <br/>\n"
+"                        <a t-attf-href=\"/my/equity?"
+"access_token={{ctx.get('equity_access_token')}}\" class=\"btn btn-"
+"primary\">Show Equity</a> <br/> <br/>\n"
+"                        En iyisi,\n"
+"                       <t t-if=\"user_id.signature\">\n"
+"                            <br/>--<br/>\n"
+"                            <t t-out=\"user_id.signature or ''\">Mitchell "
+"Admin</t>\n"
+"                        </t>\n"
+"                   </p>\n"
+"                </div>\n"
+"            "
+
+#. module: equity
+#: model:mail.template,body_html:equity.equity_ubo_form_email_template
+msgid ""
+"<div>\n"
+"                    <p> Hello <t t-out=\"object.name\"/>,<br/>\n"
+"                        Following our legal obligations to identify clients, "
+"we need to report natural persons who directly or indirectly\n"
+"                        hold or control at least 25% in the capital or "
+"voting rights of <b><t t-out=\"user_id.company_id.name\"/></b>. <br/> <br/>\n"
+"                        Please fill in the UBO request:<br/>\n"
+"                        <a t-attf-href=\"/my/ubo?"
+"{{object._get_equity_url_params()}}\" class=\"btn btn-primary\">Fill UBO</a> "
+"<br/> <br/>\n"
+"                        Thank you,\n"
+"                        <t t-if=\"user_id.signature\">\n"
+"                            <br/>--<br/>\n"
+"                            <t t-out=\"user_id.signature or ''\">Mitchell "
+"Admin</t>\n"
+"                        </t>\n"
+"                    </p>\n"
+"                </div>\n"
+"            "
+msgstr ""
+"<div>\n"
+"                    <p> Merhaba <t t-out=\"object.name\"/>,<br/>\n"
+"                        Müşterileri tanımlamaya yönelik yasal "
+"yükümlülüklerimizi takiben, doğrudan veya dolaylı olarak aşağıdakileri yapan "
+"gerçek kişileri bildirmemiz gerekir\n"
+"                        % i <b><t t-out=\"user_id.company_id.name\"/> </b> "
+"şirketinin sermayesinin veya oy haklarının en az %25'ine sahip olması veya "
+"kontrol etmesi. <br/> <br/>\n"
+"                        Lütfen UBO talebini doldurun:<br/>\n"
+"                        <a t-attf-href=\"/my/ubo?"
+"{{object._get_equity_url_params()}}\" class=\"btn btn-primary\">UBO "
+"doldurun</a> <br/> <br/>\n"
+"                        Teşekkür ederim,\n"
+"                       <t t-if=\"user_id.signature\">\n"
+"                            <br/>--<br/>\n"
+"                            <t t-out=\"user_id.signature or ''\">Mitchell "
+"Admin</t>\n"
+"                        </t>\n"
+"                   </p>\n"
+"                </div>\n"
+"            "
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_help
+msgid ""
+"<i class=\"fa fa-envelope ms-2 mt-1\" aria-label=\"Email Address\" "
+"title=\"Email Address\"/>"
+msgstr ""
+"<i class=\"fa fa-envelope ms-2 mt-1\" aria-label=\"Email Address\" "
+"title=\"Email Address\"/>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_help
+msgid ""
+"<i class=\"fa fa-phone ms-2 mt-1\" aria-label=\"Phone Number\" title=\"Phone "
+"Number\"/>"
+msgstr ""
+"<i class=\"fa fa-phone ms-2 mt-1\" aria-label=\"Phone Number\" title=\"Phone "
+"Number\"/>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_kanban
+msgid ""
+"<i title=\"To\" class=\"fa fa-fw fa-arrow-right mx-1\" "
+"invisible=\"transaction_type != 'exercise'\"/>"
+msgstr ""
+"<i title=\"To\" class=\"fa fa-fw fa-arrow-right mx-1\" "
+"invisible=\"transaction_type != 'exercise'\"/>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_kanban
+msgid ""
+"<i title=\"To\" class=\"fa fa-fw fa-arrow-right mx-1\" "
+"invisible=\"transaction_type != 'transfer'\"/>"
+msgstr ""
+"<i title=\"To\" class=\"fa fa-fw fa-arrow-right mx-1\" "
+"invisible=\"transaction_type != 'transfer'\"/>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_view_partner_form
+msgid "<span class=\"o_stat_text\">Shareholders</span>"
+msgstr "<span class=\"o_stat_text\">Hissedarlar</span>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_dashboard_res_partner
+msgid "<span class=\"text-muted\">Valuation</span>"
+msgstr "<span class=\"text-muted\">Değerleme</span>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_dashboard_res_partner
+msgid ""
+"<span> Shareholder<span invisible=\"equity_shareholders_count == 1\">s</"
+"span></span>"
+msgstr ""
+"<span> Hissedar<span invisible=\"equity_shareholders_count == 1\">s</span></"
+"span>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_dashboard_res_partner
+msgid ""
+"<span> Transaction<span invisible=\"equity_transaction_count == 1\">s</"
+"span></span>"
+msgstr ""
+"<span> İşlem<span invisible=\"equity_transaction_count == 1\">s</span></span>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "<span>Missing supporting documents! Attach them in the chatter.</span>"
+msgstr "<span>Destekleyici belgeler eksik! Onları sohbete ekleyin.</span>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_security_class_form
+msgid "<span>per share</span>"
+msgstr "<span>hisse başına</span>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "<strong>Address:</strong>"
+msgstr "<strong>Adres:</strong>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "<strong>Company Name:</strong>"
+msgstr "<strong>Şirket adı:</strong>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "<strong>OR</strong>"
+msgstr "<strong>VEYA</strong>"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "<strong>Tax ID Number:</strong>"
+msgstr "<strong>Vergi Kimlik Numarası:</strong>"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/valuation_chart/valuation_chart.xml:0
+msgid ""
+"= Your shares / Total number of shares (i.e., options not taken into account)"
+msgstr "= Hisseleriniz / Toplam hisse sayısı (opsiyonlar dikkate alınmaz)"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"A credit or financial institution located in a country listed by the Royal "
+"Decree of 19 July 2013 drawing up a third\n"
+"                            country equivalence list for a simplified due "
+"diligence (article 37(2), subparagraph 1(2 and 5), of the AML law);"
+msgstr ""
+"Kraliyet Kararnamesi ile listelenen bir ülkede bulunan bir alacak veya "
+"finans kuruluşu 19 Temmuz 2013 tarihinde üçüncü bir\n"
+"                            basitleştirilmiş bir durum tespiti için ülke "
+"denklik listesi (AML yasasının 37(2) maddesi, 1(2 ve 5) alt paragrafı);"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"A listed company: a company whose shares are traded on a regulated market a "
+"Member States of the European\n"
+"                            Economic Area; or"
+msgstr ""
+"Borsada işlem gören bir şirket: hisseleri piyasada işlem gören bir şirket "
+"Avrupa Ekonomik Alan Üye Devletleri"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid ""
+"According to laws related to anti money laundering, the notary must identify "
+"the beneficial owners of their customer."
+msgstr ""
+"Kara para aklamayla mücadele ile ilgili yasalara göre, noter müşterilerinin "
+"gerçek sahiplerini tespit etmelidir."
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_needaction
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_needaction
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_needaction
+msgid "Action Needed"
+msgstr "Aksiyon Gerekiyor"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.js:0
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Add Beneficial Owner"
+msgstr "Hak Sahibi Ekle"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/valuation_chart_action/valuation_chart_action.js:0
+msgid "Add some valuations over the past year to see some data here."
+msgstr ""
+"Burada bazı verileri görmek için geçtiğimiz yıldaki bazı değerlemeleri "
+"ekleyin."
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_attachment_count
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_attachment_count
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_attachment_count
+msgid "Attachment Count"
+msgstr "Ek Sayısı"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__attachment_number
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__attachment_number
+msgid "Attachment Number"
+msgstr "Ek Numarası"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__attachment_ids
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__attachment_ids
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__attachment_ids
+msgid "Attachments"
+msgstr "Ekler"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_valuation__event__audit
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_valuation_search
+msgid "Audit"
+msgstr "Denetim"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__auditor
+msgid "Auditor"
+msgstr "Denetçi"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: model:ir.model.fields,help:equity.field_equity_ubo__auth_rep_role
+msgid "Authorized Representative Role"
+msgstr "Yetkili Temsilci Rolü"
+
+#. module: equity
+#: model:ir.actions.act_window,name:equity.action_equity_ubo
+#: model_terms:ir.ui.view,arch_db:equity.equity_view_partner_form
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_list
+msgid "Beneficial Owners"
+msgstr "Hak Sahipleri"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Beneficial owners are natural person(s) who ultimately own(s) or control(s) "
+"the customer or the natural person(s)\n"
+"                    for whose account or on whose behalf a transaction is "
+"being conducted or a business relationship is established. It\n"
+"                    includes those natural persons that do not have a "
+"controlling holding in the company or a formal mandate of any kind\n"
+"                    but who are de facto exercising similar control over the "
+"company."
+msgstr ""
+"Gerçek hak sahipleri, nihai olarak müşterinin veya gerçek kişi(ler)in sahibi "
+"olan veya kontrol eden gerçek kişi(ler)\n"
+"                    hesabına veya adına bir işlem yapılan veya bir iş "
+"ilişkisi kurulan kişi. Bu\n"
+"                    şirkette kontrol sahibi olmayan veya herhangi bir türde "
+"resmi bir yetkiye sahip olmayan gerçek kişileri içerir\n"
+"                    ancak fiilen şirket üzerinde benzer bir kontrol "
+"uygulayan kişilerdir."
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: model:ir.model.fields,field_description:equity.field_res_partner__ubo_birth_date
+#: model:ir.model.fields,field_description:equity.field_res_users__ubo_birth_date
+msgid "Birth Date"
+msgstr "Doğum Tarihi"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__ubo_birth_place
+#: model:ir.model.fields,field_description:equity.field_res_users__ubo_birth_place
+msgid "Birth Place"
+msgstr "Doğum Yeri"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__board_member
+msgid "Board Member"
+msgstr "Yönetim Kurulu Üyesi"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Buyer"
+msgstr "Alıcı"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__ceo
+msgid "CEO"
+msgstr "CEO"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Can only exercise options, please select an options class"
+msgstr "Sadece opsiyonları kullanabilir, lütfen bir opsiyon sınıfı seçin"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_transaction__transaction_type__cancellation
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_search
+msgid "Cancellation"
+msgstr "İptal"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_security_class.py:0
+msgid "Cannot change security class type because it has linked transactions"
+msgstr ""
+"Bağlantılı işlemlere sahip olduğu için güvenlik sınıfı türü değiştirilemiyor"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+#: model:ir.actions.client,name:equity.action_equity_cap_table
+#: model:ir.model,name:equity.model_equity_cap_table
+#: model:ir.ui.menu,name:equity.menu_equity_reporting_cap_table
+msgid "Cap Table"
+msgstr "Kapak Tablosu"
+
+#. module: equity
+#: model:ir.actions.act_window,name:equity.action_equity_cap_table_pivot
+#: model:ir.ui.menu,name:equity.menu_equity_reporting_cap_table_pivot
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_cap_table_pivot
+msgid "Cap Table Pivot"
+msgstr "Kapak Tablosu Pivotu"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__chairman
+msgid "Chairman of the Board"
+msgstr "Yönetim Kurulu Başkanı"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__security_class_id
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Class"
+msgstr "Sınıf"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "Clear"
+msgstr "Temizle"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__partner_id
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__partner_id
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__partner_id
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_search
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_form
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_search
+msgid "Company"
+msgstr "Firma"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__co_1
+msgid "Company - Cat 1. Capital Ownership or voting rights"
+msgstr "Şirket - Kedi 1. Sermaye Sahiplik veya oy hakları"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__co_2
+msgid "Company - Cat 2. Control by other means"
+msgstr "Şirket - Kedi 2. Diğer yollarla kontrol"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__co_3
+msgid "Company - Cat 3. Executive officer"
+msgstr "Şirket - Kat 3. İcra memuru"
+
+#. module: equity
+#: model:ir.ui.menu,name:equity.menu_equity_configuration
+msgid "Configuration"
+msgstr "Ayarlar"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.xml:0
+#: model:ir.model,name:equity.model_res_partner
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_help
+msgid "Contact"
+msgstr "Kontak"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.js:0
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__end_date
+msgid "Control End Date"
+msgstr "Kontrol Bitiş Tarihi"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.js:0
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__control_method
+msgid "Control Method"
+msgstr "Kontrol Yöntemi"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.js:0
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__start_date
+msgid "Control Start Date"
+msgstr "Kontrol Başlangıç Tarihi"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.js:0
+msgid "Control Start Date is mandatory"
+msgstr "Kontrol Başlangıç Tarihi zorunludur"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Control is the legal or de facto right to exercise a decisive influence over "
+"the appointment of the majority of its\n"
+"                    directors or managers or over the direction of its "
+"operations."
+msgstr ""
+"Kontrol, çoğunluk yöneticilerinin veya müdürlerinin atanması ya da "
+"faaliyetlerinin yönlendirilmesi üzerinde\n"
+"                    belirleyici bir etki kullanma konusunda yasal veya fiilî "
+"hak anlamına gelir."
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "Controlling Method"
+msgstr "Kontrol Yöntemi"
+
+#. module: equity
+#: model:ir.actions.act_window,name:equity.action_equity_valuation_form
+msgid "Create Valuation"
+msgstr "Değerleme Oluşturun"
+
+#. module: equity
+#: model:ir.model,website_form_label:equity.model_res_partner
+msgid "Create a Customer"
+msgstr "Müşteri Oluşturma"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__create_uid
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__create_uid
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__create_uid
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__create_uid
+msgid "Created by"
+msgstr "Tarafından oluşturuldu"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__create_date
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__create_date
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__create_date
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__create_date
+msgid "Created on"
+msgstr "Oluşturuldu"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__equity_currency_id
+msgid "Currency"
+msgstr "Kur"
+
+#. module: equity
+#: model:ir.ui.menu,name:equity.menu_equity_dashboard
+msgid "Dashboard"
+msgstr "Rapor Paneli"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__date
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__date
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "Date"
+msgstr "Tarih"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "Decision maker"
+msgstr "Karar verici"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Definitions: \"beneficial owners\", \"control\", \"shareholder holding 25% "
+"or more\", \"decision makers\""
+msgstr ""
+"Tanımlar: \"intifa hakkı sahipleri\", \"kontrol\", \"25% or daha fazla "
+"hisseye sahip hissedar\", \"karar alıcılar\""
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__destination_class_id
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Destination Class"
+msgstr "Hedef Sınıf"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Destination class can only be set in exercise transactions."
+msgstr "Hedef sınıfı yalnızca egzersiz işlemlerinde ayarlanabilir."
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__dilution
+msgid "Dilution"
+msgstr "Seyreltme"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: code:addons/equity/static/src/components/ubo_form/holder_end_dialog.xml:0
+msgid "Discard"
+msgstr "Sil"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__display_name
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__display_name
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__display_name
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__display_name
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__display_name
+#: model:ir.model.fields,field_description:equity.field_res_partner__display_name
+msgid "Display Name"
+msgstr "İsim Göster"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__dividend_payout
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__dividend_payout
+msgid "Dividend Payout"
+msgstr "Temettü Ödemesi"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__attachment_expiration_date
+msgid "Document Exp. Date"
+msgstr "Belge Süresi Tarih"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "Document Expiration Date"
+msgstr "Belge Son Geçerlilik Tarihi"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.js:0
+msgid "Edit Beneficial Owner"
+msgstr "Hak Sahibini Düzenle"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+#: model:ir.actions.server,name:equity.action_equity_dashboard_res_partner
+#: model:ir.ui.menu,name:equity.menu_equity
+#: model:res.groups.privilege,name:equity.res_groups_privilege_equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_breadcrumbs_equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_home_equity
+msgid "Equity"
+msgstr "Özsermaye"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_access_token
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_access_token
+msgid "Equity Access Token"
+msgstr "Özkaynak Erişim Jetonu"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__equity_currency_id
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_currency_id
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_currency_id
+msgid "Equity Currency"
+msgstr "Özkaynak Para Birimi"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_kanban_dashboard_graph
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_kanban_dashboard_graph
+msgid "Equity Kanban Dashboard Graph"
+msgstr "Equity Kanban Gösterge Paneli Grafiği"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_last_valuation
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_last_valuation
+msgid "Equity Last Valuation"
+msgstr "Özkaynak Son Değerleme"
+
+#. module: equity
+#: model:mail.template,name:equity.equity_shareholder_email_template
+msgid "Equity Shareholder Email"
+msgstr "Hisse Sahibi E-posta"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_shareholders_count
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_shareholders_count
+msgid "Equity Shareholders Count"
+msgstr "Özkaynak Hissedar Sayısı"
+
+#. module: equity
+#: model:ir.model,name:equity.model_equity_transaction
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_transaction_ids
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_transaction_ids
+msgid "Equity Transaction"
+msgstr "Özkaynak İşlemi"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_transaction_count
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_transaction_count
+msgid "Equity Transaction Count"
+msgstr "Özkaynak İşlem Sayısı"
+
+#. module: equity
+#: model:mail.template,name:equity.equity_ubo_form_email_template
+msgid "Equity UBO Form Email"
+msgstr "Özkaynak UBO Formu E-posta"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_valuation_ids
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_valuation_ids
+msgid "Equity Valuation"
+msgstr "Özkaynak Değerlemesi"
+
+#. module: equity
+#: model:mail.template,subject:equity.equity_shareholder_email_template
+msgid "Equity notice"
+msgstr "Özkaynak bildirimi"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__event
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "Event"
+msgstr "Etkinlik"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "Exemption from the identification of beneficial"
+msgstr "Yararlanıcıların tespitinden muafiyet"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Exercise transactions must have a destination 'Share' class"
+msgstr "Egzersiz işlemlerinin bir hedef 'Hisse' sınıfı olmalıdır"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__expiration_date
+msgid "Expiration"
+msgstr "Geçerlilik Tarihi"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "Expiration Date"
+msgstr "Son Kullanma Tarihi"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__expiration_diff
+msgid "Expiration Diff"
+msgstr "Son Kullanma Farklılığı"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_search
+msgid "Expired Documents"
+msgstr "Süresi Dolmuş Belgeler"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Family members: the spouse, any person considered as equivalent to the "
+"persons considered as equivalent to the\n"
+"                        spouse; the parents;"
+msgstr ""
+"Aile üyeleri: eş, eşdeğer olarak kabul edilen kişilere eşdeğer olarak kabul "
+"edilen herhangi bir kişi\n"
+"                        eş; ebeveynler;"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "First and Last Name:"
+msgstr "Adı ve Soyadı:"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_follower_ids
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_follower_ids
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_follower_ids
+msgid "Followers"
+msgstr "Takipçiler"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_partner_ids
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_partner_ids
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "Takipçiler (İş ortakları)"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Following out legal obligations to identify clients, please report natural "
+"persons who directly or indirectly\n"
+"                <b>hold or control at least 25% in the capital or voting "
+"rights</b> of"
+msgstr ""
+"Müşterileri tanımlamaya yönelik yasal yükümlülükleri takip ederek, lütfen "
+"doğrudan veya dolaylı olarak\n"
+"               <b>en az 25% in sermaye veya oy hakkına</b> sahip olması veya "
+"kontrol etmesi"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_formation_date
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_formation_date
+msgid "Formation Date"
+msgstr "Oluşum Tarihi"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+msgid "Fully Diluted"
+msgstr "Tamamen Seyreltilmiş"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_end_dialog.js:0
+msgid "Function end: %s"
+msgstr "İşlev sonu: %s"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Governing authorities of the European Union, bodies and agencies as defined "
+"by the Royal Decree of 19 July 2013\n"
+"                            drawing up a list of European governing "
+"authorities, bodies and specialized agencies for a simplified due diligence."
+msgstr ""
+"Avrupa Birliği'nin yönetim makamları, 19 Temmuz 2013 tarihli Kraliyet "
+"Kararnamesi ile tanımlanan organlar ve ajanslar\n"
+"                            Basitleştirilmiş bir durum tespiti için Avrupa "
+"yönetim makamları, organları ve uzman kurumlarının bir listesinin "
+"hazırlanması."
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__has_auth_rep_role
+msgid "Has Auth Rep Role"
+msgstr "Yetkili Temsilci Rolü Var"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__has_message
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__has_message
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__has_message
+msgid "Has Message"
+msgstr "Mesaj Var"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__has_percentages
+msgid "Has Percentages"
+msgstr "Yüzdelere Sahip"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Heads of State, heads of government, ministers and deputy or assistant "
+"ministers; members of parliaments;\n"
+"                        members of the governing bodies of political "
+"parties; members of supreme courts, of constitutional courts or of other\n"
+"                        high judicial bodies whose decisions are not subject "
+"to further appeal, except in exceptional circumstances; members\n"
+"                        of courts of auditors or of the boards of central "
+"banks; ambassadors, charges d'affaires and high armed forces;\n"
+"                        members of the administrative, management or "
+"supervisory bodies of State owned enterprises; directors, deputy\n"
+"                        directors and members of the board or equivalent "
+"function of an international"
+msgstr ""
+"Devlet başkanları, hükümet başkanları, bakanlar ve bakan yardımcıları veya "
+"vekilleri; parlamento üyeleri;\n"
+"                        siyasi partilerin yönetim organlarının üyeleri; "
+"yüksek mahkemelerin, anayasa mahkemelerinin veya diğer mahkemelerin üyeleri\n"
+"                        istisnai durumlar dışında kararları temyize tabi "
+"olmayan yüksek yargı organları; üyeler\n"
+"                        Sayıştay veya merkez bankası yönetim kurulu üyeleri; "
+"büyükelçiler, maslahatgüzarlar ve yüksek silahlı kuvvetler mensupları;\n"
+"                        Kamu iktisadi teşebbüslerinin idari, yönetim veya "
+"denetim organlarının üyeleri; müdürler, müdür yardımcıları\n"
+"                        uluslararası bir kuruluşun yönetim kurulu veya "
+"eşdeğer bir işlevinin direktörleri ve üyeleri"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__holder_id
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__holder_id
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_form
+msgid "Holder"
+msgstr "Tutucu"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_view_partner_form
+msgid "Holdings"
+msgstr "Holdingler"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid ""
+"I hereby declare on honor that the information provided is truthful and "
+"accurate."
+msgstr ""
+"Verdiğim bilgilerin doğru ve gerçek olduğunu şerefim üzerine beyan ederim."
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__id
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__id
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__id
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__id
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__id
+#: model:ir.model.fields,field_description:equity.field_res_partner__id
+msgid "ID"
+msgstr "ID"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: model_terms:ir.ui.view,arch_db:equity.equity_view_partner_form
+msgid "ID Number"
+msgstr "Kimlik Numarası"
+
+#. module: equity
+#: model:ir.model.fields,help:equity.field_equity_transaction__message_needaction
+#: model:ir.model.fields,help:equity.field_equity_ubo__message_needaction
+#: model:ir.model.fields,help:equity.field_equity_valuation__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "İşaretliyse, yeni mesajlar dikkatinize sunulacak."
+
+#. module: equity
+#: model:ir.model.fields,help:equity.field_equity_transaction__message_has_error
+#: model:ir.model.fields,help:equity.field_equity_transaction__message_has_sms_error
+#: model:ir.model.fields,help:equity.field_equity_ubo__message_has_error
+#: model:ir.model.fields,help:equity.field_equity_ubo__message_has_sms_error
+#: model:ir.model.fields,help:equity.field_equity_valuation__message_has_error
+#: model:ir.model.fields,help:equity.field_equity_valuation__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "İşaretliyse, bazı mesajlar gönderi hatası içermektedir."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"If the future beneficiary(ies) have not yet been designated, the group of "
+"persons in the main interests of whom the\n"
+"                                    legal entity was formed or operates."
+msgstr ""
+"Gelecekteki lehtar(lar)ın henüz belirlenmemiş olması halinde, ana "
+"menfaatleri söz konusu olan kişi grubu\n"
+"                                    tüzel kişilik oluşturulmuş veya faaliyet "
+"göstermektedir."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "If the shareholder holding more than 25% is"
+msgstr "25'ten fazla hisseye sahip hissedar ise% is"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_submit
+msgid ""
+"If you are returning to an already submitted form, please note that your "
+"information has been securely stored."
+msgstr ""
+"Daha önce gönderilmiş bir forma geri dönüyorsanız, lütfen bilgilerinizin "
+"güvenli bir şekilde saklandığını unutmayın."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_submit
+msgid ""
+"If your form has been successfully submitted, our team will review it and "
+"keep you informed of any updates."
+msgstr ""
+"Formunuz başarıyla gönderildiyse, ekibimiz formu inceleyecek ve "
+"güncellemelerden sizi haberdar edecektir."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_search
+msgid "In Control"
+msgstr "Kontrol Altında"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__invalid_securities_error
+msgid "Invalid Securities Error"
+msgstr "Geçersiz Menkul Kıymet Hatası"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_ubo.py:0
+msgid "Invalid data: %s"
+msgstr "Geçersiz veri: %s"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/controllers/portal.py:0
+msgid "Invalid token"
+msgstr "Geçersiz jeton"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+msgid "Invite %s"
+msgstr "Davetiye %s"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_is_follower
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_is_follower
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_is_follower
+msgid "Is Follower"
+msgstr "Takipçi mi"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_transaction__transaction_type__issuance
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_search
+msgid "Issuance"
+msgstr "İhraç"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "Job Position:"
+msgstr "İş Pozisyonu:"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__write_uid
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__write_uid
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__write_uid
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__write_uid
+msgid "Last Updated by"
+msgstr "Son Güncelleyen"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__write_date
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__write_date
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__write_date
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__write_date
+msgid "Last Updated on"
+msgstr "Son Güncelleme"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__equity_legal_form
+#: model:ir.model.fields,field_description:equity.field_res_users__equity_legal_form
+msgid "Legal Form"
+msgstr "Hukuki Form"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "Legal persons governed by public national laws;"
+msgstr "Ulusal kamu kanunları tarafından yönetilen tüzel kişiler;"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__liquidator
+msgid "Liquidator"
+msgstr "Tasfiye Memuru"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+msgid "Manage transactions, equity, cap table, and shareholders."
+msgstr "İşlemleri, öz sermayeyi, sermaye tablosunu ve hissedarları yönetin."
+
+#. module: equity
+#: model:res.groups,name:equity.group_equity_manager
+msgid "Manager"
+msgstr "Yönetici"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__managing_director
+msgid "Managing Director"
+msgstr "Genel Müdür"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_has_error
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_has_error
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_has_error
+msgid "Message Delivery error"
+msgstr "Mesaj Teslim hatası"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_ids
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_ids
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_ids
+msgid "Messages"
+msgstr "Mesajlar"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_search
+msgid "Missing Documents"
+msgstr "Eksik Belgeler"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_equity
+msgid "My Companies"
+msgstr "Şirketlerim"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__ngo_1
+msgid "NGO - Cat 1. Directors"
+msgstr "STK - Kat 1. Yöneticiler"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__ngo_2
+msgid "NGO - Cat 2. Individuals with representation authority"
+msgstr "STK - Kat 2. Temsil yetkisine sahip bireyler"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__ngo_3
+msgid "NGO - Cat 3. Individuals responsible for day-to-day management"
+msgstr "STK - Kat 3. Günlük yönetimden sorumlu bireyler"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__ngo_4
+msgid "NGO - Cat 4. Founders of a foundation"
+msgstr "STK - Kat 4. Vakıf kurucuları"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__ngo_5
+msgid ""
+"NGO - Cat 5. Individuals or categories of individuals in whose main interest "
+"the association or foundation has been established or operates"
+msgstr ""
+"STK - Kat 5. Dernek veya vakfın ana menfaatleri doğrultusunda kurulduğu veya "
+"faaliyet gösterdiği bireyler veya birey kategorileri"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__control_method__ngo_6
+msgid ""
+"NGO - Cat 6. Any other individual who ultimately exercises control by other "
+"means"
+msgstr ""
+"STK - Kat 6. Nihai olarak başka yollarla kontrolü elinde bulunduran diğer "
+"herhangi bir kişi"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.js:0
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__name
+#: model_terms:ir.ui.view,arch_db:equity.equity_view_partner_form
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_ubo_list
+msgid "Name"
+msgstr "Adı"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.js:0
+msgid "Name is mandatory"
+msgstr "İsim zorunludur"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "Nationality"
+msgstr "Uyruk (Ülke)"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Natural Persons who have a formal mandate within the Board of the company. "
+"These are for example the person(s) who are named (or equivalent of) Chief "
+"Executive Officer (CEO), Chief Financial Officer (CFO) or Treasurer. If a "
+"legal entity exercises a mandate in the Board of the company, it is required "
+"to list all Board level mandate holders including their function. <br/> "
+"Natural persons that do not have a controlling holding in the company or a "
+"formal mandate of any kind but who are de facto exercising similar control "
+"over the company."
+msgstr ""
+"Şirketin Yönetim Kurulu içinde resmi bir yetkiye sahip olan Gerçek Kişiler. "
+"Bunlar örneğin İcra Kurulu Başkanı (CEO), Finans Direktörü (CFO) veya Sayman "
+"olarak adlandırılan (veya eşdeğeri olan) kişi(ler)dir. Eğer bir tüzel kişi "
+"şirketin Yönetim Kurulunda bir yetki kullanıyorsa, tüm Yönetim Kurulu "
+"düzeyindeki yetki sahiplerini işlevleriyle birlikte listelemesi "
+"gerekmektedir. <br/> Şirkette kontrol sahibi olmayan veya herhangi bir türde "
+"resmi bir yetkiye sahip olmayan ancak şirket üzerinde fiilen benzer bir "
+"kontrol uygulayan gerçek kişiler."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_help
+msgid "Need help?"
+msgstr "Yardıma mı ihtiyacınız var?"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.xml:0
+msgid "New Transaction"
+msgstr "Yeni İşlem"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "New Valuation"
+msgstr "Yeni Değerleme"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "No"
+msgstr "Hayır"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "No %s was set!"
+msgstr "Hiçbir %s ayarlanmadı!"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "No UBOs recorded for this company."
+msgstr "Bu şirket için kaydedilmiş UBO bulunmamaktadır."
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+msgid "No shareholders yet!"
+msgstr "Henüz hissedar yok!"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/valuation_chart_action/valuation_chart_action.js:0
+msgid "No valuations yet!"
+msgstr "Henüz değerleme yok!"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__notes
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Notes"
+msgstr "Notlar"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_needaction_counter
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_needaction_counter
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_needaction_counter
+msgid "Number of Actions"
+msgstr "Eylem Sayısı"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_has_error_counter
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_has_error_counter
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_has_error_counter
+msgid "Number of errors"
+msgstr "Hata sayısı"
+
+#. module: equity
+#: model:ir.model.fields,help:equity.field_equity_transaction__message_needaction_counter
+#: model:ir.model.fields,help:equity.field_equity_ubo__message_needaction_counter
+#: model:ir.model.fields,help:equity.field_equity_valuation__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "Eylem gerektiren mesajların sayısı"
+
+#. module: equity
+#: model:ir.model.fields,help:equity.field_equity_transaction__message_has_error_counter
+#: model:ir.model.fields,help:equity.field_equity_ubo__message_has_error_counter
+#: model:ir.model.fields,help:equity.field_equity_valuation__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "Teslimat hatası olan mesaj sayısı"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid ""
+"Only %(seller_options)s %(security_class_name)s options available for "
+"transfer"
+msgstr ""
+"Transfer için yalnızca %(seller_options)s %(security_class_name)s "
+"seçenekleri mevcuttur"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid ""
+"Only %(seller_shares)s %(security_class_name)s shares available for transfer"
+msgstr ""
+"Sadece %(seller_shares)s %(security_class_name)s hisseleri devredilebilir"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid ""
+"Only %(subscriber_options)s %(security_class_name)s options available for "
+"cancellation"
+msgstr ""
+"İptal için yalnızca %(subscriber_options)s %(security_class_name)s "
+"seçenekleri mevcuttur"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid ""
+"Only %(subscriber_options)s %(security_class_name)s options available for "
+"exercise"
+msgstr ""
+"Sadece %(subscriber_options)s %(security_class_name)s opsiyonları "
+"kullanılabilir"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid ""
+"Only %(subscriber_shares)s %(security_class_name)s shares available for "
+"cancellation"
+msgstr ""
+"Sadece %(subscriber_shares)s %(security_class_name)s iptal edilebilir "
+"hisseler"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_transaction__transaction_type__exercise
+msgid "Option Exercise"
+msgstr "Opsiyon Kullanımı"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Option Pool"
+msgstr "Seçenek Havuzu"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_security_class__class_type__options
+msgid "Options"
+msgstr "Seçenekler"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_search
+msgid "Options Exercise"
+msgstr "Opsiyon Kullanımı"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.js:0
+#: code:addons/equity/static/src/components/valuation_chart/valuation_chart.xml:0
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__ownership
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__ownership
+#: model:ir.ui.menu,name:equity.menu_equity_ownership
+msgid "Ownership"
+msgstr "Mülkiyet"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__ubo_pep
+#: model:ir.model.fields,field_description:equity.field_res_users__ubo_pep
+msgid "PEP"
+msgstr "PEP"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "PEP - Politically Exposed Person"
+msgstr "PEP - Siyasi Açığa Çıkmış Kişi"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__partner_id
+msgid "Partner"
+msgstr "İş Ortağı"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: model:ir.model.fields,help:equity.field_res_partner__ubo_pep
+#: model:ir.model.fields,help:equity.field_res_users__ubo_pep
+msgid "Politically Exposed Person"
+msgstr "Siyasi Olarak İfşa Edilmiş Kişi"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Position"
+msgstr "Pozisyon"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Price"
+msgstr "Fiyat"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_valuation_list
+msgid "Price FD"
+msgstr "Fiyat FD"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_valuation_list
+msgid "Price ND"
+msgstr "Fiyat ND"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__security_price
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__security_price
+msgid "Price per Security"
+msgstr "Menkul Kıymet Başına Fiyat"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__share_price
+msgid "Price per Share"
+msgstr "Hisse Başına Fiyat"
+
+#. module: equity
+#: model:ir.actions.report,name:equity.action_equity_ubo_report
+msgid "Print UBO"
+msgstr "UBO Yazdır"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__rating_ids
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__rating_ids
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__rating_ids
+msgid "Ratings"
+msgstr "Değerlendirmeler"
+
+#. module: equity
+#: model:ir.model.fields,help:equity.field_equity_transaction__subscriber_id
+msgid "Recipient of the securities of the transaction."
+msgstr "İşlemin menkul kıymetlerinin alıcısı."
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_end_dialog.xml:0
+msgid "Remove Shareholder"
+msgstr "Hissedar Çıkarma"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Remove holder exit date."
+msgstr "Tutucu çıkış tarihini kaldırın."
+
+#. module: equity
+#: model:ir.ui.menu,name:equity.menu_equity_reporting
+msgid "Reporting"
+msgstr "Raporlama"
+
+#. module: equity
+#: model:ir.actions.act_window,name:equity.action_equity_request_ubo_form
+msgid "Request UBO Form"
+msgstr "UBO Talep Formu"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__auth_rep_role
+msgid "Role"
+msgstr "Rol"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__message_has_sms_error
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__message_has_sms_error
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "SMS İleti hatası"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__secretary
+msgid "Secretary"
+msgstr "Sekreter"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__securities
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_equity
+msgid "Securities"
+msgstr "Securities"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Securities must be positive"
+msgstr "Menkul kıymetler pozitif olmalıdır"
+
+#. module: equity
+#: model:ir.model,name:equity.model_equity_security_class
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__security_class_id
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_security_class_form
+msgid "Security Class"
+msgstr "Güvenlik Sınıfı"
+
+#. module: equity
+#: model:ir.actions.act_window,name:equity.action_equity_security_class
+#: model:ir.ui.menu,name:equity.menu_equity_configuration_security_classes
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_security_class_list
+msgid "Security Classes"
+msgstr "Güvenlik Sınıfları"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "Security Price"
+msgstr "Güvenlik Fiyatı"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_home_equity
+msgid "See your shares and transactions"
+msgstr "Hisselerinizi ve işlemlerinizi görün"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__seller_id
+msgid "Seller"
+msgstr "Satıcı"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__seller_name
+msgid "Seller Name"
+msgstr "Satıcı Adı"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Seller and Buyer must be different."
+msgstr "Satıcı ve Alıcı farklı olmalıdır."
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Seller id can only be set in transfer transactions."
+msgstr "Satıcı kimliği yalnızca transfer işlemlerinde ayarlanabilir."
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.xml:0
+msgid "Send"
+msgstr "Gönder"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Send to Seller"
+msgstr "Satıcıya Gönder"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Send to Subscriber"
+msgstr "Aboneye Gönder"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__sequence
+msgid "Sequence"
+msgstr "Sıralama"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "Shareholders who hold more than 25%"
+msgstr "25'ten fazla hisseye sahip olan hissedarlar%"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_security_class__class_type__shares
+msgid "Shares"
+msgstr "Paylaşımlar"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "Shares transactions must have a subscriber"
+msgstr "Hisse işlemlerinin bir abonesi olmalıdır"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "Signature date:"
+msgstr "İmza tarihi:"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Signature of Representative"
+msgstr "Temsilcinin İmzası"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "Signature:"
+msgstr "İmza:"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Strike Price"
+msgstr "Kullanım Fiyatı"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Submit"
+msgstr "Gönder"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__subscriber_id
+msgid "Subscriber"
+msgstr "Abone"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__subscriber_id_placeholder
+msgid "Subscriber Id Placeholder"
+msgstr "Abone Kimliği Yer Tutucu"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__subscriber_name
+msgid "Subscriber Name"
+msgstr "Abone Adı"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "Supporting Document"
+msgstr "Destekleyici Belge"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_submit
+msgid ""
+"Thank you for providing your Ultimate Beneficial Owner (UBO) information."
+msgstr ""
+"Nihai Gerçek Faydalanıcı (UBO) bilgilerinizi verdiğiniz için teşekkür ederiz."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid ""
+"The \"# Securities\" total is not counting the \"Options Exercise\" "
+"transactions (because they are counted at the time of \"Options Issuance\"). "
+"The \"Transaction Price\" total is not counting the prices of options "
+"issuance transactions because that is a strike price."
+msgstr ""
+"\"Menkul Kıymet Sayısı\" toplamı \"Opsiyon Kullanım\" işlemlerini "
+"saymamaktadır (\"Opsiyon İhracı\" sırasında sayıldıkları için). \"İşlem "
+"Fiyatı\" toplamı, opsiyon ihraç işlemlerinin fiyatlarını saymamaktadır çünkü "
+"bu bir kullanım fiyatıdır."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"The declaration must be completed by the persons authorized to represent the "
+"company or entity according to its Articles of Association."
+msgstr ""
+"Beyanname, Ana Sözleşmesine göre şirketi veya tüzel kişiliği temsil etmeye "
+"yetkili kişiler tarafından doldurulmalıdır."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"The natural person(s) who ultimately own(s) or control(s) this corporate "
+"entity through direct or indirect ownership or control over 25% of the "
+"shares or voting rights of that corporate entity. <br/> Example: Company B "
+"and Company C hold each have a 20-percent interest in Company A. The private "
+"individual Z holds 90 % of the shares of Company B and of the Company C. Z "
+"is considered as shareholder holding more than 25% of A, for Z holds - "
+"indirectly - 36 % of the shares in A."
+msgstr ""
+"Bu tüzel kişiliğin hisselerine veya oy haklarına doğrudan veya dolaylı "
+"olarak sahip olmak veya bunları kontrol etmek suretiyle bu tüzel kişiliğe "
+"nihai olarak sahip olan veya kontrol eden gerçek kişi(ler)% of. <br/> Örnek: "
+"B Şirketi ve C Şirketinin her biri A Şirketinde yüzde 20 paya sahiptir. Z "
+"özel şahsı B Şirketinin ve C Şirketinin 90 % of hissesini elinde "
+"bulundurmaktadır. Z, A'da - dolaylı olarak - 36 % of hisseye sahip olduğu "
+"için 25% of A'dan daha fazla hisseye sahip hissedar olarak kabul edilir."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid ""
+"The undersigned (executive officer or administrator) acting as a "
+"representative of the company:"
+msgstr ""
+"Şirketin temsilcisi olarak hareket eden aşağıda imzası bulunan (icra memuru "
+"veya yönetici):"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "There are currently no transactions for your account."
+msgstr "Şu anda hesabınız için herhangi bir işlem bulunmamaktadır."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "There are two classes of beneficial owners:"
+msgstr "İki sınıf intifa hakkı sahibi vardır:"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_equity
+msgid "There is currently no equity for your account."
+msgstr "Şu anda hesabınız için özkaynak bulunmamaktadır."
+
+#. module: equity
+#: model:ir.model.constraint,message:equity.constraint_equity_ubo_unique_ubo
+msgid "This contact is already a holder of this company"
+msgstr "Bu kişi zaten bu şirketin sahibidir"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"This said, where a shareholder holding more than 25% is a legal arrangement "
+"other than a registered company, beneficial owners are:"
+msgstr ""
+"Bununla birlikte, 25'ten fazla hisseye sahip olan bir hissedarın kayıtlı bir "
+"şirket dışında bir yasal düzenlemeye sahip olması halinde, intifa hakkı "
+"sahipleri:"
+
+#. module: equity
+#. odoo-javascript
+#. odoo-python
+#: code:addons/equity/controllers/portal.py:0
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__transfer_amount
+msgid "Total"
+msgstr "Toplam"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/controllers/portal.py:0
+msgid "Total Value"
+msgstr "Toplam Değer"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_valuation__event__transaction
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_valuation_form
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_valuation_search
+msgid "Transaction"
+msgstr "İşlem"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_my_company_equity
+msgid "Transaction Price"
+msgstr "İşlem Fiyatı"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__transaction_type
+msgid "Transaction Type"
+msgstr "İşlem Tipi"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+#: model:ir.actions.act_window,name:equity.action_equity_transaction
+#: model:ir.ui.menu,name:equity.menu_equity_ownership_transactions
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_list
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_valuation_list
+msgid "Transactions"
+msgstr "İşlemler"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_transaction__transaction_type__transfer
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_search
+msgid "Transfer"
+msgstr "Aktarım"
+
+#. module: equity
+#: model:ir.model.fields.selection,name:equity.selection__equity_ubo__auth_rep_role__treasurer
+msgid "Treasurer"
+msgstr "Sayman"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__securities_type
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__class_type
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__securities_type
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_list
+msgid "Type"
+msgstr "Tür"
+
+#. module: equity
+#: model:ir.ui.menu,name:equity.menu_equity_ownership_ubos
+#: model_terms:ir.ui.view,arch_db:equity.equity_view_partner_form
+msgid "UBO"
+msgstr "UBO"
+
+#. module: equity
+#: model:mail.activity.type,name:equity.equity_ubo_form_mail_activity
+msgid "UBO Form Request"
+msgstr "UBO Form Talebi"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__ubo_national_identifier
+#: model:ir.model.fields,field_description:equity.field_res_users__ubo_national_identifier
+msgid "UBO ID Number"
+msgstr "UBO Kimlik Numarası"
+
+#. module: equity
+#: model:mail.template,subject:equity.equity_ubo_form_email_template
+msgid "UBO form"
+msgstr "UBO formu"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+msgid ""
+"UBO portal form will become unavailable once this activity will be marked as "
+"done"
+msgstr ""
+"Bu faaliyet tamamlandı olarak işaretlendiğinde UBO portal formu kullanılamaz "
+"hale gelecektir"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__ubo_owned_company_ids
+#: model:ir.model.fields,field_description:equity.field_res_users__ubo_owned_company_ids
+msgid "Ubo Owned Company"
+msgstr "Ubo'ya Ait Şirket"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_res_partner__ubo_owner_ids
+#: model:ir.model.fields,field_description:equity.field_res_users__ubo_owner_ids
+msgid "Ubo Owner"
+msgstr "Ubo Sahibi"
+
+#. module: equity
+#: model:ir.model,name:equity.model_equity_ubo
+msgid "Ultimate Beneficial Owner"
+msgstr "Nihai Gerçek Faydalanıcı"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "Ultimate Beneficial Owners (UBO) Request"
+msgstr "Nihai Gerçek Faydalanıcı Sahipleri (UBO) Talebi"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "Ultimate Beneficial Owners (UBO) statement"
+msgstr "Nihai Gerçek Faydalanıcı Sahipleri (UBO) beyanı"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+msgid "Unassigned"
+msgstr "Atanmamış"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "Upload"
+msgstr "Yükle"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Upload Files"
+msgstr "Dosya Yükleme"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+msgid "Upload UBO Form"
+msgstr "UBO Formunu Yükle"
+
+#. module: equity
+#. odoo-javascript
+#. odoo-python
+#: code:addons/equity/models/res_partner.py:0
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+#: code:addons/equity/static/src/components/valuation_chart/valuation_chart.xml:0
+#: model:ir.actions.client,name:equity.action_equity_valuation_graph
+#: model:ir.model,name:equity.model_equity_valuation
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__valuation
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__valuation
+#: model:ir.ui.menu,name:equity.menu_equity_reporting_valuation
+msgid "Valuation"
+msgstr "Değerleme"
+
+#. module: equity
+#: model:ir.actions.act_window,name:equity.action_equity_valuation
+#: model:ir.ui.menu,name:equity.menu_equity_ownership_valuations
+msgid "Valuations"
+msgstr "Değerlemeler"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "Vesting period, exercise deadline, etc."
+msgstr "Hakediş süresi, son egzersiz tarihi, vb."
+
+#. module: equity
+#: model:res.groups,name:equity.group_equity_viewer
+msgid "Viewer"
+msgstr "Görüntüleyici"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__votes
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_security_class_form
+msgid "Votes"
+msgstr "Oylamalar"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_security_class__share_votes
+msgid "Votes per Share"
+msgstr "Hisse Başına Oy"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/cap_table/cap_table.js:0
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.js:0
+#: code:addons/equity/static/src/components/valuation_chart/valuation_chart.xml:0
+#: model:ir.model.fields,field_description:equity.field_equity_cap_table__voting_rights
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__voting_rights
+msgid "Voting Rights"
+msgstr "Oy Hakları"
+
+#. module: equity
+#: model:ir.model.fields,field_description:equity.field_equity_transaction__website_message_ids
+#: model:ir.model.fields,field_description:equity.field_equity_ubo__website_message_ids
+#: model:ir.model.fields,field_description:equity.field_equity_valuation__website_message_ids
+msgid "Website Messages"
+msgstr "Websitesi Mesajları"
+
+#. module: equity
+#: model:ir.model.fields,help:equity.field_equity_transaction__website_message_ids
+#: model:ir.model.fields,help:equity.field_equity_ubo__website_message_ids
+#: model:ir.model.fields,help:equity.field_equity_valuation__website_message_ids
+msgid "Website communication history"
+msgstr "Websitesi iletişim geçmişi"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_end_dialog.xml:0
+msgid "When did the shareholder lose its 25% stake in control or in votes?"
+msgstr "Hissedar 25% skontrolünü veya oy hakkını ne zaman kaybetti?"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"Where the future beneficiaries have already been determined, the natural "
+"person(s) who is the beneficiary of 25% or\n"
+"                                    more of the property of a legal "
+"arrangement or entity or"
+msgstr ""
+"Gelecekteki lehtarların halihazırda belirlenmiş olduğu durumlarda, 25% or "
+"adresinin lehtarı olan gerçek kişi(ler)\n"
+"                                    yasal bir düzenlemenin veya tüzel "
+"kişiliğin mülkiyetinin daha fazlası veya"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid "Who should complete and sign the declaration?"
+msgstr "Beyannameyi kim doldurmalı ve imzalamalıdır?"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "Yes"
+msgstr "Evet"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid ""
+"You can remove any shareholder holding less than 25% of the shares or voting "
+"rights."
+msgstr ""
+"Hisseleri veya oy hakları 25% of'den az olan herhangi bir hissedarı "
+"çıkarabilirsiniz."
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.js:0
+msgid "You must provide either the date of birth, or the ID number"
+msgstr "Ya doğum tarihini ya da kimlik numarasını vermelisiniz"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Your Name"
+msgstr "Adınız"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/ubo_form.xml:0
+msgid "Your Position"
+msgstr "Sizin Pozisyonunuz"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_submit
+msgid "Your UBO Declaration Has Been Submitted!"
+msgstr "UBO Beyannameniz Gönderilmiştir!"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/controllers/portal.py:0
+msgid "Your Value ND"
+msgstr "Değeriniz ND"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"any natural person who has sole beneficial ownership of a legal entity or "
+"legal arrangement which is known to have\n"
+"                        been set up for the benefit de facto of a PEP."
+msgstr ""
+"sahip olduğu bilinen bir tüzel kişilik veya yasal düzenlemenin tek intifa "
+"hakkına sahip olan herhangi bir gerçek kişi\n"
+"                        fiilen bir PEP'in menfaati için kurulmuştur."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.portal_ubo_form
+msgid ""
+"any natural person who is known to have joint beneficial ownership of legal "
+"entities or legal arrangements, or any\n"
+"                        other close business relations, with a PEP;"
+msgstr ""
+"tüzel kişiliklerin veya yasal düzenlemelerin müşterek intifa hakkına sahip "
+"olduğu bilinen herhangi bir gerçek kişi veya herhangi bir\n"
+"                        bir PEP ile diğer yakın iş ilişkileri;"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid ""
+"are the following individuals who have control by other means on the "
+"direction of the company (administrators)"
+msgstr ""
+"şirketin yönetimi üzerinde başka yollarla kontrol sahibi olan aşağıdaki "
+"kişilerdir (yöneticiler)"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid ""
+"are the following individuals who, in last resort, own or control directly "
+"or indirectly more than 25% of the shares or of the voting rights of this "
+"company"
+msgstr ""
+"son çare olarak, doğrudan veya dolaylı olarak bu şirketin hisselerinin veya "
+"oy haklarının 25% of'den fazlasına sahip olan veya kontrol eden aşağıdaki "
+"kişilerdir"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "are the following publicly traded companies."
+msgstr "aşağıdaki halka açık şirketlerdir."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "born"
+msgstr "doğmuş"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "day"
+msgstr "gün"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "days"
+msgstr "gün"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "declares that the beneficial owners of the company:"
+msgstr "şirketin intifa hakkı sahiplerini beyan eder:"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_security_class_form
+msgid "e.g. Seed, Series A, ..."
+msgstr "Örneğin Tohum, Seri A, ..."
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "in"
+msgstr "ile"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "month"
+msgstr "ay"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "months"
+msgstr "ay"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.equity_ubo_report
+msgid "on"
+msgstr ":"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.xml:0
+msgid "or"
+msgstr "veya"
+
+#. module: equity
+#. odoo-javascript
+#: code:addons/equity/static/src/components/ubo_form/holder_edit_dialog.js:0
+msgid "please keep percentages between 0 and 100"
+msgstr "lütfen yüzdeleri 0 ile 100 arasında tutun"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "remaining"
+msgstr "kalan"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "seller"
+msgstr "satıcı"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "subscriber"
+msgstr "abone"
+
+#. module: equity
+#: model_terms:ir.ui.view,arch_db:equity.view_equity_transaction_form
+msgid "to"
+msgstr "den"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "year"
+msgstr "yıl"
+
+#. module: equity
+#. odoo-python
+#: code:addons/equity/models/equity_transaction.py:0
+msgid "years"
+msgstr "yıl"

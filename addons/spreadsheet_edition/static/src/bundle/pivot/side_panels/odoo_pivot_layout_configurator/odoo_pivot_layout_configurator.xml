@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t
+        t-name="spreadsheet_edition.OdooPivotLayoutConfigurator"
+        t-inherit="o-spreadsheet-PivotLayoutConfigurator">
+        <xpath expr="//AddDimensionButton" position="replace">
+            <PivotModelFieldSelector
+                resModel="props.definition.model"
+                isDebugMode="!!env.debug"
+                readonly="false"
+                filter.bind="isFieldAlreadyPresent"
+                update.bind="addColumnDimension"/>
+        </xpath>
+        <xpath expr="//AddDimensionButton" position="replace">
+            <PivotModelFieldSelector
+                resModel="props.definition.model"
+                isDebugMode="!!env.debug"
+                readonly="false"
+                filter.bind="isFieldAlreadyPresent"
+                update.bind="addRowDimension"
+            />
+        </xpath>
+    </t>
+    <t
+        t-name="spreadsheet_edition.PivotModelFieldSelector"
+        t-inherit="web._ModelFieldSelector">
+        <xpath expr="//div[hasclass('o_model_field_selector')]" position="replace">
+            <button class="add-dimension o-button" t-on-click="(ev) => this.openPopover(ev.currentTarget)">Add</button>
+        </xpath>
+    </t>
+    <t
+        t-name="spreadsheet_edition.PivotModelFieldSelectorPopover"
+        t-inherit="web.ModelFieldSelectorPopover">
+        <xpath expr="//li[hasclass('o_model_field_selector_popover_item')]" position="attributes">
+            <attribute name="t-att-data-tooltip">duplicateTooltip(fieldDef.isFieldAlreadyPresent)</attribute>
+        </xpath>
+        <xpath expr="//li[hasclass('o_model_field_selector_popover_item')]/button[1]" position="attributes">
+            <attribute name="t-att-disabled">fieldDef.isFieldAlreadyPresent</attribute>
+        </xpath>
+    </t>
+</templates>

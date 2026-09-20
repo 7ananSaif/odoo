@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="bh_full_tax_return_type" model="account.return.type">
+            <field name="name">Full Tax</field>
+            <field name="report_id" ref="l10n_bh.l10n_bh_tax_report_full"/>
+            <field name="country_id" ref="base.bh" />
+        </record>
+
+        <record id="bh_simplified_tax_return_type" model="account.return.type">
+            <field name="name">Simplified Tax</field>
+            <field name="report_id" ref="l10n_bh.l10n_bh_tax_report_simplified"/>
+            <field name="country_id" ref="base.bh" />
+            <field name="auto_generate" eval="False"/>
+        </record>
+    </data>
+</odoo>

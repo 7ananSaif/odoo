@@ -1,0 +1,388 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * website_helpdesk_livechat
+#
+# Translators:
+# Ertuğrul Güreş <ertugrulg@projetgrup.com>, 2022
+# Ediz Duman <neps1192@gmail.com>, 2022
+# Tugay Hatıl <tugayh@projetgrup.com>, 2022
+# Halil, 2022
+# Murat Kaplan <muratk@projetgrup.com>, 2022
+# Martin Trigaux, 2022
+# Gökhan Erdoğdu <gokhan.erdogdu@mechsoft.com.tr>, 2022
+# İlknur Gözütok, 2023
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# DeepL <noreply-mt-deepl@weblate.org>, 2025.
+# Odoo Turkish Import <dyki+tr@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-11-21 14:41+0000\n"
+"Last-Translator: Odoo Turkish Import <dyki+tr@odoo.com>\n"
+"Language-Team: Turkish <https://translate.odoo.com/projects/odoo-19/"
+"website_helpdesk_livechat/tr/>\n"
+"Language: tr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/chatbot_script_step.py:0
+msgid "%(name)s's Ticket"
+msgstr "%(name)s'in Bileti"
+
+#. module: website_helpdesk_livechat
+#: model_terms:ir.ui.view,arch_db:website_helpdesk_livechat.helpdesk_tiket_view_form_inherit_website_helpdesk_livechat
+msgid "<span class=\"o_stat_text\">View chat</span>"
+msgstr "<span class=\"o_stat_text\">Sohbeti görüntüle</span>"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_done
+msgid "Alright, we should have everything we need"
+msgstr "Pekala, ihtiyacımız olan her şeye sahip olmalıyız."
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/chatbot_script.py:0
+msgid ""
+"An \"Email\" step type must exist before the \"Create Ticket\" step for a "
+"ticket to be created."
+msgstr ""
+"Bir bilet oluşturulması için \"Bilet Oluştur\" adımından önce bir \"E-"
+"posta\" adım türü bulunmalıdır."
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_technical_serial_misc
+msgid "Anything else to add?"
+msgstr "Eklemek istediğiniz başka bir şey var mı?"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_chatbot_script
+msgid "Chatbot Script"
+msgstr "Chatbot Komut Dosyası"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_chatbot_script_step
+msgid "Chatbot Script Step"
+msgstr "Chatbot Komut Dosyası Adımı"
+
+#. module: website_helpdesk_livechat
+#: model:ir.ui.menu,name:website_helpdesk_livechat.chatbot_config
+msgid "Chatbots"
+msgstr "Sohbet robotu"
+
+#. module: website_helpdesk_livechat
+#: model_terms:ir.ui.view,arch_db:website_helpdesk_livechat.helpdesk_team_view_form_inherit_website_helpdesk_livechat
+msgid "Configure Chatbots"
+msgstr "Sohbet Robotlarını Yapılandırma"
+
+#. module: website_helpdesk_livechat
+#: model_terms:ir.ui.view,arch_db:website_helpdesk_livechat.helpdesk_team_view_form_inherit_website_helpdesk_livechat
+msgid "Configure Live Chat Channel"
+msgstr "Canlı Sohbet Kanalını Yapılandırma"
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/thread_actions.js:0
+#: model:ir.model.fields.selection,name:website_helpdesk_livechat.selection__chatbot_script_step__step_type__create_ticket
+msgid "Create Ticket"
+msgstr "Talep Oluştur"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,website_form_label:website_helpdesk_livechat.model_helpdesk_ticket
+msgid "Create a Ticket"
+msgstr "Bilet Oluşturma"
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/web/store_service_patch.js:0
+msgid "Create a new helpdesk ticket (/ticket ticket title)"
+msgstr "Yeni bir Yardım Masası bileti oluşturun (/ticket bilet başlığı)"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid ""
+"Create a new helpdesk ticket with: %(pre_start)s%(ticket_command)s %"
+"(i_start)sticket title%(i_end)s%(pre_end)s"
+msgstr ""
+"Şununla yeni bir Yardım Masası bileti oluşturun: %(pre_start)s%"
+"(ticket_command)s %(i_start)s bilet başlığı%(i_end)s%(pre_end)s"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid "Created a new ticket: %s"
+msgstr "Yeni bir bilet oluşturuldu: %s"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_discuss_channel
+msgid "Discussion Channel"
+msgstr "Mesajlaşma Kanalı"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script_step__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_team__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_ticket__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_im_livechat_report_channel__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_res_users__display_name
+msgid "Display Name"
+msgstr "İsim Göster"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_dispatch
+msgid "First, what is the nature of your issue?"
+msgstr "İlk olarak, sorununuzun niteliği nedir?"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_yes
+msgid "Great, that will make our lives easier."
+msgstr "Harika, bu hayatımızı kolaylaştıracak."
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_discuss_channel__has_helpdesk_ticket
+msgid "Has Helpdesk Ticket"
+msgstr "Yardım Masası Bileti Var"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script,title:website_helpdesk_livechat.chatbot_script_helpdesk_bot
+msgid "Helpdesk Bot"
+msgstr "Yardım Masası Botu"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_helpdesk_team
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script_step__helpdesk_team_id
+msgid "Helpdesk Team"
+msgstr "Destek Ekibi"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_helpdesk_ticket
+msgid "Helpdesk Ticket"
+msgstr "Yardım Masası Talebi"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_welcome
+msgid "Here we go, help is on the way!"
+msgstr "İşte başlıyoruz, yardım yolda!"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script.answer,name:website_helpdesk_livechat.chatbot_script_helpdesk_step_dispatch_answer_technical
+msgid "I have a technical issue"
+msgstr "Teknik bir sorunum var"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script.answer,name:website_helpdesk_livechat.chatbot_script_helpdesk_step_dispatch_answer_administrative
+msgid "I have an administrative question"
+msgstr "İdari bir sorum var"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script_step__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_discuss_channel__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_team__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_ticket__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_im_livechat_report_channel__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_res_users__id
+msgid "ID"
+msgstr "ID"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_no
+msgid "It's OK, we can also find your contract by other means."
+msgstr "Sorun değil, sözleşmenizi başka yollarla da bulabiliriz."
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_email
+msgid "Just a last thing, can we please have your email address?"
+msgstr "Son bir şey daha, lütfen e-posta adresinizi alabilir miyiz?"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_team__use_website_helpdesk_livechat
+msgid "Live Chat"
+msgstr "Canlı Sohbet"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_ticket__origin_channel_id
+msgid "Live chat from which the ticket was created"
+msgstr "Biletin oluşturulduğu canlı sohbet"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_im_livechat_report_channel
+msgid "Livechat Support Channel Report"
+msgstr "Canlı Yardım Destek Kanalı Raporu"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid "Load More"
+msgstr "Daha Fazla Yükle"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script.answer,name:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_answer_no
+msgid "No"
+msgstr "Hayır"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid ""
+"No tickets found for %(b_start)s%(keywords)s%(b_end)s.%(br)sMake sure you "
+"are using the right format: %(pre_start)s%(search_tickets_command)s %"
+"(i_start)skeywords%(i_end)s%(pre_end)s"
+msgstr ""
+"%(b_start)s%(keywords)s%(b_end)s için bilet bulunamadı. %(br)s Doğru formatı "
+"kullandığınızdan emin olun: %(pre_start)s%(search_tickets_command)s%"
+"(i_start)s anahtar kelimeler %(i_end)s%(pre_end)s"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_ticket
+msgid ""
+"OK, I just created a ticket for you. You should receive an email "
+"confirmation very soon."
+msgstr ""
+"Tamam, sizin için bir destek talep bileti oluşturdum. Çok yakında bir onay e-"
+"postası alacaksınız."
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
+msgid "Open tickets"
+msgstr "Açık biletler"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_technical_serial
+msgid "Please write below the serial number of your equipment."
+msgstr "Lütfen ekipmanınızın seri numarasını aşağıya yazın."
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_input
+msgid "Please write below your customer reference."
+msgstr "Lütfen müşteri referansınızı aşağıya yazınız."
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/web/store_service_patch.js:0
+msgid "Search helpdesk tickets (/search_tickets keyword)"
+msgstr "Yardım Masası biletlerini arama (/search_tickets anahtar sözcüğü)"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid ""
+"Search helpdesk tickets by typing: %(pre_start)s%(search_tickets_command)s %"
+"(i_start)skeywords%(i_end)s%(pre_end)s"
+msgstr ""
+"Yardım Masası biletlerini yazarak arayın: %(pre_start)s%"
+"(search_tickets_command)s %(i_start)s anahtar kelimeler%(i_end)s%(pre_end)s"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid "Something is missing or wrong in command"
+msgstr "Birşey eksik veya komutta yanlış birşey var"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid "Something is missing or wrong in the command"
+msgstr "Komutta eksik veya yanlış bir şey var"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script_step__step_type
+msgid "Step Type"
+msgstr "Adım Türü"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_technical_serial_thanks
+msgid "Thank you, that will help our engineers see what went wrong."
+msgstr ""
+"Teşekkürler, bu mühendislerimizin neyin yanlış gittiğini görmelerine "
+"yardımcı olacaktır."
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,help:website_helpdesk_livechat.field_discuss_channel__ticket_ids
+msgid "The channel becomes accessible to helpdesk users when tickets are set."
+msgstr ""
+"Biletler ayarlandığında kanal yardım masası kullanıcıları tarafından "
+"erişilebilir hale gelir."
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_discuss_channel__ticket_ids
+#: model_terms:ir.ui.view,arch_db:website_helpdesk_livechat.chatbot_script_view_form
+msgid "Tickets"
+msgstr "Biletler"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_im_livechat_report_channel__tickets_created
+msgid "Tickets created"
+msgstr "Biletler oluşturuldu"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid ""
+"Tickets search results for %(b_start)s%(keywords)s%(b_end)s: %(br)s%"
+"(tickets)s"
+msgstr ""
+"Bilet arama sonuçları için %(b_start)s%(keywords)s%(b_end)s : %(br)s%"
+"(tickets)s"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref
+msgid ""
+"To start with, do you have a customer reference?\n"
+"They are written on each invoice you received, next to your name."
+msgstr ""
+"İlk olarak, bir müşteri referansınız var mı?\n"
+"Aldığınız her faturada adınızın yanında yazılıdır."
+
+#. module: website_helpdesk_livechat
+#: model:res.groups,name:website_helpdesk_livechat.group_use_website_helpdesk_livechat
+msgid "Use Live Chat"
+msgstr "Canlı Sohbet'i Kullanın"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_res_users
+msgid "User"
+msgstr "Kullanıcı"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_issue
+msgid "We're all set. Now, what is your issue?"
+msgstr "Her şey hazır. Şimdi, sorununuz nedir?"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script.answer,name:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_answer_yes
+msgid "Yes"
+msgstr "Evet"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/helpdesk_ticket.py:0
+msgid "You cannot create tickets linked to channels you don't have access to."
+msgstr "Erişiminiz olmayan kanallara bağlı destek talepleri oluşturamazsınız."
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/helpdesk_ticket.py:0
+msgid ""
+"You cannot update a ticket and link it to a channel you don't have access to."
+msgstr ""
+"Bir bileti güncelleyemez ve erişiminiz olmayan bir kanala bağlayamazsınız."
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/thread_actions.js:0
+msgid "e.g. Product arrived damaged"
+msgstr "örn. Ürün hasarlı ulaştı"
+
+#~ msgid "Canned Responses"
+#~ msgstr "Hazır Cevaplar"

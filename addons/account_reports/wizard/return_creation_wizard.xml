@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="return_creation_wizard_form" model="ir.ui.view">
+        <field name="name">account.return.creation.wizard.form</field>
+        <field name="model">account.return.creation.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Return">
+                <group>
+                        <field name="available_return_type_ids" invisible="1"/>
+                        <field name="return_type_id" required="1" widget="selection_badge" options="{'no_open': True, 'no_create_edit': True}" class="w-100"/>
+                        <label for="date_from" string="Dates"/>
+                        <div class="d-flex align-items-center">
+                            <field name="date_to" invisible="1"/>
+                            <field name="date_from" nolabel="1" style="width: 40%"
+                                widget="daterange" options="{'end_date_field': 'date_to'}"/>
+                            <span
+                                invisible="not show_warning_wrong_dates"
+                                class="fa fa-exclamation-triangle text-danger pb-2"
+                                title="The selected range doesn't match any fiscal period."
+                            />
+                            <span
+                                invisible="not show_warning_existing_return"
+                                class="fa fa-exclamation-triangle text-danger pb-2"
+                                title="A return already exists for the selected period."
+                            />
+                        </div>
+                </group>
+                <group invisible="category != 'audit'">
+                    <separator string="Cycles"/>
+                    <group>
+                        <field name="fixed_assets" />
+                        <field name="payroll" />
+                        <field name="government" />
+                        <field name="equity" />
+                        <field name="other" />
+                        <field name="inventory" />
+                    </group>
+                    <group>
+                        <field name="regulatory_compliance" />
+                        <field name="treasury_financing" />
+                        <field name="purchases" />
+                        <field name="operating_expenses" />
+                        <field name="sales" />
+                    </group>
+                </group>
+                <footer>
+                    <button string="Generate Return" name="action_create_manual_account_returns" type="object" class="btn-primary" data-hotkey="q" disabled="1" 
+                            invisible="not show_warning_wrong_dates and not show_warning_existing_return and return_type_id and date_from and date_to"/>
+                    <button string="Generate Return" name="action_create_manual_account_returns" type="object" class="btn-primary" data-hotkey="q"
+                            invisible="show_warning_wrong_dates or show_warning_existing_return or not return_type_id or not date_from or not date_to"/>
+                    <button string="Discard" class="btn-secondary" special="cancel" data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

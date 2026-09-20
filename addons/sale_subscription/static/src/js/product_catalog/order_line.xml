@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<templates>
+    <t t-inherit="product.ProductCatalogOrderLine"
+       t-inherit-mode="extension">
+        <xpath expr="//span[hasclass('o_product_catalog_price')]" position="inside">
+            <span class="ms-1" t-out="props.plan_name"/>
+        </xpath>
+    </t>
+</templates>

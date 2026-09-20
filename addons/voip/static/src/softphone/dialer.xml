@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip.Dialer">
+    <div class="o-voip-Dialer d-flex flex-column align-items-center gap-2 w-100 pb-3 overflow-auto">
+        <Keypad state="softphone.dialer" onClickFirstResult.bind="onClickKeypadFirstResult"/>
+        <ActionButton t-if="!softphone.dialer.showMore"
+            name.translate="Call"
+            icon="'fa-phone fa-2x'"
+            type="'success'"
+            onClick.bind="onClickCall"
+            hideLabel="true"
+        />
+    </div>
+</t>
+</templates>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="mr_tax_return_type" model="account.return.type">
+            <field name="name">VAT</field>
+            <field name="name@fr">TVA</field>
+            <field name="report_id" ref="l10n_mr.tax_report"/>
+        </record>
+    </data>
+</odoo>

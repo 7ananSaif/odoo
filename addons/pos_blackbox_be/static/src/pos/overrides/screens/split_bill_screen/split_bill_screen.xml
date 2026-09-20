@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="SplitBillScreen" t-inherit="pos_restaurant.SplitBillScreen" t-inherit-mode="extension">
+        <xpath expr="//button[hasclass('split-order-button')]" position="attributes">
+            <attribute name="t-att-disabled" add="this.pos.waitBeforePayment" separator=" or "/>
+        </xpath>
+        <xpath expr="//button[hasclass('pay-split-order')]" position="attributes">
+            <attribute name="t-att-disabled">this.pos.waitBeforePayment</attribute>
+        </xpath>
+        <xpath expr="//button[hasclass('transfer-split-order')]" position="attributes">
+            <attribute name="t-att-disabled">this.pos.waitBeforePayment</attribute>
+        </xpath>
+    </t>
+</templates>

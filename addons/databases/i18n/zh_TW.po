@@ -1,0 +1,779 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * databases
+#
+# Odoo Translation Bot <c3p@odoo.com>, 2025.
+# "Tony Ng (ngto)" <ngto@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:41+0000\n"
+"PO-Revision-Date: 2025-10-17 07:35+0000\n"
+"Last-Translator: \"Tony Ng (ngto)\" <ngto@odoo.com>\n"
+"Language-Team: Chinese (Traditional Han script) <https://translate.odoo.com/"
+"projects/odoo-19/databases/zh_Hant/>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "%(nb_new_dbs)s new databases, %(nb_updated_dbs)s updated."
+msgstr "%(nb_new_dbs)s 個新資料庫，已更新 %(nb_updated_dbs)s 個。"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.project_project_view_form_simplified_template
+msgid ""
+"<span class=\"o_wrap_label\"><span class=\"o_form_label\">Fetch</span></span>"
+msgstr ""
+"<span class=\"o_wrap_label\"><span class=\"o_form_label\">讀取</span></span>"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.project_project_view_form_simplified_template
+msgid "<span>Documents</span>"
+msgstr "<span>文件</span>"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.project_project_view_form_simplified_template
+msgid "<span>Draft Journal Entries</span>"
+msgstr "<span>草稿日記賬記項</span>"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.project_project_view_form_simplified_template
+msgid "<span>Tax Returns</span>"
+msgstr "<span>報稅表</span>"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "API credentials to Odoo.com"
+msgstr "Odoo.com 的 API 登入憑證"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "Add a user"
+msgstr "加入使用者"
+
+#. module: databases
+#: model:res.groups,name:databases.group_databases_manager
+msgid "Administrator"
+msgstr "系統管理員"
+
+#. module: databases
+#: model:res.groups,comment:databases.group_databases_manager
+msgid "Administrator can manage the client databases"
+msgstr "系統管理員可管理及修改客戶端資料庫"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_nb_users
+msgid "Amount of Users"
+msgstr "使用者數目"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_nb_documents
+msgid "Amount of documents in Inbox"
+msgstr "收件箱文件數目"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "An error occurred: %s"
+msgstr "發生錯誤：%s"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_manage_users_wizard_view_form
+msgid "Close"
+msgstr "關閉"
+
+#. module: databases
+#: model:ir.model,name:databases.model_res_config_settings
+msgid "Config Settings"
+msgstr "配置設定"
+
+#. module: databases
+#: model:ir.ui.menu,name:databases.menu_configuration
+msgid "Configuration"
+msgstr "配置"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Connect"
+msgstr "連線"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_synchronization_wizard_view_form
+msgid "Continue"
+msgstr "繼續"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__created_database_ids
+msgid "Created Database"
+msgstr "建立資料庫"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__create_uid
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__create_uid
+#: model:ir.model.fields,field_description:databases.field_databases_user__create_uid
+msgid "Created by"
+msgstr "建立者"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__create_date
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__create_date
+#: model:ir.model.fields,field_description:databases.field_databases_user__create_date
+msgid "Created on"
+msgstr "建立日期"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__database_ids
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__database_ids
+#: model:ir.model.fields,field_description:databases.field_databases_user__project_id
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "Database"
+msgstr "資料庫"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_api_key
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_api_key
+msgid "Database API Key"
+msgstr "資料庫 API 密鑰"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_api_login
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_api_login
+msgid "Database API Login"
+msgstr "資料庫 API 登入名稱"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_api_key_to_use
+msgid "Database Api Key To Use"
+msgstr "要使用的資料庫 API 密鑰"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_can_access
+msgid "Database Can Access"
+msgstr "資料庫可存取"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_kpi_base_definition_id
+msgid "Database Kpi Base Definition"
+msgstr "資料庫 KPI 基礎定義"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_name
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_name
+msgid "Database Name"
+msgstr "資料庫名稱"
+
+#. module: databases
+#: model:ir.model,name:databases.model_databases_synchronization_wizard
+msgid "Database Synchronization Wizard"
+msgstr "資料庫同步精靈"
+
+#. module: databases
+#: model:project.project,name:databases.database_default_template
+msgid "Database Template"
+msgstr "資料庫範本"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_url
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_url
+msgid "Database URL"
+msgstr "資料庫網址"
+
+#. module: databases
+#: model:ir.model,name:databases.model_databases_user
+msgid "Database User"
+msgstr "資料庫使用者"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_user_ids
+msgid "Database Users"
+msgstr "資料庫使用者"
+
+#. module: databases
+#: model:ir.model,name:databases.model_databases_manage_users_wizard
+msgid "Database Users Invitation Wizard"
+msgstr "資料庫使用者邀請精靈"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_version
+msgid "Database Version"
+msgstr "資料庫版本"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid ""
+"Database synchronization is running in the background. You will be notified "
+"upon completion."
+msgstr "資料庫同步正在後台運行，完成後會通知你。"
+
+#. module: databases
+#: model:ir.actions.act_window,name:databases.action_view_databases_all
+#: model:ir.ui.menu,name:databases.menu_databases
+#: model:ir.ui.menu,name:databases.menu_main_databases
+#: model:res.groups.privilege,name:databases.res_groups_privilege_databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "Databases"
+msgstr "資料庫"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.ir_cron_synchronize_databases_with_odoocom_ir_actions_server
+msgid "Databases: pull databases from Odoo.com and synchronize"
+msgstr "資料庫：從 Odoo.com 拉取資料庫，並進行同步"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.ir_cron_synchronize_databases_ir_actions_server
+msgid "Databases: synchronize"
+msgstr "資料庫：同步"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_manage_users_wizard_view_form
+msgid "Discard"
+msgstr "取消"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__display_name
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__display_name
+#: model:ir.model.fields,field_description:databases.field_databases_user__display_name
+#: model:ir.model.fields,field_description:databases.field_project_project__display_name
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__display_name
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "顯示名稱"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__databases_manage_users_wizard__state__done
+#: model:project.task.type,name:databases.stage_done
+msgid "Done"
+msgstr "完成"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__databases_manage_users_wizard__state__draft
+msgid "Draft"
+msgstr "草稿"
+
+#. module: databases
+#. odoo-javascript
+#: code:addons/databases/static/src/views/databases_project_list/databases_project_list_renderer.js:0
+msgid "Draft entries in journal %(journal_name)s"
+msgstr "日記賬「%(journal_name)s」內的草稿記項"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__error_message
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__error_message
+msgid "Error Message"
+msgstr "錯誤訊息"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid ""
+"Error while connecting to %(url)s: We are missing the database name, the api "
+"login or the api key\n"
+msgstr ""
+"連線至以下網址時，發生錯誤：缺漏資料庫名稱、API 登入名稱，或 API 金鑰。網址："
+"%(url)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "Error while creating users on %(dbname)s: %(message)s\n"
+msgstr ""
+"在資料庫上建立使用者時，發生錯誤。資料庫：%(dbname)s，錯誤訊息：%(message)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Error while getting KPIs from %(dbname)s: %(message)s\n"
+msgstr ""
+"從資料庫取得 KPI 時，發生錯誤。資料庫：%(dbname)s，錯誤訊息：%(message)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Error while getting users from %(dbname)s: %(message)s\n"
+msgstr ""
+"從資料庫取得使用者時，發生錯誤。資料庫：%(dbname)s，錯誤訊息：%(message)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Error while listing databases from %(dbname)s: %(message)s\n"
+msgstr "列出資料庫時，發生錯誤。資料庫：%(dbname)s，錯誤訊息：%(message)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "Error while removing users from %(dbname)s: %(message)s\n"
+msgstr ""
+"從資料庫移除使用者時，發生錯誤。資料庫：%(dbname)s，錯誤訊息：%(message)s\n"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__everywhere_user_ids
+msgid "Everywhere User"
+msgstr "全域使用者"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_fetch_documents
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_fetch_documents
+msgid "Fetch Documents"
+msgstr "讀取文件"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_fetch_draft_entries
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_fetch_draft_entries
+msgid "Fetch Draft Journal Entries"
+msgstr "讀取草稿日記賬記項"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_fetch_tax_returns
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_fetch_tax_returns
+msgid "Fetch Tax Returns"
+msgstr "讀取報稅表"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__fetched_values
+msgid "Fetched Values"
+msgstr "讀取到的值"
+
+#. module: databases
+#: model_terms:ir.actions.act_window,help:databases.action_view_databases_all
+msgid ""
+"Get all your Odoo databases summarized, and perform mass action like "
+"inviting users."
+msgstr "獲取你所有 Odoo 資料庫的摘要，並可執行邀請使用者等批量行動。"
+
+#. module: databases
+#: model:ir.model.constraint,message:databases.constraint_project_project_database_url_unique
+msgid "Hey, this URL is already hooked up to a database!"
+msgstr "此網址已經有資料庫使用。"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_hosting
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__database_hosting
+msgid "Hosting"
+msgstr "寄存"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__id
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__id
+#: model:ir.model.fields,field_description:databases.field_databases_user__id
+#: model:ir.model.fields,field_description:databases.field_project_project__id
+#: model:ir.model.fields,field_description:databases.field_project_template_create_wizard__id
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__id
+msgid "ID"
+msgstr "識別碼"
+
+#. module: databases
+#: model:project.task.type,name:databases.stage_progress
+msgid "In Progress"
+msgstr "進行中"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Inbox"
+msgstr "收件箱"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__databases_manage_users_wizard__mode__invite
+msgid "Invitation"
+msgstr "邀請"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "Invitation is done"
+msgstr "已完成邀請"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_manage_users_wizard_view_form
+msgid "Invite"
+msgstr "邀請"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.action_invite_users
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Invite Users"
+msgstr "邀請使用者"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "KPIs"
+msgstr "KPI"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_last_synchro
+msgid "Last Synchronization"
+msgstr "上次同步"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__write_uid
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__write_uid
+#: model:ir.model.fields,field_description:databases.field_databases_user__write_uid
+msgid "Last Updated by"
+msgstr "最後更新者"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__write_date
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__write_date
+#: model:ir.model.fields,field_description:databases.field_databases_user__write_date
+msgid "Last Updated on"
+msgstr "最後更新日期"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_user__latest_authentication
+msgid "Latest Authentication"
+msgstr "最近登入/驗證身份"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_user__local_user_id
+msgid "Local User"
+msgstr "本地使用者"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_user__login
+msgid "Login"
+msgstr "登入名稱"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_kpi_properties
+msgid "Metrics"
+msgstr "指標"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__mode
+msgid "Mode"
+msgstr "模式"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_user__name
+msgid "Name"
+msgstr "名稱"
+
+#. module: databases
+#: model:project.task.type,name:databases.stage_new
+msgid "New"
+msgstr "新增"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__new_properties
+msgid "New KPIs to add:"
+msgstr "要新增的 KPI："
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "New databases will be based on the selected project template."
+msgstr "新的資料庫會建基於所選的專案範本。"
+
+#. module: databases
+#: model_terms:ir.actions.act_window,help:databases.action_view_tasks_all
+msgid "No tasks found. Let's create one!"
+msgstr "找不到任務。立即建立一個吧！"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__notify_user
+msgid "Notify User"
+msgstr "通知使用者"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__project_project__database_hosting__saas
+#: model:ir.model.fields.selection,name:databases.selection__project_template_create_wizard__database_hosting__saas
+msgid "Odoo Online"
+msgstr "Odoo 雲端版"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__databases_apikey
+msgid "Odoo.com API Key"
+msgstr "Odoo.com API 密鑰"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__databases_apiuser
+msgid "Odoo.com API User"
+msgstr "Odoo.com API 使用者"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid ""
+"Odoo.com API keys are managed in the <em>Developer API Keys</em> section of "
+"your"
+msgstr "Odoo.com API 密鑰可在「開發者 API 密鑰」<em></em>設定，詳見你的"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "Odoo.com Connection &amp; Security page"
+msgstr "Odoo.com 連線及安全頁面"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__project_project__database_hosting__paas
+#: model:ir.model.fields.selection,name:databases.selection__project_template_create_wizard__database_hosting__paas
+msgid "Odoo.sh"
+msgstr "Odoo.sh"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__project_project__database_hosting__premise
+#: model:ir.model.fields.selection,name:databases.selection__project_template_create_wizard__database_hosting__premise
+msgid "On Premise"
+msgstr "離線安裝"
+
+#. module: databases
+#: model_terms:ir.actions.act_window,help:databases.action_view_tasks_all
+msgid ""
+"Organize your tasks by dispatching them across the pipeline.<br>\n"
+"                Collaborate efficiently by chatting in real-time or via "
+"email."
+msgstr ""
+"利用管道分配任務，管理井井有條。<br>\n"
+"                透過即時聊天或電子郵件溝通，進行高效協作。"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__project_project__database_hosting__other
+#: model:ir.model.fields.selection,name:databases.selection__project_template_create_wizard__database_hosting__other
+msgid "Outside of Odoo"
+msgstr "Odoo 之外"
+
+#. module: databases
+#. odoo-javascript
+#: code:addons/databases/static/src/views/databases_project_list/databases_project_list_renderer.js:0
+msgid "Planned activities of type %(return_name)s"
+msgstr "以下類型的已規劃活動：%(return_name)s"
+
+#. module: databases
+#: model:ir.model,name:databases.model_project_project
+msgid "Project"
+msgstr "專案"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.res_config_settings_view_form
+msgid "Project Template"
+msgstr "專案範本"
+
+#. module: databases
+#: model:ir.model,name:databases.model_project_template_create_wizard
+msgid "Project Template create Wizard"
+msgstr "專案範本建立精靈"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_res_config_settings__databases_project_template_id
+msgid "Project template"
+msgstr "專案範本"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__property_definition
+msgid "Property Definition"
+msgstr "屬性定義"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "Regular Project"
+msgstr "一般專案"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__removable_user_ids
+msgid "Removable User"
+msgstr "可移除的使用者"
+
+#. module: databases
+#: model:ir.model.fields.selection,name:databases.selection__databases_manage_users_wizard__mode__remove
+msgid "Removal"
+msgstr "移除"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.databases_manage_users_wizard_view_form
+msgid "Remove"
+msgstr "移除"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "Remove User"
+msgstr "移除使用者"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.action_remove_users
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Remove Users"
+msgstr "移除使用者"
+
+#. module: databases
+#: model:ir.ui.menu,name:databases.menu_reporting
+msgid "Reporting"
+msgstr "報告"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Responsible"
+msgstr "負責人"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid ""
+"Select the users you want to invite to the %(nb_databases)s selected "
+"databases."
+msgstr "選取想要邀請哪些使用者，加入已選定的 %(nb_databases)s 個資料庫。"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "Select the users you want to invite to the database %(database_name)s."
+msgstr "選取想要邀請哪些使用者，加入資料庫「%(database_name)s」。"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid ""
+"Select the users you want to remove from the %(nb_databases)s selected "
+"databases."
+msgstr "選取想要從已選定的 %(nb_databases)s 個資料庫，移除哪些使用者。"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid ""
+"Select the users you want to remove from the database %(database_name)s."
+msgstr "選取想要從資料庫「%(database_name)s」移除哪些使用者。"
+
+#. module: databases
+#: model:ir.actions.act_window,name:databases.action_databases_configuration
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Settings"
+msgstr "設定"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__state
+msgid "State"
+msgstr "狀態"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__summary_message
+#: model:ir.model.fields,field_description:databases.field_databases_synchronization_wizard__summary_message
+msgid "Summary Message"
+msgstr "摘要訊息"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_project_project__database_nb_synchro_errors
+msgid "Synchronization Errors Count"
+msgstr "同步錯誤數目"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Synchronization done successfully!"
+msgstr "同步成功完成。"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/models/project_project.py:0
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid "Synchronization of %d databases"
+msgstr "同步 %d 個資料庫"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.action_synchronize_database
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Synchronize"
+msgstr "同步"
+
+#. module: databases
+#: model:ir.actions.server,name:databases.action_synchronize_all_databases
+msgid "Synchronize all the Databases"
+msgstr "同步所有資料庫"
+
+#. module: databases
+#: model_terms:ir.actions.act_window,help:databases.action_view_databases_all
+msgid ""
+"Synchronize to automatically fetch Odoo Online databases, or set an API Key "
+"to connect to On Premise or Odoo.sh ones."
+msgstr ""
+"進行同步，以自動讀取 Odoo 雲端版資料庫；或設定 API 密鑰，以連接至離線安裝版"
+"或 Odoo.sh 資料庫。"
+
+#. module: databases
+#: model:ir.actions.act_window,name:databases.action_view_tasks_all
+#: model:ir.ui.menu,name:databases.menu_tasks
+#: model:project.project,label_tasks:databases.database_default_template
+msgid "Tasks"
+msgstr "任務"
+
+#. module: databases
+#. odoo-javascript
+#: code:addons/databases/static/src/views/databases_project_list/databases_project_list_renderer.js:0
+msgid "Tax return %(return_name)s"
+msgstr "報稅表 %(return_name)s"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_synchronization_wizard.py:0
+msgid ""
+"The database %(url)s is registered as a saas database in odoo.com. As it "
+"seems to be configured we have left it as is.\n"
+msgstr ""
+"資料庫是註冊為在 odoo.com 使用的 SaaS（軟體服務）資料庫。由於資料庫看似已完成"
+"配置，因此未作修改。資料庫網址：%(url)s\n"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "These users were successfully invited to %(nb_databases)s databases."
+msgstr "已成功邀請以下使用者加入 %(nb_databases)s 個資料庫。"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "These users were successfully removed from %(nb_databases)s databases."
+msgstr "已成功從 %(nb_databases)s 個資料庫移除以下使用者。"
+
+#. module: databases
+#: model:ir.model.constraint,message:databases.constraint_project_project_database_url_required
+msgid "Uh-oh! It seems we are missing a url for a database!"
+msgstr "哎唷！似乎缺漏了資料庫網址。"
+
+#. module: databases
+#: model:ir.model.fields,field_description:databases.field_databases_manage_users_wizard__user_ids
+#: model:res.groups,name:databases.group_databases_user
+msgid "User"
+msgstr "使用者"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.edit_project
+msgid "User Management"
+msgstr "管理使用者"
+
+#. module: databases
+#: model:res.groups,comment:databases.group_databases_user
+msgid "User can access the client databases"
+msgstr "使用者可存取客戶端資料庫"
+
+#. module: databases
+#. odoo-python
+#: code:addons/databases/wizard/databases_manage_users_wizard.py:0
+msgid "User removal is done"
+msgstr "完成移除使用者"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Users"
+msgstr "使用者"
+
+#. module: databases
+#: model_terms:ir.ui.view,arch_db:databases.view_databases_list
+msgid "Version"
+msgstr "版本"
+
+#. module: databases
+#: model:ir.model.fields,help:databases.field_databases_synchronization_wizard__notify_user
+msgid ""
+"Whether the user should be notified once the cron has finished synchronizing "
+"the databases"
+msgstr "cron 完成同步資料庫後，是否通知使用者"

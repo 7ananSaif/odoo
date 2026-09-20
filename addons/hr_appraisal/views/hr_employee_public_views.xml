@@ -1,0 +1,50 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="hr_employee_public_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.public.view.form.inherit.appraisal</field>
+        <field name="model">hr.employee.public</field>
+        <field name="inherit_id" ref="hr.hr_employee_public_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_last_appraisal" class="oe_stat_button"
+                    invisible="not is_user or not last_appraisal_id" icon="fa-sitemap" type="object">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="last_appraisal_date"/>
+                        </span>
+                        <span class="o_stat_text">
+                            Last Appraisal
+                        </span>
+                    </div>
+                </button>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_send_appraisal_request"
+                    string="Request Appraisal"
+                    type="object"
+                    data-hotkey="g"
+                    class="btn btn-primary"
+                    invisible="not can_request_appraisal or ongoing_appraisal_count"/>
+                <button name="action_send_appraisal_request"
+                    string="Request Appraisal"
+                    type="object"
+                    data-hotkey="g"
+                    class="btn btn-secondary"
+                    invisible="not can_request_appraisal or not ongoing_appraisal_count"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="hr_employee_public_select_from_goal_view_list" model="ir.ui.view">
+        <field name="name">hr.employee.public.select.from.goal.view.list</field>
+        <field name="model">hr.employee.public</field>
+        <field name="arch" type="xml">
+            <list create="0" edit="0" delete="0" js_class="hr_employee_selection_list">
+                <field name="employee_id" widget="many2one_avatar_employee" width="200px"/>
+                <field name="department_id"/>
+                <field name="job_id"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_return_kanban_view" model="ir.ui.view">
+        <field name="name">account_intrastat.account.return.kanban.intrastat"</field>
+        <field name="model">account.return</field>
+        <field name="inherit_id" ref="account_reports.account_return_kanban_view"/>
+        <field name="arch" type="xml">
+            <a name="action_reset_tax_return_common" position="after">
+                <a invisible="state == 'new' and not is_completed or not is_intrastat_return"
+                   class="dropdown-item"
+                   type="object"
+                   name="action_reset_2_states"
+                   string="Reset"/>
+            </a>
+        </field>
+    </record>
+</odoo>

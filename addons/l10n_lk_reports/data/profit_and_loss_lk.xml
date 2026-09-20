@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo auto_sequence="1">
+    <record id="l10n_lk_pnl" model="account.report">
+        <field name="name">Profit and Loss</field>
+        <field name="root_report_id" ref="account_reports.profit_and_loss" />
+        <field name="country_id" ref="base.lk" />
+        <field name="column_ids">
+            <record id="l10n_lk_pnl_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="l10n_lk_pnl_lk_sci_rev" model="account.report.line">
+                <field name="name">Revenue</field>
+                <field name="code">LK_SCI_REV</field>
+                <field name="hierarchy_level">0</field>
+                <field name="foldable" eval="True" />
+                <field name="groupby">account_id</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_pnl_lk_sci_rev_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">account_codes</field>
+                        <field name="formula">-40</field>
+                    </record>
+                </field>
+            </record>
+            <record id="l10n_lk_pnl_lk_sci_cor" model="account.report.line">
+                <field name="name">Cost of Revenue</field>
+                <field name="code">LK_SCI_COR</field>
+                <field name="hierarchy_level">1</field>
+                <field name="foldable" eval="True" />
+                <field name="groupby">account_id</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_pnl_lk_sci_cor_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">account_codes</field>
+                        <field name="formula">5</field>
+                    </record>
+                </field>
+            </record>
+            <record id="l10n_lk_pnl_lk_sci_gp" model="account.report.line">
+                <field name="name">Gross Profit</field>
+                <field name="code">LK_SCI_GP</field>
+                <field name="hierarchy_level">0</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_pnl_lk_sci_gp_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">LK_SCI_REV.balance - LK_SCI_COR.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="l10n_lk_pnl_lk_sci_oi" model="account.report.line">
+                <field name="name">Other Income</field>
+                <field name="code">LK_SCI_OI</field>
+                <field name="hierarchy_level">1</field>
+                <field name="foldable" eval="True" />
+                <field name="groupby">account_id</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_pnl_lk_sci_oi_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">account_codes</field>
+                        <field name="formula">- 4\(40)</field>
+                    </record>
+                </field>
+            </record>
+            <record id="l10n_lk_pnl_lk_sci_ae" model="account.report.line">
+                <field name="name">Administration expenses</field>
+                <field name="code">LK_SCI_AE</field>
+                <field name="hierarchy_level">1</field>
+                <field name="foldable" eval="True" />
+                <field name="groupby">account_id</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_pnl_lk_sci_ae_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">account_codes</field>
+                        <field name="formula">6</field>
+                    </record>
+                </field>
+            </record>
+            <record id="l10n_lk_pnl_lk_sci_pfo" model="account.report.line">
+                <field name="name">Profit from operations</field>
+                <field name="code">LK_SCI_PFO</field>
+                <field name="hierarchy_level">0</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_pnl_lk_sci_pfo_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">LK_SCI_GP.balance + LK_SCI_OI.balance - LK_SCI_AE.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="l10n_lk_pnl_lk_sci_fc" model="account.report.line">
+                <field name="name">Finance Costs</field>
+                <field name="code">LK_SCI_FC</field>
+                <field name="hierarchy_level">1</field>
+                <field name="foldable" eval="True" />
+                <field name="groupby">account_id</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_pnl_lk_sci_fc_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">account_codes</field>
+                        <field name="formula">7</field>
+                    </record>
+                </field>
+            </record>
+            <record id="l10n_lk_pnl_lk_sci_pbt" model="account.report.line">
+                <field name="name">Profit before taxation</field>
+                <field name="code">LK_SCI_PBT</field>
+                <field name="hierarchy_level">0</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_pnl_lk_sci_pbt_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">LK_SCI_PFO.balance - LK_SCI_FC.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="l10n_lk_pnl_lk_sci_it" model="account.report.line">
+                <field name="name">Income tax expense</field>
+                <field name="code">LK_SCI_IT</field>
+                <field name="hierarchy_level">1</field>
+                <field name="foldable" eval="True" />
+                <field name="groupby">account_id</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_pnl_lk_sci_it_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">account_codes</field>
+                        <field name="formula">8</field>
+                    </record>
+                </field>
+            </record>
+            <record id="l10n_lk_pnl_lk_sci_nep" model="account.report.line">
+                <field name="name">Net profit for the year</field>
+                <field name="code">LK_SCI_NEP</field>
+                <field name="hierarchy_level">0</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_pnl_lk_sci_nep_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">LK_SCI_PBT.balance - LK_SCI_IT.balance</field>
+                    </record>
+                </field>
+            </record>
+            <record id="l10n_lk_pnl_lk_sci_oci" model="account.report.line">
+                <field name="name">Other comprehensive income</field>
+                <field name="code">LK_SCI_OCI</field>
+                <field name="hierarchy_level">1</field>
+                <field name="foldable" eval="True" />
+                <field name="groupby">account_id</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_pnl_lk_sci_oci_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">account_codes</field>
+                        <field name="formula">-90</field>
+                    </record>
+                </field>
+            </record>
+            <record id="l10n_lk_pnl_lk_sci_tci" model="account.report.line">
+                <field name="name">Total comprehensive income for the year</field>
+                <field name="code">LK_SCI_TCI</field>
+                <field name="hierarchy_level">0</field>
+                <field name="expression_ids">
+                    <record id="l10n_lk_pnl_lk_sci_tci_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">aggregation</field>
+                        <field name="formula">LK_SCI_NEP.balance + LK_SCI_OCI.balance</field>
+                    </record>
+                </field>
+            </record>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="l10n_be_hr_payroll_structure_student_regular_pay_basic_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.BASIC"/>
+        <field name="name">Basic Salary</field>
+        <field name="sequence">1</field>
+        <field name="code">BASIC</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = payslip.paid_amount
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_student_regular_pay"/>
+    </record>
+
+    <record id="hr_salary_rule_student_regular_pay_solidarity_cotisation" model="hr.salary.rule">
+        <field name="category_id" ref="l10n_be_hr_payroll.hr_payroll_head_onss"/>
+        <field name="name">Solidarity Cotisation - Student Job</field>
+        <field name="code">ONSS</field>
+        <field name="sequence">18</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result=not version.no_onss</field>
+        <field name="amount_select">percentage</field>
+        <field name="amount_percentage_base">BASIC</field>
+        <field name="amount_percentage">-2.71</field>
+        <field name="struct_id" ref="hr_payroll_structure_student_regular_pay"/>
+        <field name="partner_id" ref="l10n_be_hr_payroll.res_partner_onss"/>
+    </record>
+
+    <record id="l10n_be_hr_payroll_structure_student_regular_pay_gross_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.GROSS"/>
+        <field name="name">Taxable Salary</field>
+        <field name="sequence">100</field>
+        <field name="code">GROSS</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW']
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_student_regular_pay"/>
+    </record>
+
+    <record id="hr_salary_rule_student_regular_pay_private_car" model="hr.salary.rule">
+        <field name="category_id" ref="l10n_be_hr_payroll.hr_payroll_head_div_net"/>
+        <field name="name">Private car</field>
+        <field name="code">CAR.PRIV</field>
+        <field name="amount_select">code</field>
+        <field name="sequence">170</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = version.transport_mode_private_car</field>
+        <field name="amount_python_compute">
+if not categories['BASIC']:
+    result = 0
+    result_qty = 0
+else:
+    result = version.with_context(payslip_date=payslip.date_from)._get_private_car_reimbursed_amount(version.km_home_work) * 3 / (13 * 5)
+    result_qty = worked_days['WORK100'].number_of_days if 'WORK100' in worked_days else 0
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_student_regular_pay"/>
+    </record>
+
+    <record id="l10n_be_hr_payroll_structure_student_regular_pay_attachment_of_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Attachment of Salary</field>
+        <field name="sequence">174</field>
+        <field name="code">ATTACH_SALARY</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'ATTACH_SALARY' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['ATTACH_SALARY'].amount
+result_name = inputs['ATTACH_SALARY'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_student_regular_pay"/>
+    </record>
+
+    <record id="l10n_be_hr_payroll_structure_student_regular_pay_assignment_of_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Assignment of Salary</field>
+        <field name="sequence">174</field>
+        <field name="code">ASSIG_SALARY</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'ASSIG_SALARY' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['ASSIG_SALARY'].amount
+result_name = inputs['ASSIG_SALARY'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_student_regular_pay"/>
+    </record>
+
+    <record id="l10n_be_hr_payroll_structure_student_regular_pay_child_support" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Child Support</field>
+        <field name="code">CHILD_SUPPORT</field>
+        <field name="amount_select">code</field>
+        <field name="sequence">174</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'CHILD_SUPPORT' in inputs</field>
+        <field name="amount_python_compute">
+result = -inputs['CHILD_SUPPORT'].amount
+result_name = inputs['CHILD_SUPPORT'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_student_regular_pay"/>
+    </record>
+
+    <record id="hr_salary_rule_student_regular_pay_ch_worker" model="hr.salary.rule">
+        <field name="category_id" ref="l10n_be_hr_payroll.hr_payroll_head_div_net"/>
+        <field name="name">Retain on Meal Voucher</field>
+        <field name="code">MEAL_V_EMP</field>
+        <field name="sequence">175</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = bool(version.meal_voucher_amount)</field>
+        <field name="amount_select">percentage</field>
+        <field name="amount_percentage">-100.0</field>
+        <field name="amount_percentage_base">version.meal_voucher_amount - version.meal_voucher_paid_by_employer</field>
+        <field name="quantity">payslip.meal_voucher_count</field>
+        <field name="appears_on_payslip" eval="True"/>
+        <field name="partner_id" ref="l10n_be_hr_payroll.res_partner_meal_vouchers"/>
+        <field name="struct_id" ref="hr_payroll_structure_student_regular_pay"/>
+    </record>
+
+    <record id="l10n_be_hr_payroll_structure_student_regular_pay_deduction_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.DED"/>
+        <field name="name">Deduction</field>
+        <field name="sequence">198</field>
+        <field name="code">DEDUCTION</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'DEDUCTION' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = -inputs['DEDUCTION'].amount
+result_name = inputs['DEDUCTION'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_student_regular_pay"/>
+    </record>
+
+    <record id="l10n_be_hr_payroll_structure_student_regular_pay_reimbursement_salary_rule" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.ALW"/>
+        <field name="name">Reimbursement</field>
+        <field name="sequence">199</field>
+        <field name="code">REIMBURSEMENT</field>
+        <field name="condition_select">python</field>
+        <field name="condition_python">result = 'REIMBURSEMENT' in inputs</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = inputs['REIMBURSEMENT'].amount
+result_name = inputs['REIMBURSEMENT'].name
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_student_regular_pay"/>
+    </record>
+
+    <record id="l10n_be_hr_payroll_structure_student_regular_pay_net_salary" model="hr.salary.rule">
+        <field name="category_id" ref="hr_payroll.NET"/>
+        <field name="name">Net Salary</field>
+        <field name="sequence">200</field>
+        <field name="code">NET</field>
+        <field name="appears_on_employee_cost_dashboard" eval="True"/>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">
+result = categories['BASIC'] + categories['ALW'] + categories['DED']
+        </field>
+        <field name="struct_id" ref="hr_payroll_structure_student_regular_pay"/>
+    </record>
+
+    <record id="hr_salary_rule_student_onss_employer" model="hr.salary.rule">
+        <field name="category_id" ref="hr_salary_rule_category_onss_employer"/>
+        <field name="name">Accounting: ONSS (Employer)</field>
+        <field name="code">ONSSEMPLOYER</field>
+        <field name="sequence">502</field>
+        <field name="condition_select">none</field>
+        <field name="amount_select">code</field>
+        <field name="amount_python_compute">result = BASIC * 0.0542</field>
+        <field name="partner_id" ref="res_partner_onss"/>
+        <field name="struct_id" ref="hr_payroll_structure_student_regular_pay"/>
+        <field name="appears_on_payslip" eval="False"/>
+        <field name="appears_on_employee_cost_dashboard" eval="True"/>
+    </record>
+</odoo>

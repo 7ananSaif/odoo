@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<templates xml:space="preserve">
+
+    <t t-name="pos_restaurant_appointment.KanbanHeader" t-inherit="web.KanbanHeader" t-inherit-mode="primary">
+        <xpath expr="//GroupConfigMenu" position="before">
+            <t t-if="totalCapacityReserved">
+                <t t-if="totalCapacityReserved" t-out="totalCapacityReserved"/>p
+            </t>
+        </xpath>
+    </t>
+
+</templates>

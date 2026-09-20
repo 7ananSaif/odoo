@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="sign_import_from_documents_view_form" model="ir.ui.view">
+        <field name="name">sign.import.documents.view.form</field>
+        <field name="model">sign.import.documents</field>
+        <field name="arch" type="xml">
+            <form string="Select a Document to Import and Sign">
+                <group>
+                    <field name="selected_document" string="Select a Document" widget="many2one" domain="[('mimetype', '=', 'application/pdf')]" options="{'no_create': True, 'no_create_edit': True}"/>
+                </group>
+                <footer>
+                    <button string="Import and Sign" type="object" class="btn-primary" name="action_import_and_create"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

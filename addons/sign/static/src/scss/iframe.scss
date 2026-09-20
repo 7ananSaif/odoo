@@ -1,0 +1,88 @@
+@for $size from 2 through length($o-colors) {
+    // Note: the first color is supposed to be invisible so it's ignored
+    .o_sign_sign_item.o_color_responsible_#{12 - $size} { //assign colors in reverse order
+        $-o-item-color: darken(nth($o-colors, $size), 50%);
+
+        background-color: rgba(mix(nth($o-colors, $size), $white, 20%), .9);
+        border: $border-width solid nth($o-colors, $size);
+        color: $-o-item-color;
+
+        .resize_both {
+            background: $-o-item-color;
+        }
+
+        .o_select_arrow {
+            border-right: $border-width solid $-o-item-color;
+            border-bottom: $border-width solid $-o-item-color;
+        }
+    }
+}
+@for $size from 1 through length($o-colors-secondary) {
+    .o_sign_sign_item.o_color_responsible_#{length($o-colors) + $size - 2} {
+        $-o-item-color: darken(nth($o-colors-secondary, $size), 50%);
+
+        background-color: rgba(mix(nth($o-colors-secondary, $size), $white, 30%), .9);
+        border: $border-width solid nth($o-colors-secondary, $size);
+        color: $-o-item-color;
+
+        .resize_both {
+            background: $-o-item-color;
+        }
+
+        .o_select_arrow {
+            border-right: $border-width solid $-o-item-color;
+            border-bottom: $border-width solid $-o-item-color;
+        }
+    }
+}
+
+.o_sign_sign_item.o_color_constant {
+  $-o-constant-color: hsl(0, 0%, 30%);
+  background-color: hsl(0, 0%, 80%) / 0.9;
+  border: $border-width solid $-o-constant-color;
+  color: $-o-constant-color;
+
+  .resize_both {
+      background: $-o-constant-color;
+  }
+
+  .o_select_arrow {
+      border-right: $border-width solid $-o-constant-color;
+      border-bottom: $border-width solid $-o-constant-color;
+  }
+}
+
+.o_sign_sign_item {
+}
+
+.sign_item_body {
+    box-sizing: border-box;
+}
+
+.o_sign_signature_item {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.o_sign_textarea_placeholder {
+    padding-left: 2px;
+    display: flex;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+}
+
+.o_sign_selection_item_container {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.o_select_arrow {
+    transform: rotate(45deg);
+}

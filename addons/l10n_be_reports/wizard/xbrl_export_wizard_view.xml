@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="xbrl_export_wizard_form" model="ir.ui.view">
+        <field name="name">l10n_be_reports.xbrl.export.wizard.view.form</field>
+        <field name="model">l10n_be_reports.xbrl.export.wizard</field>
+        <field name="arch" type="xml">
+            <form string="XBRL Export for Belgium">
+                <sheet>
+                    <group>
+                        <field name="last_deed_date"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_download_xbrl_file" string="Download" class="btn-primary" type="object"/>
+                    <button string="Close" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>

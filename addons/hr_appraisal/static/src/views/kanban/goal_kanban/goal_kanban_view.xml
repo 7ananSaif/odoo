@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <t t-name="hr_appraisal.GoalKanban.buttons" t-inherit="web.KanbanView.Buttons" t-inherit-mode="primary">
+        <xpath expr="." position="inside">
+            <t t-if="canCreate">
+                <button type="button" class="btn btn-secondary" t-on-click="onClickLibrary">
+                    Open Library
+                </button>
+            </t>
+        </xpath>
+    </t>
+</odoo>

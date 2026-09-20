@@ -1,0 +1,16 @@
+.o_mrp_employees_panel {
+    @include media-breakpoint-up(md) {
+        min-width: 18rem;
+        --SearchPanel-width: 18rem;
+    }
+
+    .o_admin_user {
+        background-color: $list-group-active-bg;
+        box-shadow: inset map-get($spacers, 1) 0 0 $list-group-active-border-color;
+    }
+}
+
+.o_mrp_employees_panel_btn {
+    height: 2.75rem;
+    max-width: 45%;
+}

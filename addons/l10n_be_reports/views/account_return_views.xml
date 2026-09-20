@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_return_kanban_view" model="ir.ui.view">
+        <field name="name">l10n_be.account.return.kanban</field>
+        <field name="model">account.return</field>
+        <field name="inherit_id" ref="account_reports.account_return_kanban_view"/>
+        <field name="arch" type="xml">
+            <a name="action_reset_tax_return_common" position="after">
+                <a invisible="state == 'new' and not is_completed or type_external_id != 'l10n_be_reports.be_isoc_prepayment_return_type'" class="dropdown-item" type="object" name="l10n_be_reset_tax_prepayment" string="Reset"/>
+                <a invisible="state == 'new' and not is_completed or type_external_id != 'l10n_be_reports.be_vat_listing_return_type'" class="dropdown-item" type="object" name="action_reset_2_states" string="Reset"/>
+            </a>
+
+            <div id="return_amount_to_pay" position="attributes">
+                <attribute name="invisible" add="type_external_id != 'l10n_be_reports.be_isoc_prepayment_return_type' or (type_external_id == 'l10n_be_reports.be_isoc_prepayment_return_type' and state != 'paid')" separator="and"/>
+            </div>
+        </field>
+    </record>
+</odoo>

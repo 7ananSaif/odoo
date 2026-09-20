@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="demo_equity_security_class_ord" model="equity.security.class">
+        <field name="name">ORD</field>
+        <field name="sequence">10</field>
+        <field name="class_type">shares</field>
+    </record>
+
+    <record id="demo_equity_security_class_seed" model="equity.security.class">
+        <field name="name">Seed</field>
+        <field name="sequence">11</field>
+        <field name="class_type">shares</field>
+    </record>
+
+    <record id="demo_equity_security_class_a" model="equity.security.class">
+        <field name="name">Class A</field>
+        <field name="sequence">12</field>
+        <field name="share_votes">2</field>
+        <field name="class_type">shares</field>
+    </record>
+
+    <record id="demo_equity_security_class_b" model="equity.security.class">
+        <field name="name">Class B</field>
+        <field name="sequence">13</field>
+        <field name="class_type">shares</field>
+    </record>
+
+    <record id="demo_equity_security_class_pool_1" model="equity.security.class">
+        <field name="name">Option Pool 1</field>
+        <field name="sequence">14</field>
+        <field name="class_type">options</field>
+    </record>
+
+    <record id="demo_equity_security_class_pool_2" model="equity.security.class">
+        <field name="name">Option pool 2</field>
+        <field name="sequence">15</field>
+        <field name="class_type">options</field>
+    </record>
+</odoo>

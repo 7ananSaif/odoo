@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="account_return_kanban_view" model="ir.ui.view">
+        <field name="name">account.return.kanban.l10n_in_edi_gstr</field>
+        <field name="model">account.return</field>
+        <field name="inherit_id" ref="l10n_in_reports.account_return_kanban_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//kanban" position="inside">
+                <field name="l10n_in_gst_efiling_feature_enabled"/>
+                <field name="l10n_in_edi_feature_enabled"/>
+                <field name="l10n_in_gstr1_include_einvoice"/>
+            </xpath>
+            <div id="date_wrapper" position="after">
+                <div class="d-flex align-items-center gap-2 mt-1"
+                    invisible="context.get('in_checks_view') or type_external_id != 'l10n_in_reports.in_gstr1_return_type'
+                        or l10n_in_hide_include_einvoice or not (l10n_in_gst_efiling_feature_enabled and l10n_in_edi_feature_enabled)">
+                    <span class="fw-bold text-muted">E-Invoice:</span>
+                    <field name="l10n_in_gstr1_include_einvoice" widget="boolean_toggle"/>
+                    <span>
+                        <span invisible="l10n_in_gstr1_include_einvoice" class="text-muted">Exclude</span>
+                        <span invisible="not l10n_in_gstr1_include_einvoice" class="text-success">Include</span>
+                    </span>
+                </div>
+            </div>
+        </field>
+    </record>
+</odoo>

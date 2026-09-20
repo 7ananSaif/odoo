@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_ubo_form" name="Ultimate Beneficial Owners (UBO) Form">
+        <t t-call="portal.portal_layout">
+            <h1 class="text-center">Ultimate Beneficial Owners (UBO) Request</h1>
+            <h2 class="text-center"><t t-out="partner['name']"/> - <t t-out="partner['vat']"/></h2>
+
+            <div>
+                Following out legal obligations to identify clients, please report natural persons who directly or indirectly
+                <b>hold or control at least 25% in the capital or voting rights</b> of <t t-out="partner['name']"/>.
+            </div>
+            <br/>
+
+            <form t-attf-action="/my/ubo/submit?{{ keep_query() }}" method="post" t-attf-data-submit-url="/my/ubo/submit?{{ keep_query() }}">
+                <input class="d-none" name="csrf_token" t-att-value="request.csrf_token()"/>
+
+                <owl-component
+                    name="equity.UboForm"
+                    t-att-props="json.dumps({'accessToken': access_token, 'ubos': ubos, 'equityUboSettings': equity_ubo_settings, 'allCountries': all_countries, 'defaultCountryId': partner['country_id']})"
+                />
+
+                <t t-call="equity.portal_ubo_help"/>
+
+                <h5>Who should complete and sign the declaration?</h5>
+                <div>
+                    The declaration must be completed by the persons authorized to represent the company or entity according to its Articles of Association.
+                </div>
+                <hr/>
+
+                <h5>Definitions: "beneficial owners", "control", "shareholder holding 25% or more", "decision makers"</h5>
+                <div>
+                    Beneficial owners are natural person(s) who ultimately own(s) or control(s) the customer or the natural person(s)
+                    for whose account or on whose behalf a transaction is being conducted or a business relationship is established. It
+                    includes those natural persons that do not have a controlling holding in the company or a formal mandate of any kind
+                    but who are de facto exercising similar control over the company.
+                </div>
+                <br/>
+                <div>
+                    Control is the legal or de facto right to exercise a decisive influence over the appointment of the majority of its
+                    directors or managers or over the direction of its operations.
+                </div>
+                <br/>
+                <div> There are two classes of beneficial owners: <ol>
+                        <li>Shareholders who hold more than 25%</li>
+                        <div> The natural person(s) who ultimately own(s) or control(s) this corporate entity through direct or indirect ownership or control over 25% of the shares or voting rights of that corporate entity. <br/> Example: Company B and Company C hold each have a 20-percent interest in Company A. The private individual Z holds 90 % of the shares of Company B and of the Company C. Z is considered as shareholder holding more than 25% of A, for Z holds - indirectly - 36 % of the shares in A. </div>
+                        <br/>
+                        <div> This said, where a shareholder holding more than 25% is a legal arrangement other than a registered company, beneficial owners are: <ul>
+                                <li>
+                                    Where the future beneficiaries have already been determined, the natural person(s) who is the beneficiary of 25% or
+                                    more of the property of a legal arrangement or entity or
+                                </li>
+                                <li>
+                                    If the future beneficiary(ies) have not yet been designated, the group of persons in the main interests of whom the
+                                    legal entity was formed or operates.
+                                </li>
+                            </ul>
+                        </div>
+                        <li>Decision maker</li>
+                        <div> Natural Persons who have a formal mandate within the Board of the company. These are for example the person(s) who are named (or equivalent of) Chief Executive Officer (CEO), Chief Financial Officer (CFO) or Treasurer. If a legal entity exercises a mandate in the Board of the company, it is required to list all Board level mandate holders including their function. <br/> Natural persons that do not have a controlling holding in the company or a formal mandate of any kind but who are de facto exercising similar control over the company. </div>
+                    </ol>
+                </div>
+                <hr/>
+
+                <h5>Exemption from the identification of beneficial</h5>
+                <div> If the shareholder holding more than 25% is <ul>
+                        <li>
+                            A listed company: a company whose shares are traded on a regulated market a Member States of the European
+                            Economic Area; or
+                        </li>
+                        <li>
+                            A credit or financial institution located in a country listed by the Royal Decree of 19 July 2013 drawing up a third
+                            country equivalence list for a simplified due diligence (article 37(2), subparagraph 1(2 and 5), of the AML law);
+                        </li>
+                        <li>
+                            Legal persons governed by public national laws;
+                        </li>
+                        <li>
+                            Governing authorities of the European Union, bodies and agencies as defined by the Royal Decree of 19 July 2013
+                            drawing up a list of European governing authorities, bodies and specialized agencies for a simplified due diligence.
+                        </li>
+                    </ul>
+                </div>
+                <hr/>
+
+                <h5>PEP - Politically Exposed Person</h5>
+                <ol>
+                    <li> Heads of State, heads of government, ministers and deputy or assistant ministers; members of parliaments;
+                        members of the governing bodies of political parties; members of supreme courts, of constitutional courts or of other
+                        high judicial bodies whose decisions are not subject to further appeal, except in exceptional circumstances; members
+                        of courts of auditors or of the boards of central banks; ambassadors, charges d'affaires and high armed forces;
+                        members of the administrative, management or supervisory bodies of State owned enterprises; directors, deputy
+                        directors and members of the board or equivalent function of an international
+                    </li>
+                    <li> Family members: the spouse, any person considered as equivalent to the persons considered as equivalent to the
+                        spouse; the parents;
+                    </li>
+                    <li>
+                        any natural person who is known to have joint beneficial ownership of legal entities or legal arrangements, or any
+                        other close business relations, with a PEP;
+                    </li>
+                    <li>
+                        any natural person who has sole beneficial ownership of a legal entity or legal arrangement which is known to have
+                        been set up for the benefit de facto of a PEP.
+                    </li>
+                </ol>
+            </form>
+        </t>
+    </template>
+
+    <template id="portal_ubo_submit" name="UBO submitted">
+        <t t-call="portal.portal_layout">
+            <h4 class="text-center">Your UBO Declaration Has Been Submitted!</h4>
+            <div>Thank you for providing your Ultimate Beneficial Owner (UBO) information.</div>
+            <ul>
+                <li>If your form has been successfully submitted, our team will review it and keep you informed of any updates.</li>
+                <li>If you are returning to an already submitted form, please note that your information has been securely stored.</li>
+            </ul>
+
+            <t t-call="equity.portal_ubo_help"/>
+        </t>
+    </template>
+
+    <template id="portal_ubo_help" name="UBO help">
+        <div t-if="contact.get('name')">
+            <h4>Need help?</h4>
+            <div class="d-flex gap-1"> 
+                Contact 
+                <t t-out="contact['name']"/>
+                <t t-if="contact.get('phone')">
+                    <i class="fa fa-phone ms-2 mt-1" aria-label="Phone Number" title="Phone Number"/>
+                    <span t-out="contact['phone']"/>
+                </t>
+                <t t-if="contact.get('email')">
+                    <i class="fa fa-envelope ms-2 mt-1" aria-label="Email Address" title="Email Address"/>
+                    <span t-out="contact['email']"/>
+                </t>
+            </div>
+            <hr/>
+        </div>
+    </template>
+</odoo>

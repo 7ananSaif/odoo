@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="spreadsheet_dashboard_view_list" model="ir.ui.view">
+        <field name="name">spreadsheet.dashboard.list.view</field>
+        <field name="model">spreadsheet.dashboard</field>
+        <field name="inherit_id" ref="spreadsheet_dashboard.spreadsheet_dashboard_view_list"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position='attributes'>
+                <attribute name="create">1</attribute>
+            </xpath>
+            <xpath expr="//field[@name='is_published']" position='after'>
+                <field name="spreadsheet_file_name" column_invisible="True"/>
+                <button
+                    invisible="not is_from_data"
+                    string="Edit"
+                    help="Editing standard dashboards is not recommended. Changes will be lost after Odoo version upgrades."
+                    class="float-end btn-link btn-warning"
+                    icon="fa-pencil"
+                    type="object" name="action_edit_dashboard"
+                />
+                <button
+                    invisible="is_from_data"
+                    string="Edit"
+                    class="float-end"
+                    icon="fa-pencil"
+                    type="object"
+                    name="action_edit_dashboard"
+                />
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_spreadsheet_dashboard_edit" model="ir.actions.server">
+        <field name="name">Edit</field>
+        <field name="model_id" ref="spreadsheet_dashboard.model_spreadsheet_dashboard"/>
+        <field name="binding_model_id" ref="spreadsheet_dashboard.model_spreadsheet_dashboard"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">action = records.action_edit_dashboard()</field>
+    </record>
+
+    <record id="spreadsheet_dashboard_kanban_view_inherit" model="ir.ui.view">
+        <field name="name">spreadsheet.dashboard.kanban.inherit</field>
+        <field name="model">spreadsheet.dashboard</field>
+        <field name="inherit_id" ref="spreadsheet_dashboard.spreadsheet_dashboard_view_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <button type="object" name="action_edit_dashboard" string="Edit" icon="fa-pencil" class="btn btn-link"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Minimal form view for dashboard creation in spreadsheet selector dialog (while inserting list/pivot/graph) -->
+    <record id="spreadsheet_dashboard_creation_dialog_view_form" model="ir.ui.view">
+        <field name="name">spreadsheet.dashboard.quick.create.form</field>
+        <field name="model">spreadsheet.dashboard</field>
+        <field name="priority" eval="999"/>
+        <field name="arch" type="xml">
+            <form string="Add to Dashboard">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="dashboard_group_id"
+                               options="{'no_open': True}"
+                               placeholder="Choose a section..."/>
+                        <field name="group_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

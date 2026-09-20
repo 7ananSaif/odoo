@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <t t-name="equity.ValuationChartAction">
+        <div class="o_equity_valuation_chart o_content h-100">
+            <div t-if="this.isSample">
+                <ActionHelper noContentHelp="this.noContentHelp" showRibbon="true"/>
+            </div>
+            <span t-att-class="{'o_view_sample_data':this.isSample}">
+                <ValuationChart
+                    labels="this.chartData.labels"
+                    data="this.chartData.data"
+                />
+            </span>
+        </div>
+    </t>
+</odoo>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip_crm.LeadButton">
+    <ActionButton t-if="shouldShowLeadButton" name.translate="Lead" title="leadButtonTitle" icon="opportunityCount > 0 ? 'fa-star' : 'oi-star-plus'" onClick.bind="onClickLead"/>
+</t>
+</templates>

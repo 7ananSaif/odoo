@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<odoo noupdate="1">
+    <record id="voip_call_hr_access_rule" model="ir.rule">
+        <field name="name">voip.call: employee managers and department managers can read their subordinates' records</field>
+        <field name="model_id" ref="voip.model_voip_call"/>
+        <field name="domain_force">
+            [("user_id.employee_id", "any", [
+                "|",
+                    ("parent_id", "child_of", user.employee_id.id),      # direct manager
+                    ("department_id.manager_id.user_id", "=", user.id),  # department manager
+            ])]
+        </field>
+        <field name="groups" eval="[Command.link(ref('hr.group_hr_user'))]"/>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+</odoo>

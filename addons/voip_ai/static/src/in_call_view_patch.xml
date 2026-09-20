@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<templates>
+    <t t-inherit="voip.InCallView-default" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('o-voip-InCallView-statusWrapper')]//*" position="before">
+            <t t-if="transcriptionEnabled">
+                <span class="o-voip-InCallStatus d-flex gap-2 align-items-center rounded-pill border border-info px-2 bg-info bg-opacity-25 lh-lg" title="This call will be transcribed when it's done">
+                    <i class="oi oi-subtitle" aria-hidden="true"/>
+                    <span class="me-1 small">Transcribing</span>
+                </span>
+            </t>
+        </xpath>
+    </t>
+</templates>

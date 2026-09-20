@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="hr_payroll.PayRunCard">
+        <div class="o_payrun_card w-100 gap-4 px-3 py-1 d-grid justify-items-center align-items-center align-content-center bg-white border-bottom" t-if="Object.keys(payrun).length">
+            <div class="o_cell d-flex flex-column o_payrun_info">
+                <div class="fs-2">
+                    <input type="text" t-att-value="payrun.name"
+                           t-on-change="onChange" t-att-placeholder="'Pay Run Name'"
+                           class="o_field_widget o_input text-truncate mb-2 w-100"/>
+                </div>
+                <div class="small fw-medium d-flex gap-2 align-items-center">
+                    <span>
+                        <t t-out="dateStart"/>
+                        <i class="oi oi-arrow-right px-2"></i>
+                        <t t-out="dateEnd"/>
+                    </span>
+                    <span class="badge rounded-pill btn-outline-secondary border">
+                        <t t-out="payrun.payslip_count"/> payslips
+                    </span>
+                    <MoreInfo/>
+                </div>
+            </div>
+            <div class="o_cell d-flex flex-column o_payrun_cost">
+                <div class="fs-2">
+                    <t t-out="formatMonetary(payrun.total_employer_cost, {currencyId: payrun.currency_id.id})"/>
+                </div>
+                <div class="small fw-medium d-flex gap-2 align-items-center">
+                    <span>employer cost</span>
+                </div>
+            </div>
+            <div class="o_cell d-flex flex-column o_payrun_cost">
+                <div class="fs-2">
+                    <t t-out="formatMonetary(payrun.gross_sum, {currencyId: payrun.currency_id.id})"/>
+                </div>
+                <div class="small fw-medium d-flex gap-2 align-items-center">
+                    <span>gross</span>
+                </div>
+            </div>
+            <div class="o_cell d-flex flex-column o_payrun_cost">
+                <div class="fs-2">
+                    <t t-out="formatMonetary(payrun.net_sum, {currencyId: payrun.currency_id.id})"/>
+                </div>
+                <div class="small fw-medium d-flex gap-2 align-items-center">
+                    <span>net</span>
+                </div>
+            </div>
+            <div class="o_cell d-flex flex-column o_payrun_state">
+                <StatusBubble record="props.record"
+                              removeStates="['04_cancel']"
+                />
+            </div>
+            <div class="o_cell d-flex flex-column o_payrun_buttons gap-1 w-auto ms-auto">
+                <PayRunButtonBox>
+                    <t t-set-slot="compute" isVisible="payrun.state === '01_ready' &amp;&amp; payrun.empty_payslips">
+                        <ViewButton className="'btn btn-primary'"
+                                    clickParams="{type: 'object', name: 'action_confirm'}"
+                                    record="props.record"
+                                    string.translate="Compute"/>
+                    </t>
+                    <t t-set-slot="confirm" isVisible="payrun.state === '01_ready' &amp;&amp; !payrun.empty_payslips">
+                        <ViewButton className="'btn btn-primary'"
+                                    clickParams="{type: 'object', name: 'action_validate'}"
+                                    context="{'payslip_generate_pdf': True}"
+                                    record="props.record"
+                                    string.translate="Confirm"/>
+                    </t>
+                    <t t-set-slot="paid_prio" isVisible="payrun.state === '02_close'" isPriority="true">
+                        <ViewButton className="'btn btn-primary'"
+                                    clickParams="{type: 'object', name: 'action_paid'}"
+                                    record="props.record"
+                                    string.translate="Mark as Paid"/>
+                    </t>
+                    <t t-set-slot="download_report" isVisible="payrun.payment_report">
+                        <Field class="'btn btn-secondary btn-addr align-content-center text-center'"
+                               name="'payment_report'"
+                               record="props.record"
+                               type="'payrun_binary'"
+                               fileNameField="'payment_report_filename'"
+                               formatField="'payment_report_format'"
+                        />
+                    </t>
+                    <t t-set-slot="revert" isVisible="payrun.state === '03_paid'">
+                        <ViewButton className="'btn btn-secondary'"
+                                    clickParams="{type: 'object', name: 'action_unpaid'}"
+                                    record="props.record"
+                                    string.translate="Revert"/>
+                    </t>
+                    <t t-set-slot="gen_report" isVisible="payrun.state === '02_close'">
+                        <ViewButton className="'btn btn-secondary'"
+                                    clickParams="{type: 'object', name: 'action_payment_report'}"
+                                    record="props.record"
+                                    string.translate="Payment Report"/>
+                    </t>
+                    <t t-set-slot="draft" isVisible="payrun.state == '02_close'">
+                        <ViewButton className="'btn btn-secondary'"
+                                    clickParams="{type: 'object', name: 'action_draft'}"
+                                    record="props.record"
+                                    string.translate="Set to Draft"/>
+                    </t>
+                    <t t-set-slot="gen_payslip" isVisible="['01_ready', '04_cancel'].includes(payrun.state)">
+                        <ViewButton className="'btn btn-secondary'"
+                                    clickParams="{type: 'object', name: 'action_payroll_hr_version_list_view_payrun'}"
+                                    record="props.record"
+                                    string.translate="Generate Payslips"/>
+                    </t>
+                    <t t-set-slot="delete" isVisible="true">
+                        <ViewButton className="'btn text-danger'"
+                                    clickParams="{type: 'object', name: 'unlink'}"
+                                    record="props.record"
+                                    string.translate="Delete"/>
+                    </t>
+                </PayRunButtonBox>
+            </div>
+        </div>
+    </t>
+</templates>

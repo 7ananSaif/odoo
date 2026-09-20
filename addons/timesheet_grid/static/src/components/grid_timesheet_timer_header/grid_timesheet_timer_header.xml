@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <!-- Maybe it is possible to use `TimesheetTimerHeader` component inside of that component to avoid some code duplication -->
+    <t t-name="timesheet_grid.GridTimesheetTimerHeader">
+        <TimesheetTimerHeader
+            t-if="!timerRunning or timerService.otherCompany"
+            onTimerStarted="props.onTimerStarted"
+            onTimerStopped="props.onTimerStopped"
+            onTimerUnlinked="props.onTimerUnlinked"
+        >
+            <t t-call="timesheet_grid.GridTimesheetTimerHeaderHelper"/>
+        </TimesheetTimerHeader>
+        <Record
+            t-else=""
+            fields="timerService.timesheetTimerFields"
+            activeFields="activeFields"
+            resModel="props.model.resModel"
+            resId="timerState.data.id"
+            mode="'edit'"
+            values="timerState.data"
+            hooks="recordHooks"
+            t-slot-scope="data"
+        >
+            <TimesheetTimerHeader
+                timesheet="data.record"
+                fields="activeFields"
+                onTimerStarted="props.onTimerStarted"
+                onTimerStopped="props.onTimerStopped"
+                onTimerUnlinked="props.onTimerUnlinked"
+            >
+                <t t-call="timesheet_grid.GridTimesheetTimerHeaderHelper"/>
+            </TimesheetTimerHeader>
+        </Record>
+    </t>
+
+    <t t-name="timesheet_grid.GridTimesheetTimerHeaderHelper">
+        <div>
+            <span class="text-muted">Press</span> <b>Enter</b> <span class="text-muted">or <b>[a]</b> to launch the timer</span>
+        </div>
+        <div>
+            <span class="text-muted">Press</span> <b>Shift</b> <span class="text-muted">+ <b>[A]</b> to add <t t-esc="timerService.stepTimer"/> min</span>
+        </div>
+    </t>
+
+</templates>

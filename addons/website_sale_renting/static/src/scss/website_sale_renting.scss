@@ -1,0 +1,19 @@
+// ==== Product Page View ======================================================
+// =============================================================================
+
+.o_wsale_product_details_content_section_renting {
+    container: product-details-section-renting / inline-size;
+
+    .s_website_form_datetime.o_daterange_picker > div {
+        flex-direction: var(--o-wsale-section-renting-form-flex-direction, column);
+
+        .oi.oi-arrow-right {
+            display: var(--o-wsale-section-renting-icon-display, none);
+        }
+
+        @container product-details-section-renting (min-width: 470px) {
+            --o-wsale-section-renting-form-flex-direction: row;
+            --o-wsale-section-renting-icon-display: inline;
+        }
+    }
+}

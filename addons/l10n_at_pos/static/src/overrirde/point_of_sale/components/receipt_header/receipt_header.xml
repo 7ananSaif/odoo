@@ -1,0 +1,11 @@
+<templates id="template" xml:space="preserve">
+    <t t-name="l10n_in_pos.ReceiptHeader" t-inherit="point_of_sale.ReceiptHeader" t-inherit-mode="extension">
+        <xpath expr="//div[hasclass('pos-receipt-contact')]" position="inside">
+            <div class="pos-receipt-center-align">
+                <div t-if="order.config.l10n_at_cash_regid">Fiskaly Register ID: <t t-esc="order.config.l10n_at_cash_regid"/></div>
+                <div t-if="order.l10n_at_pos_order_receipt_number">Fiskaly Receipt No: <t t-esc="order.l10n_at_pos_order_receipt_number"/></div>
+                <div t-translation="off" t-if="order.config.l10n_at_cash_regid and !order.is_fiskaly_order_receipt_signed" class="fw-bolder">Sicherheitseinrichtung ausgefallen</div>
+            </div>
+        </xpath>
+    </t>
+</templates>

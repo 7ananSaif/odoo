@@ -1,0 +1,50 @@
+.o_account_report_chatter {
+    // Dont use transition here, the recalculation of the width of the columns of the table is only done after
+    // the width stabilizes, so the transition will not be smooth.
+    border-left: 1px solid var(--border-color);
+    max-width: calc(#{$o-mail-Chatter-minWidth} + 20px + var(--Chatter-asideExtraWidth));
+
+    .o-mail-Chatter-topbar {
+        padding-top: 0.25rem;
+    }
+
+    &.o_account_report_chatter_hidden {
+        max-width: 0;
+        height: 0 !important;
+
+        .o-mail-Chatter-top, .o-mail-Chatter-content{
+            --Chatter-default-padding-x: 0;
+            --ChatterAsideForm-padding-left: 0;
+        }
+    }
+}
+
+.o_data_row.o_selected_row {
+    position: relative;
+
+    // We need to have this instead of using the default one with the :focus-within selector
+    // since we want to detect when a row is selected to open the chatter.
+    $-focus-bg: rgba(var(--#{$variable-prefix}emphasis-color-rgb), #{$table-hover-bg-factor * 2});
+
+    --#{$variable-prefix}table-accent-bg: #{$-focus-bg};
+    --#{$variable-prefix}table-striped-bg: #{$-focus-bg};
+
+    & > td::before{
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 2px;
+        background-color: #0a8f88;
+        opacity: 0.4;
+    }
+
+    td.text-muted {
+        color: var(--body-color) !important;
+    }
+}
+
+th[data-name=last_message], td[name=last_message] {
+    max-width: 300px;
+}

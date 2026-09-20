@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="sign.SignTemplateHeaderTags">
+        <Record t-props="recordProps" t-slot-scope="data">
+            <t t-set="record" t-value="data.record"/>
+            <div t-attf-class="o_sign_template_tags_and_save d-flex me-5 gap-2">
+                <span>Tags:</span>
+                <div class="o_field_widget o_field_many2many_tags w-100">
+                    <Many2ManyTagsFieldColorEditable t-props="getMany2ManyProps(record, 'tag_ids')" colorField="'color'"/>
+                </div>
+            </div>
+        </Record>
+    </t>
+</templates>

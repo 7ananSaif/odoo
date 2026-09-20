@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_contract_template_view_form" model="ir.ui.view">
+        <field name="name">hr.contract.template.view.form.inherit.l10_be_hr_payroll</field>
+        <field name="model">hr.version</field>
+        <field name="inherit_id" ref="hr.hr_contract_template_form_view"/>
+        <field name="arch" type="xml">
+            <group name="salary_info" position="inside">
+                <group name="benefit" string="Benefits" invisible="country_code != 'BE'">
+                    <label for="commission_on_target"/>
+                    <div class="o_row">
+                        <field name="commission_on_target" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="representation_fees"/>
+                    <div class="o_row">
+                        <field name="representation_fees" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="ip"/>
+                    <div class="o_row">
+                        <div class="d-flex align-items-baseline" style="max-width: 8rem;">
+                            <field name="ip" invisible="ip_wage_rate == 0.0"/>
+                            <field name="ip_wage_rate" widget="percentage"/>
+                        </div>
+                    </div>
+                    <label for="mobile"/>
+                    <div class="o_row">
+                        <field name="mobile" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="internet"/>
+                    <div class="o_row">
+                        <field name="internet" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <field name="has_laptop"/>
+                    <label for="meal_voucher_amount"/>
+                    <div class="o_row">
+                        <field name="meal_voucher_amount" class="o_hr_narrow_field"/>
+                        <span>/ worked day</span>
+                    </div>
+                    <label for="eco_checks"/>
+                    <div class="o_row">
+                        <field name="eco_checks" class="o_hr_narrow_field"/>
+                        <span>/ year</span>
+                    </div>
+                    <label for="l10n_be_canteen_cost"/>
+                    <div class="o_row">
+                        <field name="l10n_be_canteen_cost" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_be_group_insurance_rate"/>
+                    <div class="o_row">
+                        <field name="l10n_be_group_insurance_rate" class="o_hr_narrow_field"/>
+                        <span>%</span>
+                    </div>
+                    <label for="l10n_be_mobility_budget"/>
+                    <div class="o_row">
+                        <div class="d-flex align-items-baseline" style="max-width: 8rem;">
+                            <field name="l10n_be_mobility_budget"/>
+                            <field name="l10n_be_mobility_budget_amount"/>
+                        </div>
+                        <span>/ year</span>
+                    </div>
+                    <label for="l10n_be_mobility_budget_amount_monthly"/>
+                    <div class="o_row">
+                        <field name="l10n_be_mobility_budget_amount_monthly" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                </group>
+                <group name="transportation" string="Transportation" invisible="country_code != 'BE'">
+                    <label for="transport_mode_car"/>
+                    <div class="o_row" name="transport_mode_car">
+                        <field name="transport_mode_car"/>
+                    </div>
+                    <label for="fuel_card" invisible="not transport_mode_car"/>
+                    <div class="o_row" invisible="not transport_mode_car" name="fuel_card_div">
+                        <field name="fuel_card" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <field name="car_atn" widget="monetary" options="{'currency_field': 'currency_id'}"
+                        invisible="not transport_mode_car"/>
+                    <field name="transport_mode_train"/>
+                    <field class="o_hr_narrow_field" name="train_transport_employee_amount" invisible="not transport_mode_train"/>
+                    <field class="o_hr_narrow_field" name="train_transport_reimbursed_amount" invisible="not transport_mode_train"/>
+                    <field name="transport_mode_public"/>
+                    <field class="o_hr_narrow_field" name="public_transport_employee_amount" invisible="not transport_mode_public"/>
+                    <field class="o_hr_narrow_field" name="public_transport_reimbursed_amount" invisible="not transport_mode_public"/>
+                    <field name="transport_mode_private_car"/>
+                    <label for="distance_home_work" string="Distance Home-Work" groups="hr.group_hr_user"
+                           invisible="not transport_mode_private_car"/>
+                    <div class="o_row" groups="hr.group_hr_user" invisible="not transport_mode_private_car">
+                        <field name="distance_home_work" class="o_hr_narrow_field"/>
+                        <span><field name="distance_home_work_unit"/></span>
+                    </div>
+                    <label for="private_car_reimbursed_amount" string="Reimbursed amount" invisible="not transport_mode_private_car"/>
+                    <div class="o_row" invisible="not transport_mode_private_car">
+                        <field name="private_car_reimbursed_amount" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                </group>
+                <group string="Insurances" invisible="country_code != 'BE'">
+                    <field name="l10n_be_has_ambulatory_insurance"/>
+                    <field name="l10n_be_ambulatory_insured_spouse" string="Insured Spouse" invisible="not l10n_be_has_ambulatory_insurance"/>
+                    <label for="l10n_be_ambulatory_insured_adults" string="Insured Children" invisible="not l10n_be_has_ambulatory_insurance"/>
+                    <div class="o_row" invisible="not l10n_be_has_ambulatory_insurance">
+                        <field name="l10n_be_ambulatory_insured_adults" class="o_hr_narrow_field"/>
+                        <span>adults (19 and above)</span>
+                    </div>
+                    <label for="l10n_be_ambulatory_insured_children" string="Insured Children" invisible="not l10n_be_has_ambulatory_insurance"/>
+                    <div class="o_row" invisible="not l10n_be_has_ambulatory_insurance">
+                        <field name="l10n_be_ambulatory_insured_children" class="o_hr_narrow_field"/>
+                        <span>minors (18 or under)</span>
+                    </div>
+                    <label for="l10n_be_ambulatory_insurance_amount" string="Insurance Amount" invisible="not l10n_be_has_ambulatory_insurance"/>
+                    <div class="o_row" invisible="not l10n_be_has_ambulatory_insurance">
+                        <field name="l10n_be_ambulatory_insurance_amount" widget="monetary" options="{'currency_field': 'currency_id'}" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <field name="l10n_be_ambulatory_insurance_notes" string="Additional Information" invisible="not l10n_be_has_ambulatory_insurance"/>
+                    <field name="has_hospital_insurance"/>
+                    <field name="insured_relative_spouse" invisible="not has_hospital_insurance"/>
+                    <label for="insured_relative_adults" string="Insured Children" invisible="not has_hospital_insurance"/>
+                    <div class="o_row" invisible="not has_hospital_insurance">
+                        <field name="insured_relative_adults" class="o_hr_narrow_field"/>
+                        <span>adults (19 and above)</span>
+                    </div>
+                    <label for="insured_relative_children" string="Insured Children" invisible="not has_hospital_insurance"/>
+                    <div class="o_row" invisible="not has_hospital_insurance">
+                        <field name="insured_relative_children" class="o_hr_narrow_field"/>
+                        <span>minors (18 or under)</span>
+                    </div>
+                    <label for="insurance_amount" invisible="not has_hospital_insurance"/>
+                    <div class="o_row" invisible="not has_hospital_insurance">
+                        <field name="insurance_amount" widget="monetary" options="{'currency_field': 'currency_id'}" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <field name="l10n_be_hospital_insurance_notes" string="Additional Information" invisible="not has_hospital_insurance"/>
+                </group>
+                <group string="Posted Employee" name="posted_employee" invisible="country_code != 'BE'">
+                    <field name="no_onss"/>
+                    <field name="no_withholding_taxes"/>
+                </group>
+                <group string="Withholding Taxes Exemption" name="withholding_taxes_exemption" invisible="country_code != 'BE'">
+                    <label for="rd_percentage"/>
+                    <div class="o_row">
+                        <field name="rd_percentage" class="o_hr_narrow_field"/>
+                        <span>%</span>
+                    </div>
+                </group>
+                <group string="Impulsion Plan" name="impulsion_plan" invisible="country_code != 'BE'">
+                    <label for="employee_age" invisible="employee_age == 0"/>
+                    <div invisible="employee_age == 0" class="o_row">
+                        <field name="employee_age" class="o_hr_narrow_field"/>
+                        <span>years old</span>
+                    </div>
+                    <field name="l10n_be_impulsion_plan"/>
+                </group>
+                <group string="ONSS Reduction" name="onss_retructuring" invisible="country_code != 'BE'">
+                    <field name="l10n_be_onss_restructuring"/>
+                </group>
+            </group>
+            <xpath expr="//sheet" position="before">
+                <div role="alert" class="alert alert-danger text-center" invisible="not l10n_be_is_below_scale or country_code != 'BE'">
+                    <field name="l10n_be_is_below_scale_warning" readonly="True"/>
+                    <field name="l10n_be_is_below_scale" invisible="1"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_working_schedule_change_request" model="ir.actions.server">
+        <field name="name">Working Schedule Change</field>
+        <field name="model_id" ref="hr.model_hr_version"/>
+        <field name="binding_model_id" ref="hr.model_hr_version"/>
+        <field name="state">code</field>
+        <field name="code">
+            action = records.action_work_schedule_change_wizard()
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="timesheet_grid.TimesheetTimerHeader">
+        <div class="timesheet-timer align-items-center w-100 px-3 py-2 py-sm-1"
+            t-attf-style="
+                height: {{ isMobile ? 'auto' : '55px' }};
+                grid-template-rows: {{ isMobile ? '42px 1fr' : '1fr' }};
+                grid-template-columns: {{ isMobile ? 'repeat(2, 1fr) 2fr' : 'repeat(3, 100px) 1fr' }};
+                {{ isMobile ? 'row-gap: 1rem;' : '' }}
+            "
+            t-att-class="classNames"
+            t-on-click.prevent="props.onClick"
+        >
+            <TimesheetTimerHeaderButtons
+                startTimer="props.onTimerStarted"
+                stopTimer.bind="stopTimer"
+                deleteTimer="props.onTimerUnlinked"
+                timerRunning="timerState.isRunning"
+            />
+            <t t-if="timerState.isRunning">
+                <div
+                    t-if="timerState.otherCompany"
+                    class="input_m2o flex-fill p-md-2 px-0"
+                    t-attf-style="{{ isMobile ? 'grid-column: 1 / 4;' : ''}}"
+                >
+                    <span class="px-2">
+                        A timer is running in another company.
+                    </span>
+                </div>
+                <TimesheetTimerHeaderRecord
+                    t-elif="props.timesheet"
+                    timesheet="props.timesheet"
+                    stopTimer.bind="stopTimer"
+                />
+            </t>
+            <div t-elif="!isMobile" class="ps-2" style="grid-column: 2 / 5">
+                <t t-slot="default">
+                    <div>
+                        <span class="text-muted">Press</span> <b>Enter</b> <span class="text-muted">or click on</span> <i class="fa fa-play"/> <span class="text-muted">to launch the timer</span>
+                    </div>
+                    <div>
+                        <span class="text-muted">Press</span> <b>Shift</b> <span class="text-muted">and click on</span> <i class="fa fa-plus"/> <span class="text-muted">to add <t t-esc="timerService.stepTimer"/> min</span>
+                    </div>
+                </t>
+            </div>
+        </div>
+    </t>
+
+</templates>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="l10n_sa_hr_payroll.PayRunCard" t-inherit="hr_payroll.PayRunCard" t-inherit-mode="extension">
+        <MoreInfo position="inside">
+            <t t-set-slot="l10n_sa_wps_file_reference" isVisible="payrun.l10n_sa_wps_file_reference &amp;&amp; ['02_close', '03_paid'].includes(payrun.state)">
+                <span class="col fw-medium">
+                    <t t-esc="this.props.record.fields.l10n_sa_wps_file_reference.string"/>
+                </span>
+                <div class="col mb-3 mb-sm-0">
+                    <Field name="'l10n_sa_wps_file_reference'" record="props.record"/>
+                </div>
+            </t>
+        </MoreInfo>
+    </t>
+</templates>

@@ -1,0 +1,89 @@
+.o_knowledge_sidebar {
+    height: 100%;
+    transition: transform 0.15s linear;
+    .o_public_search {
+        &:hover {
+            background-color: $o-gray-200;
+        }
+    }
+    .o_tree {
+        overflow-y: auto;
+        font-size: 0.875rem;
+    }
+    &.o_slide-enter, &.o_slide-leave {
+        transform: translateX(-100%);
+        .o_resizable_panel {
+            width: 0 !important;
+        }
+    }
+    .o_resizable_panel {
+        max-width: 576px;
+        transition: width 0.15s linear;
+        @include media-breakpoint-down(sm) {
+            width: 100vw !important;
+        }
+    }
+    .o_resizable_panel_handle {
+        &:hover {
+            background-color: $o-gray-300;
+        }
+        &.o_knowledge_sidebar_active_handle {
+            background-color: $o-gray-300;
+        }
+    }
+    ul {
+        list-style: none;
+        padding: 0;
+    }
+    li > ul > li {
+        padding-left: 12px;
+        &:last-child {
+            padding-bottom: 0;
+            &:after {
+                height: 1em;
+            }
+        }
+    }
+    .o_article {
+        .o_article_handle:hover {
+            .o_article_emoji {
+                opacity: 0;
+            }
+            .o_article_caret {
+                opacity: 1;
+            }
+        }
+        .o_article_emoji,
+        .o_article_caret {
+            transition: opacity 0.3s;
+        }
+        .o_article_caret {
+            @include o-position-absolute(0, 0, 0, 0);
+            opacity: 0;
+        }
+
+        .o_article_handle.o_article_active {
+            background-color: rgba($knowledge-bg--active, 0.2);
+            &:hover {
+                background-color: rgba($knowledge-bg--active, 0.3);
+            }
+            .o_article_icon:hover {
+                background-color: rgba($knowledge-bg--active, 0.4);
+            }
+            .o_article_icon:active {
+                background-color: rgba($knowledge-bg--active, 0.5);
+            }
+        }
+        .o_article_handle {
+            &:hover {
+                background-color: rgba($knowledge-bg--hover, 0.3);
+            }
+            .o_article_icon:hover {
+                background-color: rgba($knowledge-bg--hover, 0.4);
+            }
+            .o_article_icon:active {
+                background-color: rgba($knowledge-bg--hover, 0.5);
+            }
+        }
+    }
+}

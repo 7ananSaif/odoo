@@ -1,0 +1,403 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * website_helpdesk_livechat
+#
+# Translators:
+# Martin Trigaux, 2022
+# Friederike Fasterling-Nesselbosch, 2022
+# Larissa Manderfeld, 2023
+#
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Larissa Manderfeld (lman)" <lman@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-11-04 09:39+0000\n"
+"Last-Translator: \"Larissa Manderfeld (lman)\" <lman@odoo.com>\n"
+"Language-Team: German <https://translate.odoo.com/projects/odoo-19/"
+"website_helpdesk_livechat/de/>\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/chatbot_script_step.py:0
+msgid "%(name)s's Ticket"
+msgstr "Ticket von %(name)s"
+
+#. module: website_helpdesk_livechat
+#: model_terms:ir.ui.view,arch_db:website_helpdesk_livechat.helpdesk_tiket_view_form_inherit_website_helpdesk_livechat
+msgid "<span class=\"o_stat_text\">View chat</span>"
+msgstr "<span class=\"o_stat_text\">Chat anzeigen</span>"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_done
+msgid "Alright, we should have everything we need"
+msgstr "OK, wir sollten alles Nötige haben"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/chatbot_script.py:0
+msgid ""
+"An \"Email\" step type must exist before the \"Create Ticket\" step for a "
+"ticket to be created."
+msgstr ""
+"Der Schritt „E-Mail“ muss vor dem Schritt „Ticket erstellen“ vorhanden sein, "
+"damit ein Ticket erstellt werden kann."
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_technical_serial_misc
+msgid "Anything else to add?"
+msgstr "Noch etwas hinzuzufügen?"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_chatbot_script
+msgid "Chatbot Script"
+msgstr "Chatbot-Skript"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_chatbot_script_step
+msgid "Chatbot Script Step"
+msgstr "Chatbot-Skript-Schritt"
+
+#. module: website_helpdesk_livechat
+#: model:ir.ui.menu,name:website_helpdesk_livechat.chatbot_config
+msgid "Chatbots"
+msgstr "Chatbots"
+
+#. module: website_helpdesk_livechat
+#: model_terms:ir.ui.view,arch_db:website_helpdesk_livechat.helpdesk_team_view_form_inherit_website_helpdesk_livechat
+msgid "Configure Chatbots"
+msgstr "Chatbots konfigurieren"
+
+#. module: website_helpdesk_livechat
+#: model_terms:ir.ui.view,arch_db:website_helpdesk_livechat.helpdesk_team_view_form_inherit_website_helpdesk_livechat
+msgid "Configure Live Chat Channel"
+msgstr "Livechat-Kanal konfigurieren"
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/thread_actions.js:0
+#: model:ir.model.fields.selection,name:website_helpdesk_livechat.selection__chatbot_script_step__step_type__create_ticket
+msgid "Create Ticket"
+msgstr "Ticket erstellen"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,website_form_label:website_helpdesk_livechat.model_helpdesk_ticket
+msgid "Create a Ticket"
+msgstr "Ein Ticket erstellen"
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/web/store_service_patch.js:0
+msgid "Create a new helpdesk ticket (/ticket ticket title)"
+msgstr "Ein neues Kundendienstticket erstellen (/Ticket Tickettitel)"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid ""
+"Create a new helpdesk ticket with: %(pre_start)s%(ticket_command)s %"
+"(i_start)sticket title%(i_end)s%(pre_end)s"
+msgstr ""
+"Erstellen Sie ein neues Kundendienstticket mit: %(pre_start)s%"
+"(ticket_command)s %(i_start)sTicket-Titel%(i_end)s%(pre_end)s"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid "Created a new ticket: %s"
+msgstr "Ein neues Ticket erstellt: %s"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_discuss_channel
+msgid "Discussion Channel"
+msgstr "Diskussionskanal"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script_step__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_discuss_channel__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_team__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_ticket__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_im_livechat_report_channel__display_name
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_res_users__display_name
+msgid "Display Name"
+msgstr "Anzeigename"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_dispatch
+msgid "First, what is the nature of your issue?"
+msgstr "Worum handelt es sich bei Ihrem Problem?"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_yes
+msgid "Great, that will make our lives easier."
+msgstr "Toll, das macht uns das Leben einfacher."
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_discuss_channel__has_helpdesk_ticket
+msgid "Has Helpdesk Ticket"
+msgstr "Hat Kundendienstticket"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script,title:website_helpdesk_livechat.chatbot_script_helpdesk_bot
+msgid "Helpdesk Bot"
+msgstr "Kundendienstbot"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_helpdesk_team
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script_step__helpdesk_team_id
+msgid "Helpdesk Team"
+msgstr "Kundendienstteam"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_helpdesk_ticket
+msgid "Helpdesk Ticket"
+msgstr "Kundendienstticket"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_welcome
+msgid "Here we go, help is on the way!"
+msgstr "Los geht's, Hilfe ist auf dem Weg!"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script.answer,name:website_helpdesk_livechat.chatbot_script_helpdesk_step_dispatch_answer_technical
+msgid "I have a technical issue"
+msgstr "Ich habe ein technisches Problem"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script.answer,name:website_helpdesk_livechat.chatbot_script_helpdesk_step_dispatch_answer_administrative
+msgid "I have an administrative question"
+msgstr "Ich habe eine Frage zur Verwaltung"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script_step__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_discuss_channel__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_team__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_ticket__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_im_livechat_report_channel__id
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_res_users__id
+msgid "ID"
+msgstr "ID"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_no
+msgid "It's OK, we can also find your contract by other means."
+msgstr "Keine Sorge, wir können Ihren Vertrag auch anders finden."
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_email
+msgid "Just a last thing, can we please have your email address?"
+msgstr "Noch eine letzte Frage: Können wir bitte Ihre E-Mail-Adresse haben?"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_team__use_website_helpdesk_livechat
+msgid "Live Chat"
+msgstr "Livechat"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_helpdesk_ticket__origin_channel_id
+msgid "Live chat from which the ticket was created"
+msgstr "Livechat, aus dem das Ticket erstellt wurde"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_im_livechat_report_channel
+msgid "Livechat Support Channel Report"
+msgstr "Kanalbericht zum Livechat-Support"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid "Load More"
+msgstr "Mehr laden"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script.answer,name:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_answer_no
+msgid "No"
+msgstr "Nein"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid ""
+"No tickets found for %(b_start)s%(keywords)s%(b_end)s.%(br)sMake sure you "
+"are using the right format: %(pre_start)s%(search_tickets_command)s %"
+"(i_start)skeywords%(i_end)s%(pre_end)s"
+msgstr ""
+"Keine Tickets gefunden für %(b_start)s%(keywords)s%(b_end)s.%(br)sStellen "
+"Sie sicher, dass Sie das richtige Format verwenden: %(pre_start)s%"
+"(search_tickets_command)s %(i_start)sSchlüssekwörter%(i_end)s%(pre_end)s"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_ticket
+msgid ""
+"OK, I just created a ticket for you. You should receive an email "
+"confirmation very soon."
+msgstr ""
+"OK, ich habe gerade ein Ticket für Sie erstellt. Sie sollten sehr bald eine "
+"E-Mail-Bestätigung erhalten."
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/web/livechat_channel_info_list_patch.xml:0
+msgid "Open tickets"
+msgstr "Offene Tickets"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_technical_serial
+msgid "Please write below the serial number of your equipment."
+msgstr "Bitte geben Sie unten die Seriennummer Ihres Geräts an."
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_input
+msgid "Please write below your customer reference."
+msgstr "Bitte geben Sie unten Ihre Kundennummer an."
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/web/store_service_patch.js:0
+msgid "Search helpdesk tickets (/search_tickets keyword)"
+msgstr "Kundendiensttickets suchen (/search_tickets Schlagwort)"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid ""
+"Search helpdesk tickets by typing: %(pre_start)s%(search_tickets_command)s %"
+"(i_start)skeywords%(i_end)s%(pre_end)s"
+msgstr ""
+"Suchen Sie Kundendiensttickets, indem Sie Folgendes eingeben: %(pre_start)s%"
+"(search_tickets_command)s %(i_start)sSchlagwörter%(i_end)s%(pre_end)s"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid "Something is missing or wrong in command"
+msgstr "Etwas im Befehl fehlt oder ist falsch"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid "Something is missing or wrong in the command"
+msgstr "Etwas im Befehl fehlt oder ist falsch"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_chatbot_script_step__step_type
+msgid "Step Type"
+msgstr "Schritttyp"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_technical_serial_thanks
+msgid "Thank you, that will help our engineers see what went wrong."
+msgstr "Danke, das wird unseren Ingenieuren helfen, den Fehler zu finden."
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,help:website_helpdesk_livechat.field_discuss_channel__ticket_ids
+msgid "The channel becomes accessible to helpdesk users when tickets are set."
+msgstr ""
+"Der Kanal ist für Kundendienstbenutzer zugänglich, wenn Tickets eingestellt "
+"werden."
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_discuss_channel__ticket_ids
+#: model_terms:ir.ui.view,arch_db:website_helpdesk_livechat.chatbot_script_view_form
+msgid "Tickets"
+msgstr "Tickets"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model.fields,field_description:website_helpdesk_livechat.field_im_livechat_report_channel__tickets_created
+msgid "Tickets created"
+msgstr "Tickets erstellt"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/discuss_channel.py:0
+msgid ""
+"Tickets search results for %(b_start)s%(keywords)s%(b_end)s: %(br)s%"
+"(tickets)s"
+msgstr ""
+"Ergebnisse der Ticketsuche für %(b_start)s%(keywords)s%(b_end)s: %(br)s%"
+"(tickets)s"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref
+msgid ""
+"To start with, do you have a customer reference?\n"
+"They are written on each invoice you received, next to your name."
+msgstr ""
+"Zunächst einmal: Haben Sie eine Kundenreferenz?\n"
+"Sie steht auf jeder Rechnung, die Sie erhalten haben, neben Ihrem Namen."
+
+#. module: website_helpdesk_livechat
+#: model:res.groups,name:website_helpdesk_livechat.group_use_website_helpdesk_livechat
+msgid "Use Live Chat"
+msgstr "Livechat verwenden"
+
+#. module: website_helpdesk_livechat
+#: model:ir.model,name:website_helpdesk_livechat.model_res_users
+msgid "User"
+msgstr "Benutzer"
+
+#. module: website_helpdesk_livechat
+#: model_terms:chatbot.script.step,message:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_issue
+msgid "We're all set. Now, what is your issue?"
+msgstr "Wir haben alles vorbereitet. Was ist Ihr Problem?"
+
+#. module: website_helpdesk_livechat
+#: model:chatbot.script.answer,name:website_helpdesk_livechat.chatbot_script_helpdesk_step_administrative_customer_ref_answer_yes
+msgid "Yes"
+msgstr "Ja"
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/helpdesk_ticket.py:0
+msgid "You cannot create tickets linked to channels you don't have access to."
+msgstr ""
+"Sie können keine Tickets erstellen, die mit Kanälen verknüpft sind, auf die "
+"Sie keinen Zugriff haben."
+
+#. module: website_helpdesk_livechat
+#. odoo-python
+#: code:addons/website_helpdesk_livechat/models/helpdesk_ticket.py:0
+msgid ""
+"You cannot update a ticket and link it to a channel you don't have access to."
+msgstr ""
+"Sie können ein Ticket nicht aktualisieren und mit einem Kanal verknüpfen, "
+"auf den Sie keinen Zugriff haben."
+
+#. module: website_helpdesk_livechat
+#. odoo-javascript
+#: code:addons/website_helpdesk_livechat/static/src/core/thread_actions.js:0
+msgid "e.g. Product arrived damaged"
+msgstr "z. B. Produkt wurde beschädigt geliefert"
+
+#~ msgid "Canned Responses"
+#~ msgstr "Vorformulierte Antworten"
+
+#~ msgid "Canned Responses Search"
+#~ msgstr "Suche in vorgefertigten Antworten"
+
+#~ msgid "Generated Ticket Count"
+#~ msgstr "Anzahl erstellter Tickets"
+
+#~ msgid "No canned reponses found. Let's create one!"
+#~ msgstr "Keine vorgefertigten Antworten gefunden. Erstellen wir eine!"
+
+#~ msgid ""
+#~ "With canned responses, you can type <i>:shortcuts</i> to insert "
+#~ "prewritten responses into your messages. These shortcuts are replaced "
+#~ "directly in your messages so that you can still make changes before "
+#~ "sending them."
+#~ msgstr ""
+#~ "Mit vorgefertigten Antworten können Sie <i>:Kürzel</i> eingeben, um "
+#~ "vorgeschriebene Antworten in Ihre Nachrichten einzufügen. Diese Kürzel "
+#~ "werden direkt in Ihren Nachrichten ersetzt, sodass Sie diese immer noch "
+#~ "vor dem Absenden ändern können."

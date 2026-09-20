@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.databases</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="40"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="inside">
+                <app data-string="Databases" string="Databases" name="databases" groups="base.group_system">
+                    <block title="Databases" name="databases_api_keys">
+                        <setting string="API credentials to Odoo.com">
+                            <div class="text-muted">
+                                Odoo.com API keys are managed in the <em>Developer API Keys</em> section of your
+                                <a href="https://odoo.com/my/security?debug=1">Odoo.com Connection &amp; Security page</a>.
+                            </div>
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <label for="databases_apiuser" class="col-lg-3"/>
+                                    <field name="databases_apiuser"/>
+                                </div>
+                                <div class="row mt16">
+                                    <label for="databases_apikey" class="col-lg-3"/>
+                                    <field name="databases_apikey" password="1"/>
+                                </div>
+                            </div>
+                        </setting>
+                        <setting string="Project Template">
+                            <div class="text-muted">
+                                New databases will be based on the selected project template.
+                            </div>
+                            <div class="content-group">
+                                <div class="row mt16">
+                                    <field name="databases_project_template_id"/>
+                                </div>
+                            </div>
+                        </setting>
+                    </block>
+                </app>
+            </xpath>
+        </field>
+    </record>
+</odoo>

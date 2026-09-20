@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+    <record id="base.partner_demo_company_hk" model="res.partner" forcecreate="1">
+        <field name="name">My Hong Kong Company</field>
+        <field name="country_id" ref="base.hk"/>
+    </record>
+
+    <record id="base.demo_company_hk" model="res.company" forcecreate="1">
+        <field name="name">My Hong Kong Company</field>
+        <field name="partner_id" ref="base.partner_demo_company_hk"/>
+        <field name="currency_id" ref="base.HKD"/>
+        <field name="country_id" ref="base.hk"/>
+        <field name="resource_calendar_id" ref="calendar_hk" />
+        <field name="l10n_hk_employer_file_number">123-12345678</field>
+        <field name="l10n_hk_manulife_mpf_scheme">12345678</field>
+        <field name="l10n_hk_employer_name">My Hong Kong Company</field>
+    </record>
+
+    <record id="res_partner_hk_work_address" model="res.partner">
+        <field name="name">HK Office</field>
+        <field name="street">118 Connaught Road West</field>
+        <field name="street2">Unit 07 - 10, 38/F Yat Chau International Plaza</field>
+        <field name="city">Sai Ying Pun</field>
+        <field name="state_id" ref="base.state_hk_hk"/>
+        <field name="country_id" ref="base.hk"/>
+        <field name="company_id" ref="base.demo_company_hk"/>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_hk'))]"/>
+    </record>
+
+    <record id="base.user_demo" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_hk'))]"/>
+    </record>
+
+    <record id="l10n_hk_hr_payroll.structure_type_employee_cap57" model="hr.payroll.structure.type">
+        <field name="default_resource_calendar_id" ref="calendar_hk" />
+    </record>
+
+    <record id="l10n_hk_hr_payroll.calendar_hk" model="resource.calendar">
+        <field name="company_id" ref="base.demo_company_hk" />
+    </record>
+
+    <record id="hk_hr_department_rd" model="hr.department">
+        <field name="name">R&amp;D HK</field>
+        <field name="company_id" ref="base.demo_company_hk"/>
+    </record>
+
+    <record id="res_partner_anthony" model="res.partner">
+        <field name="name">Anthony Choi</field>
+        <field name="street">Yu Chau Street</field>
+        <field name="city">Hong Kong</field>
+        <field name="zip">000</field>
+        <field name="state_id" ref="base.state_hk_hk"/>
+        <field name="country_id" ref="base.hk"/>
+        <field name="phone">9934 1312</field>
+        <field name="company_id" ref="base.demo_company_hk"/>
+    </record>
+    <record id="res_partner_anthony" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_hk_hr_payroll.res_partner_anthony')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_natalie" model="res.partner">
+        <field name="name">Natalie Chan</field>
+        <field name="street">Kwun Chung St</field>
+        <field name="city">Hong Kong</field>
+        <field name="zip">4272051</field>
+        <field name="state_id" ref="base.state_hk_hk"/>
+        <field name="country_id" ref="base.hk"/>
+        <field name="phone">9998 7843</field>
+        <field name="company_id" ref="base.demo_company_hk"/>
+    </record>
+    <record id="res_partner_natalie" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="user_natalie" model="res.users">
+        <field name="partner_id" ref="l10n_hk_hr_payroll.res_partner_natalie"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_hk'))]"/>
+        <field name="company_id" ref="base.demo_company_hk"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="l10n_hk_hr_payroll/static/img/employee_natalie.jpg"/>
+    </record>
+
+    <record id="hk_res_bank_hang_seng" model="res.bank">
+        <field name="name">Hang Seng Bank</field>
+        <field name="bic">HASEHKHHXXX</field>
+        <field name="l10n_hk_bank_code">024</field>
+        <field name="street">Hang Seng Bank Street</field>
+        <field name="city">Hong Kong</field>
+        <field name="zip">000000</field>
+        <field name="state" ref="base.state_hk_hk"/>
+        <field name="country" ref="base.hk"/>
+        <field name="phone">9974 4682</field>
+    </record>
+    <record id="hk_res_bank_hang_seng" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_hk_hr_payroll.hk_res_bank_hang_seng')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="hk_res_bank_chong_hing" model="res.bank">
+        <field name="name">Chong Hing Bank</field>
+        <field name="bic">LCHBHKHHXXX</field>
+        <field name="l10n_hk_bank_code">041</field>
+        <field name="street">Chong Hing Bank Street</field>
+        <field name="city">Hong Kong</field>
+        <field name="zip">000</field>
+        <field name="state" ref="base.state_hk_hk"/>
+        <field name="country" ref="base.hk"/>
+        <field name="phone">9982 1824</field>
+    </record>
+    <record id="hk_res_bank_chong_hing" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_hk_hr_payroll.hk_res_bank_chong_hing')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_anthony" model="res.partner.bank">
+        <field name="acc_number">999-678-123456</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_hk_hr_payroll.hk_res_bank_hang_seng"/>
+        <field name="partner_id" ref="l10n_hk_hr_payroll.res_partner_anthony"/>
+        <field name="company_id" ref="base.demo_company_hk"/>
+        <field name="currency_id" ref="base.HKD"/>
+    </record>
+
+    <record id="res_partner_bank_account_natalie" model="res.partner.bank">
+        <field name="acc_number">999-912-456789</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_hk_hr_payroll.hk_res_bank_chong_hing"/>
+        <field name="partner_id" ref="l10n_hk_hr_payroll.res_partner_natalie"/>
+        <field name="company_id" ref="base.demo_company_hk"/>
+        <field name="currency_id" ref="base.HKD"/>
+    </record>
+
+    <record id="hr_employee_anthony" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_anthony')).name"/>
+        <field name="image_1920" type="base64" file="l10n_hk_hr_payroll/static/img/employee_anthony.jpg"/>
+        <field name="work_phone">9964 6983</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_anthony')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="work_contact_id" ref="l10n_hk_hr_payroll.res_partner_anthony"/>
+        <field name="company_id" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_anthony')).company_id"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Asia/Hong_Kong</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_anthony')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_anthony')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_anthony')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_anthony')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_anthony')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_anthony')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_anthony')).phone"/>
+        <field name="distance_home_work">6</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_anthony')).country_id"/>
+        <field name="identification_id">E047193A</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1977, 3, 26).date()"/>
+        <field name="place_of_birth">Hong Kong</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_anthony')).country_id"/>
+        <field name="emergency_contact">Ryan Choi</field>
+        <field name="emergency_phone">9967 7692</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Physics</field>
+        <field name="study_school">The University of Hong Kong</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_hk_hr_payroll.res_partner_bank_account_anthony'))]"/>
+        <field name="l10n_hk_surname">Choi</field>
+        <field name="l10n_hk_given_name">Anthony</field>
+        <field name="structure_type_id" ref="structure_type_employee_cap57"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">25000</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+        <field name="resource_calendar_id" ref="calendar_hk"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_hk_hr_payroll.hk_hr_department_rd"/>
+        <field name="address_id" ref="l10n_hk_hr_payroll.res_partner_hk_work_address"/>
+        <field name="date_version" eval="(DateTime.now() + relativedelta(years=-1, month=1, day=1)).strftime('%Y-%m-%d')"/>
+        <field name="contract_date_start" eval="(DateTime.now() + relativedelta(years=-1, month=1, day=1)).strftime('%Y-%m-%d')"/>
+    </record>
+
+    <record id="hr_employee_natalie" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).name"/>
+        <field name="image_1920" type="base64" file="l10n_hk_hr_payroll/static/img/employee_natalie.jpg"/>
+        <field name="work_phone">9932 4387</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="parent_id" ref="l10n_hk_hr_payroll.hr_employee_anthony"/>
+        <field name="user_id" ref="l10n_hk_hr_payroll.user_natalie"/>
+        <field name="company_id" ref="base.demo_company_hk"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Asia/Hong_Kong</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).phone"/>
+        <field name="distance_home_work">12</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).country_id"/>
+        <field name="identification_id">F098462B</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1996, 1, 12).date()"/>
+        <field name="place_of_birth">Hong Kong</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_hk_hr_payroll.res_partner_natalie')).country_id"/>
+        <field name="emergency_contact">Ryan Chan</field>
+        <field name="emergency_phone">9999 4168</field>
+        <field name="certificate">bachelor</field>
+        <field name="study_field">Computer Engineering</field>
+        <field name="study_school">The University of Hong Kong</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_hk_hr_payroll.res_partner_bank_account_natalie'))]"/>
+        <field name="l10n_hk_surname">Chan</field>
+        <field name="l10n_hk_given_name">Natalie</field>
+        <field name="job_id" ref="hr.job_consultant"/>
+        <field name="department_id" ref="l10n_hk_hr_payroll.hk_hr_department_rd"/>
+        <field name="company_id" ref="base.demo_company_hk"/>
+        <field name="structure_type_id" ref="structure_type_employee_cap57"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">20000</field>
+        <field name="hr_responsible_id" ref="base.user_admin"/>
+        <field name="resource_calendar_id" ref="calendar_hk"/>
+        <field name="address_id" ref="l10n_hk_hr_payroll.res_partner_hk_work_address"/>
+        <field name="date_version" eval="(DateTime.now() + relativedelta(month=1, day=1)).strftime('%Y-%m-%d')"/>
+        <field name="contract_date_start" eval="(DateTime.now() + relativedelta(month=1, day=1)).strftime('%Y-%m-%d')"/>
+    </record>
+
+    <record id="demo_rental_hk" model="l10n_hk.rental">
+        <field name="name">Demo Rental HK</field>
+        <field name="employee_id" ref="l10n_hk_hr_payroll.hr_employee_anthony"/>
+        <field name="company_id" ref="base.demo_company_hk"/>
+        <field name="state">open</field>
+        <field name="date_start" eval="time.strftime('%Y-01-01')"/>
+        <field name="amount">8000</field>
+        <field name="nature">flat</field>
+        <field name="address">1, Hong Kong Street</field>
+    </record>
+
+    <!-- PUBLIC HOLIDAYS -->
+    <record id="demo_public_holiday" model="resource.calendar.leaves">
+        <field name="name">That public holiday everyone is looking forward to</field>
+        <field name="company_id" ref="base.demo_company_hk" />
+        <field name="calendar_id" ref="calendar_hk"/>
+        <field name="date_from" eval="time.strftime('%Y-%m-01 06:00:00')" />
+        <field name="date_to" eval="time.strftime('%Y-%m-01 15:00:00')" />
+        <field name="work_entry_type_id" ref="hr_work_entry.l10n_hk_work_entry_type_statutory_holiday" />
+    </record>
+
+    <!-- LEAVE ALLOCATION -->
+    <record id="demo_annual_leave_allocation" model="hr.leave.allocation">
+        <field name="name">Annual Leave Allocation - HK Employee</field>
+        <field name="holiday_status_id" ref="hr_holidays.l10n_hk_leave_type_annual_leave"/>
+        <field name="number_of_days">20</field>
+        <field name="employee_id" ref="l10n_hk_hr_payroll.hr_employee_natalie"/>
+        <field name="date_from" eval="time.strftime('%Y-01-01')"/>
+        <field name="date_to" eval="time.strftime('%Y-12-31')"/>
+        <field name="state">confirm</field>
+    </record>
+
+    <!-- VALIDATE ALLOCATION -->
+    <function model="hr.leave.allocation" name="action_approve">
+        <value model="hr.leave.allocation" eval="[ref('demo_annual_leave_allocation')]"/>
+    </function>
+
+    <!-- LEAVES -->
+    <record id="demo_unpaid_leave" model="hr.leave">
+        <field name="employee_id" ref="l10n_hk_hr_payroll.hr_employee_anthony" />
+        <field name="request_date_from" eval="time.strftime('%Y-%m-14')" />
+        <field name="request_date_to" eval="time.strftime('%Y-%m-17')"/>
+        <field name="holiday_status_id" ref="hr_holidays.l10n_hk_leave_type_unpaid_leave" />
+        <field name="state">confirm</field>
+    </record>
+
+    <record id="demo_annual_leave" model="hr.leave">
+        <field name="employee_id" ref="l10n_hk_hr_payroll.hr_employee_natalie" />
+        <field name="request_date_from" eval="time.strftime('%Y-%m-11')" />
+        <field name="request_date_to" eval="time.strftime('%Y-%m-15')"/>
+        <field name="holiday_status_id" ref="hr_holidays.l10n_hk_leave_type_annual_leave" />
+        <field name="state">confirm</field>
+    </record>
+
+    <!-- Install test_l10n_hk_hr_payroll_account for demo payslips -->
+</odoo>

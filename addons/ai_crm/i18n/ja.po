@@ -1,0 +1,97 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * ai_crm
+#
+# "Junko Augias (juau)" <juau@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-11-13 09:24+0000\n"
+"Last-Translator: \"Junko Augias (juau)\" <juau@odoo.com>\n"
+"Language-Team: Japanese <https://translate.odoo.com/projects/odoo-19/ai_crm/"
+"ja/>\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: ai_crm
+#: model:ir.actions.server,ai_tool_description:ai_crm.ir_actions_server_ai_create_lead
+msgid ""
+"## Tool: Create a Lead\n"
+"Use when the customer has provided the required information and you are "
+"ready to register the lead."
+msgstr ""
+"## ツール: リードの作成\n"
+"顧客から必要な情報が提供され、リードの登録が可能なステータスになったときに使"
+"用します。"
+
+#. module: ai_crm
+#: model:ir.actions.server,ai_tool_description:ai_crm.ir_actions_server_ai_get_lead_create_available_params
+msgid ""
+"## Tool: Get Lead Creation Parameters\n"
+"Retrieves available teams and tags for lead creation.\n"
+"Use this tool only immediately before calling the lead creation tool (never "
+"at other times).\n"
+"When the customer provides their country (or if it can be clearly inferred "
+"from the conversation),\n"
+"use the country’s code as parameter to retrieve the country and its states "
+"IDs."
+msgstr ""
+"## ツール: リード作成パラメータの取得\n"
+"リード作成に使用可能なチームとタグを取得します。\n"
+"このツールは リード作成ツールを呼び出す直前にのみ使用 してください(それ以外の"
+"タイミングでは使用しないでください)。\n"
+"顧客が国を提供した場合、または会話から明確に国が推測できる場合は、\n"
+"その国のコードをパラメータとして使用し、国とその州の ID を取得してください。"
+
+#. module: ai_crm
+#: model:ir.model,name:ai_crm.model_ai_agent
+msgid "AI Agent"
+msgstr "AIエージェント"
+
+#. module: ai_crm
+#: model:ir.actions.server,name:ai_crm.ir_actions_server_ai_create_lead
+msgid "AI CRM: Create Lead"
+msgstr "AI CRM: リード作成"
+
+#. module: ai_crm
+#: model:ir.actions.server,name:ai_crm.ir_actions_server_ai_get_lead_create_available_params
+msgid "AI CRM: Get Lead creation available parameters"
+msgstr "AI CRM: リード作成時に使用可能なパラメータを取得する"
+
+#. module: ai_crm
+#: model:ir.model.fields,field_description:ai_crm.field_ai_agent__name
+msgid "Agent Name"
+msgstr "エージェント名"
+
+#. module: ai_crm
+#: model:ir.model,website_form_label:ai_crm.model_crm_lead
+msgid "Create an Opportunity"
+msgstr "案件作成"
+
+#. module: ai_crm
+#: model:ir.model.fields,field_description:ai_crm.field_ai_agent__display_name
+#: model:ir.model.fields,field_description:ai_crm.field_crm_lead__display_name
+msgid "Display Name"
+msgstr "表示名"
+
+#. module: ai_crm
+#: model:ir.model.fields,field_description:ai_crm.field_ai_agent__id
+#: model:ir.model.fields,field_description:ai_crm.field_crm_lead__id
+msgid "ID"
+msgstr "ID"
+
+#. module: ai_crm
+#: model:ir.model,name:ai_crm.model_crm_lead
+msgid "Lead"
+msgstr "リード"
+
+#. module: ai_crm
+#: model:ir.model.fields,field_description:ai_crm.field_ai_agent__source_id
+msgid "Source"
+msgstr "流入元"

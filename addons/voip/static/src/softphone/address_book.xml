@@ -1,0 +1,86 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip.AddressBook">
+    <Tab
+        itemsBySection="contactsByInitial"
+        extraClass="`o-voip-AddressBook ${props.extraClass}`"
+        noEntriesMessage.translate="Contacts with a phone number will be shown here."
+        onTabEnd="() => this.voip.fetchContacts(this.state.searchInputValue, this.voip.softphone.contacts.length)"
+        state="state"
+    >
+        <t t-set-slot="top">
+            <SearchBar state="state" onInputSearch="onInputSearch" onClickBack="props.onClickBack"/>
+        </t>
+        <t t-set-slot="entry" t-slot-scope="slot">
+            <t t-set="contact" t-value="slot.item"/>
+            <t t-set="isFolded" t-value="!contact.eq(voip.softphone.activeRecord)"/>
+            <TabEntry
+                avatarUrl="contact.avatarUrl"
+                title="contact.voipName"
+                subtitle="getSubtitle(contact)"
+                subtitleIcon="'fa fa-fw fa-building-o'"
+                phoneNumber="contact.phone"
+                record="contact"
+                section="slot.section"
+            >
+                <t t-set-slot="side">
+                    <t t-if="isFolded">
+                        <t t-if="props.slots?.primaryAction" t-slot="primaryAction" contact="contact" isSmall="true"/>
+                        <ActionButton t-else=""
+                            hideLabel="true"
+                            icon="'fa-phone'"
+                            type="'outline-success'"
+                            onClick="() => this.onClickCall(contact)"
+                            isSmall="true"
+                            name.translate="Call"
+                        />
+                    </t>
+                </t>
+                <t t-set-slot="info">
+                    <p class="mb-0 opacity-75 text-truncate">
+                        <span t-if="contact.phone_country_id?.image_url" class="o-voip-countryFlag-wrapper d-inline-block me-1 align-middle">
+                            <img class="o-voip-countryFlag mx-auto" t-att-src="contact.phone_country_id.image_url"
+                            t-att-alt="flagAlt"/>
+                        </span>
+                        <i t-else="" class="fa fa-phone fa-fw me-1"/>
+                        <span t-att-class="{ 'align-middle': contact.phone_country_id?.image_url }" t-esc="contact.phone"/>
+                    </p>
+                </t>
+                <t t-set-slot="actions">
+                    <ActionButton
+                        name.translate="Contact"
+                        title.translate="View contact information"
+                        icon="'oi-user'"
+                        onClick="() => this.onClickContact(contact)"
+                    />
+                    <t class="o-voip-AddressBook-xpathTarget"/>
+                    <ActionButton
+                        name.translate="Activity"
+                        title.translate="Schedule an activity"
+                        icon="'oi-activity-plus'"
+                        onClick="() => this.onClickActivity(contact)"
+                    />
+                </t>
+                <t t-set-slot="call-to-action">
+                    <t class="o-voip-AddressBook-sms-xpathTarget"/>
+                    <t t-if="props.slots?.primaryAction" t-slot="primaryAction" contact="contact" isSmall="false" />
+                    <ActionButton t-else=""
+                        icon="'fa-phone'"
+                        name.translate="Call"
+                        type="'success'"
+                        onClick="() => this.onClickCall(contact)"
+                    />
+                </t>
+            </TabEntry>
+        </t>
+        <t t-set-slot="no-search-results">
+            <NoSearchResults
+                icon="'fa fa-address-book-o'"
+                noResultsMessage.translate="No contacts found"
+                actionMessage.translate="Create a new contact"
+                actionCallback="() => this.openPartnerForm()"
+            />
+        </t>
+    </Tab>
+</t>
+</templates>

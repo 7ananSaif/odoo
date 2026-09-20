@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="helpdesk_sale_giftcard_generate_wizard_view_form" model="ir.ui.view">
+        <field name="name">helpdesk.sale.giftcard.generate.wizard.form</field>
+        <field name="model">loyalty.generate.wizard</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <form string="Generate">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="program_id" />
+                            <field name="program_type" invisible="1" />
+                            <label string="Gift Card value" for="points_granted"
+                                invisible="program_type != 'gift_card'" />
+                            <span class="d-inline-block" invisible="program_type != 'gift_card'">
+                                <field name="points_granted" class="w-auto oe_inline me-1" />
+                                <field name="points_name" class="d-inline" no_label="1" />
+                            </span>
+                            <field name="valid_until" />
+                        </group>
+                        <group class="d-flex flex-column">
+                            <div class="border-bottom w-100 fw-bold">Description</div>
+                            <field name="description" nolabel="1"
+                                placeholder="Example: Gift for customer" required="True" />
+                        </group>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="generate_giftcard" type="object" class="btn-primary"
+                        data-hotkey="q">
+                        <span>
+                            Generate &amp; Send Gift Card
+                        </span>
+                    </button>
+                    <button special="cancel" data-hotkey="x" string="Discard" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="helpdesk_sale_giftcard_generate_wizard_action" model="ir.actions.act_window">
+        <field name="name">Generate &amp; Send Gift Card</field>
+        <field name="res_model">loyalty.generate.wizard</field>
+        <field name="view_id" ref="helpdesk_sale_giftcard_generate_wizard_view_form"/>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="account_return_read_company_rule" model="ir.rule">
+        <field name="name">Account Returns multi-company</field>
+        <field name="model_id" ref="model_account_return"/>
+        <field name="domain_force">[('company_ids', 'in', company_ids)]</field>
+        <field name="perm_read" eval="True"/>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="account_return_company_rule" model="ir.rule">
+        <field name="name">Account Returns multi-company</field>
+        <field name="model_id" ref="model_account_return"/>
+        <field name="domain_force">['|', ('tax_unit_id.main_company_id', 'in', company_ids), ('company_id', 'in', company_ids)]</field>
+        <field name="perm_read" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_create" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+
+    <record id="account_return_check_company_rule" model="ir.rule">
+        <field name="name">Account Returns Check multi-company</field>
+        <field name="model_id" ref="model_account_return_check"/>
+        <field name="domain_force">['|', ('return_id.tax_unit_id.main_company_id', 'in', company_ids), ('return_id.company_id', 'in', company_ids)]</field>
+    </record>
+
+</odoo>

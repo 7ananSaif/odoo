@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="base.partner_demo_company_pl" model="res.partner" forcecreate="1">
+        <field name="name">My Polish Company</field>
+        <field name="country_id" ref="base.pl"/>
+    </record>
+
+    <record id="base.demo_company_pl" model="res.company" forcecreate="1">
+        <field name="name">My Polish Company</field>
+        <field name="partner_id" ref="base.partner_demo_company_pl"/>
+        <field name="currency_id" ref="base.PLN"/>
+        <field name="street">34A, ul. Grodzka</field>
+        <field name="zip">02243</field>
+        <field name="city">Krakow</field>
+        <field name="country_id" ref="base.pl"/>
+    </record>
+
+    <record id="base.user_admin" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_pl'))]"/>
+    </record>
+
+    <record id="base.user_demo" model="res.users">
+        <field name="company_ids" eval="[(4, ref('base.demo_company_pl'))]"/>
+    </record>
+
+    <record id="pl_hr_department_rd" model="hr.department">
+        <field name="name">R&amp;D PL</field>
+        <field name="company_id" ref="base.demo_company_pl"/>
+    </record>
+
+    <record id="res_partner_blazej" model="res.partner">
+        <field name="name">Błażej Czarnecki</field>
+        <field name="street">Ratuszowa 1/3</field>
+        <field name="city">Warsaw</field>
+        <field name="zip">03-461</field>
+        <field name="state_id" ref="base.state_pl_mz"/>
+        <field name="country_id" ref="base.pl"/>
+        <field name="phone">99 521 38 76</field>
+        <field name="company_id" ref="base.demo_company_pl"/>
+    </record>
+    <record id="res_partner_blazej" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_pl_hr_payroll.res_partner_blazej')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_antonina" model="res.partner">
+        <field name="name">Antonina Kaczmarczyk</field>
+        <field name="street">Wczasowa 84A/39</field>
+        <field name="city">Magdalenka</field>
+        <field name="zip">15-584</field>
+        <field name="state_id" ref="base.state_pl_mz"/>
+        <field name="country_id" ref="base.pl"/>
+        <field name="phone">99 446 52 27</field>
+        <field name="company_id" ref="base.demo_company_pl"/>
+    </record>
+    <record id="res_partner_antonina" model="res.partner">
+        <field name="email" model="res.partner" eval="'demo.' + obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).name.split(' ')[-1].lower() + '@example.com'"/>
+    </record>
+
+    <record id="user_antonina" model="res.users">
+        <field name="partner_id" ref="l10n_pl_hr_payroll.res_partner_antonina"/>
+        <!-- firstname.lastname@example.com -->
+        <field name="login" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="signature" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).name.split(' ')[0][0] + '. ' + obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).name.split(' ')[-1]"/>
+        <field name="company_ids" eval="[(4, ref('base.demo_company_pl'))]"/>
+        <field name="company_id" ref="base.demo_company_pl"/>
+        <field name="group_ids" eval="[(6,0,[ref('base.group_user')])]"/>
+        <field name="image_1920" type="base64" file="l10n_pl_hr_payroll/static/img/hr_employe_antonina.jpg"/>
+    </record>
+
+    <record id="pl_res_bank_pko" model="res.bank">
+        <field name="name">PKO Bank</field>
+        <field name="bic">BPKOPLPWXXX</field>
+        <field name="street">PKO Bank Street</field>
+        <field name="city">Warsaw</field>
+        <field name="zip">03-190</field>
+        <field name="state" ref="base.state_pl_mz"/>
+        <field name="country" ref="base.pl"/>
+        <field name="phone">99 931 29 98</field>
+    </record>
+    <record id="pl_res_bank_pko" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_pl_hr_payroll.pl_res_bank_pko')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="pl_res_bank_handlowy" model="res.bank">
+        <field name="name">Bank Handlowy</field>
+        <field name="bic">CITIPLPXXXX</field>
+        <field name="street">Bank Handlowy Rd</field>
+        <field name="city">Magdalenka</field>
+        <field name="zip">15-902</field>
+        <field name="state" ref="base.state_pl_mz"/>
+        <field name="country" ref="base.pl"/>
+        <field name="phone">99 920 28 94</field>
+    </record>
+    <record id="pl_res_bank_handlowy" model="res.bank">
+        <field name="email" model="res.bank" eval="obj(ref('l10n_pl_hr_payroll.pl_res_bank_handlowy')).name.replace(' ', '.').lower() + '@example.com'"/>
+    </record>
+
+    <record id="res_partner_bank_account_blazej" model="res.partner.bank">
+        <field name="acc_number">PL10105000997603123456789123</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_pl_hr_payroll.pl_res_bank_pko"/>
+        <field name="partner_id" ref="l10n_pl_hr_payroll.res_partner_blazej"/>
+        <field name="company_id" ref="base.demo_company_pl"/>
+        <field name="currency_id" ref="base.PLN"/>
+    </record>
+
+    <record id="res_partner_bank_account_antonina" model="res.partner.bank">
+        <field name="acc_number">PL20002904010518489266398616</field>
+        <field name="allow_out_payment" eval="True"/>
+        <field name="bank_id" ref="l10n_pl_hr_payroll.pl_res_bank_handlowy"/>
+        <field name="partner_id" ref="l10n_pl_hr_payroll.res_partner_antonina"/>
+        <field name="company_id" ref="base.demo_company_pl"/>
+        <field name="currency_id" ref="base.PLN"/>
+    </record>
+
+    <record id="hr_employee_blazej" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_blazej')).name"/>
+        <field name="image_1920" type="base64" file="l10n_pl_hr_payroll/static/img/hr_employee_blazej.jpg"/>
+        <field name="work_phone">99 651 04 01</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_blazej')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="work_contact_id" ref="l10n_pl_hr_payroll.res_partner_blazej"/>
+        <field name="company_id" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_blazej')).company_id"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Europe/Warsaw</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_blazej')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_blazej')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_blazej')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_blazej')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_blazej')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_blazej')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_blazej')).phone"/>
+        <field name="distance_home_work">87</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_blazej')).country_id"/>
+        <field name="identification_id">78032901234</field>
+        <field name="sex">male</field>
+        <field name="birthday" eval="datetime(1978, 3, 29).date()"/>
+        <field name="place_of_birth">Gliwice</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_blazej')).country_id"/>
+        <field name="emergency_contact">Nikodem Czarnecki</field>
+        <field name="emergency_phone">99 842 23 40</field>
+        <field name="certificate">doctor</field>
+        <field name="study_field">Computer Science</field>
+        <field name="study_school">University of Warsaw</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_pl_hr_payroll.res_partner_bank_account_blazej'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_pl_hr_payroll.pl_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_pl_hr_payroll.structure_type_employee_pl"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">14000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="date_version" eval="(DateTime.today() + relativedelta(years=-3, month=1, day=1))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_pl').id)], limit=1)"/>
+    </record>
+
+    <record id="hr_employee_antonina" model="hr.employee">
+        <field name="name" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).name"/>
+        <field name="image_1920" type="base64" file="l10n_pl_hr_payroll/static/img/hr_employe_antonina.jpg"/>
+        <field name="work_phone">99 036 49 02</field>
+        <field name="work_email" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).name.replace(' ', '.').lower() + '@example.com'"/>
+        <field name="parent_id" ref="l10n_pl_hr_payroll.hr_employee_blazej"/>
+        <field name="user_id" ref="l10n_pl_hr_payroll.user_antonina"/>
+        <field name="company_id" ref="base.demo_company_pl"/>
+        <field name="resource_calendar_id" ref="resource.resource_calendar_std"/>
+        <field name="tz">Europe/Warsaw</field>
+        <field name="private_street" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).street"/>
+        <field name="private_city" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).city"/>
+        <field name="private_zip" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).zip"/>
+        <field name="private_state_id" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).state_id"/>
+        <field name="private_country_id" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).country_id"/>
+        <field name="private_email" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).email"/>
+        <field name="private_phone" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).phone"/>
+        <field name="distance_home_work">25</field>
+        <field name="country_id" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).country_id"/>
+        <field name="identification_id">93071201234</field>
+        <field name="sex">female</field>
+        <field name="birthday" eval="datetime(1993, 7, 12).date()"/>
+        <field name="place_of_birth">Malbork</field>
+        <field name="country_of_birth" model="res.partner" eval="obj(ref('l10n_pl_hr_payroll.res_partner_antonina')).country_id"/>
+        <field name="emergency_contact">Mariusz Kaczmarczyk</field>
+        <field name="emergency_phone">99 497 57 84</field>
+        <field name="certificate">master</field>
+        <field name="study_field">Computer Science</field>
+        <field name="study_school">Wroclaw University of Science and Technology</field>
+        <field name="marital">single</field>
+        <field name="bank_account_ids" eval="[(4, ref('l10n_pl_hr_payroll.res_partner_bank_account_antonina'))]"/>
+        <field name="job_id" ref="hr.job_developer"/>
+        <field name="department_id" ref="l10n_pl_hr_payroll.pl_hr_department_rd"/>
+        <field name="structure_type_id" ref="l10n_pl_hr_payroll.structure_type_employee_pl"/>
+        <field name="wage_type">monthly</field>
+        <field name="wage">11000</field>
+        <field name="hr_responsible_id" ref="base.user_demo"/>
+        <field name="contract_date_start" eval="(DateTime.today() + relativedelta(years=-2, month=1, day=1))"/>
+        <field name="contract_date_end" eval="(DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2))"/>
+        <field name="resource_calendar_id" model="resource.calendar" eval="obj().search([('company_id', '=', obj().env.ref('base.demo_company_pl').id)], limit=1)"/>
+    </record>
+
+    <function name="create_version" model="hr.employee">
+        <value eval="[ref('l10n_pl_hr_payroll.hr_employee_antonina')]"/>
+        <value eval="{
+            'date_version': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2) + relativedelta(days=1),
+            'contract_date_start': DateTime.today() + relativedelta(years=-1, month=1, day=1, days=-2) + relativedelta(days=1),
+            'contract_date_end': False,
+            'wage': 12500.00
+        }"/>
+    </function>
+</odoo>

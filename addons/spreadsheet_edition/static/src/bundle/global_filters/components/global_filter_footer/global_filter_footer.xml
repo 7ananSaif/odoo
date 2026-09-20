@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates>
+    <t t-name="spreadsheet_edition.GlobalFilterFooter">
+        <Section class="'o-sidePanelButtons'">
+            <button t-if="props.onClickDelete" t-on-click="props.onClickDelete" class="o-button o_global_filter_delete o-button-danger">Remove</button>
+            <button t-on-click="props.onClickCancel" class="o-button o_global_filter_cancel">Cancel</button>
+            <button t-if="props.onClickSave" t-on-click="props.onClickSave" class="o-button primary o_global_filter_save">Save</button>
+        </Section>
+    </t>
+</templates>

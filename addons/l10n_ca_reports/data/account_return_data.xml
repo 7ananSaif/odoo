@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ca_gsthst_tax_return_type" model="account.return.type">
+            <field name="name">GST/HST Return (CA)</field>
+            <field name="report_id" ref="l10n_ca.l10n_ca_tr_gsthst"/>
+            <field name="country_id" ref="base.ca" />
+        </record>
+
+        <record id="ca_pst_bc_tax_return_type" model="account.return.type">
+            <field name="name">British-Columbia PST Return (CA)</field>
+            <field name="report_id" ref="l10n_ca.l10n_ca_tr_pst_bc"/>
+            <field name="country_id" ref="base.ca" />
+        </record>
+
+        <record id="ca_pst_mb_tax_return_type" model="account.return.type">
+            <field name="name">Manitoba PST Return (CA)</field>
+            <field name="report_id" ref="l10n_ca.l10n_ca_tr_pst_mb"/>
+            <field name="country_id" ref="base.ca" />
+        </record>
+
+        <record id="ca_qst_tax_return_type" model="account.return.type">
+            <field name="name">Quebec Return (CA)</field>
+            <field name="report_id" ref="l10n_ca.l10n_ca_tr_qst"/>
+            <field name="country_id" ref="base.ca" />
+        </record>
+
+        <record id="ca_pst_sk_tax_return_type" model="account.return.type">
+            <field name="name">Saskatchewan PST Return (CA)</field>
+            <field name="report_id" ref="l10n_ca.l10n_ca_tr_pst_sk"/>
+            <field name="country_id" ref="base.ca" />
+        </record>
+    </data>
+</odoo>

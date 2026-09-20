@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_partner_sepa_inherit_form" model="ir.ui.view">
+        <field name="name">res.partner.sepa.inherit.form</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="account.view_partner_property_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='general']" position="inside">
+                <field name="iso20022_lei" invisible="'SEPA' not in fiscal_country_group_codes"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

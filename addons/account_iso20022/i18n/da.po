@@ -1,0 +1,653 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * account_sepa
+#
+# Translators:
+# Pernille Kristensen <pernillekristensen1994@gmail.com>, 2022
+# lhmflexerp <lhm@flexerp.dk>, 2022
+# Martin Trigaux, 2022
+# Mads Søndergaard, 2022
+# Sanne Kristensen <sanne@vkdata.dk>, 2022
+# JonathanStein <jstein@image.dk>, 2022
+# Mads Søndergaard, 2022
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# "Kira Petersen François (peti)" <peti@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:43+0000\n"
+"PO-Revision-Date: 2025-11-10 13:15+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Danish <https://translate.odoo.com/projects/odoo-19/"
+"account_iso20022/da/>\n"
+"Language: da\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_batch_payment.py:0
+msgid "A bank account is not defined."
+msgstr "En bankkonto er ikke defineret."
+
+#. module: account_iso20022
+#: model:ir.model.fields,help:account_iso20022.field_account_batch_payment__iso20022_batch_booking
+msgid ""
+"Ask the bank to group the bank transactions corresponding to these payments "
+"into a single transaction."
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_journal__sepa_pain_version__pain_001_001_03_austrian_004
+msgid "Austrian"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model,name:account_iso20022.model_account_bank_statement_line
+msgid "Bank Statement Line"
+msgstr "Kontoudtogslinje"
+
+#. module: account_iso20022
+#: model_terms:ir.ui.view,arch_db:account_iso20022.view_batch_payment_form_inherit
+msgid "Batch Booking"
+msgstr "Parti booking"
+
+#. module: account_iso20022
+#: model:ir.model,name:account_iso20022.model_account_batch_payment
+msgid "Batch Payment"
+msgstr "Parti betaling"
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_payment__iso20022_charge_bearer
+msgid "Charge Bearer"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model,name:account_iso20022.model_res_company
+msgid "Companies"
+msgstr "Virksomheder"
+
+#. module: account_iso20022
+#: model:ir.model,name:account_iso20022.model_res_config_settings
+msgid "Config Settings"
+msgstr "Konfigurationsindstillinger"
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_batch_payment.py:0
+msgid "Configure Journal"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model,name:account_iso20022.model_res_partner
+msgid "Contact"
+msgstr "Kontakt"
+
+#. module: account_iso20022
+#: model:ir.model,website_form_label:account_iso20022.model_res_partner
+msgid "Create a Customer"
+msgstr "Opret en kunde"
+
+#. module: account_iso20022
+#: model_terms:ir.ui.view,arch_db:account_iso20022.view_account_journal_form
+msgid "Credit Transfer"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_journal__iso20022_charge_bearer__cred
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_payment__iso20022_charge_bearer__cred
+msgid "Creditor"
+msgstr "Kreditor"
+
+#. module: account_iso20022
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_journal__iso20022_charge_bearer__debt
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_payment__iso20022_charge_bearer__debt
+msgid "Debtor"
+msgstr "Debitor"
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_journal__iso20022_default_priority
+msgid "Default Priority"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_bank_statement_line__display_name
+#: model:ir.model.fields,field_description:account_iso20022.field_account_batch_payment__display_name
+#: model:ir.model.fields,field_description:account_iso20022.field_account_journal__display_name
+#: model:ir.model.fields,field_description:account_iso20022.field_account_payment__display_name
+#: model:ir.model.fields,field_description:account_iso20022.field_account_payment_method__display_name
+#: model:ir.model.fields,field_description:account_iso20022.field_res_company__display_name
+#: model:ir.model.fields,field_description:account_iso20022.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:account_iso20022.field_res_partner__display_name
+msgid "Display Name"
+msgstr "Vis navn"
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_journal.py:0
+msgid "Employee %s has no country in their address."
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_bank_statement_line__end_to_end_uuid
+#: model:ir.model.fields,field_description:account_iso20022.field_account_payment__end_to_end_uuid
+msgid "End to End ID"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,help:account_iso20022.field_res_company__iso20022_orgid_issr
+msgid ""
+"Entity that assigns the identification (eg. KBE-BCO or Finanzamt Muenchen "
+"IV)."
+msgstr ""
+"Vedkommende der tilskriver identifikationen (f.eks. KBE-BCO eller Finanzamt "
+"Muenchen IV)."
+
+#. module: account_iso20022
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_journal__sepa_pain_version__pain_001_001_03_de
+msgid "German"
+msgstr "Tysk"
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_batch_payment.py:0
+msgid "Go to settings"
+msgstr "Gå til indstillinger"
+
+#. module: account_iso20022
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_journal__iso20022_default_priority__high
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_payment__iso20022_priority__high
+msgid "HIGH - High priority"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_journal__has_iso20022_payment_method
+msgid "Has Iso20022 Payment Method"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_journal__has_sepa_ct_payment_method
+msgid "Has Sepa Ct Payment Method"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_bank_statement_line__id
+#: model:ir.model.fields,field_description:account_iso20022.field_account_batch_payment__id
+#: model:ir.model.fields,field_description:account_iso20022.field_account_journal__id
+#: model:ir.model.fields,field_description:account_iso20022.field_account_payment__id
+#: model:ir.model.fields,field_description:account_iso20022.field_account_payment_method__id
+#: model:ir.model.fields,field_description:account_iso20022.field_res_company__id
+#: model:ir.model.fields,field_description:account_iso20022.field_res_config_settings__id
+#: model:ir.model.fields,field_description:account_iso20022.field_res_partner__id
+msgid "ID"
+msgstr "ID"
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_journal__iso20022_charge_bearer
+msgid "ISO 20022 Charge Bearer"
+msgstr ""
+
+#. module: account_iso20022
+#: model:account.payment.method,name:account_iso20022.account_payment_method_iso20022
+msgid "ISO20022"
+msgstr "ISO20022"
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_res_company__iso20022_orgid_id
+#: model:ir.model.fields,field_description:account_iso20022.field_res_config_settings__iso20022_orgid_id
+msgid "Identification"
+msgstr "Identifikation"
+
+#. module: account_iso20022
+#: model:ir.model.fields,help:account_iso20022.field_res_company__iso20022_orgid_id
+#: model:ir.model.fields,help:account_iso20022.field_res_config_settings__iso20022_orgid_id
+msgid "Identification assigned by an institution (eg. VAT number)."
+msgstr "Identifikation tildelt af en institution (f.eks. momsnummer)."
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_batch_payment__payment_method_is_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_payment__payment_method_is_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_payment_method__is_iso20022
+msgid "Is Iso20022"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_res_company__iso20022_orgid_issr
+#: model:ir.model.fields,field_description:account_iso20022.field_res_config_settings__iso20022_orgid_issr
+msgid "Issuer"
+msgstr "Udsteder"
+
+#. module: account_iso20022
+#: model:ir.model,name:account_iso20022.model_account_journal
+msgid "Journal"
+msgstr "Journal"
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_res_company__iso20022_lei
+#: model:ir.model.fields,field_description:account_iso20022.field_res_partner__iso20022_lei
+#: model:ir.model.fields,field_description:account_iso20022.field_res_users__iso20022_lei
+msgid "LEI"
+msgstr "LEI"
+
+#. module: account_iso20022
+#: model:ir.model.fields,help:account_iso20022.field_res_company__iso20022_lei
+#: model:ir.model.fields,help:account_iso20022.field_res_partner__iso20022_lei
+#: model:ir.model.fields,help:account_iso20022.field_res_users__iso20022_lei
+msgid "Legal Entity Identifier"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_journal__iso20022_default_priority__norm
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_payment__iso20022_priority__norm
+msgid "NORM - Normal"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,help:account_iso20022.field_res_config_settings__iso20022_initiating_party_name
+msgid ""
+"Name of the Creditor Reference Party. Usage Rule: Limited to 70 characters "
+"in length."
+msgstr "Navn på kreditor referencen. Regel for brug: Begrænset til 70 anslag."
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_batch_payment.py:0
+msgid "Non-EUR Payments"
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_journal.py:0
+msgid "Partner %s has no country code defined."
+msgstr "Partner %s har ikke nogen landekode defineret."
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_journal.py:0
+msgid "Partner %s has not bank account defined."
+msgstr "Partner %s har ikke defineret en bankkonto."
+
+#. module: account_iso20022
+#: model:ir.model,name:account_iso20022.model_account_payment_method
+msgid "Payment Methods"
+msgstr "Betalingsformer"
+
+#. module: account_iso20022
+#: model_terms:ir.ui.view,arch_db:account_iso20022.account_journal_dashboard_kanban_view_inherited
+msgid "Payment to send via SEPA"
+msgstr "Betaling som skal sendes via SEPA"
+
+#. module: account_iso20022
+#: model:ir.model,name:account_iso20022.model_account_payment
+msgid "Payments"
+msgstr "Betalinger"
+
+#. module: account_iso20022
+#: model_terms:ir.ui.view,arch_db:account_iso20022.account_journal_dashboard_kanban_view_inherited
+msgid "Payments to send via SEPA"
+msgstr "Betalinger som skal sendes via SEPA"
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_batch_payment.py:0
+msgid "Payments without IBAN"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_payment__iso20022_priority
+msgid "Priority"
+msgstr "Prioritet"
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_batch_payment__iso20022_batch_booking
+msgid "SCT Batch Booking"
+msgstr "SCT Parti Booking"
+
+#. module: account_iso20022
+#: model:account.payment.method,name:account_iso20022.account_payment_method_sepa_ct
+msgid "SEPA Credit Transfer"
+msgstr "SEPA kreditoverførsel"
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_journal_dashboard.py:0
+msgid "SEPA Credit Transfers to Send"
+msgstr "SEPA Kredit overførsel til afsendelse"
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_journal__sepa_pain_version
+#: model:ir.model.fields,field_description:account_iso20022.field_account_payment__sepa_pain_version
+msgid "SEPA XML Format"
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_payment.py:0
+msgid "SEPA only accepts payments in EUR."
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_batch_payment.py:0
+msgid ""
+"SEPA only accepts payments in EUR. Some payments are using another currency."
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,help:account_iso20022.field_account_journal__sepa_pain_version
+#: model:ir.model.fields,help:account_iso20022.field_account_payment__sepa_pain_version
+msgid ""
+"SEPA version to use to generate Credit Transfer XML files from this journal"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_journal__iso20022_default_priority__svda
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_payment__iso20022_priority__svda
+msgid "SVDA - Same value date"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_journal__iso20022_charge_bearer__slev
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_payment__iso20022_charge_bearer__slev
+msgid "Service Level"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_journal__iso20022_charge_bearer__shar
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_payment__iso20022_charge_bearer__shar
+msgid "Shared"
+msgstr "Delt"
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_batch_payment.py:0
+msgid "Some payments are above the maximum amount allowed."
+msgstr "Visse betalinger er over det tilladte maksimal beløb."
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_journal_sepa_ct.py:0
+msgid ""
+"Some payments are missing a value for 'UETR', required for the SEPA "
+"Pain.001.001.09 format."
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_batch_payment.py:0
+msgid "Some payments have no recipient bank account set."
+msgstr "Visse betalinger har ikke en modtager bankkonto angivet."
+
+#. module: account_iso20022
+#: model:ir.model.fields,help:account_iso20022.field_account_journal__iso20022_charge_bearer
+msgid ""
+"Specifies which party/parties will bear the charges associated with the "
+"processing of ISO 20022 payment transactions from this journal."
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,help:account_iso20022.field_account_payment__iso20022_charge_bearer
+msgid ""
+"Specifies which party/parties will bear the charges associated with the "
+"processing of the payment transaction."
+msgstr ""
+
+#. module: account_iso20022
+#: model:account.payment.method,name:account_iso20022.account_payment_method_iso20022_se
+msgid "Swedish ISO20022"
+msgstr ""
+
+#. module: account_iso20022
+#: model:account.payment.method,name:account_iso20022.account_payment_method_iso20022_ch
+msgid "Swiss ISO20022"
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_journal.py:0
+msgid ""
+"The BIC code '%(bic_code)s' associated to the bank '%(bank)s' of bank "
+"account '%(account)s' of partner '%(partner)s' does not respect the required "
+"convention.\n"
+"It must contain 8 or 11 characters and match the following structure:\n"
+"- 4 letters: institution code or bank code\n"
+"- 2 letters: country code\n"
+"- 2 letters or digits: location code\n"
+"- 3 letters or digits: branch code, optional\n"
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/res_partner.py:0
+msgid ""
+"The LEI number must contain 20 characters and match the following "
+"structure:\n"
+"- 18 alphanumeric characters with capital letters\n"
+"- 2 digits in the end\n"
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_batch_payment.py:0
+msgid ""
+"The Name Identification and Issuer details are required to proceed. Please "
+"configure them in the settings."
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_batch_payment.py:0
+msgid ""
+"The bank account %(account)s, of journal '%(journal)s', is not of type "
+"IBAN.\n"
+"A valid IBAN account is required to use SEPA features."
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_batch_payment.py:0
+msgid ""
+"The customer bank account set on some payments does not have an IBAN number. "
+"This is required for SEPA."
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_payment.py:0
+msgid ""
+"The journal '%s' requires a proper IBAN account to pay via SEPA. Please "
+"configure it first."
+msgstr ""
+"Journalen '%s' kræver en gyldig IBAN konto for at betale via SEPA. Opsæt den "
+"venligst først."
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_journal.py:0
+msgid "This journal does not have a bank account defined."
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_journal.py:0
+msgid "Too many transactions for a single file."
+msgstr "For mange transaktioner til en enkelt fil."
+
+#. module: account_iso20022
+#: model:account.payment.method,name:account_iso20022.account_payment_method_iso20022_us
+msgid "U.S. ISO20022"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_account_payment__iso20022_uetr
+msgid "UETR"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_journal__iso20022_default_priority__urgp
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_payment__iso20022_priority__urgp
+msgid "URGP - Critical urgency"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,help:account_iso20022.field_account_bank_statement_line__end_to_end_uuid
+#: model:ir.model.fields,help:account_iso20022.field_account_payment__end_to_end_uuid
+msgid "Unique end-to-end assigned by the initiating party"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,help:account_iso20022.field_account_payment__iso20022_uetr
+msgid "Unique end-to-end transaction reference"
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_batch_payment.py:0
+msgid "View Payments"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,help:account_iso20022.field_res_company__iso20022_initiating_party_name
+msgid ""
+"Will appear as the name of the party initiating the payment. Limited to 70 "
+"characters."
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields,help:account_iso20022.field_res_config_settings__iso20022_orgid_issr
+msgid ""
+"Will appear in SEPA payments as the name of the party initiating the "
+"payment. Limited to 70 characters."
+msgstr ""
+"Vil blive vist i SEPA betalinger som navnet på vedkommende der startede "
+"betalingen. Begrænset til 70 anslag."
+
+#. module: account_iso20022
+#: model:ir.model.fields,field_description:account_iso20022.field_res_company__iso20022_initiating_party_name
+#: model:ir.model.fields,field_description:account_iso20022.field_res_config_settings__iso20022_initiating_party_name
+msgid "Your Company Name"
+msgstr "Din virksomheds navn"
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_journal_dashboard.py:0
+msgid "is_sent"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_journal__sepa_pain_version__pain_001_001_03
+msgid "pain.001.001.03"
+msgstr ""
+
+#. module: account_iso20022
+#: model:ir.model.fields.selection,name:account_iso20022.selection__account_journal__sepa_pain_version__pain_001_001_09
+msgid "pain.001.001.09"
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_journal_dashboard.py:0
+msgid "payment_method_line_id.code"
+msgstr ""
+
+#. module: account_iso20022
+#. odoo-python
+#: code:addons/account_iso20022/models/account_journal_dashboard.py:0
+msgid "state"
+msgstr "status"
+
+#. module: account_iso20022
+#: model:ir.model.fields,help:account_iso20022.field_account_journal__iso20022_default_priority
+#: model:ir.model.fields,help:account_iso20022.field_account_payment__iso20022_priority
+msgid ""
+"• NORM: Standard processing time.\n"
+"• HIGH: High priority payment.\n"
+"• URGP: Critical, requires immediate processing.\n"
+"• SVDA: Payments must settle on same day as submission."
+msgstr ""
+
+#~ msgid "A bank account must be set on the following documents: "
+#~ msgstr "En bankkonto skal være angivet på følgende dokumenter:"
+
+#~ msgid ""
+#~ "Bank account %s 's bank does not have any BIC number associated. Please "
+#~ "define one."
+#~ msgstr ""
+#~ "Bankkonto %s's bank har ikke noget BIC nummer associeret med sig. Vær "
+#~ "venlig at definere et."
+
+#~ msgid "Generic"
+#~ msgstr "Generisk"
+
+#~ msgid "Maximum amount is %s for payments in Euros, %s for other currencies."
+#~ msgstr "Maksimalt beløb er %s for betalinger i Euro, %s for andre valuta."
+
+#~ msgid ""
+#~ "Please first set a SEPA identification number in the accounting settings."
+#~ msgstr ""
+#~ "Vær venlig først at angive et SEPA identifikationsnummer i "
+#~ "kontoindstillinger."
+
+#~ msgid "Register Payment"
+#~ msgstr "Registrer betaling"
+
+#~ msgid "Request batch booking from the bank for the related bank statements."
+#~ msgstr "Anmod parti booking fra banken på det relaterede kontoudtog."
+
+#~ msgid "SEPA Pain Version"
+#~ msgstr "SEPA Pain version"
+
+#~ msgid "Sct Generic"
+#~ msgstr "Sct generisk"
+
+#~ msgid ""
+#~ "Some payments are not made on an IBAN recipient account. This batch might "
+#~ "not be accepted by certain banks because of that."
+#~ msgstr ""
+#~ "Visse betalinger er ikke foretaget med en IBAN modtager konto. Dette "
+#~ "parti kan muligvis ikke accepteres af visse banker af denne årsag."
+
+#~ msgid ""
+#~ "Some payments were instructed in another currency than Euro. This batch "
+#~ "might not be accepted by certain banks because of that."
+#~ msgstr ""
+#~ "Visse betalinger blev foretaget i en anden valuta end Euro. Dette part "
+#~ "kan muligvis ikke accepteres af visse banker af denne årsag."
+
+#~ msgid ""
+#~ "Technical feature used during the file creation. A SEPA message is said "
+#~ "to be 'generic' if it cannot be considered as a standard european credit "
+#~ "transfer. That is if the bank journal is not in €, a transaction is not "
+#~ "in € or a payee is not identified by an IBAN account number."
+#~ msgstr ""
+#~ "Teknisk funktion brugt under filoprettelsen. En SEPA besked siges at være "
+#~ "'generisk', hvis den ikke kan betragtes som en standard europæisk "
+#~ "kreditoverførsel. Det er tilfældet hvis bankjournalen ikke er i €, en "
+#~ "overførsel ikke er i €, eller den betalende ikke identificeres via et "
+#~ "IBAN kontonummer og en bank BIC."
+
+#~ msgid ""
+#~ "The account %s, linked to partner '%s', is not of type IBAN.\n"
+#~ "A valid IBAN account is required to use SEPA features."
+#~ msgstr ""
+#~ "Kontoen %s, forbundet til partner '%s', er ikke et IBAN.\n"
+#~ "Et gyldigt IBAN er påkrævet for at kunne bruge SEPA funktioner."
+
+#~ msgid ""
+#~ "The account %s, of journal '%s', is not of type IBAN.\n"
+#~ "A valid IBAN account is required to use SEPA features."
+#~ msgstr ""
+#~ "Kontoen %s, fra journal '%s', er ikke et IBAN.\n"
+#~ "Et gyldigt IBAN er påkrævet for at bruge SEPA funktioner."
+
+#~ msgid ""
+#~ "The amount of the payment '%(payment)s' is too high. The maximum "
+#~ "permitted is %(limit)s."
+#~ msgstr ""
+#~ "Mængden på betalingen '%(payment)s' er for høj. Det maksimalt tilladte er "
+#~ "%(limit)s."

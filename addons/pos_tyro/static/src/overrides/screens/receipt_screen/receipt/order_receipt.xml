@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-inherit="point_of_sale.OrderReceipt" t-inherit-mode="extension">
+        <xpath expr="//t[@t-if='line.ticket']" position="after">
+            <t t-if="line.tyroMerchantReceipt">
+                <br/>
+                <div class="pos-payment-terminal-receipt">
+                    <pre t-esc="line.tyroMerchantReceipt"/>
+                </div>
+            </t>
+        </xpath>
+        <xpath expr="//t[@t-if='line.ticket']" position="attributes">
+            <attribute name="t-if">line.ticket and !isTyroMerchantReceipt</attribute>
+        </xpath>
+    </t>
+</templates>

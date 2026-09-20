@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="worksheet_template_view_form_footer_design_button" model="ir.ui.view">
+        <field name="name">worksheet.template.view.form.no_design_button</field>
+        <field name="model">worksheet.template</field>
+        <field name="inherit_id" ref="worksheet.worksheet_template_view_form"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <xpath expr="//header/widget[@name='open_studio_button']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//form" position="attributes">
+                <attribute name="create">1</attribute>
+            </xpath>
+            <xpath expr="//header/button[@name='action_analysis_report']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//sheet" position="after">
+                <footer>
+                    <widget name="open_studio_button" groups="base.group_system"/>
+                    <button string="Save &amp; Close" special="save" class="btn-primary" data-hotkey="q"/>
+                    <button string="Discard" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="worksheet_template_view_form_inherit_fsm_report" model="ir.ui.view">
+        <field name="name">worksheet.template.view.form.inherit.fsm.report</field>
+        <field name="model">worksheet.template</field>
+        <field name="inherit_id" ref="worksheet.worksheet_template_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form" position="attributes">
+                <attribute name="create">1</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_fsm_worksheets" model="ir.actions.act_window">
+        <field name="name">Worksheet Templates</field>
+        <field name="res_model">worksheet.template</field>
+        <field name="view_mode">list,form,graph,pivot</field>
+        <field name="search_view_id"/>
+        <field name="domain">[('res_model', '=', 'project.task')]</field>
+        <field name="context">
+            {
+                'default_res_model': 'project.task',
+            }
+        </field>
+    </record>
+
+    <record id="view_worksheet_template_kanban" model="ir.ui.view">
+        <field name="name">worksheet.template.kanban</field>
+        <field name="model">worksheet.template</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" sample="1">
+                <field name="sequence" widget="handle"/>
+                <templates>
+                    <t t-name="card">
+                        <field name="name" class="fw-bolder fs-5"/>
+                        <field name="company_id" widget="many2one" groups="base.group_multi_company"/>
+                        <footer>
+                            <a name="action_view_worksheets" type="object">
+                                <field name="worksheet_count"/>
+                                <span class="o_label ms-2">Worksheets</span>
+                            </a>
+                        </footer>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="fsm_worksheets_action_settings" model="ir.actions.act_window" >
+        <field name="name">Worksheet Templates</field>
+        <field name="res_model">worksheet.template</field>
+        <field name="path">field-service-worksheet-templates</field>
+        <field name="view_mode">list,kanban,form</field>
+        <field name="domain">[('res_model', '=', 'project.task')]</field>
+        <field name="context">
+            {
+                'default_res_model': 'project.task',
+            }
+        </field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No worksheet templates found. Let's create one!
+            </p><p>
+                Tailor worksheet templates to your specific needs. Easily share worksheet content with customers and request their signatures to validate the completed work.<br/>
+            </p>
+        </field>
+    </record>
+</odoo>

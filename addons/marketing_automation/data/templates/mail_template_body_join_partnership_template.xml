@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <template id="mail_template_body_join_partnership_template">
+        <div class="o_layout o_default_theme">
+            <div class="container o_mail_wrapper" style="text-align: center;">
+                <div class="row">
+                    <div class="col o_mail_no_options o_mail_wrapper_td oe_structure o_editable">
+                        <div class="o_mail_block_header_logo mb16" data-snippet="s_mail_block_header_logo">
+                            <div class="o_mail_snippet_general">
+                                <div class="container o_mail_h_padding">
+                                    <div class="row">
+                                        <div class="col-2"></div>
+                                        <div valign="center" class="col-8 o_mail_logo_container text-center o_mail_v_padding">
+                                            <a href="http://www.example.com">
+                                                <img border="0" src="/mass_mailing/static/src/img/theme_default/s_default_image_header_logo.png" style="max-width:400px;" alt="Your Logo" class="img-fluid"/>
+                                            </a>
+                                        </div>
+                                        <div class="col-2" style="text-align:right"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="o_mail_snippet_general s_text_block" data-snippet="s_text_block">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h2>Join partnership!</h2>
+                                        <p>We want to take this opportunity to welcome you to our ever-growing community!<br/></p>
+                                        <p>Here is the link to download our product catalog.</p>
+                                        <p><a t-att-href="company_website" role="button" class="btn btn-primary" data-bs-original-title="" title="">Download</a></p>
+                                        <p><br/></p>
+                                        <p>Enjoy,</p>
+                                        <img src="/mass_mailing/static/src/img/theme_default/signature.png" style="width:125px; margin-top:8px;margin-bottom:-25px;" alt="Demo Signature" class="img-fluid"/>
+                                        <p><small><strong>Michael Fletcher</strong><br/><small class="">Community Manager</small></small></p>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12"><p><br/></p></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+</odoo>

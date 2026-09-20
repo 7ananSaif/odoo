@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates id="template" xml:space="preserve">
+    <t t-name="account_accountant.BankRecoKanbanController" t-inherit="web.KanbanView" t-inherit-mode="primary">
+        <xpath expr="//Layout" position="attributes">
+            <attribute name="className">'o_bank_reconciliation_container d-flex'</attribute>
+        </xpath>
+
+        <xpath expr="//Layout" position="inside">
+            <t t-set-slot="control-panel-navigation-additional">
+                <button
+                    t-on-click="() => this.bankReconciliation.toggleChatter()"
+                    data-tooltip="Chatter"
+                    class="btn btn-secondary o_switch_view o_kanban d-none d-md-inline bank-chatter-btn"
+                    t-att-class="{'active': bankReconciliation.chatterState.visible}">
+                    <i t-attf-class="fa fa-fw {{ bankReconciliation.chatterState.visible ? 'fa-close' : 'fa-comments-o' }} mt-1"/>
+                </button>
+            </t>
+        </xpath>
+    </t>
+</templates>

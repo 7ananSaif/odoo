@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="group_use_website_helpdesk_livechat" model="res.groups">
+        <field name="name">Use Live Chat</field>
+    </record>
+
+    <record id="ir_rule_discuss_channel_hepldesk" model="ir.rule">
+        <field name="name">discuss.channel: helpdesk users can read ticket's origin channel</field>
+        <field name="model_id" ref="mail.model_discuss_channel"/>
+        <field name="groups" eval="[(4, ref('helpdesk.group_helpdesk_user'))]"/>
+        <field name="domain_force">[("has_helpdesk_ticket", "=", True)]</field>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+
+    <record id="ir_rule_discuss_channel_member_helpdesk" model="ir.rule">
+        <field name="name">discuss.channel.member: helpdesk users can read/create members on ticket's origin channel</field>
+        <field name="model_id" ref="mail.model_discuss_channel_member"/>
+        <field name="groups" eval="[(4, ref('helpdesk.group_helpdesk_user'))]"/>
+        <field name="domain_force">[("channel_id.has_helpdesk_ticket", "=", True)]</field>
+        <field name="perm_write" eval="False"/>
+        <field name="perm_unlink" eval="False"/>
+    </record>
+</odoo>

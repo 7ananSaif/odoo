@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_move_tree_picking_redirect" model="ir.ui.view">
+        <field name="name">stock.move.list.picking.redirect</field>
+        <field name="model">stock.move</field>
+        <field name="inherit_id" ref="stock.view_move_tree"/>
+        <field name="mode">primary</field>
+        <field name="arch" type="xml">
+            <xpath expr="//list" position="attributes">
+                <attribute name="action">action_open_reference</attribute>
+                <attribute name="type">object</attribute>
+            </xpath>
+            <xpath expr="//field[@name='date']" position="attributes">
+                <attribute name="column_invisible">True</attribute>
+            </xpath>
+            <xpath expr="//field[@name='reference']" position="attributes">
+                <attribute name="column_invisible">True</attribute>
+            </xpath>
+            <xpath expr="//field[@name='company_id']" position="attributes">
+                <attribute name="column_invisible">True</attribute>
+            </xpath>
+            <xpath expr="//field[@name='location_dest_id']" position="attributes">
+                <attribute name="column_invisible">True</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_move_kanban_picking_redirect" model="ir.ui.view">
+        <field name="name">stock.move.kanban.picking.redirect</field>
+        <field name="model">stock.move</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile" action="action_open_reference" type="object">
+                <templates>
+                    <t t-name="card">
+                        <div class="d-flex">
+                            <field name="product_id" class="fw-bold fs-5 text-truncate"/>
+                            <field name="state" widget="label_selection" options="{'classes': {'draft': 'default', 'cancel': 'danger',
+                            'waiting': 'warning', 'partially_available': 'warning', 'confirmed': 'warning', 'done': 'success'}}" class="ms-auto mt-1"/>
+                        </div>
+                        <span>Source Location: <field name="location_id"/></span>
+                        <span>
+                            Quantity: <field name="quantity" /> / <field name="product_uom_qty"/> <field name="product_uom"/>
+                        </span>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+</odoo>

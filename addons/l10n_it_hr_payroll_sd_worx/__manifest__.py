@@ -1,0 +1,20 @@
+{
+    'name': "Italy - Payroll - Export to SD Worx",
+    'countries': ['it'],
+    'summary': "Export Work Entries to SD Worx",
+    'description': "Export Work Entries to SD Worx",
+    'category': "Human Resources",
+    'version': '1.0',
+    'depends': ['hr_payroll'],
+    'data': [
+        'security/ir.model.access.csv',
+        'data/hr_work_entry_type_data.xml',
+        'views/hr_employee_views.xml',
+        'views/hr_work_entry_type_views.xml',
+        'views/res_config_settings_views.xml',
+        'views/hr_payroll_export_sdworx_view.xml',
+        'views/l10n_it_hr_sd_work_template.xml',
+    ],
+    'author': 'Odoo S.A.',
+    'license': 'OEEL-1',
+}

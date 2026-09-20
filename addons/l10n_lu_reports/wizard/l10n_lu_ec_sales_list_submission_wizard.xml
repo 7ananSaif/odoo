@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="ec_sales_list_submission_wizard_form" model="ir.ui.view">
+            <field name="name">l10n_lu_reports.ec.sales.list.submission.wizard.form</field>
+            <field name="model">l10n_lu_reports.ec.sales.list.submission.wizard</field>
+            <field name="inherit_id" ref="account_reports.return_submission_wizard_form"/>
+            <field name="mode">primary</field>
+            <field name="arch" type="xml">
+                <field name="instructions" position="replace">
+                    <group>
+                        <group id="instructions">
+                            <separator string="Instructions"/>
+                            <ol colspan="2">
+                                <li>
+                                    <div class="d-inline-block align-top">
+                                        <span>Download your EC Sales List to submit.</span><br/>
+                                        <button string='Download XML' name="export_xml" type="object" class="btn-secondary"/>
+                                    </div>
+                                </li>
+                                <li>Log in to the <a href="https://ecdf.b2g.etat.lu" target="_blank">eCDF platform</a>.</li>
+                                <li>Navigate to the recapitulative statement section.</li>
+                                <li>Upload your XML file.</li>
+                                <li>Check that it passes validation.</li>
+                                <li>Submit the statement.</li>
+                            </ol>
+                        </group>
+                    </group>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

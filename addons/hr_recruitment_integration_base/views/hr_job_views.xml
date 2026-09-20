@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_hr_job_form" model="ir.ui.view">
+        <field name="name">hr.job.form.inherit.hr.recruitment.integration.base</field>
+        <field name="model">hr.job</field>
+        <field name="inherit_id" ref="hr.view_hr_job_form"/>
+        <field name="priority">200</field>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button class="oe_stat_button"
+                    icon="fa-newspaper-o"
+                    name="action_open_hr_job_post"
+                    type="object"
+                    groups="hr_recruitment.group_hr_recruitment_user"
+                    invisible="job_post_count == 0">
+                    <field
+                        name="job_post_count"
+                        widget="statinfo"
+                        string="Job Board"
+                        />
+                </button>
+            </div>
+            <header position="inside">
+                <button name="action_post_job" string="Post on Job Boards" type="object" class="btn-secondary"
+                    groups="hr_recruitment.group_hr_recruitment_user"/>
+            </header>
+            <field name="expected_degree" position="after">
+                <label for="salary_min" string="Salary Range"
+                    groups="hr.group_hr_user,hr_recruitment.group_hr_recruitment_user"/>
+                <div groups="hr.group_hr_user,hr_recruitment.group_hr_recruitment_user">
+                    <field name="salary_min" class="oe_inline"/> -
+                    <field name="salary_max" class="oe_inline"/> per
+                    <field name="payment_interval" class="oe_inline"/>
+                </div>
+            </field>
+            <field name="contract_type_id" position="after">
+                <field name="schedule_id" groups="hr.group_hr_user,hr_recruitment.group_hr_recruitment_user"/>
+            </field>
+            <xpath expr="//page[@name='trackers_page']" position="after">
+                <page string="Job Boards" name="job_boards"
+                    groups="hr_recruitment.group_hr_recruitment_user">
+                    <field name="job_post_ids">
+                        <list string="Posts">
+                            <field name="platform_id" widget="many2one_avatar"/>
+                            <field name="campaign_start_date" string="Start Date"/>
+                            <field name="campaign_end_date" string="End Date"/>
+                            <field name="apply_method"/>
+                            <field name="status"
+                                decoration-danger="status == 'failure'"
+                                decoration-warning="status not in ('success', 'failure')"
+                                decoration-success="status == 'success'"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_hr_job_kanban" model="ir.ui.view">
+        <field name="name">hr.job.kanban.inherit.hr.recruitment.integration.base</field>
+        <field name="model">hr.job</field>
+        <field name="inherit_id" ref="hr_recruitment.view_hr_job_kanban"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='menu_view_job_posts']" position="after">
+                <div role="menuitem" name="open_job_posts">
+                    <a
+                        role="button"
+                        groups="hr_recruitment.group_hr_recruitment_user"
+                        name="%(action_open_hr_job_post)d"
+                        context="{'search_default_job_id': id}"
+                        type="action">
+                        Job Board Posts
+                    </a>
+                </div>
+            </xpath>
+
+            <xpath expr="//div[@name='menu_new_applications']" position="after">
+                <div role="menuitem" name="post_job_on_job_board">
+                    <a name="action_post_job" type="object"
+                        groups="hr_recruitment.group_hr_recruitment_user">
+                        Job Board Posts
+                    </a>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_publish_on_job_board" model="ir.actions.server">
+        <field name="name">Publish on Job Board</field>
+        <field name="model_id" ref="hr_recruitment_integration_base.model_hr_job"/>
+        <field name="binding_model_id" ref="hr_recruitment_integration_base.model_hr_job"/>
+        <field name="binding_view_types">form</field>
+        <field name="state">code</field>
+        <field name="code">
+            if records:
+                action = records.action_post_job()
+        </field>
+    </record>
+</odoo>

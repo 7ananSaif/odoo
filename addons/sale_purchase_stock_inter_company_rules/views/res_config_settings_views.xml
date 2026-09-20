@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.inter.company.rules</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="account_inter_company_rules.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='module_account_inter_company_rules_company_id']" position="inside">
+                <div>
+                    <field name="intercompany_sync_delivery_receipt" class="o_light_label oe_inline"/>
+                    <label for="intercompany_sync_delivery_receipt" class="oe_inline o_light_label ps-1"/>
+                </div>
+            </xpath>
+            <xpath expr="//div[@name='module_inter_company_rules_set_so_po']" position="inside">
+                <div name="warehouse_id"
+                     invisible="not intercompany_generate_sales_orders">
+                    <label for="intercompany_warehouse_id" string="Use Warehouse" class="col-5 col-lg-5 o_light_label"/>
+                    <field name="intercompany_warehouse_id" options="{'no_create_edit': True}"/>
+                </div>
+                <div invisible="not intercompany_generate_purchase_orders">
+                    <label for="intercompany_receipt_type_id" string="Use Operation" class="col-5 col-lg-5 o_light_label"/>
+                    <field name="intercompany_receipt_type_id" options="{'no_create_edit': True}"/>
+                </div>
+            </xpath>
+        </field>
+    </record>
+</odoo>

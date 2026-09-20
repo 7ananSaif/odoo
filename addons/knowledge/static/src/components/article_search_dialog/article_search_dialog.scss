@@ -1,0 +1,36 @@
+.o_article_search_dialog {
+    overflow: auto;
+    flex: 1;
+    max-height: 70vh;
+    @media (max-width: 480px) {
+        max-height: 85vh;
+    }
+    .o_article_search_item {
+        &.o_selected {
+            background-color: rgba($knowledge-bg--active, 0.1);
+        }
+    }
+    .o_article_search_item a {
+        .fa-star {
+            color: $o-main-favorite-color;
+        }
+    }
+}
+
+.modal:has(.o_article_search_dialog) {
+    .modal-body {
+        display: flex;
+    }
+    .modal-dialog {
+        align-items: start;
+        padding: 0;
+    }
+    .modal-content {
+        top: 15vh;
+        height: auto !important;
+        max-height: 100%;
+        .modal-body {
+            max-height: 100%;
+        }
+    }
+}

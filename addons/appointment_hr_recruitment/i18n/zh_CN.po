@@ -1,0 +1,126 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * appointment_hr_recruitment
+#
+# "Tiffany Chang (tic)" <tic@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.4+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:44+0000\n"
+"PO-Revision-Date: 2025-09-16 15:29+0000\n"
+"Last-Translator: \"Tiffany Chang (tic)\" <tic@odoo.com>\n"
+"Language-Team: Chinese (Simplified Han script) <https://translate.odoo.com/"
+"projects/odoo-19/appointment_hr_recruitment/zh_Hans/>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: appointment_hr_recruitment
+#: model:mail.template,body_html:appointment_hr_recruitment.email_template_data_applicant_schedule_interview
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <h2>Hello,</h2>\n"
+"    <div style=\"font-size: 13px;\">\n"
+"        Thanks for your application and interest in <t t-"
+"out=\"object.company_id.name or ''\">YourCompany</t>.<br/>\n"
+"        <br/>\n"
+"        I would like to organize a phone interview with you, it should last "
+"about 30 min.\n"
+"        We'll go through your resume and motivations to join the <t t-"
+"out=\"object.company_id.name or ''\">YourCompany</t> team.\n"
+"        You can book a slot in our agenda by cliking on the button below.<br/"
+">\n"
+"    </div>\n"
+"    <br/>\n"
+"    <a t-att-href=\"object._get_interview_invite_url()\" t-attf-"
+"style=\"background-color: {{user.company_id.email_secondary_color or "
+"'#875A7B'}}; text-decoration: none; color: "
+"{{user.company_id.email_primary_color or '#FFFFFF'}}; padding: 8px 16px 8px "
+"16px; border-radius: 5px;\">Schedule my interview</a><br/>\n"
+"    <br/>\n"
+"    Best regards,\n"
+"</div>\n"
+"        "
+msgstr ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <h2>您好！</h2>\n"
+"    <div style=\"font-size: 13px;\">\n"
+"        感谢您提出申请和对 <t t-out=\"object.company_id.name or "
+"''\">YourCompany</t> 感兴趣。<br/>\n"
+"        <br/>\n"
+"        我想安排与你进行一次电话面试，大约需时 30 分钟。\n"
+"        届时我们会检阅你的履历，以及讨论您想加入 <t t-"
+"out=\"object.company_id.name or ''\">YourCompany</t> 团队的原因。\n"
+"        您可按下方按钮，在我们的时间表内预约一个时段。<br/>\n"
+"    </div>\n"
+"    <br/>\n"
+"    <a t-att-href=\"object._get_interview_invite_url()\" t-attf-"
+"style=\"background-color: {{user.company_id.email_secondary_color or "
+"'#875A7B'}}; text-decoration: none; color: "
+"{{user.company_id.email_primary_color or '#FFFFFF'}}; padding: 8px 16px 8px "
+"16px; border-radius: 5px;\">预约我的面试</a><br/>\n"
+"    <br/>\n"
+"    顺祝  安康\n"
+"</div>\n"
+"        "
+
+#. module: appointment_hr_recruitment
+#: model:ir.model,name:appointment_hr_recruitment.model_hr_applicant
+msgid "Applicant"
+msgstr "申请人"
+
+#. module: appointment_hr_recruitment
+#: model:ir.model,website_form_label:appointment_hr_recruitment.model_hr_applicant
+msgid "Apply for a Job"
+msgstr "申请工作"
+
+#. module: appointment_hr_recruitment
+#: model:ir.model,name:appointment_hr_recruitment.model_appointment_invite
+msgid "Appointment Invite"
+msgstr "预约邀请"
+
+#. module: appointment_hr_recruitment
+#: model:mail.template,subject:appointment_hr_recruitment.email_template_data_applicant_schedule_interview
+msgid ""
+"Can we plan an interview together for your {{ (object.job_id.name + ' ') if "
+"object.job_id else '' }}application?"
+msgstr ""
+"我们能为您的 {{ (object.job_id.name + ' ') if object.job_id else ' ' }} 申请"
+"安排一次面试吗？"
+
+#. module: appointment_hr_recruitment
+#: model:ir.model.fields,field_description:appointment_hr_recruitment.field_appointment_invite__display_name
+#: model:ir.model.fields,field_description:appointment_hr_recruitment.field_hr_applicant__display_name
+msgid "Display Name"
+msgstr "显示名称"
+
+#. module: appointment_hr_recruitment
+#: model:ir.model.fields,field_description:appointment_hr_recruitment.field_appointment_invite__id
+#: model:ir.model.fields,field_description:appointment_hr_recruitment.field_hr_applicant__id
+msgid "ID"
+msgstr "ID"
+
+#. module: appointment_hr_recruitment
+#: model:ir.model.fields,field_description:appointment_hr_recruitment.field_hr_applicant__interview_invite_code
+msgid "Interview Invite Code"
+msgstr "面试邀请码"
+
+#. module: appointment_hr_recruitment
+#: model:appointment.type,name:appointment_hr_recruitment.appointment_type_interviews
+msgid "Interviews availabilities"
+msgstr "面试时间"
+
+#. module: appointment_hr_recruitment
+#: model:mail.template,name:appointment_hr_recruitment.email_template_data_applicant_schedule_interview
+msgid "Recruitment: Schedule interview"
+msgstr "招聘： 安排面试"
+
+#. module: appointment_hr_recruitment
+#: model:mail.template,description:appointment_hr_recruitment.email_template_data_applicant_schedule_interview
+msgid ""
+"Send this email when you want to schedule an interview with an applicant"
+msgstr "当您要安排与申请人面谈时，请发送此电子邮件"

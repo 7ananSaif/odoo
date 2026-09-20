@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="hr_payroll.DocumentsEmployeeDeclarationListController" t-inherit="hr_payroll.EmployeeDeclarationListController" t-inherit-mode="primary">
+        <xpath expr="//button[@id='generate_pdfs']" position="after">
+            <button t-on-click="postPdfs" t-att-class="checkOnlyGenerated()" t-att-hidden="noGenerated()" id="post_pdfs" type="button" class="btn">
+                <span>Post <t t-esc="getNumberToPost()"/> PDFs</span>
+            </button>
+        </xpath>
+    </t>
+</templates>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="documents_sharing_view_form" model="ir.ui.view">
+        <field name="name">documents.sharing.view.form.inherit.documents</field>
+        <field name="model">documents.sharing</field>
+        <field name="inherit_id" ref="documents.documents_sharing_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet/group[1]" position="before">
+                <div class="alert alert-danger" role="alert" invisible="not error_message_spreadsheet">
+                    <field name="error_message_spreadsheet"/>
+                </div>
+            </xpath>
+            <xpath expr="//button[@name='action_invite_members']" position="attributes">
+                <attribute name="invisible">error_message_spreadsheet</attribute>
+            </xpath>
+            <xpath expr="//button[@name='action_update_rights']" position="attributes">
+                <attribute name="invisible">error_message_spreadsheet</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

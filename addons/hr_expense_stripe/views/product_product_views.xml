@@ -1,0 +1,29 @@
+<odoo>
+    <data>
+        <record id="product_product_view_form_inherits_stripe" model="ir.ui.view">
+            <field name="inherit_id" ref="product.product_normal_form_view"/>
+            <field name="name">product.product.inherit.stripe.form</field>
+            <field name="model">product.product</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='uom_ids']" position="after">
+                    <field name="stripe_mcc_ids" widget="many2many_tags" groups="base.group_user"
+                           invisible="not can_be_expensed or standard_price or not stripe_issuing_activated"
+                           options="{'no_edit_color': True, 'color_field': 'color'}"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="product_product_expense_view_form_inherits_stripe" model="ir.ui.view">
+            <field name="inherit_id" ref="hr_expense.product_product_expense_form_view"/>
+            <field name="name">product.product.expense.inherit.stripe.form</field>
+            <field name="model">product.product</field>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='supplier_taxes_id']" position="after">
+                    <field name="stripe_mcc_ids" widget="many2many_tags" groups="base.group_user"
+                           invisible="not can_be_expensed or standard_price or not stripe_issuing_activated"
+                           options="{'no_edit_color': True, 'color_field': 'color'}"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

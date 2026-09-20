@@ -1,0 +1,12 @@
+.o_gantt_popover {
+    max-width: 400px;
+    inline-size: max-content;
+
+    .o_kanban_record {
+        &:focus-visible {
+            outline: none;
+        }
+        border: none!important;
+        background-color: #{$popover-bg};
+    }
+}

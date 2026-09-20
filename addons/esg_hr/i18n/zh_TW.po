@@ -1,0 +1,203 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * esg_hr
+#
+# Translators:
+# Wil Odoo, 2025
+# Tony Ng, 2025
+#
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server saas~18.3+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:44+0000\n"
+"PO-Revision-Date: 2025-11-16 17:46+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Chinese (Traditional Han script) <https://translate.odoo.com/"
+"projects/odoo-19/esg_hr/zh_Hant/>\n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: esg_hr
+#. odoo-javascript
+#: code:addons/esg_hr/static/src/components/esg_dashboard/esg_hr_sex_parity_box/esg_hr_sex_parity_box.js:0
+msgid "%(overall_pay_gap)s%"
+msgstr "%(overall_pay_gap)s%"
+
+#. module: esg_hr
+#: model:ir.model.fields,field_description:esg_hr.field_esg_employee_report__company_id
+msgid "Company"
+msgstr "公司"
+
+#. module: esg_hr
+#: model_terms:ir.actions.act_window,help:esg_hr.action_esg_employee_report_pay_gap
+msgid ""
+"Configure employee contracts and salaries to calculate the sex median pay "
+"gap."
+msgstr "配置員工合約及薪酬，以計算性別薪酬差距中位數。"
+
+#. module: esg_hr
+#: model:ir.model.fields,field_description:esg_hr.field_esg_employee_report__contract_type_id
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_search
+msgid "Contract Type"
+msgstr "契約類型"
+
+#. module: esg_hr
+#. odoo-python
+#: code:addons/esg_hr/controllers/esg_hr_dashboard.py:0
+#: model:ir.model.fields,field_description:esg_hr.field_esg_employee_report__count
+msgid "Count"
+msgstr "個數"
+
+#. module: esg_hr
+#: model:ir.model.fields,field_description:esg_hr.field_esg_employee_report__country_id
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_search
+msgid "Country"
+msgstr "國家/地區"
+
+#. module: esg_hr
+#: model:ir.model.fields,field_description:esg_hr.field_esg_employee_report__department_id
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_search
+msgid "Department"
+msgstr "部門"
+
+#. module: esg_hr
+#: model:ir.model.fields,field_description:esg_hr.field_esg_employee_report__display_name
+msgid "Display Name"
+msgstr "顯示名稱"
+
+#. module: esg_hr
+#: model:ir.model,name:esg_hr.model_esg_employee_report
+msgid "ESG Employee Report"
+msgstr "ESG 員工報告"
+
+#. module: esg_hr
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_search
+msgid "Female"
+msgstr "女性"
+
+#. module: esg_hr
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_search
+msgid "Full-Time Workers"
+msgstr "全職員工"
+
+#. module: esg_hr
+#: model:ir.model.fields,field_description:esg_hr.field_esg_employee_report__id
+msgid "ID"
+msgstr "識別碼"
+
+#. module: esg_hr
+#: model:ir.model.fields,field_description:esg_hr.field_esg_employee_report__is_full_time
+msgid "Is Full Time"
+msgstr "是全職的"
+
+#. module: esg_hr
+#: model:ir.model.fields,field_description:esg_hr.field_esg_employee_report__is_team_leader
+msgid "Is Team Leader"
+msgstr "是團隊領袖"
+
+#. module: esg_hr
+#: model:ir.model.fields,field_description:esg_hr.field_esg_employee_report__job_id
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_search
+msgid "Job Position"
+msgstr "工作職稱"
+
+#. module: esg_hr
+#: model:ir.model.fields,field_description:esg_hr.field_esg_employee_report__leadership_level
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_search
+msgid "Leadership Level"
+msgstr "領導級別"
+
+#. module: esg_hr
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_search
+msgid "Male"
+msgstr "男性"
+
+#. module: esg_hr
+#. odoo-javascript
+#: code:addons/esg_hr/static/src/components/esg_dashboard/esg_hr_sex_parity_box/esg_hr_sex_parity_box.js:0
+msgid "N/A"
+msgstr "不適用"
+
+#. module: esg_hr
+#: model_terms:ir.actions.act_window,help:esg_hr.action_esg_employee_report_sex_parity
+msgid "No employee sex data available."
+msgstr "沒有員工性別資料可用。"
+
+#. module: esg_hr
+#: model_terms:ir.actions.act_window,help:esg_hr.action_esg_employee_report_pay_gap
+msgid "No salary data available."
+msgstr "沒有薪酬數據可用。"
+
+#. module: esg_hr
+#: model_terms:ir.actions.act_window,help:esg_hr.action_esg_employee_report_sex_parity
+msgid ""
+"Once configured, you'll be able to view sex distribution across your company."
+msgstr "完成配置後，你便可查看整間公司的性別分佈。"
+
+#. module: esg_hr
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_search
+msgid "Other"
+msgstr "其他"
+
+#. module: esg_hr
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_search
+msgid "Part-Time Workers"
+msgstr "兼職員工"
+
+#. module: esg_hr
+#. odoo-javascript
+#: code:addons/esg_hr/static/src/components/esg_dashboard/esg_hr_sex_parity_box/esg_hr_sex_parity_box.xml:0
+#: model:ir.actions.act_window,name:esg_hr.action_esg_employee_report_pay_gap
+#: model:ir.ui.menu,name:esg_hr.menu_esg_pay_gap
+msgid "Pay Gap"
+msgstr "薪酬差距"
+
+#. module: esg_hr
+#: model:ir.model.fields,field_description:esg_hr.field_esg_employee_report__sex
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_search
+msgid "Sex"
+msgstr "性別"
+
+#. module: esg_hr
+#. odoo-javascript
+#: code:addons/esg_hr/static/src/components/esg_dashboard/esg_hr_sex_parity_box/esg_hr_sex_parity_box.xml:0
+#: model:ir.actions.act_window,name:esg_hr.action_esg_employee_report_sex_parity
+#: model:ir.ui.menu,name:esg_hr.menu_esg_sex_parity
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_graph
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_pivot
+#: model_terms:ir.ui.view,arch_db:esg_hr.esg_employee_report_search
+msgid "Sex Parity"
+msgstr "性別平等"
+
+#. module: esg_hr
+#: model:ir.ui.menu,name:esg_hr.menu_esg_social
+msgid "Social"
+msgstr "社交"
+
+#. module: esg_hr
+#: model:ir.model.fields,field_description:esg_hr.field_esg_employee_report__wage
+msgid "Wage"
+msgstr "薪資"
+
+#~ msgid "Gender"
+#~ msgstr "性別"
+
+#~ msgid "Gender Parity"
+#~ msgstr "性別平等"
+
+#~ msgid "Group By"
+#~ msgstr "分組依據"
+
+#~ msgid "No employee gender data available."
+#~ msgstr "沒有員工性別數據可用。"
+
+#~ msgid ""
+#~ "Once configured, you'll be able to view gender distribution across your "
+#~ "company."
+#~ msgstr "完成配置後，你可看到公司整體的員工性別分佈。"

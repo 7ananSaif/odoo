@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="project_project_view_form_simplified_template" model="ir.ui.view">
+        <field name="name">databases.project.create.wizard.form</field>
+        <field name="model">project.template.create.wizard</field>
+        <field name="mode">primary</field>
+        <field name="inherit_id" ref="project.project_project_view_form_simplified_template"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form/group" position="replace">
+                <group>
+                    <group>
+                            <field name="database_hosting" required="1"/>
+                            <field name="database_url" required="1"/>
+                            <field name="database_name"/>
+                            <field name="database_api_login"/>
+                            <field name="database_api_key"/>
+                    </group>
+                    <group>
+                        <span class="o_wrap_label"><span class="o_form_label">Fetch</span></span>
+                        <div>
+                            <div><field name="database_fetch_documents"/><span>Documents</span></div>
+                            <div><field name="database_fetch_draft_entries"/><span>Draft Journal Entries</span></div>
+                            <div><field name="database_fetch_tax_returns"/><span>Tax Returns</span></div>
+                        </div>
+                    </group>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

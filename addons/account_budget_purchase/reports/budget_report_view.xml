@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="budget_report_view_tree" model="ir.ui.view">
+            <field name="name">budget.report.view.list</field>
+            <field name="model">budget.report</field>
+            <field name="inherit_id" ref="account_budget.budget_report_view_tree"/>
+            <field name="arch" type="xml">
+                <field name="achieved" position="before">
+                    <field name="committed" sum="Total Committed"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="budget_report_view_search" model="ir.ui.view">
+            <field name="name">budget.report.view.search</field>
+            <field name="model">budget.report</field>
+            <field name="inherit_id" ref="account_budget.budget_report_view_search"/>
+            <field name="arch" type="xml">
+                <filter name="achieved" position="before">
+                    <filter string="Committed" name="committed" domain="[('line_type','=','committed')]"/>
+                </filter>
+            </field>
+        </record>
+
+        <record id="budget_report_view_graph" model="ir.ui.view">
+            <field name="name">budget.report.view.graph</field>
+            <field name="model">budget.report</field>
+            <field name="inherit_id" ref="account_budget.budget_report_view_graph"/>
+            <field name="arch" type="xml">
+                <field name="account_id" position="before">
+                    <field name="committed" type="measure"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="budget_report_view_pivot" model="ir.ui.view">
+            <field name="name">budget.report.view.pivot</field>
+            <field name="model">budget.report</field>
+            <field name="inherit_id" ref="account_budget.budget_report_view_pivot"/>
+            <field name="arch" type="xml">
+                <field name="achieved" position="before">
+                    <field name="committed" type="measure"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

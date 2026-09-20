@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="project_task_view_form" model="ir.ui.view">
+            <field name="name">project.task.view.form.inherit.sale.timesheet.enterprise</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="hr_timesheet.view_task_form2_inherited"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='stage_id']" position='before'>
+                    <field name="company_id" invisible="1"/>
+                    <field name="display_timesheet_timer" invisible="1"/>
+                    <button class="btn-primary" name="action_timer_start" type="object" string="Start" data-hotkey="z"
+                        invisible="not display_timesheet_timer or timer_start or total_hours_spent or has_template_ancestor or has_project_template" groups="hr_timesheet.group_hr_timesheet_user"/>
+                    <button class="btn-secondary" name="action_timer_start" type="object" string="Start" data-hotkey="z"
+                        invisible="not display_timesheet_timer or timer_start or not total_hours_spent or has_template_ancestor or has_project_template" groups="hr_timesheet.group_hr_timesheet_user"/>
+                    <button class="btn-primary o_fsm_stop" name="action_timer_stop" type="object" string="Stop" data-hotkey="z"
+                        invisible="not display_timesheet_timer or not timer_start or has_template_ancestor or has_project_template" groups="hr_timesheet.group_hr_timesheet_user"/>
+                    <field name="timesheet_unit_amount" invisible="1"/>
+                    <field name="timer_start"
+                           class="align-self-center me-auto ms-2 h2"
+                           widget="timer_start_field"
+                           options="{'unit_amount_field': 'timesheet_unit_amount'}"
+                           invisible="not display_timesheet_timer"
+                           groups="hr_timesheet.group_hr_timesheet_user"
+                    />
+                </xpath>
+                <xpath expr="//field[@name='timesheet_ids']" position="attributes">
+                    <attribute name="widget">timesheets_one2many</attribute>
+                </xpath>
+                <xpath expr="//field[@name='timesheet_ids']/list" position="inside">
+                    <field name="is_timer_running" column_invisible="1"/>
+                    <field name="validated" column_invisible="1"/>
+                </xpath>
+                <xpath expr="//field[@name='timesheet_ids']/list/field[@name='date']" position="attributes">
+                    <attribute name="readonly">readonly_timesheet or is_timer_running</attribute>
+                </xpath>
+                <xpath expr="//field[@name='timesheet_ids']/list/field[@name='employee_id']" position="attributes">
+                    <attribute name="readonly">readonly_timesheet or is_timer_running</attribute>
+                </xpath>
+                <xpath expr="//field[@name='timesheet_ids']/list/field[@name='unit_amount']" position="attributes">
+                    <attribute name="readonly">id and (readonly_timesheet or is_timer_running)</attribute>
+                    <attribute name="widget">timesheet_uom_timer</attribute>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="project_task_view_gantt_timesheet" model="ir.ui.view">
+            <field name="name">project.task.view.gantt</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project_enterprise.project_task_view_gantt"/>
+            <field name="arch" type="xml">
+                <xpath expr="//gantt" position="attributes">
+                    <attribute name="progress_bar">user_ids,project_id</attribute>
+                    <attribute name="progress">progress</attribute>
+                </xpath>
+                <xpath expr="//templates" position="after">
+                    <field name="progress"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="project_task_view_kanban" model="ir.ui.view">
+            <field name="name">project.task.kanban.timer</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_kanban"/>
+            <field name="arch" type="xml">
+                <xpath expr="//footer//field[@name='priority']" position="before">
+                    <field name="display_timesheet_timer" invisible="1"/>
+                    <field name="timer_start" invisible="1"/>
+                    <t t-if="record.display_timesheet_timer.raw_value and !!record.timer_start.raw_value" groups="hr_timesheet.group_hr_timesheet_user">
+                        <i class="fa fa-play text-success" title="Timer is Running"></i>
+                    </t>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

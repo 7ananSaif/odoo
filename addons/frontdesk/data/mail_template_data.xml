@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <template id="frontdesk_mail_template">
+            <div>
+                <p>Dear <t t-out="host_name"/>,<br/>I hope this message finds you well. This is to inform you that
+                    <b><t t-out="object.name"/></b>
+                    <t t-if="object.phone">(<t t-out="object.phone"/>)</t> has arrived from
+                    <b><t t-if="object.company" t-out="object.company"/></b> and is here for their scheduled meeting with you.
+                    They are currently waiting in the <b><t t-out="object.station_id.name"/></b>.
+                    <br/>Please let us know if you would like us to direct them to a meeting room or if you require any further assistance.
+                    <br/>After a successful meeting with the visitor, please proceed to check out their login.
+                    <div style="margin: 16px 0px 16px 0px; text-align: center;">
+                        <a t-attf-href="/frontdesk/visitor/check_out/{{ object.id }}" target="_blank"
+                        style="display: inline-block; padding: 10px; text-decoration: none; font-size: 12px; background-color: #875A7B; color: #fff; border-radius: 5px;">
+                        Check Out Visitor</a>
+                    </div>
+                    Best regards,<br/><t t-out="', '.join(object.station_id.responsible_ids.mapped('name'))"/>
+                </p>
+            </div>
+        </template>
+    </data>
+</odoo>

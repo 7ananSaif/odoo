@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="l10n_sa_rule_paramenter_saudi_gosi_company_contribution" model="hr.rule.parameter">
+        <field name="name">Saudi GOSI Company Contribution</field>
+        <field name="code">l10n_sa_saudi_gosi_company_contribution</field>
+        <field name="country_id" ref="base.sa"/>
+    </record>
+    <record id="l10n_sa_rule_paramenter_saudi_gosi_company_contribution_value" model="hr.rule.parameter.value">
+        <field name="parameter_value">-0.1175</field>
+        <field name="rule_parameter_id" ref="l10n_sa_rule_paramenter_saudi_gosi_company_contribution"/>
+        <field name="date_from" eval="datetime(2024, 1, 1).date()"/>
+    </record>
+
+    <record id="l10n_sa_rule_paramenter_non_saudi_gosi_company_contribution" model="hr.rule.parameter">
+        <field name="name">Non-Saudi GOSI Company Contribution</field>
+        <field name="code">l10n_sa_non_saudi_gosi_company_contribution</field>
+        <field name="country_id" ref="base.sa"/>
+    </record>
+    <record id="l10n_sa_rule_paramenter_non_saudi_gosi_company_contribution_value" model="hr.rule.parameter.value">
+        <field name="parameter_value">-0.02</field>
+        <field name="rule_parameter_id" ref="l10n_sa_rule_paramenter_non_saudi_gosi_company_contribution"/>
+        <field name="date_from" eval="datetime(2024, 1, 1).date()"/>
+    </record>
+
+    <record id="l10n_sa_rule_paramenter_saudi_gosi_employee_contribution" model="hr.rule.parameter">
+        <field name="name">Saudi GOSI Employee Contribution</field>
+        <field name="code">l10n_sa_saudi_gosi_employee_contribution</field>
+        <field name="country_id" ref="base.sa"/>
+    </record>
+    <record id="l10n_sa_rule_paramenter_saudi_gosi_employee_contribution_value" model="hr.rule.parameter.value">
+        <field name="parameter_value">-0.0975</field>
+        <field name="rule_parameter_id" ref="l10n_sa_rule_paramenter_saudi_gosi_employee_contribution"/>
+        <field name="date_from" eval="datetime(2024, 1, 1).date()"/>
+    </record>
+
+    <record id="l10n_sa_rule_paramenter_overtime_rate" model="hr.rule.parameter">
+        <field name="name">Saudi Arabia Overtime Rate</field>
+        <field name="code">l10n_sa_overtime_rate</field>
+        <field name="country_id" ref="base.sa"/>
+    </record>
+    <record id="l10n_sa_rule_paramenter_overtime_rate_value" model="hr.rule.parameter.value">
+        <field name="parameter_value">1.5</field>
+        <field name="rule_parameter_id" ref="l10n_sa_rule_paramenter_overtime_rate"/>
+        <field name="date_from" eval="datetime(2024, 1, 1).date()"/>
+    </record>
+</odoo>

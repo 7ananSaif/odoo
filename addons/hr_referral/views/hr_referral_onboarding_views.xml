@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<odoo>
+
+    <record model="ir.ui.view" id="view_hr_referral_onboarding_form">
+        <field name="name">hr.referral.onboarding.form</field>
+        <field name="model">hr.referral.onboarding</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <group name="main_details">
+                            <field name="text"/>
+                            <field name="sequence" groups="base.group_no_one"/>
+                            <field name="company_id" groups="base.group_multi_company" options="{'no_create': True}" placeholder="Visible to all"/>
+                        </group>
+                        <group>
+                            <field name="image" widget="image" class="o_onboarding_form_img bg-dark" nolabel="1" colspan="2"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record model="ir.ui.view" id="view_hr_referral_onboarding_tree">
+        <field name="name">hr.referral.onboarding.list</field>
+        <field name="model">hr.referral.onboarding</field>
+        <field name="arch" type="xml">
+            <list>
+                <header>
+                    <button name="action_relaunch_onboarding" type="object"
+                            string="Restart Onboarding" display="always"
+                            confirm="This will make the onboarding process visible to all users who have previously completed it. Do you want to proceed?"
+                            confirm-label="Confirm" cancel-label="Discard"/>
+                </header>
+                <field name="sequence" widget="handle"/>
+                <field name="text"/>
+                <field name="image" optional="show" widget="image" class="o_onboarding_list_img bg-dark"/>
+                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <record model="ir.actions.act_window" id="action_hr_referral_onboarding_configuration">
+        <field name="name">Onboarding</field>
+        <field name="res_model">hr.referral.onboarding</field>
+        <field name="view_mode">list,form</field>
+        <field name="group_ids" eval="[Command.link(ref('hr_referral.group_hr_referral_manager'))]"/>
+    </record>
+
+    <menuitem parent="menu_hr_referral_configuration" id="menu_hr_referral_onboarding_configuration" action="action_hr_referral_onboarding_configuration" sequence="7" groups="hr_referral.group_hr_referral_manager"/>
+
+</odoo>

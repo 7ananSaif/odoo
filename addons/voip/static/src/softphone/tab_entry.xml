@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<templates>
+<t t-name="voip.TabEntry">
+    <div class="o-voip-TabEntry" t-att-class="props.extraClass">
+        <details class="border-bottom" t-att-open="isActiveRecord">
+            <summary class="d-flex justify-content-between gap-3 py-2 px-3 cursor-pointer" t-on-click="onClickSummary">
+                <div class="d-flex align-items-center gap-2 overflow-hidden">
+                    <img t-attf-class="o_avatar rounded object-fit-contain {{ props.avatarUrl != '/base/static/img/avatar_grey.png' and 'o-voip-avatar-bg' }}" t-att-src="props.avatarUrl" alt="Profile picture" aria-hidden="true"/>
+                    <div class="overflow-hidden">
+                        <p class="m-0 fw-bold text-truncate">
+                            <img t-if="props.title === props.phoneNumber and props.record.phone_country_id?.image_url" class="o-voip-countryFlag me-1 align-middle" t-att-src="props.record.phone_country_id.image_url" t-att-alt="flagAlt"/>
+                            <span class="align-middle" t-out="props.title"/>
+                        </p>
+                        <p t-if="props.subtitle" class="m-0 opacity-75 text-truncate" t-att-class="props.subtitleClass">
+                            <i t-if="props.subtitleIcon" t-att-class="props.subtitleIcon" aria-hidden="true"/>
+                            <t t-out="props.subtitle"/>
+                        </p>
+                    </div>
+                </div>
+                <div class="d-empty-none flex-shrink-0 align-self-center">
+                    <t t-slot="side"/>
+                </div>
+            </summary>
+            <div class="d-flex flex-column gap-3 py-2 px-3">
+                <div class="d-empty-none">
+                    <t t-slot="info" item="item"/>
+                </div>
+                <div class="d-flex d-empty-none flex-column gap-1">
+                    <t t-slot="voiceRecords" item="item"/>
+                </div>
+                <div class="d-flex d-empty-none gap-2 align-items-end justify-content-between">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <t t-slot="actions" item="item"/>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap justify-content-end">
+                        <t t-slot="call-to-action" item="item"/>
+                    </div>
+                </div>
+            </div>
+            <span t-if="isActiveRecord" t-ref="active-record"/>
+        </details>
+    </div>
+</t>
+</templates>

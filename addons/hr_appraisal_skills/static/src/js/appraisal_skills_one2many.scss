@@ -1,0 +1,13 @@
+.o_field_appraisal_skills_one2many {
+    .o_progressbar {
+        justify-content: start !important;
+    }
+    .o_list_renderer .o_list_table thead .o_list_number_th{
+        text-align: start !important;
+    }
+    &.o_appraisal_skill .o_skill_table > thead {
+        visibility: visible;
+        border-width: 0;
+        border-bottom-width: 1px; /* This is needed because of a rendering bug on firefox */
+    }
+}

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <t t-name="mrp_workorder.MrpEmployeeDialog">
+        <Dialog size="'md'" title.translate="Edit Operators" modalRef="modalRef">
+            <div class="o_mrp_operatos_dialog w-100">
+                <ul class="ps-0">
+                    <li t-foreach="props.employees.all" t-as="employee" t-key="employee.id"
+                        class="btn btn-outline-secondary w-100 text-start mb-2 fw-normal py-2"
+                        t-att-class="{'active' : selected.ids.includes(employee.id)}"
+                        t-att-name="employee.name"
+                        t-on-click="() => this.toggleEmployee(employee.id)">
+                        <img t-if="!selected.ids.includes(employee.id)"
+                                class="o_avatar rounded-circle me-2"
+                                t-att-src="imageBaseURL + employee.id"/>
+                        <div t-else="" class="o_avatar_selected d-inline-block rounded-circle me-2 bg-action text-center">
+                            <i class="fa fa-check mt-2 text-100" role="img" />
+                        </div>
+                        <t t-out="employee.name"/>
+                    </li>
+                </ul>
+                <t t-set-slot="footer">
+                    <button class="btn btn-primary" t-on-click="confirm">Done</button>
+                </t>
+            </div>
+        </Dialog>
+    </t>
+</templates>

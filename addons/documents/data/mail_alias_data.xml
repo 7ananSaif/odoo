@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="document_inbox_folder_mail_alias" model="mail.alias" forcecreate="0">
+            <field name="alias_name">inbox</field>
+            <field name="alias_model_id" ref="documents.model_documents_document"/>
+            <field name="alias_parent_thread_id" ref="documents.document_inbox_folder"/>
+            <field name="alias_defaults" eval="{'folder_id': ref('documents.document_inbox_folder')}"/>
+        </record>
+        <record id="documents.document_inbox_folder" model="documents.document" forcecreate="0">
+            <field name="alias_id" ref="documents.document_inbox_folder_mail_alias"/>
+        </record>
+    </data>
+</odoo>

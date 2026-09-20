@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="planning_view_form_in_gantt_inherit" model="ir.ui.view">
+        <field name="name">planning.slot.form.gantt.inherit</field>
+        <field name="model">planning.slot</field>
+        <field name="inherit_id" ref="planning.planning_view_form_in_gantt"/>
+        <field name="arch" type="xml">
+            <xpath expr="//footer/button[@name='action_send'][1]" position="after">
+                <button name="action_create_order" type="object" string="New Order" invisible="not role_sync_shift_rental or sale_line_id"/>
+                <button name="action_add_last_order" type="object" string="Add to Last Order" invisible="not role_sync_shift_rental or sale_line_id" close="1"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

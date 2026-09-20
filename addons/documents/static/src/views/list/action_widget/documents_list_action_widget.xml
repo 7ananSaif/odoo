@@ -1,0 +1,11 @@
+<templates xml:space="preserve">
+    <t t-name="documents.DocumentsListActionWidget">
+        <t t-if="this.env.config.viewArch?.getAttribute('js_class') === 'documents_list'">
+        <div class="o_documents_list_actions">
+                <t t-foreach="this.constructor.actionItems" t-as="item" t-key="item_index">
+                    <t t-component="item" t-props="this.props"/>
+                </t>
+            </div>
+        </t>
+    </t>
+</templates>

@@ -1,0 +1,923 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * sale_timesheet_enterprise
+#
+# Translators:
+# Ákos Nagy <akos.nagy@oregional.hu>, 2022
+# Zsolt Godó <zsolttokio@gmail.com>, 2022
+# gezza <geza.nagy@oregional.hu>, 2022
+# Krisztián Juhász <juhasz.krisztian@josafar.hu>, 2022
+# Tamás Dombos, 2022
+# Tamás Németh <ntomasz81@gmail.com>, 2022
+# krnkris, 2022
+# Martin Trigaux, 2022
+# "Dylan Kiss (dyki)" <dyki@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:47+0000\n"
+"PO-Revision-Date: 2025-11-16 17:58+0000\n"
+"Last-Translator: Weblate <noreply-mt-weblate@weblate.org>\n"
+"Language-Team: Hungarian <https://translate.odoo.com/projects/odoo-19/"
+"sale_timesheet_enterprise/hu/>\n"
+"Language: hu\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.12.2\n"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/views/timesheet_leaderboard_dialog/timesheet_leaderboard_dialog.js:0
+msgid "%(billableTime)s / %(billable_time_target)s (%(billingRate)s%)"
+msgstr "%(billableTime)s / %(billable_time_target)s (%(billingRate)s%)"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/components/timesheet_leaderboard/timesheet_leaderboard.js:0
+msgid "%(currentBillableTimeText)s / %(currentTargetTotalTimeText)s "
+msgstr "%(currentBillableTimeText)s / %(currentTargetTotalTimeText)s "
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/views/timesheet_analysis_pivot/timesheet_analysis_pivot_model.js:0
+msgid "%(employee_name)s (%(target)sh / month)"
+msgstr "%(employee_name)s (%(target)só / hó)"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/components/timesheet_leaderboard/timesheet_leaderboard.js:0
+msgid "%(percentage)s%"
+msgstr "%(percentage)s%"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/components/timesheet_leaderboard/timesheet_leaderboard.js:0
+msgid "(%(percentage)s%)"
+msgstr "(%(percentage)s%)"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_kanban
+msgid ""
+"<i class=\"fa fa-fw me-2 fa-birthday-cake text-primary\" title=\"Birthday\"/>"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_kanban
+msgid "<i class=\"fa fa-fw me-2 fa-envelope text-primary\" title=\"Email\"/>"
+msgstr "<i class=\"fa fa-fw me-2 fa-envelope text-primary\" title=\"Email\"/>"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_kanban
+msgid "<i class=\"fa fa-fw me-2 fa-phone text-primary\" title=\"Phone\"/>"
+msgstr "<i class=\"fa fa-fw me-2 fa-phone text-primary\" title=\"Phone\"/>"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_form
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_employee_form
+msgid "<span class=\"m-14 w-100\">per month</span>"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.sale_timesheet_enterprise_advance_payment_inv_timesheet_view_form
+msgid ""
+"<span>\n"
+"                            Some employees currently have active timers for "
+"the timesheets you are trying to invoice.\n"
+"                            Creating the invoice will automatically stop "
+"these timers.\n"
+"                        </span>"
+msgstr ""
+"<span>\n"
+"                            Néhány munkavállalónál aktív stopper fut olyan "
+"időkimutatásokon, melyeket számlázni szeretne.\n"
+"                            A számla létrehozása automatikusan leállítja "
+"ezeket a stoppereket.\n"
+"                        </span>"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__active
+msgid "Active"
+msgstr "Aktív"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields.selection,name:sale_timesheet_enterprise.selection__res_config_settings__invoiced_timesheet__all
+msgid "All recorded timesheets"
+msgstr "Minden rögzített időkimutatás"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,name:sale_timesheet_enterprise.model_account_analytic_line
+msgid "Analytic Line"
+msgstr "Analitikus sor"
+
+#. module: sale_timesheet_enterprise
+#: model:hr.timesheet.tip,name:sale_timesheet_enterprise.timesheet_tip_7
+msgid ""
+"Any time spent interacting with others—whether it’s a quick call, a meeting, "
+"or an informal chat—is valuable and should be recorded."
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_filter
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_form
+msgid "Archived"
+msgstr "Archivált"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/components/many2one_avatar_rank_field/many2one_avatar_rank_field.xml:0
+msgid "Avatar"
+msgstr "Avatár"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__avatar_128
+msgid "Avatar 128"
+msgstr "Avatár 128"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__avatar_1920
+msgid "Avatar 1920"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.sale_timesheet_employee_list_inherit
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_tree
+msgid "Average"
+msgstr "Átlagos"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_employee_public__billable_time_target
+msgid "Billable Time Target"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_res_config_settings__timesheet_show_rates
+msgid "Billing Rate Indicators"
+msgstr "Számlázási arány indikátor"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/views/timesheet_leaderboard_dialog/timesheet_leaderboard_dialog.js:0
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_res_config_settings__timesheet_show_leaderboard
+msgid "Billing Rate Leaderboard"
+msgstr "Számlázási arány rangsor"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_employee__billable_time_target
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_form
+msgid "Billing Time Target"
+msgstr "Számlázott idő cél"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.ui.menu,name:sale_timesheet_enterprise.hr_timesheet_menu_employee
+#: model:ir.ui.menu,name:sale_timesheet_enterprise.hr_timesheet_menu_employee_billable_time_target
+msgid "Billing Time Targets"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/components/timesheet_leaderboard/timesheet_leaderboard.xml:0
+msgid "Billing:"
+msgstr "Számlázás:"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.res_config_settings_view_form
+msgid ""
+"Boost productivity and competitiveness by displaying a leaderboard based on "
+"the billing rates."
+msgstr ""
+"Növelje a termelékenységet és versenyszellemet a számlázási arány toplista "
+"megjelenítésével."
+
+#. module: sale_timesheet_enterprise
+#: model:hr.timesheet.tip,name:sale_timesheet_enterprise.timesheet_tip_15
+msgid ""
+"By maintaining clear timesheets, you demonstrate your dedication and help "
+"build trust—your effort truly matters!"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/views/timesheet_leaderboard_dialog/timesheet_leaderboard_dialog.xml:0
+msgid "Close"
+msgstr "Bezárás"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__coach_id
+msgid "Coach"
+msgstr "Tréner"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,name:sale_timesheet_enterprise.model_res_company
+msgid "Companies"
+msgstr "Vállalatok"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__company_id
+msgid "Company"
+msgstr "Vállalat"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,name:sale_timesheet_enterprise.model_res_config_settings
+msgid "Config Settings"
+msgstr "Beállítások"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.ui.menu,name:sale_timesheet_enterprise.hr_timesheet_menu_configuration_settings
+msgid "Configuration"
+msgstr "Konfiguráció"
+
+#. module: sale_timesheet_enterprise
+#: model:hr.timesheet.tip,name:sale_timesheet_enterprise.timesheet_tip_9
+msgid ""
+"Consistently tracking your time ensures no effort, big or small, goes "
+"unnoticed."
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__create_date
+msgid "Create Date"
+msgstr "Létrehozva"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,website_form_label:sale_timesheet_enterprise.model_project_task
+msgid "Create a Task"
+msgstr "Feladat létrehozása"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__create_uid
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_timesheet_tip__create_uid
+msgid "Created by"
+msgstr "Létrehozta"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_timesheet_tip__create_date
+msgid "Created on"
+msgstr "Létrehozva"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.timesheet_view_grid_by_invoice_type
+msgid "Day"
+msgstr "Nap"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__department_id
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_filter
+msgid "Department"
+msgstr "Részleg"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/components/timesheet_overtime_indication/timesheet_overtime_indication.js:0
+msgid ""
+"Difference between the allocated %(uom)s (%(allocated_hours)s) on the sales "
+"order line and the %(uom)s spent (%(worked_hours)s) on all related projects "
+"and tasks"
+msgstr ""
+"Különbség a vevői rendelés soron kiosztott %(uom)s (%(allocated_hours)s) és "
+"a kapcsolt projekten, feladatokon eltöltött %(uom)s (%(worked_hours)s) között"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__child_ids
+msgid "Direct subordinates"
+msgstr "Közvetlen beosztottak"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_account_analytic_line__display_name
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_account_move_line__display_name
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__display_name
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_employee__display_name
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_employee_public__display_name
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_timesheet_tip__display_name
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_ir_ui_menu__display_name
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_project_project__display_name
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_project_task__display_name
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_res_company__display_name
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_res_config_settings__display_name
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_sale_advance_payment_inv__display_name
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_sale_order_line__display_name
+msgid "Display Name"
+msgstr "Megjelenített név"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,help:sale_timesheet_enterprise.field_project_task__portal_progress
+msgid "Display progress of current task."
+msgstr "Aktuális feladat előrehaladásának megjelenítése."
+
+#. module: sale_timesheet_enterprise
+#: model:hr.timesheet.tip,name:sale_timesheet_enterprise.timesheet_tip_10
+msgid ""
+"Don’t second-guess whether something “counts”—if you’ve spent time on it, it "
+"belongs in your timesheet."
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_tree
+msgid "Edit Billable Time Target"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,name:sale_timesheet_enterprise.model_edit_billable_time_target
+msgid ""
+"Edit Billable Time Target wizard from Timesheet for users without employee "
+"access"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,name:sale_timesheet_enterprise.model_hr_employee
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__employee_id
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_filter
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_form
+msgid "Employee"
+msgstr "Munkavállaló"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_form
+msgid "Employee Name"
+msgstr "Alkalmazott neve"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_kanban
+msgid "Employee's Name"
+msgstr "Munkavállaló neve"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.actions.act_window,name:sale_timesheet_enterprise.action_open_edit_billable_time_target
+#: model:ir.actions.act_window,name:sale_timesheet_enterprise.action_open_view_employee
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_filter
+msgid "Employees"
+msgstr "Alkalmazottak"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__hr_icon_display
+msgid "Hr Icon Display"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__hr_presence_state
+msgid "Hr Presence State"
+msgstr "Jelenlét állapot"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_account_analytic_line__id
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_account_move_line__id
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__id
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_employee__id
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_employee_public__id
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_timesheet_tip__id
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_ir_ui_menu__id
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_project_project__id
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_project_task__id
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_res_company__id
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_res_config_settings__id
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_sale_advance_payment_inv__id
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_sale_order_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: sale_timesheet_enterprise
+#: model:hr.timesheet.tip,name:sale_timesheet_enterprise.timesheet_tip_6
+msgid ""
+"If you’re unsure if something is billable, just log it. You deserve credit."
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__image_1024
+msgid "Image 1024"
+msgstr "1024-es kép"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__image_128
+msgid "Image 128"
+msgstr "Kép 128"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.res_config_settings_view_form
+msgid "Invoice"
+msgstr "Számla"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.res_config_settings_view_form
+msgid "Invoicing Policy"
+msgstr "Számlázási szabály"
+
+#. module: sale_timesheet_enterprise
+#: model:hr.timesheet.tip,name:sale_timesheet_enterprise.timesheet_tip_3
+msgid ""
+"It's part of the job to search for information. These hours should also be "
+"billable."
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__job_id
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_filter
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_form
+msgid "Job Position"
+msgstr "Munkakör"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,name:sale_timesheet_enterprise.model_account_move_line
+msgid "Journal Item"
+msgstr "Könyvelési tétel"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__write_uid
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_timesheet_tip__write_uid
+msgid "Last Updated by"
+msgstr "Frissítette"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__write_date
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_timesheet_tip__write_date
+msgid "Last Updated on"
+msgstr "Frissítve"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_form
+msgid "Location"
+msgstr "Helyszín"
+
+#. module: sale_timesheet_enterprise
+#. odoo-python
+#: code:addons/sale_timesheet_enterprise/models/res_company.py:0
+#: model:hr.timesheet.tip,name:sale_timesheet_enterprise.timesheet_tip_4
+msgid "Make it a habit to record timesheets every day."
+msgstr "Tegye szokásává, hogy minden nap rögzíti az időkimutatásait."
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__parent_id
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_filter
+msgid "Manager"
+msgstr "Menedzser"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__member_of_department
+msgid "Member of department"
+msgstr "Részleg tagjai"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,name:sale_timesheet_enterprise.model_ir_ui_menu
+msgid "Menu"
+msgstr "Menü"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__mobile_phone
+msgid "Mobile Phone"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.timesheet_view_grid_by_invoice_type
+msgid "Month"
+msgstr "Hónap"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__billable_time_target
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.sale_timesheet_employee_list_inherit
+msgid "Monthly Billing Time Target"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.actions.act_window,help:sale_timesheet_enterprise.hr_timesheet_tip_action
+msgid "Motivate employees to fill timesheets with these tips."
+msgstr ""
+"Motiválja a munkavállalókat időkimutatások rögzítésére tippek segítségével."
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_filter
+msgid "My Department"
+msgstr "Részlegem"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_filter
+msgid "My Team"
+msgstr "Csapatom"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__name
+msgid "Name"
+msgstr "Név"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__newly_hired
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_filter
+msgid "Newly Hired"
+msgstr "Újonnan felvett"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.actions.act_window,help:sale_timesheet_enterprise.action_open_edit_billable_time_target
+#: model_terms:ir.actions.act_window,help:sale_timesheet_enterprise.action_open_view_employee
+msgid "No employees found"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.actions.act_window,help:sale_timesheet_enterprise.hr_timesheet_tip_action
+msgid "No tips found. Let's create one!"
+msgstr "Nem található tipp. Készítsen egyet!"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_form
+msgid "Organization Chart"
+msgstr "Szervezeti diagram"
+
+#. module: sale_timesheet_enterprise
+#: model:hr.timesheet.tip,name:sale_timesheet_enterprise.timesheet_tip_11
+msgid ""
+"Organizing, planning, or reviewing your work is part of the job and should "
+"be logged like any other task."
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:hr.timesheet.tip,name:sale_timesheet_enterprise.timesheet_tip_12
+msgid ""
+"Preparation is crucial for successful meetings. Always include the time you "
+"spend getting ready in your timesheet."
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.project_sharing_inherit_project_task_view_form
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.project_sharing_inherit_project_task_view_tree
+msgid "Progress"
+msgstr "Folyamat"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,name:sale_timesheet_enterprise.model_project_project
+msgid "Project"
+msgstr "Projekt"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__birthday_public_display_string
+msgid "Public Date of Birth"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,name:sale_timesheet_enterprise.model_hr_employee_public
+msgid "Public Employee"
+msgstr "Nyilvános alkalmazott"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/components/timesheet_leaderboard/timesheet_leaderboard.xml:0
+msgid "Record timesheets to determine your billing rate!"
+msgstr "Rögzítsen időkimutatásokat a számlázási aránya megállapításához!"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/components/timesheet_leaderboard/timesheet_leaderboard.xml:0
+msgid "Record timesheets to earn your rank!"
+msgstr "Rögzítsen időkimutatásokat és érdemeljen ki rangot!"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,name:sale_timesheet_enterprise.model_sale_advance_payment_inv
+msgid "Sales Advance Payment Invoice"
+msgstr "Vevői előlegszámla"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,name:sale_timesheet_enterprise.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "Vevői rendelés sor"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.res_config_settings_view_form
+msgid ""
+"Set a billable time target for your employees. If their current rate falls "
+"below their target, it will be highlighted in red."
+msgstr ""
+"Adjon meg számlázandó idő célértéket a munkavállalóknak. Ha az aktuális "
+"arány a célérték alá esik, akkor piros színnel lesz kiemelve."
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.actions.act_window,help:sale_timesheet_enterprise.action_open_edit_billable_time_target
+#: model_terms:ir.actions.act_window,help:sale_timesheet_enterprise.action_open_view_employee
+msgid "Set a billing time target for employees whose timesheets you approve."
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.res_config_settings_view_form
+msgid "Set employee billing time targets"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_employee_public__show_billable_time_target
+msgid "Show Billable Time Target"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__show_hr_icon_display
+msgid "Show Hr Icon Display"
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/views/timesheet_leaderboard_dialog/timesheet_leaderboard_dialog.xml:0
+msgid "Show less"
+msgstr "Kevesebb megjelenítése"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/views/timesheet_leaderboard_dialog/timesheet_leaderboard_dialog.xml:0
+msgid "Show more"
+msgstr "Több megjelenítése"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,help:sale_timesheet_enterprise.field_res_config_settings__timesheet_show_rates
+msgid "Show the billing indicators on My Timesheets view"
+msgstr "Számlázási jelzőszámok megjelenítése Időkimutatásaim nézeten"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,help:sale_timesheet_enterprise.field_res_config_settings__timesheet_show_leaderboard
+msgid "Show the leaderboard on My Timesheets view"
+msgstr "Toplista megjelenítése Időkimutatásaim nézeten"
+
+#. module: sale_timesheet_enterprise
+#: model:hr.timesheet.tip,name:sale_timesheet_enterprise.timesheet_tip_13
+msgid ""
+"Small administrative tasks keep operations running smoothly. Don’t forget to "
+"include them in your timesheet."
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_filter
+msgid "Start Date"
+msgstr "Kezdődátum"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,name:sale_timesheet_enterprise.model_project_task
+msgid "Task"
+msgstr "Feladat"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.constraint,message:sale_timesheet_enterprise.constraint_hr_employee_check_billable_time_target
+msgid "The billable time target cannot be negative."
+msgstr "A számlázható idő cél nem lehet negatív."
+
+#. module: sale_timesheet_enterprise
+#. odoo-python
+#: code:addons/sale_timesheet_enterprise/models/project_task.py:0
+msgid "This Sale Order Item doesn't have a target value of planned hours."
+msgstr "A vevői rendelés soron nincs megadva tervezett óra célérték."
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/views/timesheet_leaderboard_dialog/timesheet_leaderboard_dialog.xml:0
+msgid "This month"
+msgstr "Ebben a hónapban"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.project_sharing_inherit_project_task_view_form
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.project_sharing_inherit_project_task_view_tree
+msgid "Time Remaining"
+msgstr "Maradék idő"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.project_sharing_inherit_project_task_view_form
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.project_sharing_inherit_project_task_view_tree
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.timesheet_view_grid_by_invoice_type
+msgid "Time Spent"
+msgstr "Eltöltött idő"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.project_sharing_inherit_project_task_view_tree
+msgid "Time Spent on Sub-tasks"
+msgstr "Alfeladatokon eltöltött idő"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,help:sale_timesheet_enterprise.field_project_task__portal_subtask_effective_hours
+msgid "Time spent on the sub-tasks (and their own sub-tasks) of this task."
+msgstr "Feladat alfeladataira (és azok alfeladataira) fordított idő"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,help:sale_timesheet_enterprise.field_project_task__portal_effective_hours
+msgid "Time spent on this task, excluding its sub-tasks."
+msgstr "Feladaton eltöltött idő az alfeladatok nélkül."
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,help:sale_timesheet_enterprise.field_project_task__portal_total_hours_spent
+msgid "Time spent on this task, including its sub-tasks."
+msgstr "Feladaton eltöltött idő, beleértve kapcsolt alfeladatokat is."
+
+#. module: sale_timesheet_enterprise
+#: model:hr.timesheet.tip,name:sale_timesheet_enterprise.timesheet_tip_8
+msgid ""
+"Time spent troubleshooting or resolving unexpected issues is still work. "
+"Don’t forget to include it in your timesheet."
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__timesheet_manager_id
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.sale_timesheet_employee_list_inherit
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_tree
+msgid "Timesheet Approver"
+msgstr "Időkimutatás jóváhagyó"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_employee__show_billable_time_target
+msgid "Timesheet Show Rates"
+msgstr "Időkimutatás arány megjelenítése"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/components/timesheet_leaderboard/timesheet_leaderboard.xml:0
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.timesheet_view_grid_by_invoice_type
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_form
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_employee_form
+msgid "Timesheets"
+msgstr "Időkimutatások"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_res_config_settings__invoiced_timesheet
+msgid "Timesheets Invoicing"
+msgstr "Időkimutatás számlázás"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model,name:sale_timesheet_enterprise.model_hr_timesheet_tip
+msgid "Timesheets Leaderboard Tip"
+msgstr "Időkimutatás toplista tipp"
+
+#. module: sale_timesheet_enterprise
+#: model:hr.timesheet.tip,name:sale_timesheet_enterprise.timesheet_tip_1
+msgid ""
+"Timesheets are the lifeblood of our company; they have a direct impact on "
+"revenues."
+msgstr ""
+"Az időkimutatások éltetik a vállalatot, közvetlen hatásuk van árbevételre."
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.res_config_settings_view_form
+msgid "Timesheets taken into account when invoicing your time"
+msgstr "Idő számlázása során figyelembe vett időkimutatások"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_hr_timesheet_tip__name
+msgid "Tip Name"
+msgstr "Tipp név"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/views/timesheet_leaderboard_dialog/timesheet_leaderboard_dialog.xml:0
+msgid "Tip of the day"
+msgstr "Nap tippje"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.actions.act_window,name:sale_timesheet_enterprise.hr_timesheet_tip_action
+#: model:ir.ui.menu,name:sale_timesheet_enterprise.hr_timesheet_menu_configuration_tips
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.hr_timesheet_tip_view_form
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.hr_timesheet_tip_view_tree
+msgid "Tips"
+msgstr "Tippek"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/views/timesheet_leaderboard_dialog/timesheet_leaderboard_dialog.js:0
+msgid "Total Time Leaderboard"
+msgstr "Toplista összes idő"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.project_sharing_inherit_project_task_view_tree
+msgid "Total Time Spent"
+msgstr "Összes eltöltött idő"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,help:sale_timesheet_enterprise.field_project_task__portal_remaining_hours
+msgid ""
+"Total remaining time, can be re-estimated periodically by the assignee of "
+"the task."
+msgstr ""
+"Fennmaradó összes idő, a feladat hozzárendeltje időszakonként újrabecsülheti."
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,help:sale_timesheet_enterprise.field_project_task__display_name
+msgid ""
+"Use these keywords in the title to set new tasks:\n"
+"\n"
+"        30h Allocate 30 hours to the task\n"
+"        #tags Set tags on the task\n"
+"        @user Assign the task to a user\n"
+"        ! Set the task a medium priority\n"
+"        !! Set the task a high priority\n"
+"        !!! Set the task a urgent priority\n"
+"\n"
+"        Make sure to use the right format and order e.g. Improve the "
+"configuration screen 5h #feature #v16 @Mitchell !"
+msgstr ""
+"Használja ezeket a kulcsszavakat a címben új feladatok létrehozására:\n"
+"\n"
+"        30h betervez 30 órát a feladatra\n"
+"        #tags címkéket állít be a feladatra\n"
+"        @user hozzárendeli felhasználóhoz a feladatot\n"
+"        ! közepes prioritást ad a feladatnak\n"
+"        !! magas prioritást ad a feladatnak\n"
+"        !!! sürgős prioritást ad a feladatnak\n"
+"\n"
+"        Figyeljen a megfelelő formátumra és sorrendre, pl.: Konfiguráció "
+"fejlesztése 5h #funkció #v19 @Mitchell !"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__user_id
+msgid "User"
+msgstr "Felhasználó"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields.selection,name:sale_timesheet_enterprise.selection__res_config_settings__invoiced_timesheet__approved
+msgid "Validated timesheets only"
+msgstr "Csak jóváhagyott időkimutatások"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.timesheet_view_grid_by_invoice_type
+msgid "Week"
+msgstr "Hét"
+
+#. module: sale_timesheet_enterprise
+#: model:hr.timesheet.tip,name:sale_timesheet_enterprise.timesheet_tip_14
+msgid ""
+"When you share your knowledge with clients or teammates, that time is "
+"valuable. Be sure to track it accurately."
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,help:sale_timesheet_enterprise.field_edit_billable_time_target__member_of_department
+msgid ""
+"Whether the employee is a member of the active user's department or one of "
+"it's child department."
+msgstr ""
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,help:sale_timesheet_enterprise.field_res_config_settings__invoiced_timesheet
+msgid ""
+"With the 'all recorded timesheets' option, all timesheets will be invoiced "
+"without distinction, even if they haven't been validated. Additionally, all "
+"timesheets will be accessible in your customers' portal. \n"
+"When you choose the 'validated timesheets only' option, only the validated "
+"timesheets will be invoiced and appear in your customers' portal."
+msgstr ""
+"Az 'összes rögzített időkimutatás' opcióval a nem jóváhagyott időkimutatások "
+"is számlázásra kerülnek és minden időkimutatás elérhető lesz az "
+"ügyfélportálon. \n"
+"A 'csak jóváhagyott időkimutatások' opcióval csak a jóváhagyott "
+"időkimutatások kerülnek számlázásra és csak ezek lesznek elérhetők az "
+"ügyfélportálon."
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__address_id
+msgid "Work Address"
+msgstr "Munkahely címe"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__work_email
+msgid "Work Email"
+msgstr "Munkahelyi e-mail"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_form
+msgid "Work Information"
+msgstr "Munkahelyi adatok"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__work_location_id
+msgid "Work Location"
+msgstr "Munkahely"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__work_location_name
+msgid "Work Location Name"
+msgstr "Munkavégzés helyének neve"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__work_phone
+msgid "Work Phone"
+msgstr "Munkahelyi telefon"
+
+#. module: sale_timesheet_enterprise
+#: model:ir.model.fields,field_description:sale_timesheet_enterprise.field_edit_billable_time_target__resource_calendar_id
+msgid "Working Hours"
+msgstr "Munkaórák"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.view_edit_billable_time_target_update_form
+msgid "e.g. John Doe"
+msgstr "pld: Gipsz Jakab"
+
+#. module: sale_timesheet_enterprise
+#: model_terms:ir.ui.view,arch_db:sale_timesheet_enterprise.hr_timesheet_tip_view_tree
+msgid "e.g. Make it a habit to record timesheets every day."
+msgstr "pl.: legyen a mindennapi rutin része az időkimutatások rögzítése"
+
+#. module: sale_timesheet_enterprise
+#. odoo-javascript
+#: code:addons/sale_timesheet_enterprise/static/src/components/timesheet_leaderboard/timesheet_leaderboard.xml:0
+msgid "o_timesheet_leaderboard_confetti"
+msgstr "o_timesheet_leaderboard_confetti"
+
+#~ msgid "Analytic Account"
+#~ msgstr "Analitikus számla"
+
+#~ msgid "Hours Spent"
+#~ msgstr "Eltöltött órák"
+
+#~ msgid "Remaining Hours"
+#~ msgstr "Hátralévő idő"
+
+#~ msgid "Total Hours"
+#~ msgstr "Összes óra"

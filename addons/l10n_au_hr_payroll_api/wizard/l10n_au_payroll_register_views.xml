@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="l10n_au_payroll_register_wizard_form_view" model="ir.ui.view">
+        <field name="name">l10n_au.payroll.register.wizard.form.view</field>
+        <field name="model">l10n_au.payroll.register.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Payroll Onboarding">
+                <header>
+                    <field name="stage" widget="statusbar" options="{'clickable': False}"/>
+                </header>
+                <sheet>
+                    <group invisible="stage != 'responsible'">
+                        <field name="payroll_responsible_id" options="{'no_open': True, 'no_create': True}" placeholder="Responsible Person"/>
+                        <field name="payroll_responsible_email" placeholder="Responsible Person Email"/>
+                        <field name="payroll_responsible_phone" placeholder="Responsible Person Phone"/>
+                    </group>
+                    <group invisible="stage != 'authorised'">
+                        <div class="o_row">
+                            <label for="authorised" class="o_field_label" />
+                            <field name="authorised" nolabel="1" widget="radio" options="{'horizontal': true}" required="stage == 'authorised'" />
+                        </div>
+                    </group>
+                    <group string="Employer Details" invisible="stage != 'company'">
+                        <div class="o_row mb-3">
+                            <span class="text-bold text-warning">
+                                Please ensure that the information below is correct and accurate, as it is required to register your company's
+                                payroll for the Odoo Single Touch Payroll solution. Your database admin can update inaccurate or missing
+                                information in Settings &gt; Manage Companies &gt; Choose your company.
+                            </span>
+                        </div>
+                        <group>
+                            <field name="company_name" />
+                            <field name="trading_name" />
+                            <field name="abn" />
+                            <label for="street" string="Address"/>
+                            <div class="o_address_format">
+                                <field name="street" placeholder="Street 1..." class="o_address_street"/>
+                                <field name="street2" placeholder="Street 2..." class="o_address_street"/>
+                                <field name="city" placeholder="Suburb..." class="o_address_city"/>
+                                <field name="state_id" class="o_address_state" placeholder="State..." options='{"no_open": True, "no_create": True}'/>
+                                <field name="zip" placeholder="Post Code..." class="o_address_zip"/>
+                                <field name="country_id" placeholder="Country" class="o_address_country" options='{"no_open": True, "no_create": True}'/>
+                            </div>
+                            <field name="phone" placeholder="Phone Number..."/>
+                        </group>
+                    </group>
+                    <group string="Employee Contact" invisible="stage != 'company'">
+                        <field name="payroll_responsible_id" readonly="1"/>
+                        <field name="payroll_responsible_email" />
+                        <field name="payroll_responsible_position" />
+                        <field name="payroll_responsible_phone" />
+                    </group>
+                    <group string="Bank Details" invisible="stage != 'bank'">
+                        <field name="journal_id" domain="[('type', '=', 'bank')]"
+                            readonly="stage != 'bank'" required="stage == 'bank'" options='{"no_open": True, "no_create": True}'/>
+                        <field name="bank_name"/>
+                        <field name="bank_account_name" />
+                        <field name="bank_account_number" />
+                        <field name="bank_account_bsb" />
+                    </group>
+                    <div invisible="stage != 'sign_docs'" class="mb-3">
+                        <span class="text-bold text-info">
+                            Please review and sign the following documents to complete your payroll registration.
+                            By checking the boxes below, you confirm that the payroll responsible user has read,
+                            agreed to, and signed the documents. Odoo reserves the right to request signed copies
+                            of these documents for compliance purposes. Please contact Odoo Support if you have any further questions regarding the Australian
+                            Payroll.
+                        </span>
+                    </div>
+                    <field name="attachment_ids" widget="many2many_binary" options="{'no_create': True}" readonly="1" invisible="stage != 'sign_docs'"/>
+                    <group invisible="stage != 'sign_docs'">
+                        <div style="max-width: 50%">
+                            <div class="d-flex align-items-center">
+                                <label for="odoo_disclaimer_check" class="flex-grow-1 o_form_label me-3"/>
+                                <field name="odoo_disclaimer_check" nolabel="1" required="stage == 'sign_docs'" class="oe_inline"/>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <label for="superchoice_dda_check" class="flex-grow-1 o_form_label me-3"/>
+                                <field name="superchoice_dda_check" nolabel="1" required="stage == 'sign_docs'" class="oe_inline"/>
+                            </div>
+                        </div>
+                    </group>
+                    <footer>
+                        <button string="Next Step" type="object" invisible="stage == 'sign_docs'" name="action_next" class="btn-primary"/>
+                        <button string="Register" type="object" invisible="stage != 'sign_docs'" name="action_next" class="btn-primary"/>
+                        <button string="Back" type="object" name="action_back" class="btn-secondary"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="hr_employee_view_form" model="ir.ui.view">
+        <field name="name">hr.employee.view.form</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr_payroll.payroll_hr_employee_view_form"/>
+        <field name="arch" type="xml">
+            <group name="hr_birth_group" position="inside">
+                <field name="l10n_jo_is_blind" invisible="company_country_code != 'JO'"/>
+            </group>
+            <group name="hr_family_group" position="inside">
+                <field name="l10n_jo_has_dependants" invisible="company_country_code != 'JO'"/>
+            </group>
+            <field name="lang" position="after">
+                <field name="l10n_jo_is_eligible_for_eos" invisible="company_country_code != 'JO'"/>
+            </field>
+            <group name="contract" position="after">
+                <group string="Allowances" invisible="company_country_code != 'JO'">
+                    <label for="l10n_jo_housing_allowance" string="Housing"/>
+                    <div class="o_row" name="l10n_jo_housing_allowance">
+                        <field name="l10n_jo_housing_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_jo_transportation_allowance" string="Transportation"/>
+                    <div class="o_row" name="l10n_jo_transportation_allowance">
+                        <field name="l10n_jo_transportation_allowance" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_jo_other_allowances" string="Other"/>
+                    <div class="o_row" name="l10n_jo_other_allowances">
+                        <field name="l10n_jo_other_allowances" class="o_hr_narrow_field"/>
+                        <span>/ month</span>
+                    </div>
+                    <label for="l10n_jo_tax_exemption" string="Tax Exemption"/>
+                    <div class="o_row" name="l10n_jo_tax_exemption">
+                        <field name="l10n_jo_tax_exemption" class="o_hr_narrow_field"/>
+                        <span>/ year</span>
+                    </div>
+                    <field name="l10n_jo_is_commission_based" string="Is Commission based"/>
+
+                    <separator string="Annual Leave Provision"/>
+                    <label for="l10n_jo_number_of_leave_days" string="Number of Leave"/>
+                    <div class="o_row" name="l10n_jo_number_of_leave_days">
+                        <field name="l10n_jo_number_of_leave_days" class="o_hr_narrow_field"/>
+                        <span>days</span>
+                    </div>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

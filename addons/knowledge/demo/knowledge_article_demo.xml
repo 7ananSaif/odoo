@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<odoo>
+    <data noupdate="1">
+        <record id="knowledge_demo_article" model="knowledge.article">
+            <field name="internal_permission">none</field>
+            <field name="article_member_ids" eval="[
+                (0, 0, {
+                    'partner_id': ref('base.partner_admin'),
+                    'permission': 'write',
+                }),
+                (0, 0, {
+                    'partner_id': ref('base.partner_demo_portal'),
+                    'permission': 'write',
+                })]"/>
+        </record>
+        <function model="knowledge.article" name="apply_template" eval="[
+            ref('knowledge.knowledge_demo_article'),
+            ref('knowledge.knowledge_article_template_product_catalog')
+        ]"/>
+    </data>
+</odoo>

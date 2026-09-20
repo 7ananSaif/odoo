@@ -1,0 +1,302 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# * ai_app
+#
+# "Kwanghee Park (kwpa)" <kwpa@odoo.com>, 2025.
+# Weblate <noreply-mt-weblate@weblate.org>, 2025.
+# Odoo Translation Bot <c3p@odoo.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 19.0+e\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-12-30 18:41+0000\n"
+"PO-Revision-Date: 2025-12-10 10:29+0000\n"
+"Last-Translator: \"Kwanghee Park (kwpa)\" <kwpa@odoo.com>\n"
+"Language-Team: Korean <https://translate.odoo.com/projects/odoo-19/ai_app/ko/"
+">\n"
+"Language: ko\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.14.3\n"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_form
+msgid ""
+"<i class=\"fa fa-clock-o me-2\"/>\n"
+"                            <span>Processing your sources, it might take a "
+"few minutes...</span>"
+msgstr ""
+"<i class=\"fa fa-clock-o me-2\"/>\n"
+"                            <span>소스를 처리하는 중이며, 몇 분 정도 소요될 "
+"수 있습니다...</span>"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_form
+msgid ""
+"<span class=\"me-1\">Refresh</span>\n"
+"                            <i class=\"fa fa-refresh me-1\"/>"
+msgstr ""
+"<span class=\"me-1\">새로고침</span>\n"
+"                            <i class=\"fa fa-refresh me-1\"/>"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_form
+msgid ""
+"<span class=\"text-muted\" invisible=\"(not is_system_default or "
+"focused_models) and interface_key != 'systray_ai_button'\">All Models</span>"
+msgstr ""
+
+#. module: ai_app
+#: model:ir.ui.menu,name:ai_app.ai_menu_root
+#: model_terms:ir.ui.view,arch_db:ai_app.res_config_settings_view_form
+msgid "AI"
+msgstr "AI"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_form
+msgid "Add a source"
+msgstr "소스 추가"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_kanban
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_search
+msgid "Agent"
+msgstr "에이전트"
+
+#. module: ai_app
+#. odoo-javascript
+#: code:addons/ai_app/static/src/command_palette.js:0
+#: model:ir.actions.act_window,name:ai_app.ai_agent_action
+#: model:ir.ui.menu,name:ai_app.ai_agent_menu_action
+#: model:ir.ui.menu,name:ai_app.ai_menu
+msgid "Agents"
+msgstr "에이전트"
+
+#. module: ai_app
+#: model_terms:ir.actions.act_window,help:ai_app.ai_agent_action
+msgid "Agents help you manage and organize your AI operations."
+msgstr "상담원으로부터 AI 운영 관리와 조직에 대한 도움을 받을 수 있습니다."
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_form
+msgid "All Models"
+msgstr "전체 모델"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_form
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_kanban
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_search
+msgid "Archived"
+msgstr "보관 처리됨"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_form
+msgid "Buttons"
+msgstr "버튼"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_form
+msgid "Call the Agent"
+msgstr "에이전트에게 전화하기"
+
+#. module: ai_app
+#: model:ir.ui.menu,name:ai_app.ai_config_menu
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_kanban
+msgid "Configuration"
+msgstr "환경설정"
+
+#. module: ai_app
+#: model_terms:ir.actions.act_window,help:ai_app.ai_agent_action
+msgid "Create your first Agent!"
+msgstr "첫 상담원 생성하기!"
+
+#. module: ai_app
+#: model_terms:ir.actions.act_window,help:ai_app.ai_topic_action
+msgid "Create your first topic!"
+msgstr "첫 번째 주제를 생성하세요!"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_view_search
+msgid "Custom Rules"
+msgstr "맞춤형 규칙"
+
+#. module: ai_app
+#: model:ir.actions.act_window,name:ai_app.ai_composer_action
+#: model:ir.ui.menu,name:ai_app.menu_ai_composer
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_tree
+msgid "Default Prompts"
+msgstr "기본 프롬프트"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_topic_view_form
+msgid "Explain to the Agent what they need to do..."
+msgstr "상담원에게 필요한 작업을 설명하세요..."
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_view_search
+#: model_terms:ir.ui.view,arch_db:ai_app.res_config_settings_view_form
+msgid "Key"
+msgstr "키"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_form
+msgid "Mail Template extra prompt"
+msgstr "메일 템플릿 추가 프롬프트"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_search
+msgid "Model"
+msgstr "모델"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_tree
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_kanban
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_tree
+msgid "Name"
+msgstr "이름"
+
+#. module: ai_app
+#: model_terms:ir.actions.act_window,help:ai_app.ai_composer_action
+msgid "No Default Prompts found!"
+msgstr "기본 프롬프트를 찾을 수 없습니다!"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_form
+msgid "On the Model"
+msgstr "모델"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_tree
+msgid "Properties"
+msgstr "속성"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.res_config_settings_view_form
+msgid "Provide your API key to connect with your account"
+msgstr ""
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.res_config_settings_view_form
+msgid "Providers"
+msgstr "제공업체"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_form
+msgid "Reprocess"
+msgstr "재진행"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_form
+msgid "Retry"
+msgstr "재시도"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_form
+msgid "Rule Name"
+msgstr "규칙 이름"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_form
+msgid "Select an action..."
+msgstr "작업 선택..."
+
+#. module: ai_app
+#: model:ir.actions.act_window,name:ai_app.ai_settings_action
+#: model:ir.ui.menu,name:ai_app.ai_general_settings_menu
+msgid "Settings"
+msgstr "설정"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_form
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_search
+msgid "Sources"
+msgstr "출처"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_topic_view_form
+msgid "Summarize what this topic does"
+msgstr "주제에 대한 내용을 요약하세요."
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_view_search
+msgid "System Rules"
+msgstr "시스템 규칙"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_form
+msgid "Test"
+msgstr "테스트"
+
+#. module: ai_app
+#: model_terms:ir.actions.act_window,help:ai_app.ai_composer_action
+msgid ""
+"Those are used to configure when to call a specific agent, or to add an "
+"extra prompt to your request."
+msgstr ""
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_topic_view_search
+msgid "Topic"
+msgstr "주제"
+
+#. module: ai_app
+#: model:ir.actions.act_window,name:ai_app.ai_topic_action
+#: model:ir.ui.menu,name:ai_app.ai_topic_menu_action
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_search
+msgid "Topics"
+msgstr "주제"
+
+#. module: ai_app
+#: model_terms:ir.actions.act_window,help:ai_app.ai_topic_action
+msgid "Topics help you manage and organize your AI operations."
+msgstr "주제를 활용하여 AI 운영에 대해 관리하고 체계화할 수 있습니다."
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.res_config_settings_view_form
+msgid "Use your own ChatGPT account"
+msgstr "본인의 ChatGPT 계정을 사용하세요"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.res_config_settings_view_form
+msgid "Use your own Google Gemini account"
+msgstr ""
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_form
+msgid "When users need to"
+msgstr "사용자 필요 시"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_composer_form
+msgid "Write your prompt..."
+msgstr "프롬프트를 입력하세요..."
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_topic_view_form
+msgid "e.g. Chat with customers"
+msgstr "예: 고객과 채팅"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_form
+msgid "e.g. Get tips to close more sales"
+msgstr "예: 판매 증대 팁 얻기"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_form
+msgid "e.g. SDR Advisor"
+msgstr "예: SDR 어드바이저"
+
+#. module: ai_app
+#: model_terms:ir.ui.view,arch_db:ai_app.ai_agent_view_form
+msgid ""
+"e.g. You are a support operator, you can answer questions related to ..."
+msgstr "예: 본인은 고객 지원 상담원이며, 다음과 같이 답변할 수 있습니다."
+
+#~ msgid ""
+#~ "<span class=\"text-muted\" invisible=\"not is_system_default or "
+#~ "focused_models\">All Models</span>"
+#~ msgstr ""
+#~ "<span class=\"text-muted\" invisible=\"not is_system_default or "
+#~ "focused_models\">전체 모델</span>"

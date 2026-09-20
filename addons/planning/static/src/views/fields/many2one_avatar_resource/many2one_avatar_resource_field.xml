@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-inherit="resource_mail.Many2OneAvatarResourceField" t-inherit-mode="extension">
+        <xpath expr="//span[hasclass('o_material_resource')]" position="attributes">
+            <attribute name="t-attf-class">o_colorlist_item_color_{{ props.record.data.resource_color }}</attribute>
+            <attribute name="t-on-click.stop">(ev) => this.openMaterialPopover(ev.currentTarget)</attribute>
+        </xpath>
+    </t>
+
+    <t t-inherit="resource_mail.KanbanMany2OneAvatarResourceField" t-inherit-mode="extension">
+        <xpath expr="//span[hasclass('o_material_resource')]" position="attributes">
+            <attribute name="t-attf-class">o_colorlist_item_color_{{ props.record.data.resource_color }}</attribute>
+            <attribute name="t-on-click.stop">(ev) => this.openMaterialPopover(ev.currentTarget)</attribute>
+        </xpath>
+    </t>
+</templates>

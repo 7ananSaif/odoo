@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="l10n_hk_hr_payroll.PayRunCard" t-inherit="hr_payroll.PayRunCard" t-inherit-mode="extension">
+        <t t-set-slot="paid_prio" position="before">
+            <t t-set-slot="hbsc_autopay_report_prio" isVisible="payrun.l10n_hk_autopay &amp;&amp; ['02_close', '03_paid'].includes(payrun.state) &amp;&amp; !(payrun.l10n_hk_autopay_export_first_batch || payrun.l10n_hk_autopay_export_second_batch)">
+                <ViewButton className="'btn btn-primary'"
+                            clickParams="{type: 'object', name: 'action_open_hsbc_autopay_wizard'}"
+                            record="props.record"
+                            string.translate="HSBC Autopay Report"/>
+            </t>
+        </t>
+        <t t-set-slot="paid_prio" position="after">
+            <t t-set-slot="hbsc_autopay_report"
+               isVisible="(payrun.l10n_hk_autopay &amp;&amp; ['02_close', '03_paid'].includes(payrun.state) &amp;&amp; payrun.l10n_hk_autopay_export_first_batch) || l10n_hk_autopay_export_second_batch">
+                <ViewButton className="'btn btn-secondary'"
+                            clickParams="{type: 'object', name: 'action_open_hsbc_autopay_wizard'}"
+                            record="props.record"
+                            string.translate="HSBC Autopay Report"/>
+            </t>
+        </t>
+
+        <MoreInfo position="inside">
+            <t t-set-slot="hbsc_autopay_first_date" isVisible="payrun.l10n_hk_autopay_export_first_batch">
+                <span class="col fw-medium">
+                    <t t-esc="this.props.record.fields.l10n_hk_autopay_export_first_batch_date.string"/>
+                </span>
+                <div class="col text-break mb-3 mb-sm-0">
+                    <Field name="'l10n_hk_autopay_export_first_batch_date'" record="props.record"/>
+                </div>
+            </t>
+            <t t-set-slot="hbsc_autopay_first_export" isVisible="payrun.l10n_hk_autopay_export_first_batch">
+                <span class="col fw-medium">
+                    <t t-esc="this.props.record.fields.l10n_hk_autopay_export_first_batch.string"/>
+                </span>
+                <div class="col mb-3 mb-sm-0">
+                    <Field name="'l10n_hk_autopay_export_first_batch'"
+                           record="props.record"
+                           type="'binary'"
+                           fileNameField="'l10n_hk_autopay_export_first_batch_filename'"
+                    />
+                </div>
+            </t>
+            <t t-set-slot="hbsc_autopay_second_date" isVisible="payrun.l10n_hk_autopay_export_second_batch">
+                <span class="col fw-medium">
+                    <t t-esc="this.props.record.fields.l10n_hk_autopay_export_second_batch_date.string"/>
+                </span>
+                <div class="col mb-3 mb-sm-0">
+                    <Field name="'l10n_hk_autopay_export_second_batch_date'" record="props.record"/>
+                </div>
+            </t>
+            <t t-set-slot="hbsc_autopay_second_export" isVisible="payrun.l10n_hk_autopay_export_second_batch">
+                <span class="col fw-medium">
+                    <t t-esc="this.props.record.fields.l10n_hk_autopay_export_second_batch.string"/>
+                </span>
+                <div class="col mb-3 mb-sm-0">
+                    <Field name="'l10n_hk_autopay_export_second_batch'"
+                           record="props.record"
+                           type="'binary'"
+                           fileNameField="'l10n_hk_autopay_export_second_batch_filename'"
+                    />
+                </div>
+            </t>
+        </MoreInfo>
+    </t>
+</templates>

@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+        <record id="intervat_vat_return_lock_wizard" model="ir.ui.view">
+            <field name="name">l10n_be_intervat.vat.return.lock.wizard</field>
+            <field name="model">l10n_be_reports.vat.return.lock.wizard</field>
+            <field name="inherit_id" ref="l10n_be_reports.vat_return_lock_wizard_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//group[@id='export_options']/group/div" position="inside">
+                    <span class="o_stat_text"><label for="is_rectification_needed"/></span>
+                    <span class="o_stat_value ms-2 me-3"><field name="is_rectification_needed"/></span>
+                </xpath>
+                <xpath expr="//group[@invisible='not is_prorata_necessary']" position="after">
+                    <group invisible="not is_rectification_needed">
+                        <separator string="Rectification"/>
+                        <field name="rectification_ref" required="is_rectification_needed"/>
+                    </group>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="it_tax_return_type" model="account.return.type">
+            <field name="name">Tax</field>
+            <field name="report_id" ref="l10n_it.tax_monthly_report_vat"/>
+            <field name="country_id" ref="base.it" />
+            <field name="default_deadline_days_delay">16</field>
+        </record>
+        <record id="it_withh_tax_return_type" model="account.return.type">
+            <field name="name">Witholding Tax</field>
+            <field name="report_id" ref="l10n_it.withh_tax_report_it"/>
+            <field name="country_id" ref="base.it" />
+        </record>
+    </data>
+</odoo>

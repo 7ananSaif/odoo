@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="ir_cron_synchronize_databases_with_odoocom" model="ir.cron">
+        <field name="name">Databases: pull databases from Odoo.com and synchronize</field>
+        <field name="model_id" ref="model_project_project"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_synchronize_all_databases_with_odoocom()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+    </record>
+
+    <record id="ir_cron_synchronize_databases" model="ir.cron">
+        <field name="name">Databases: synchronize</field>
+        <field name="model_id" ref="model_project_project"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_synchronize_all_databases()</field>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+    </record>
+
+</odoo>

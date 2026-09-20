@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_picking_form_helpdesk" model="ir.ui.view">
+        <field name="name">stock picking form helpdesk</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='action_detailed_operations']" position="before">
+                <button name="action_linked_ticket" type="object"
+                    class="oe_stat_button" icon="fa-life-ring"
+                    groups="helpdesk.group_helpdesk_user"
+                    invisible="not ticket_id or ticket_visibility=='invited_internal'">
+                    <div class="o_form_field o_stat_info">
+                        <span class="o_stat_text">Ticket</span>
+                    </div>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

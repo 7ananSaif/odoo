@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- TODO: Prod URL to be added after payroll has been tested in Beta release -->
+    <record id="ir_config_parameter_l10n_au_payroll_server_url" model="ir.config_parameter">
+        <field name="key">l10n_au_payroll_iap.endpoint</field>
+        <field name="value"></field>
+    </record>
+    <record id="ir_config_parameter_l10n_au_payroll_test_server_url" model="ir.config_parameter">
+        <field name="key">l10n_au_payroll_iap.test_endpoint</field>
+        <field name="value">https://l10n-au-hr-payroll.test.odoo.com</field>
+    </record>
+
+</odoo>
