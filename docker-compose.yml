@@ -247,6 +247,10 @@ services:
       # web.base.url system parameter from this on every install/upgrade.
       # Value comes exclusively from the environment (see .env / env_file).
       URL: ${URL:-}
+      # Base URL consumed by the Hotel module's QWeb templates
+      # (hotel/models/ir_http.py: IrHttp.get_public_base_url()). env_file already
+      # forwards it; listed explicitly for parity with URL above.
+      BASE_URL: ${BASE_URL:-}
       # Redis — used by session_redis addon for HTTP session storage
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       ODOO_SESSION_REDIS_PREFIX: "odoo-session:"

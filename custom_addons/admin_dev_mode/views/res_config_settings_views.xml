@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_hide_dev_tools" model="ir.ui.view">
+        <field name="name">res.config.settings.form.hide.developer.tools</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="base_setup.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <!--
+                Drop the "Developer Tools" block (rendered by the
+                res_config_dev_tool widget) from General Settings.
+
+                Developer mode is forced on for base.group_system members by
+                this module, so the block would only ever offer a "Deactivate
+                the developer mode" link - i.e. a way to switch off the
+                tooling this module guarantees.
+            -->
+            <xpath expr="//widget[@name='res_config_dev_tool']" position="replace"/>
+        </field>
+    </record>
+
+</odoo>

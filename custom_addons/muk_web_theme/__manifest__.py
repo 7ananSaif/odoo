@@ -22,6 +22,9 @@
         'muk_web_colors',
         'muk_web_refresh',
     ],
+    # MuK Backend Theme only supports the Community backend, so it must not be
+    # installed alongside web_enterprise. Do NOT comment this out: the entry
+    # itself never broke anything, the failure came from 'auto_install' below.
     'excludes': [
         'web_enterprise',
     ],
@@ -58,8 +61,23 @@
     ],
     'installable': True,
     'application': False,
-    'auto_install': True, 
-    # this is must insalled, because it is the base module for all other MuK Web modules
+    # Deliberately NOT auto_install (upstream ships this as True).
+    #
+    # Upstream's comment reads "this is must insalled, because it is the base
+    # module for all other MuK Web modules", but as an auto-install module this
+    # is selected on every database whose modules satisfy its dependencies
+    # (web, mail, base_automation, bus, ...). Combined with the 'excludes'
+    # entry above, any install that also pulls in web_enterprise therefore
+    # aborts with:
+    #
+    #   UserError: Modules "MuK Backend Theme" and "Web Enterprise" are
+    #              incompatible.
+    #
+    # Install it explicitly when you want it (-i muk_web_theme); nothing else
+    # in the MuK suite depends on it, so it will simply no longer appear by
+    # surprise on databases that must stay enterprise-only (CI, the Hotel
+    # industry package, ...).
+    'auto_install': False,
     'post_init_hook': '_setup_module',
     'uninstall_hook': '_uninstall_cleanup',
 }
