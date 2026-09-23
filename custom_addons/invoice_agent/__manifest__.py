@@ -27,7 +27,13 @@
             "invoice_agent/static/src/js/suggestion_panel.js",
             "invoice_agent/static/src/js/suggestion_panel.xml",
             "invoice_agent/static/src/js/ai_status_widget.js",
-        ]
+        ],
+        # Hoot unit tests for the backend field widgets above. Run with:
+        #   odoo-bin --test-enable --stop-after-init
+        #     --test-tags "/web:WebSuite.test_unit_desktop[@invoice_agent]"
+        "web.assets_unit_tests": [
+            "invoice_agent/static/tests/**/*",
+        ],
     },
     "installable": True,
     "application": False,
