@@ -24,6 +24,8 @@ import os
 import threading
 import time
 
+from odoo.fields import Command
+
 _logger = logging.getLogger(__name__)
 
 try:
@@ -86,22 +88,18 @@ def _apply_queue_result(move, result):
     )
     payload = details.get("rescued_payload") or payload
 
-    # Resolve the vendor (VAT first, fuzzy name second).
-    partner = move.env["res.partner"]
-    if payload.get("vendor_vat"):
-        partner = partner.search(
-            [("vat", "=", payload["vendor_vat"]), ("parent_id", "=", False)],
-            limit=1,
-        )
-    if not partner and payload.get("vendor_name"):
-        partner = partner.search(
-            [("name", "ilike", payload["vendor_name"]), ("parent_id", "=", False)],
-            limit=1,
-        )
+    # Resolve the vendor through the model's single, company-scoped lookup so
+    # the queue path and the synchronous path can never disagree — and so a
+    # multi-company database never resolves a partner this bill cannot use.
+    partner = move._find_vendor_partner(
+        vat=payload.get("vendor_vat"),
+        name=payload.get("vendor_name"),
+    )
 
     vals = {
+        # ``extraction_json`` is a stored compute of ``ai_extracted_json`` —
+        # only the source of truth is written.
         "ai_extracted_json": payload,
-        "extraction_json": json.dumps(payload, default=str),
         "ai_extracted_total": payload.get("amount_total"),
         "ai_confidence": score,
         "ai_review_required": bool(payload.get("review_required")),
@@ -120,30 +118,15 @@ def _apply_queue_result(move, result):
         if payload.get(payload_key):
             vals[field_name] = payload[payload_key]
 
-    line_vals = []
-    for line in payload.get("lines") or []:
-        if not isinstance(line, dict):
-            continue
-        try:
-            price_unit = float(line.get("price_unit") or 0.0)
-            quantity = float(line.get("quantity") or 1.0)
-        except (TypeError, ValueError):
-            price_unit = 0.0
-            quantity = 1.0
-        line_vals.append(
-            (
-                0,
-                0,
-                {
-                    "name": line.get("name") or "Imported line",
-                    "price_unit": price_unit,
-                    "quantity": quantity,
-                    "ai_confidence": line.get("confidence"),
-                },
-            ),
-        )
-    if line_vals:
-        vals["invoice_line_ids"] = line_vals
+    line_values = move._line_values_from_payload(payload)
+    if line_values:
+        # Replace, never append: this handler is re-entrant (redelivery, a
+        # manual replay) and ``Command.create`` alone appends to the
+        # one2many, so every apply used to add a second copy of the lines.
+        vals["invoice_line_ids"] = [
+            Command.clear(),
+            *[Command.create(values) for values in line_values],
+        ]
     move.write(vals)
 
     # --- Phase 2: Apply validation verdict (if present) ---
@@ -153,7 +136,7 @@ def _apply_queue_result(move, result):
 
     # Route: sub-threshold or pipeline-flagged extractions land in Needs
     # Review with the reason on the chatter.
-    threshold = move._get_ai_min_confidence()
+    threshold, _review = move._get_tiered_thresholds()
     if move.ai_review_required or score < threshold:
         move._flag_needs_review(
             reason=(
@@ -228,6 +211,13 @@ class _InvoiceAgentResultConsumer:
             return
         if self._thread and self._thread.is_alive():
             return
+        if self._thread is not None:
+            # A previous thread died (broker error loop, killed connection).
+            # Restart it instead of silently leaving the process with no
+            # consumer at all — invoice.result would never be drained.
+            _logger.warning(
+                "invoice_agent: result consumer thread died — restarting",
+            )
         self._thread = threading.Thread(
             target=self._run,
             name="invoice-agent-result-consumer",
@@ -304,27 +294,33 @@ class _InvoiceAgentResultConsumer:
             channel.basic_ack(delivery_tag=method.delivery_tag)
 
     def _resolve_db_name(self):
-        """Return the Odoo database this worker should write into.
+        """Return the Odoo database this result consumer should write into.
 
-        In a multi-database server (the default compose setup) Odoo routes
-        requests per-database, so ``odoo.tools.config["db_name"]`` is empty
-        and cannot be trusted from a daemon thread with no request context.
-        Resolve the database name once and cache it: config first, then the
-        addon's ``odoo`` database, then any already-loaded registry.
+        In a multi-database server Odoo routes requests per-database, so
+        ``odoo.tools.config["db_name"]`` is empty and cannot be trusted from a
+        daemon thread with no request context. The name is therefore resolved
+        explicitly (``INVOICE_AGENT_DB``, then ``db_name``, then the one loaded
+        registry) and cached; an ambiguous configuration raises rather than
+        guessing at a database.
         """
         if self._db_name:
             return self._db_name
         import odoo
         from odoo.modules.registry import Registry
 
-        name = odoo.tools.config.get("db_name")
-        if not name and "odoo" in Registry.registries:
-            name = "odoo"
-        if not name and Registry.registries:
-            name = next(iter(Registry.registries))
+        # Resolution order, most explicit first. The previous implementation
+        # fell back to the hardcoded literal "odoo" and then to "whatever
+        # registry happens to be loaded", which in a multi-database deployment
+        # can silently target the wrong database.
+        name = os.environ.get("INVOICE_AGENT_DB") or odoo.tools.config.get("db_name")
+        loaded = list(Registry.registries)
+        if not name and len(loaded) == 1:
+            name = loaded[0]
         if not name:
             raise RuntimeError(
-                "invoice_agent: cannot resolve database name for result consumer"
+                "invoice_agent: cannot determine the database for the result "
+                "consumer (loaded registries: %s). Set INVOICE_AGENT_DB or a "
+                "single db_name in odoo.conf." % (loaded or "none")
             )
         self._db_name = name
         return name
@@ -340,6 +336,10 @@ class _InvoiceAgentResultConsumer:
             move = self._resolve_move(env, payload)
             if not move:
                 return
+            # Re-scope to the bill's own company: this consumer runs as
+            # SUPERUSER with an empty context, so without it every write
+            # happened outside the bill's own company.
+            move = move.with_company(move.company_id)
             _publish_live_status(move, "extracting", payload)
             cursor.commit()
         except Exception as exc:
@@ -382,6 +382,11 @@ class _InvoiceAgentResultConsumer:
                 )
                 cursor.rollback()
                 return
+            # Re-scope to the bill's own company: this consumer runs as
+            # SUPERUSER with an empty context, so every write used to land
+            # outside the bill's company, where company-dependent fields and
+            # record rules behave differently.
+            move = move.with_company(move.company_id)
             _apply_queue_result(move, result)
             _publish_live_status(move, "ready", result)
             cursor.commit()
@@ -430,6 +435,7 @@ class _InvoiceAgentResultConsumer:
             env["invoice.agent.job"]._mark_dead(job_uuid, reason=error)
         move = self._resolve_move(env, result)
         if move:
+            move = move.with_company(move.company_id)
             move.write(
                 {
                     "ai_extraction_status": "failed",

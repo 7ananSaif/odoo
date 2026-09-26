@@ -9,6 +9,7 @@ from . import (
     test_ocr,
     test_pipeline,
     test_queue_publisher,
+    test_regressions,
     test_security,
     test_suggest,
     test_usage,

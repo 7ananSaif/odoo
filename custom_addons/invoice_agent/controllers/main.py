@@ -191,32 +191,12 @@ class InvoiceAgentController(http.Controller):
                 },
             )
 
-        # ---- Manual bearer-token authentication (from _require_bearer_auth) ----
-        authorization = httprequest.headers.get("Authorization", "")
-        scheme, _separator, token = authorization.partition(" ")
-
-        if scheme.lower() != "bearer" or not token.strip():
-            _logger.warning(
-                "Unauthorized upload attempt (missing bearer token) from %s",
-                httprequest.remote_addr,
-            )
-            msg = "Missing Bearer API key in Authorization header"
-            raise _unauthorized_json(
-                msg,
-            )
-
-        apikeys = request.env["res.users.apikeys"]
-        uid = apikeys._check_credentials(scope="rpc", key=token.strip())
-        if not uid:
-            _logger.warning(
-                "Unauthorized upload attempt (invalid API key) from %s",
-                httprequest.remote_addr,
-            )
-            msg = "Invalid, revoked or wrong-scope API key"
-            raise _unauthorized_json(
-                msg,
-            )
-        request.update_env(user=uid)
+        # NOTE: authentication has already happened in ``_require_bearer_auth``,
+        # which is the single gate for this route: it validates the bearer API
+        # key and rebinds ``request.env`` to that user before this body runs.
+        # The identical block used to be duplicated here verbatim, so every
+        # upload performed two API-key credential checks and the two copies
+        # were free to drift apart.
 
         # ---- Store the source document ----
         attachment = request.env["ir.attachment"].create(
@@ -243,7 +223,21 @@ class InvoiceAgentController(http.Controller):
             },
         )
         if move:
+            # Link the document to the bill AND register it as the bill's main
+            # attachment. ``_message_set_main_attachment_id`` stamps
+            # ``message_main_attachment_id`` (so the uploaded PDF appears in
+            # the bill's chatter and attachment box) and calls
+            # ``register_as_main_attachment``, which fills in
+            # ``res_model``/``res_id`` — the same hook the native
+            # ``account_invoice_extract`` flow hangs off. Previously the PDF
+            # was an orphaned attachment with no chatter entry, so an
+            # accountant reviewing the bill could not see the source document.
             attachment.write({"res_id": move.id})
+            move._message_set_main_attachment_id(
+                attachment,
+                force=True,
+                filter_xml=False,
+            )
 
         # ---- Enqueue the extraction hook (placeholder; the real OCR/Claude
         # work runs on the queue worker). The move is 'pending', which is what

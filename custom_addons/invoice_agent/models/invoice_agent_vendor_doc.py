@@ -1,21 +1,35 @@
 """Vendor/GL history RAG corpus — pgvector-backed document store.
 
 v0.10 — one ``invoice.agent.vendor.doc`` row per **posted** vendor bill,
-carrying a 1024-dim ``voyage-3`` embedding. Odoo's ORM has no vector field
-type, so the ``embedding`` column is added via raw SQL in ``init()`` — that
-is the pattern this model documents:
+carrying a 1024-dim ``voyage-3`` embedding.
 
-* ``init(cr)`` runs ``ALTER TABLE ... ADD COLUMN IF NOT EXISTS embedding
-  vector(1024)`` — idempotent, safe on every module upgrade.
-* The HNSW index uses ``vector_cosine_ops`` (IVFFlat is faster to build but
-  needs the right ``lists`` count tuned to data size; HNSW has no training
-  step and stays fast as the corpus grows — the right choice for a few
-  thousand bills that only ever grows).
-* ``content`` is the compact RAG text rendered by
-  ``account.move._build_rag_document()``; ``move_id`` and ``partner_id``
-  let a cosine hit jump straight back to the bill.
+The ``embedding`` column is a **declared ORM field** (``Vector``, from
+``models/fields_vector.py``) stored as a real PostgreSQL ``vector(1024)``
+type, so:
 
-Queries (run by the future RAG tool, or by hand for the EXPLAIN exercise):
+* ``_auto_init`` owns the column's DDL and reconciles it on every upgrade;
+* the column is readable and writable through the ORM, and drift between
+  the code and the database is detected;
+* the pgvector operators (``<=>`` cosine, ``<#>`` inner product, ``<->``
+  L2) run directly on it.
+
+This replaced a raw ``ALTER TABLE ... ADD COLUMN embedding vector(1024)``
+in ``init()``. That older shape worked, but the column was invisible to the
+ORM, so the model got none of the three things above. Declaring the field is
+non-destructive on an existing database: ``Field.update_db_column`` returns
+early when ``information_schema.columns.udt_name`` already equals the
+field's ``column_type[0]``, and a ``vector(1024)`` column reports
+``udt_name = 'vector'``. See ``models/fields_vector.py`` for the full note.
+
+The HNSW index is still created with idempotent raw SQL in ``init()``:
+indexes are not read through the ORM, and ``vector_cosine_ops`` is a
+pgvector-specific operator class. The HNSW choice itself is deliberate —
+IVFFlat builds faster but needs its ``lists`` count tuned to the corpus
+size, while HNSW has no training step and stays fast as the corpus grows,
+which is the right trade for a few thousand bills that only ever grows.
+
+Queries (run by the RAG validation step, or by hand for the EXPLAIN
+exercise in docs/vector-search.md):
 
 ```sql
 SELECT partner_id, move_id, content,
@@ -26,12 +40,14 @@ LIMIT 10;
 ```
 
 The HNSW index answers that ``ORDER BY ... <=>`` in O(log n) instead of a
-full scan (verified by ``EXPLAIN ANALYZE`` in docs/vector-search.md).
+full scan.
 """
 
 import logging
 
 from odoo import api, fields, models
+
+from .fields_vector import Vector
 
 _logger = logging.getLogger(__name__)
 
@@ -71,6 +87,19 @@ class InvoiceAgentVendorDoc(models.Model):
         readonly=True,
         help="When the embedding was written (backfill or live post).",
     )
+    # Declared to the ORM (see the module docstring and fields_vector.py):
+    # the column is a real PostgreSQL vector(1024), created and reconciled by
+    # _auto_init rather than by hand. Reading it through the ORM yields a
+    # list[float]; the pgvector operators still apply in SQL.
+    embedding = Vector(
+        size=EMBEDDING_DIMENSIONS,
+        string="Embedding",
+        readonly=True,
+        copy=False,
+        help="1024-dim voyage-3 embedding of ``content``, stored as a real "
+        "vector(1024) PostgreSQL column so pgvector's cosine operator "
+        "(<=>) runs on it directly.",
+    )
 
     company_id = fields.Many2one(
         "res.company",
@@ -78,9 +107,6 @@ class InvoiceAgentVendorDoc(models.Model):
         required=True,
         default=lambda self: self.env.company,
     )
-    # The vector(1024) column lives OUTSIDE the ORM (raw SQL init): Odoo has
-    # no vector field type, and exposing it as a Json/Char would break the
-    # pgvector operators. Searches go through raw SQL, never the ORM.
 
     # New-style constraint (Odoo dropped _sql_constraints support): without
     # this UNIQUE(move_id), upsert_embedding()'s ON CONFLICT (move_id) has
@@ -91,26 +117,36 @@ class InvoiceAgentVendorDoc(models.Model):
         "upserts, never duplicates.",
     )
 
+    def _valid_field_parameter(self, field, name):
+        """Accept the ``size`` parameter that the ``Vector`` field takes."""
+        if name == "size":
+            return True
+        return super()._valid_field_parameter(field, name)
+
     # ------------------------------------------------------------------
-    # schema bootstrap (raw SQL — ORM has no vector type)
+    # schema bootstrap
     # ------------------------------------------------------------------
-    def init(self):
-        """Add the ``vector(1024)`` column + HNSW index idempotently."""
-        super().init()
-        # Self-contained extension bootstrap: the compose db image preloads
-        # the pgvector binaries and its initdb hook enables the extension on
-        # fresh volumes, but the CI runner's service container has no initdb
-        # hook — so the addon creates it itself. `IF NOT EXISTS` keeps it a
-        # no-op where the init script already ran. The db user is the
-        # superuser in both compose (POSTGRES_USER=odoo) and CI.
+    def _auto_init(self):
+        """Create the pgvector extension *before* the ORM adds the column.
+
+        ``embedding`` is a declared field, so ``_auto_init`` will try to
+        ``CREATE`` the ``vector(1024)`` column. On a database whose image
+        does not preload pgvector that raises ``type "vector" does not
+        exist``, and ``init()`` runs too late to help — so the extension is
+        ensured here first. ``IF NOT EXISTS`` keeps it a no-op where the
+        image's initdb hook already enabled it, and the db user is the
+        superuser in both the compose setup (``POSTGRES_USER=odoo``) and CI.
+        """
         self.env.cr.execute("CREATE EXTENSION IF NOT EXISTS vector")
-        self.env.cr.execute(
-            """
-            ALTER TABLE invoice_agent_vendor_doc
-            ADD COLUMN IF NOT EXISTS embedding vector(%(dim)s)
-            """,
-            {"dim": EMBEDDING_DIMENSIONS},
-        )
+        return super()._auto_init()
+
+    def init(self):
+        """Create the HNSW cosine index idempotently.
+
+        Only the index is bootstrapped here: the ``embedding`` column belongs
+        to the declared ``Vector`` field, so ``_auto_init`` owns its DDL.
+        """
+        super().init()
         self.env.cr.execute(
             """
             CREATE INDEX IF NOT EXISTS
@@ -120,57 +156,80 @@ class InvoiceAgentVendorDoc(models.Model):
             """
         )
         _logger.info(
-            "invoice_agent_vendor_doc: vector(%d) column + HNSW cosine index",
+            "invoice_agent_vendor_doc: HNSW cosine index ensured on the "
+            "declared vector(%d) column",
             EMBEDDING_DIMENSIONS,
         )
 
     # ------------------------------------------------------------------
-    # upsert / search (raw SQL against the vector column)
+    # upsert / search
     # ------------------------------------------------------------------
+    @api.model
+    def _to_pgvector(self, vector_values):
+        """Render ``vector_values`` as the pgvector literal for a cast.
+
+        The format is defined once, by the ``Vector`` field's
+        ``convert_to_cache`` — previously it was re-derived by hand here and
+        in :meth:`search_similar`.
+        """
+        return self._fields["embedding"].convert_to_cache(
+            list(vector_values),
+            self,
+        )
+
     @api.model
     def upsert_embedding(self, move_id, content, vector_values):
         """Insert or replace the document for ``move_id`` with its embedding.
+
+        Kept as a single ``INSERT ... ON CONFLICT`` so a redelivered embed
+        job is one atomic statement rather than a search-then-write race.
 
         :param vector_values: list of 1024 floats from the voyage-3 embedder.
         """
         move = self.env["account.move"].browse(move_id).exists()
         partner_id = move.partner_id.id if move else False
-        vector_literal = "[" + ",".join(repr(float(v)) for v in vector_values) + "]"
         self.env.cr.execute(
             """
             INSERT INTO invoice_agent_vendor_doc
                 (partner_id, move_id, content, embedding, indexed_at)
             VALUES (
-                %(partner)s, %(move)s, %(content)s,
-                %(vector)s::vector, now()
+                %s, %s, %s,
+                %s::vector, now()
             )
             ON CONFLICT (move_id) DO UPDATE SET
                 content = EXCLUDED.content,
                 embedding = EXCLUDED.embedding,
                 indexed_at = now()
             """,
-            {
-                "partner": partner_id,
-                "move": int(move_id),
-                "content": content or "",
-                "vector": vector_literal,
-            },
+            (
+                partner_id,
+                int(move_id),
+                content or "",
+                self._to_pgvector(vector_values),
+            ),
         )
         return True
 
     @api.model
     def search_similar(self, query_vector, limit=10):
-        """Cosine-similarity search over the HNSW index (raw SQL)."""
-        vector_literal = "[" + ",".join(repr(float(v)) for v in query_vector) + "]"
+        """Cosine-similarity search over the HNSW index.
+
+        The vector is passed as a bound parameter and cast with
+        ``::vector``, so no query text is ever assembled from data.
+        """
         self.env.cr.execute(
             """
             SELECT move_id, content,
-                   1 - (embedding <=> %(v)s::vector) AS similarity
+                   1 - (embedding <=> %s::vector) AS similarity
             FROM invoice_agent_vendor_doc
-            ORDER BY embedding <=> %(v)s::vector
-            LIMIT %(limit)s
+            ORDER BY embedding <=> %s::vector
+            LIMIT %s
             """,
-            {"v": vector_literal, "limit": limit},
+            (
+                self._to_pgvector(query_vector),
+                self._to_pgvector(query_vector),
+                limit,
+            ),
         )
         rows = self.env.cr.fetchall()
         if not rows:
