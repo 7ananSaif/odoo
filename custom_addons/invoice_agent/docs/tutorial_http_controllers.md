@@ -17,9 +17,9 @@ cites the file it comes from, so you can follow along:
 The examples are the two endpoints implemented in
 `custom_addons/invoice_agent/controllers/main.py`:
 
-* `POST /invoice_agent/upload` — `type='http'`, `auth='none'` +
-  bearer-token decorator, `csrf=False`
-* `POST /invoice_agent/status/<int:move_id>` — `type='jsonrpc'`, `auth='user'`
+* `POST /invoice_agent/upload` — `type='http'`, `auth='bearer'`,
+  `csrf=False`
+* `POST /invoice_agent/status/<int:move_id>` — `type='jsonrpc'`, `auth='bearer'`
 
 ---
 
@@ -133,8 +133,8 @@ request` gives you the request for *this* HTTP worker thread.
 * `request.session` — the current session dict-like (see §7).
 * `request.params` — set by the dispatcher right before the controller runs.
 * `request.update_env(user=..., context=..., su=...)` — **rebind** the
-  environment. This is the exact mechanism used by the bearer decorator in
-  our upload endpoint, and by `ir.http._auth_method_bearer` internally.
+  environment. This is the exact mechanism `ir.http._auth_method_bearer` uses
+  to bind the API-key user on our `auth='bearer'` upload endpoint.
 * `request.make_response(data, headers, cookies, status)` and
   `request.make_json_response(data, ...)` — build raw / JSON responses
   (see §5).
@@ -163,15 +163,21 @@ def update_env(self, user=None, context=None, su=None):
     threading.current_thread().uid = self.env.uid
 ```
 
-**Why the upload endpoint uses `auth='none'` + a decorator**: with
-`auth='user'`, an anonymous caller never reaches your code — `ir.http`
-raises `SessionExpiredException` first and `HttpDispatcher.handle_error`
-answers with a **redirect to `/web/login`** (an HTML page). A machine route
-must answer **JSON 401** instead, so we disable the session pre-filter with
-`auth='none'`, and authenticate inside the endpoint with the
-`_require_bearer_auth` decorator (§6). If you switch the route to
-`auth='user'` or `auth='public'` you can observe the deliberate failures in
-§10.
+**Why the upload endpoint uses `auth='bearer'`**: `auth='bearer'` is the
+Odoo 19 API-key handler. It reads `Authorization: Bearer <key>`, resolves it
+with `res.users.apikeys._check_credentials(scope='rpc', key=key)` and rebinds
+the environment through `request.update_env(user=uid)` — one credential
+check, in core, shared with `/invoice_agent/status`.
+
+The catch is the *error body*: a `type='http'` route renders the resulting
+werkzeug `Unauthorized` as an **HTML** page, and a machine client wants
+**JSON 401**. That is fixed in `models/ir_http.py`, which overrides
+`ir.http._handle_error` for `/invoice_agent/*` (see §6). Note the contrast
+with `auth='user'`: an anonymous caller there never reaches your code at all,
+because `ir.http` raises `SessionExpiredException` first and
+`HttpDispatcher.handle_error` answers with a **redirect to `/web/login`**.
+If you switch the route to `auth='user'` or `auth='public'` you can observe
+the deliberate failures in §10.
 
 ---
 
@@ -257,8 +263,9 @@ always POSTs JSON-RPC. With `auth='user'`, an anonymous `curl` gets a
 JSON-RPC *error envelope* (HTTP 200, code `100`, "Odoo Session Expired")
 rather than a redirect — because `JsonRPCDispatcher.handle_error`
 special-cases `SessionExpiredException` to code 100. That is why
-`type='jsonrpc'` keeps `auth='user'` while the `type='http'` upload route
-needs `auth='none'`.
+`type='jsonrpc'` keeps a session-friendly auth mode while the `type='http'`
+upload route uses `auth='bearer'` together with the `ir.http._handle_error`
+override that keeps its error bodies JSON.
 
 There is also a third dispatcher, `Json2Dispatcher` (`type='json2'`) — a
 JSON body that is *not* wrapped in the JSON-RPC envelope. It is used by some
@@ -281,7 +288,8 @@ object with `code` (404 for `NotFound`, 100 for `SessionExpired`, else 0).
 That is how a leaked traceback becomes a clean response: **raise a
 `werkzeug.exceptions.HTTPException` subclass** instead of letting a raw
 `Exception` bubble out. In the upload controller we raise `BadRequest(...)`
-for bad input and `Unauthorized(response=json_body)` for auth failures. When
+for bad input. Auth failures raise `Unauthorized` inside
+`ir.http._auth_method_bearer`, which `models/ir_http.py` renders as JSON. When
 you exercise the endpoints with curl (§11) and hit an unexpected traceback,
 convert it into a `BadRequest` with a clean message — that is the workflow
 this exercise is built around.
@@ -389,9 +397,9 @@ pattern that justifies `csrf=False`:
 2. **A bearer-token- or captcha-authenticated machine route** —
    `/website/form/...` pairs `csrf=False` with `captcha='website_form'`: the
    captcha replaces CSRF as the anti-abuse control. In our module the upload
-   route pairs `csrf=False` with the bearer-API-key decorator: the key in the
-   `Authorization` header is *not* automatically attached by browsers, so the
-   classic CSRF vector (browser auto-sends cookies) does not apply.
+   route pairs `csrf=False` with bearer API-key authentication: the key in
+   the `Authorization` header is *not* automatically attached by browsers, so
+   the classic CSRF vector (browser auto-sends cookies) does not apply.
 
 Rule of thumb: **keep `csrf=True` (default) for browser form posts; use
 `csrf=False` only on token- or captcha-authenticated machine routes, and
@@ -468,7 +476,7 @@ key is shown once and never stored — exactly why the UI shows it only in the
 "API Key Ready" wizard.
 
 Validation (`_check_apikey_credentials(cr, scope, key, table)`) — the exact
-SQL our bearer decorator triggers via
+SQL `_auth_method_bearer` runs via
 `request.env['res.users.apikeys']._check_credentials(scope='rpc', key=token)`:
 
 ```python
@@ -493,7 +501,8 @@ scope, while a scoped key must match exactly. So:
 | `_generate('website', ...)` | no match (`'rpc' != 'website'`, scope not NULL) | → 401 |
 
 That is how a "wrong scope" key is rejected: `_check_apikey_credentials`
-returns `None`, and the decorator raises JSON 401.
+returns `None`, `_auth_method_bearer` raises `Unauthorized`, and the
+`ir.http._handle_error` override renders it as JSON 401.
 
 ### `ir.http._auth_method_bearer` — Odoo 19 native bearer auth
 
@@ -518,8 +527,9 @@ def _auth_method_bearer(cls):
 Two lessons for our machinery:
 
 1. The *exact* resolution calls are `_check_credentials(scope='rpc', key=token)`
-   then `request.update_env(user=uid)` — our `_require_bearer_auth` decorator
-   is a hand-rolled copy of this.
+   then `request.update_env(user=uid)`. Because `auth='bearer'` already does
+   both, the upload route uses that auth mode directly rather than
+   re-implementing them.
 2. Setting `request.session.can_save = False` makes the request **stateless** —
    no session cookie round-trip. The `@route(..., save_session=False)`
    argument does the same thing declaratively; we use it on the upload route.
@@ -575,18 +585,18 @@ ALLOWED_MIMETYPES = ("application/pdf",)
 @http.route(
     "/invoice_agent/upload",
     type="http",
-    auth="none",
+    auth="bearer",
     methods=["POST"],
     csrf=False,
     save_session=False,
 )
-@_require_bearer_auth  # our decorator
 def invoice_agent_upload(self, **kwargs):
 ```
 
 * `type="http"` → `HttpDispatcher` parses the multipart body.
-* `auth="none"` → no session pre-filter; the decorator is the only gate
-  (JSON 401 instead of HTML redirect).
+* `auth="bearer"` → Odoo's API-key handler authenticates before the body
+  runs; `models/ir_http.py` keeps the response body JSON 401 rather than
+  HTML.
 * `methods=["POST"]` → only POST allowed; other verbs get `405 Method Not
   Allowed` (`FasterRule`/werkzeug routing).
 * `csrf=False` → justified above: bearer-authenticated machine route.
@@ -607,8 +617,10 @@ if content_type not in ALLOWED_MIMETYPES:
 Then `ir.attachment.create({'name': ..., 'raw': raw, 'mimetype': ...})` —
 `raw` is a `fields.Binary` holding the exact bytes (`datas` would force
 base64; we verified `raw = fields.Binary` exists in
-`odoo/addons/base/models/ir_attachment.py`). We set `res_model`/`res_id` so
-the file becomes attached to the upcoming `account.move`.
+`odoo/addons/base/models/ir_attachment.py`). Once the move exists we set
+`res_model`/`res_id` and call `move._message_set_main_attachment_id(...)`, so
+the PDF also registers as the bill's **main** attachment and appears in its
+chatter.
 
 Then the move is created **already inside the extraction state machine**:
 
@@ -636,7 +648,7 @@ Finally `request.make_json_response({...}, status=201)` returns the id.
 
 ```python
 @http.route(
-    "/invoice_agent/status/<int:move_id>", type="jsonrpc", auth="user", methods=["POST"]
+    "/invoice_agent/status/<int:move_id>", type="jsonrpc", auth="bearer", methods=["POST"]
 )
 def invoice_agent_status(self, move_id, **kwargs):
     move = request.env["account.move"].browse(move_id)
@@ -665,13 +677,13 @@ Best done with `curl` (you must first log in to get a session cookie — see
 | route `auth` | anonymous `curl -X POST /invoice_agent/upload` | What you see |
 |---|---|---|
 | `'user'` | `SessionExpiredException` raised in `ir.http._authenticate` | `302` → `Location: /web/login?redirect=%2Finvoice_agent%2Fupload` (HTML) |
-| `'public'` | binds `base.public_user`; the *endpoint* then rejects (our decorator: no `Authorization` → JSON 401) | `401` with JSON body `{"error": ...}` |
-| `'none'` | decorator gate only | `401` JSON (missing/invalid key), works with valid key |
+| `'public'` | binds `base.public_user`; the *endpoint* then has no API-key user | `401` |
+| `'bearer'` | no key and no session → `Unauthorized`, rendered by `ir.http._handle_error` | `401` with a JSON body; `201` with a valid key |
 
 How to observe:
 
 ```bash
-# no session, auth='none' route: decorator answers JSON 401
+# no session, auth='bearer' route: the ir.http override answers JSON 401
 curl -s -i -X POST https://invoices.example.com/invoice_agent/upload
 
 # auth='user' variant of the same route (temporarily change auth="user"):
@@ -797,7 +809,8 @@ fixing the tests is the same work.
   handling.
 - [ ] `type='http'` vs `type='jsonrpc'` (and the deprecated `'json'` alias).
 - [ ] `auth='user' / 'public' / 'none' / 'bearer'` and their request `uid`s;
-  why machine routes use `auth='none'` + an explicit auth decorator.
+  why the upload route uses `auth='bearer'` and how `ir.http._handle_error`
+  keeps its error bodies JSON.
 - [ ] How `request.env` is bound and rebound (`request.update_env`).
 - [ ] How werkzeug HTTP exceptions map to status codes per dispatcher
   (`SessionExpiredException` → `/web/login` redirect for http, code 100 for

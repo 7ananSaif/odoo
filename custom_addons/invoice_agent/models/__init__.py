@@ -9,6 +9,7 @@ from . import (
     invoice_agent_job,
     invoice_agent_vendor_doc,
     invoice_extraction,
+    ir_http,
     llm_service,
     ocr_service,
     queue_consumer,

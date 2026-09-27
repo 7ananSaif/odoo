@@ -3,7 +3,7 @@
 This file is the *teaching core* of the module: it exercises every piece of
 the Odoo 19 HTTP stack documented in ``docs/tutorial_http_controllers.md``:
 
-* ``@http.route(type='http', auth='none', methods=['POST'], csrf=False)``
+* ``@http.route(type='http', auth='bearer', methods=['POST'], csrf=False)``
 * ``@http.route(type='jsonrpc', auth='bearer')`` -- Odoo 19: ``type='json'``
   is a deprecated alias, see the ``route()`` decorator in ``odoo/http.py``.
   ``auth='bearer'`` accepts a session (interactive browser, which sends the
@@ -17,28 +17,34 @@ the Odoo 19 HTTP stack documented in ``docs/tutorial_http_controllers.md``:
 * Clean ``werkzeug.exceptions.BadRequest`` / JSON ``Unauthorized`` responses
   instead of leaked tracebacks
 
-Why ``auth='none'`` on the upload route:
+Why ``auth='bearer'`` on the upload route:
 
-  Odoo's ``auth='user'`` pre-filter runs *before* the endpoint and raises
-  ``SessionExpiredException`` for anonymous sessions, which the
-  ``HttpDispatcher`` turns into a redirect to ``/web/login`` (HTML). This
-  endpoint is a machine route: we want the bearer decorator to be the *only*
-  authentication layer so that every unauthenticated attempt (missing key,
-  revoked key, wrong scope) gets a JSON 401, never an HTML login page.
-  ``auth='none'`` deactivates the session pre-filter (``ir.http._auth_method_none``
-  sets ``request.env`` uid to ``None``) and lets the decorator decide. We also
-  pass ``save_session=False`` so no session cookie is ever written -- the same
-  behaviour Odoo applies automatically to ``auth='bearer'`` routes.
+  ``auth='bearer'`` is Odoo 19's native API-key authentication: it reads the
+  ``Authorization: Bearer <key>`` header, resolves it with
+  ``res.users.apikeys._check_credentials(scope='rpc', key=key)``, rebinds the
+  environment through ``request.update_env(user=uid)`` and sets
+  ``session.can_save = False`` -- see ``ir.http._auth_method_bearer``. Using
+  it here means the module implements no credential checking at all, and it
+  matches ``/invoice_agent/status``, so every route in this API authenticates
+  the same way.
 
-  If you switch this route to ``auth='user'`` or ``auth='public'`` you can
-  observe the deliberate auth-mode failures described in the tutorial.
+  A ``type='http'`` route renders an ``Unauthorized`` as an HTML page by
+  default, which a machine client cannot read. ``models/ir_http.py``
+  overrides ``ir.http._handle_error`` so error bodies on ``/invoice_agent/*``
+  stay JSON; that is what keeps the client contract -- and the JSON-401 tests
+  in ``tests/test_controllers.py`` -- intact under the native auth mode.
+
+  ``auth='bearer'`` additionally accepts a browser session for top-level
+  navigations carrying the browser's ``Sec-Fetch-*`` headers. That is the
+  native behaviour and it is CSRF-safe: a cross-site form post arrives with
+  ``Sec-Fetch-Site: cross-site`` and fails the ``check_sec_headers()`` guard
+  inside ``_auth_method_bearer``.
 """
 
-import functools
 import logging
 import time
 
-from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
+from werkzeug.exceptions import BadRequest, NotFound
 
 from odoo import http
 from odoo.http import request
@@ -53,70 +59,6 @@ MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 ALLOWED_MIMETYPES = ("application/pdf",)
 
 
-def _unauthorized_json(message):
-    """Build a werkzeug 401 exception whose body is JSON, not an HTML page."""
-    body = request.make_json_response(
-        {"error": {"message": message}},
-        status=401,
-    )
-    return Unauthorized(response=body)
-
-
-def _require_bearer_auth(endpoint):
-    """Decorator: authenticate a machine-to-machine HTTP call with an API key.
-
-    The route uses ``auth='none'`` so the session layer never intercepts the
-    request. This decorator is the single authentication gate:
-
-    * missing key        -> JSON 401
-    * unknown / revoked /
-      wrong-scope key    -> JSON 401
-    * valid key          -> ``request.update_env(user=uid)`` rebinds the ORM
-      environment, so every ``request.env`` call in the endpoint runs as that
-      user, then calls the real endpoint.
-
-    ``_check_credentials(scope='rpc', key=...)`` is the same call used by the
-    XML-RPC layer and by ``ir.http._auth_method_bearer`` in Odoo 19. Scope
-    ``'rpc'`` matches keys whose ``scope`` column is NULL (global keys) or
-    exactly ``'rpc'`` -- see ``res_users._check_apikey_credentials``.
-    """
-
-    @functools.wraps(endpoint)
-    def wrapper(self, *args, **kwargs):
-        httprequest = request.httprequest
-        authorization = httprequest.headers.get("Authorization", "")
-        scheme, _separator, token = authorization.partition(" ")
-
-        if scheme.lower() != "bearer" or not token.strip():
-            _logger.warning(
-                "Unauthorized upload attempt (missing bearer token) from %s",
-                httprequest.remote_addr,
-            )
-            msg = "Missing Bearer API key in Authorization header"
-            raise _unauthorized_json(
-                msg,
-            )
-
-        apikeys = request.env["res.users.apikeys"]
-        uid = apikeys._check_credentials(scope="rpc", key=token.strip())
-        if not uid:
-            _logger.warning(
-                "Unauthorized upload attempt (invalid API key) from %s",
-                httprequest.remote_addr,
-            )
-            msg = "Invalid, revoked or wrong-scope API key"
-            raise _unauthorized_json(
-                msg,
-            )
-
-        # Rebind the ORM environment to the API-key user. This is exactly what
-        # ir.http._auth_method_bearer does after a successful key check.
-        request.update_env(user=uid)
-        return endpoint(self, *args, **kwargs)
-
-    return wrapper
-
-
 class InvoiceAgentController(http.Controller):
     # ------------------------------------------------------------------
     # POST /invoice_agent/upload  (multipart/form-data, machine route)
@@ -124,13 +66,12 @@ class InvoiceAgentController(http.Controller):
     @http.route(
         "/invoice_agent/upload",
         type="http",
-        auth="none",
+        auth="bearer",
         methods=["POST"],
         csrf=False,
         save_session=False,
         readonly=False,
     )
-    @_require_bearer_auth
     def invoice_agent_upload(self, **kwargs):
         """Accept a PDF, store it as an ir.attachment, create a draft
         account.move (bill) with ``ai_extraction_status='pending'`` and return
@@ -191,12 +132,12 @@ class InvoiceAgentController(http.Controller):
                 },
             )
 
-        # NOTE: authentication has already happened in ``_require_bearer_auth``,
-        # which is the single gate for this route: it validates the bearer API
-        # key and rebinds ``request.env`` to that user before this body runs.
-        # The identical block used to be duplicated here verbatim, so every
-        # upload performed two API-key credential checks and the two copies
-        # were free to drift apart.
+        # NOTE: authentication happens in ``ir.http._auth_method_bearer``,
+        # before this body runs: the native handler validates the API key and
+        # rebinds ``request.env`` to that user. The module therefore performs
+        # no credential check of its own. This body used to re-run the entire
+        # check a second time, so every upload cost two ``res.users.apikeys``
+        # resolution rounds and the two copies were free to drift apart.
 
         # ---- Store the source document ----
         attachment = request.env["ir.attachment"].create(

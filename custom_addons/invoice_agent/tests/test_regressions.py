@@ -16,6 +16,8 @@ Covered:
 * P1-1 - vendor-derived text must be HTML-escaped before it reaches the
   chatter (stored-XSS vector via an uploaded PDF).
 * P2-5b - the high-effort second pass runs at most once per bill.
+* P1-2 - the upload route must use Odoo's native ``auth='bearer'`` handler
+  rather than a hand-rolled decorator.
 
 The Claude API and Tesseract are never touched: the LLM call is patched and
 the OCR text is seeded directly on the record.
@@ -344,3 +346,33 @@ class TestExtractionRegressions(TransactionCase):
         )
         found = self.env["account.move"].search(domain)
         self.assertIn(stale, found, "the stale bill must be recycled")
+
+    # ------------------------------------------------------------------
+    # P1-2: the upload route uses Odoo's native bearer handler
+    # ------------------------------------------------------------------
+    def test_upload_route_uses_native_bearer_auth(self):
+        """The upload route must delegate auth to ``_auth_method_bearer``.
+
+        It previously used ``auth='none'`` plus a hand-rolled decorator that
+        re-implemented -- and then duplicated -- the native credential check.
+        The JSON 401 body is now produced by the ``ir.http._handle_error``
+        override in ``models/ir_http.py``; the end-to-end proof that bearer
+        mode still answers JSON lives in ``tests/test_controllers.py``.
+        """
+        routing_map = self.env["ir.http"].routing_map()
+        rules = [
+            rule
+            for rule in routing_map.iter_rules()
+            if rule.rule == "/invoice_agent/upload"
+        ]
+
+        self.assertEqual(
+            len(rules),
+            1,
+            "the upload route must be declared exactly once",
+        )
+        self.assertEqual(
+            rules[0].endpoint.routing["auth"],
+            "bearer",
+            "the upload route must use Odoo's native bearer auth mode",
+        )
