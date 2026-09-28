@@ -24,8 +24,6 @@ import os
 import threading
 import time
 
-from odoo.fields import Command
-
 _logger = logging.getLogger(__name__)
 
 try:
@@ -79,14 +77,11 @@ def _apply_queue_result(move, result):
         raise ValueError(msg)
     move.ensure_one()
 
-    # Score through the calibrated blend (self-report + arithmetic +
-    # VAT/IBAN rescue) — identical to the synchronous path.
-    score, details = move.env["invoice.llm.service"].score_extraction(
-        payload,
-        ocr_text=move.ocr_text or move.ai_ocr_text,
-        ocr_confidence=move.ocr_confidence,
-    )
-    payload = details.get("rescued_payload") or payload
+    # Score once through the model's shared helper, which also applies the
+    # rescue rule (VAT/IBAN filled from the OCR text) — so the queue path and
+    # the synchronous path persist exactly the same payload for the same
+    # extraction instead of each applying the rescue inline.
+    score, _details, payload = move._score_and_rescue(payload)
 
     # Resolve the vendor through the model's single, company-scoped lookup so
     # the queue path and the synchronous path can never disagree — and so a
@@ -120,13 +115,13 @@ def _apply_queue_result(move, result):
 
     line_values = move._line_values_from_payload(payload)
     if line_values:
-        # Replace, never append: this handler is re-entrant (redelivery, a
-        # manual replay) and ``Command.create`` alone appends to the
-        # one2many, so every apply used to add a second copy of the lines.
-        vals["invoice_line_ids"] = [
-            Command.clear(),
-            *[Command.create(values) for values in line_values],
-        ]
+        # Replace, never append — via the model's single command assembler.
+        # This handler is re-entrant (redelivery, a manual replay) and
+        # ``Command.create`` alone appends to the one2many, so every apply
+        # used to add a second copy of the lines. Sharing the assembler keeps
+        # the rule identical to the synchronous apply path instead of letting
+        # the two copies drift.
+        vals["invoice_line_ids"] = move._line_commands(line_values)
     move.write(vals)
 
     # --- Phase 2: Apply validation verdict (if present) ---

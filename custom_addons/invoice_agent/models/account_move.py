@@ -553,6 +553,31 @@ class AccountMove(models.Model):
             self.ai_extraction_state = "needs_human"
             self.ai_review_required = True
 
+    def _score_and_rescue(self, payload, checks=None):
+        """Score a payload and return ``(score, details, payload_to_store)``.
+
+        The single place the rescue rule lives. ``score_extraction`` may return
+        a VAT/IBAN-corrected copy of the payload under ``rescued_payload``, and
+        that corrected copy is the one the writers persist as
+        ``ai_extracted_json``. Keeping the rule here is what makes the
+        synchronous apply path and the queue consumer agree on which version of
+        the payload is stored — they each used to apply the rescue inline.
+
+        ``checks`` is passed through to ``score_extraction`` (the high-effort
+        pass records its provenance that way); it defaults to the empty list
+        the writers used.
+
+        :return: ``(score, details, payload)`` where ``payload`` is the rescued
+            copy when the rescue fired, otherwise the input unchanged.
+        """
+        score, details = self.env["invoice.llm.service"].score_extraction(
+            payload,
+            ocr_text=self.ocr_text or self.ai_ocr_text,
+            ocr_confidence=self.ocr_confidence,
+            checks=checks or [],
+        )
+        return score, details, (details.get("rescued_payload") or payload)
+
     def _flag_needs_review(self, reason="low confidence"):
         """Mark a bill for human review and post the reason on the chatter.
 
@@ -985,6 +1010,22 @@ class AccountMove(models.Model):
             return value
         return str(value)
 
+    @staticmethod
+    def _coerce_line_amounts(line):
+        """Return ``(price_unit, quantity)`` from an extraction line.
+
+        The single place for the numeric coercion, so the fallbacks cannot
+        drift between the apply paths and the external-API facade: a missing
+        or non-numeric value falls back to ``(0.0, 1.0)``, which is the
+        contract documented in ``docs/api.md``.
+        """
+        try:
+            price_unit = float(line.get("price_unit") or 0.0)
+            quantity = float(line.get("quantity") or 1.0)
+        except (TypeError, ValueError):
+            return 0.0, 1.0
+        return price_unit, quantity
+
     def _line_values_from_payload(self, payload):
         """Build ``account.move.line`` values from an extraction payload.
 
@@ -997,12 +1038,7 @@ class AccountMove(models.Model):
         for line in payload.get("lines") or []:
             if not isinstance(line, dict):
                 continue
-            try:
-                price_unit = float(line.get("price_unit") or 0.0)
-                quantity = float(line.get("quantity") or 1.0)
-            except (TypeError, ValueError):
-                price_unit = 0.0
-                quantity = 1.0
+            price_unit, quantity = self._coerce_line_amounts(line)
             values = {
                 "name": line.get("name") or "Imported line",
                 "price_unit": price_unit,
@@ -1014,23 +1050,35 @@ class AccountMove(models.Model):
             values_list.append(values)
         return values_list
 
+    def _line_commands(self, values_list):
+        """Assemble ``invoice_line_ids`` commands for a list of line values.
+
+        The single place that builds the command list, and the reason it is a
+        helper at all: the replace-not-append rule is ``Command.clear()``
+        *then* the creates. ``Command.create`` on its own *appends* to the
+        one2many, and every writer here is re-runnable (the high-effort pass,
+        a queue redelivery, a second Accept chip), so dropping the ``clear()``
+        in any one copy doubles the bill's lines and its total *there only*.
+        Keeping the assembly in one function makes that impossible.
+
+        :return: the command list to write into ``invoice_line_ids``.
+        """
+        return [
+            Command.clear(),
+            *[Command.create(values) for values in values_list],
+        ]
+
     def _replace_lines_with_payload(self, payload):
         """Replace this bill's invoice lines with the payload's lines.
-
-        ``Command.clear()`` first, always: ``Command.create`` on its own
-        *appends* to the one2many, and every caller here is re-runnable (the
-        high-effort pass, a queue redelivery, a second Accept chip), so
-        without the clear each run doubled the bill's lines and its total.
 
         :return: the number of lines written.
         """
         self.ensure_one()
-        commands = [
-            Command.create(values)
-            for values in self._line_values_from_payload(payload)
-        ]
-        self.write({"invoice_line_ids": [Command.clear(), *commands]})
-        return len(commands)
+        values_list = self._line_values_from_payload(payload)
+        if not values_list:
+            return 0
+        self.write({"invoice_line_ids": self._line_commands(values_list)})
+        return len(values_list)
 
     def _apply_suggested_line(self, index, line, suggested_count):
         """Apply one suggested line without duplicating the existing ones.
@@ -2082,10 +2130,13 @@ class AccountMove(models.Model):
                 or data.get("vendor_name")
             )
             if company_name:
-                vendor = vendor.search(
-                    [("name", "ilike", company_name), ("parent_id", "=", False)],
-                    limit=1,
-                )
+                # Route through the model's single vendor lookup so this path
+                # is company-scoped like every other one. It used to run its
+                # own unscoped ``search([("name", "ilike", ...)])`` here — the
+                # last surviving copy of the P2-2 defect, and on a
+                # multi-company database it could resolve a partner belonging
+                # to a different company.
+                vendor = self._find_vendor_partner(name=company_name)
 
         payload = {
             "extracted_vendor_id": vendor.id or None,
@@ -2114,15 +2165,11 @@ class AccountMove(models.Model):
         silently posted.
         """
         self.ensure_one()
-        ocr_text = self.ocr_text or self.ai_ocr_text
-        score, details = self.env["invoice.llm.service"].score_extraction(
-            payload,
-            ocr_text=ocr_text,
-            ocr_confidence=self.ocr_confidence,
-        )
-        # Keep the rescued payload (VAT/IBAN filled from the OCR text) as the
-        # audit source of truth for this run.
-        payload = details.get("rescued_payload") or payload
+        # Score once through the shared helper, which also applies the rescue
+        # rule (VAT/IBAN filled from the OCR text) — so the payload persisted
+        # here is exactly the one the queue consumer would persist for the
+        # same extraction.
+        score, _details, payload = self._score_and_rescue(payload)
 
         # NOTE: confidence_score / ai_confidence_details / ai_confidence_notes
         # are stored *computed* fields — never write them directly. They
@@ -2150,15 +2197,12 @@ class AccountMove(models.Model):
 
         line_values = self._line_values_from_payload(payload)
         if line_values:
-            # Command.clear() FIRST: ``Command.create`` alone appends to the
-            # one2many, and this method is re-entrant — the high-effort second
-            # pass, a queue redelivery and a manual re-run all call it. Without
-            # the clear, each run appended a full second copy of the extracted
-            # lines and doubled the bill's total.
-            vals["invoice_line_ids"] = [
-                Command.clear(),
-                *[Command.create(values) for values in line_values],
-            ]
+            # ``_line_commands`` is the single place that assembles
+            # clear-then-create. This method is re-entrant (the high-effort
+            # second pass, a queue redelivery, a manual re-run), so sharing it
+            # is what keeps the replace-not-append rule from drifting apart
+            # from the queue consumer's copy.
+            vals["invoice_line_ids"] = self._line_commands(line_values)
         self.write(vals)  # write() stamps ai_extracted_on on status change
 
         # Route: sub-threshold or pipeline-flagged extractions must land in
@@ -2266,26 +2310,12 @@ class AccountMove(models.Model):
             ocr_confidence=0.5,
         )
 
-        invoice_line_vals = []
-        for line in lines:
-            try:
-                price_unit = float(line.get("price_unit") or 0.0)
-                quantity = float(line.get("quantity") or 1.0)
-            except (TypeError, ValueError):
-                price_unit = 0.0
-                quantity = 1.0
-            invoice_line_vals.append(
-                (
-                    0,
-                    0,
-                    {
-                        "name": line.get("name") or "Imported line",
-                        "price_unit": price_unit,
-                        "quantity": quantity,
-                        "ai_confidence": line.get("confidence"),
-                    },
-                ),
-            )
+        # Line values come from the module's single payload->values helper, so
+        # the numeric coercion and the "Imported line" fallback cannot drift
+        # from the apply paths.
+        invoice_line_vals = [
+            (0, 0, values) for values in self._line_values_from_payload(payload)
+        ]
 
         vals = {
             "move_type": "in_invoice",
@@ -2650,11 +2680,13 @@ class AccountMove(models.Model):
                 )
         else:
             partner_name = payload.get("partner_name") or payload.get("vendor_name")
+            # Single company-scoped lookup (see ``_find_vendor_partner``). This
+            # path used to run its own unscoped search, which on a
+            # multi-company database could resolve a partner from another
+            # company. ``self`` is an empty recordset here (``@api.model``)
+            # and the helper falls back to ``self.env.company``.
             partner = (
-                self.env["res.partner"].search(
-                    [("name", "ilike", partner_name), ("parent_id", "=", False)],
-                    limit=1,
-                )
+                self._find_vendor_partner(name=partner_name)
                 if partner_name
                 else self.env["res.partner"]
             )
@@ -2670,14 +2702,13 @@ class AccountMove(models.Model):
                 )
 
         # ---- Build and create the draft bill ----
+        # This facade accepts a wider line contract than the extraction payload
+        # (product_id / tax_ids), so it is a distinct mapping rather than a
+        # duplicate — but the numeric coercion is shared, so its fallbacks
+        # cannot diverge from the extraction paths.
         invoice_line_vals = []
         for line in lines:
-            try:
-                price_unit = float(line.get("price_unit") or 0.0)
-                quantity = float(line.get("quantity") or 1.0)
-            except (TypeError, ValueError):
-                price_unit = 0.0
-                quantity = 1.0
+            price_unit, quantity = self._coerce_line_amounts(line)
             invoice_line_vals.append(
                 {
                     "name": line.get("name") or "Imported line",
