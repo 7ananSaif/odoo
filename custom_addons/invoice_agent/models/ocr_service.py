@@ -187,8 +187,8 @@ class InvoiceOcrService(models.AbstractModel):
         import shutil
 
         try:
-            import pdf2image  # noqa: F401
-            import pytesseract  # noqa: F401
+            import pdf2image  # ruff:ignore[unused-import]
+            import pytesseract  # ruff:ignore[unused-import]
         except ImportError as exc:
             raise UserError(
                 _(

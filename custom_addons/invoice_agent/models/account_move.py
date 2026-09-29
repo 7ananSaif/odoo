@@ -1510,25 +1510,21 @@ class AccountMove(models.Model):
                     ) % (move.id, move.display_name)
                     lines.append(
                         Markup(
-                            "%s. %s<br/>"
-                            "   <i>%s</i><br/>"
-                            "   <code>%s</code><br/>",
+                            "%s. %s<br/>   <i>%s</i><br/>   <code>%s</code><br/>",
                         )
                         % (i, link, reasoning, quoted)
                     )
                 else:
                     lines.append(
                         Markup(
-                            "%s. <i>move_id=%s (not found)</i><br/>"
-                            "   %s<br/>",
+                            "%s. <i>move_id=%s (not found)</i><br/>   %s<br/>",
                         )
                         % (i, move_id, reasoning)
                     )
             else:
                 lines.append(
                     Markup(
-                        "%s. <i>No historical bills available</i><br/>"
-                        "   %s<br/>",
+                        "%s. <i>No historical bills available</i><br/>   %s<br/>",
                     )
                     % (i, reasoning)
                 )
