@@ -4,8 +4,10 @@
     "category": "Accounting/Accounting",
     "summary": "AI-powered vendor invoice extraction and validation — OCR, Claude structured output, RAG validation, confidence-based kanban routing",
     "depends": ["account", "sale", "base_automation"],
+    # NOTE: no ``post_load`` hook. It used to start the per-process AMQP result
+    # consumer thread; results are now delivered over HTTP to
+    # ``POST /invoice_agent/result`` (see models/result_service.py).
     "post_init_hook": "post_init_hook",
-    "post_load": "post_load",
     "data": [
         "security/invoice_agent_groups.xml",
         "security/ir.model.access.csv",

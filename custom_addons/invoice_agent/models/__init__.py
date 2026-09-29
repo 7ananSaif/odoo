@@ -12,10 +12,10 @@ from . import (
     ir_http,
     llm_service,
     ocr_service,
-    queue_consumer,
     queue_publisher,
     res_config_settings,
     res_partner,
+    result_service,
     usage,
     validation_flag,
 )

@@ -217,6 +217,84 @@ class InvoiceAgentController(http.Controller):
         )
 
     # ------------------------------------------------------------------
+    # POST /invoice_agent/result  (invoice-ai worker -> Odoo webhook)
+    # ------------------------------------------------------------------
+    # Replaces the AMQP result consumer (review finding P1-3). The worker used
+    # to publish its signed result to the ``invoice.result`` queue, which Odoo
+    # drained with a daemon thread started from ``post_load`` — one thread and
+    # one broker connection per Odoo process, an environment rebuilt by hand
+    # from ``registry.cursor()``, and a hardcoded database fallback. The worker
+    # now POSTs the same signed JWT here instead, and
+    # ``models/result_service.py`` verifies and applies it inside this request.
+    #
+    # Auth mode: ``auth='none'`` + a signature check, not Odoo auth. That is
+    # deliberate and mirrors ``account_invoice_extract``'s
+    # ``/request_done/<uuid>`` webhook (``auth='public'``): the caller is a
+    # machine on the internal network holding the shared HS256 secret, and the
+    # signature IS the authentication. ``auth='none'`` is chosen over
+    # ``auth='public'`` so the route neither depends on the public user being
+    # enabled nor inherits its record rules — the service scopes the write to
+    # the bill's own company instead.
+    #
+    # ``csrf=False`` for the same reason as the upload route: this is not a
+    # browser form. A cross-site form post cannot mint a valid HS256 signature,
+    # so the CSRF vector does not exist here.
+    @http.route(
+        "/invoice_agent/result",
+        type="http",
+        auth="none",
+        methods=["POST"],
+        csrf=False,
+        save_session=False,
+        readonly=False,
+    )
+    def invoice_agent_result(self, **kwargs):
+        """Accept a signed worker result and apply it to the originating bill.
+
+        Body: ``{"token": "<HS256 JWT>"}`` — the same envelope the worker used
+        to publish to ``invoice.result``, so the worker's signing path is
+        unchanged. All three lifecycle messages (``extracting`` / ``done`` /
+        ``failed``) arrive here; ``invoice.agent.result.service`` decides.
+
+        Status codes, and why each is what it is:
+
+        * ``200`` — processed. Covers an applied result, a duplicate the
+          idempotency ledger skipped, and a dead-letter notification: none of
+          them should be retried, so none of them is an error.
+        * ``401`` — the token is missing, expired, or signed with the wrong
+          secret. A *configuration* problem, so it is surfaced loudly; retrying
+          cannot fix a secret mismatch.
+        * ``409`` — the token is valid but no bill matches it (yet). The claim
+          was released, so a later retry is safe and is the right behaviour.
+        * ``400`` — the body was not a JSON object.
+        """
+        try:
+            body = request.get_json_data()
+        except Exception:
+            body = None
+        if not isinstance(body, dict):
+            _logger.warning(
+                "invoice_agent result: non-JSON body from %s",
+                request.httprequest.remote_addr,
+            )
+            return request.make_json_response(
+                {"ok": False, "error": "body must be a JSON object"},
+                status=400,
+            )
+
+        outcome = request.env["invoice.agent.result.service"].handle_payload(body)
+        status = 200
+        if not outcome.get("ok"):
+            reason = outcome.get("reason")
+            if reason == "invalid_token":
+                status = 401
+            elif reason == "no_move":
+                status = 409
+            else:
+                status = 400
+        return request.make_json_response(outcome, status=status)
+
+    # ------------------------------------------------------------------
     # POST /invoice_agent/measure/trigger  (dev-only measurement route)
     # ------------------------------------------------------------------
     # Dev-only endpoint that exercises the *exact* worker hold of a real
