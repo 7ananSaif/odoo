@@ -369,6 +369,32 @@ class InvoiceAgentResultService(models.AbstractModel):
     # ------------------------------------------------------------------
     @api.model
     def handle_payload(self, payload):
+        """Entry point for ``POST /invoice_agent/result``.
+
+        Deliberately does nothing but delegate. The **user binding belongs to
+        the route**, not here, and it is not optional: ``auth='none'`` yields
+        an environment with no user at all (``env.user`` is an *empty*
+        ``res.users``), and the ORM defers recomputation to the end of the
+        request in that same environment (``Environment.default_env``). A
+        binding made *here* would be discarded before the flush that triggers
+        it, so a ``base.automation`` rule calling ``message_post`` would still
+        die at ``self.env.user._is_public()`` — an HTTP 500 raised *after* the
+        result had already been written. ``controllers/main.py::
+        invoice_agent_result`` therefore binds
+        ``request.update_env(user=SUPERUSER_ID, su=True)`` once, for the whole
+        request, and it is the single owner of that decision.
+
+        Running as superuser does **not** mean running unscoped: the apply
+        still enters the bill's own company (:meth:`apply_result`), the JWT
+        decides whether anything is written at all, and the
+        ``invoice_agent_applied_job`` ledger keeps a redelivery a no-op.
+
+        :return: a JSON-serialisable outcome dict, from :meth:`_handle_payload`.
+        """
+        return self._handle_payload(payload)
+
+    @api.model
+    def _handle_payload(self, payload):
         """Verify and apply one posted result envelope.
 
         ``payload`` is the JSON body the worker posts: ``{"token": "<jwt>"}``
@@ -378,6 +404,9 @@ class InvoiceAgentResultService(models.AbstractModel):
         * ``status == "extracting"`` — live UI only, nothing is claimed.
         * ``status == "failed"``     — outbox row dead + bill flagged.
         * anything else              — a completed extraction to apply.
+
+        Never called by the route directly — :meth:`handle_payload` binds the
+        user first, because under ``auth='none'`` there is none to bind to.
 
         :return: a JSON-serialisable outcome dict. The outcome is *data*, not
             an exception, because none of the branches above is a server
@@ -441,10 +470,10 @@ class InvoiceAgentResultService(models.AbstractModel):
                 "job_uuid": job_uuid,
             }
 
-        # Apply inside the bill's own company. The route runs as the API-key
-        # user (or the public user for auth='none'), not as a superuser with an
-        # empty context, so company-dependent fields and record rules behave
-        # the way they do everywhere else in the module.
+        # Apply inside the bill's own company. The route bound the superuser
+        # because ``auth='none'`` supplies no user at all; this company scope
+        # is what stops that privilege from reaching beyond the one bill, and
+        # it is why the binding is not a licence to skip scoping.
         move = move.with_company(move.company_id)
         self.apply_result(move, result)
         self.publish_live_status(move, "ready", result)

@@ -46,7 +46,7 @@ import time
 
 from werkzeug.exceptions import BadRequest, NotFound
 
-from odoo import http
+from odoo import SUPERUSER_ID, http
 from odoo.http import request
 from odoo.tools.translate import _
 
@@ -239,6 +239,17 @@ class InvoiceAgentController(http.Controller):
     # ``csrf=False`` for the same reason as the upload route: this is not a
     # browser form. A cross-site form post cannot mint a valid HS256 signature,
     # so the CSRF vector does not exist here.
+    #
+    # ``auth='none'`` has one consequence that is easy to miss and expensive to
+    # debug, so it is handled explicitly in the handler: it yields an
+    # environment with **no user at all** (``env.user`` is an empty
+    # ``res.users``). The ORM defers recomputation to the end of the request
+    # and runs it in this very environment (``Environment.default_env``), so a
+    # pending compute — and any ``base.automation`` rule it triggers — would
+    # later die in ``mail_thread.message_post`` at
+    # ``self.env.user._is_public()``: an HTTP 500 raised *after* the result was
+    # already written. Binding a real uid for the whole request is therefore
+    # mandatory, not cosmetic.
     @http.route(
         "/invoice_agent/result",
         type="http",
@@ -281,6 +292,15 @@ class InvoiceAgentController(http.Controller):
                 {"ok": False, "error": "body must be a JSON object"},
                 status=400,
             )
+
+        # Bind the request's own environment, not a local one. The deferred
+        # recompute described above runs in ``default_env``, which *is* this
+        # environment, so a binding that lasted only for the service call would
+        # not survive to the flush that triggers the automation. The caller is
+        # a machine authenticated by its HS256 signature, so the superuser is
+        # the honest identity for it — and ``result_service`` scopes every
+        # write to the bill's own company, so the privilege does not spread.
+        request.update_env(user=SUPERUSER_ID, su=True)
 
         outcome = request.env["invoice.agent.result.service"].handle_payload(body)
         status = 200

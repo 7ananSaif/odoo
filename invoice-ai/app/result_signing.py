@@ -1,22 +1,27 @@
 """JWT signing for worker → Odoo result delivery.
 
-The worker publishes ``extract.done`` results to ``invoice.result``. Odoo's
-consumer thread must not trust a broker message blindly — anyone who can
-publish to the exchange could fabricate a "ready" result. So the worker
-wraps the payload in a short-lived HS256 JWT signed with the **same shared
-secret** that already protects the HTTP path (``INVOICE_AI_JWT_SECRET``,
-mirrored on the Odoo side as ``invoice_agent.jwt_secret``).
+The worker delivers the result of every job to Odoo. Since Wave 3 (review
+finding P1-3) that is an HTTP POST to ``/invoice_agent/result`` — the result
+used to be published to the ``invoice.result`` AMQP queue and drained by a
+thread inside Odoo, and **only the transport changed**. Odoo must not trust
+the caller blindly either way: the endpoint is ``auth='none'`` and reachable
+by anything on the internal network. So the worker wraps the payload in a
+short-lived HS256 JWT signed with the **same shared secret** that already
+protects the request direction (``INVOICE_AI_JWT_SECRET``, mirrored on the
+Odoo side as ``invoice_agent.jwt_secret``). The signature *is* the
+authentication.
 
-Message body: ``{"token": "<jwt>"}`` where the JWT claims carry the result:
+Request body: ``{"token": "<jwt>"}`` where the JWT claims carry the result:
 
     {iss: "invoice-ai", aud: "odoo.invoice-agent", iat, exp,
      sub: "extract.done",
      result: {job_uuid, move_id, status, parsed_output, usage, model}}
 
-The audience ``odoo.invoice-agent`` is the mirror of the HTTP direction
+The audience ``odoo.invoice-agent`` is the mirror of the request direction
 (worker-facing tokens use aud ``invoice-ai``). Odoo verifies signature /
-expiry / audience before applying any field; a rejected token is logged and
-the message is acked (otherwise a poisoned result would redeliver forever).
+expiry / audience before applying any field; a rejected token is answered
+``401`` — a secret mismatch is a configuration fault, so the worker would
+dead-letter rather than retry it forever.
 """
 
 from __future__ import annotations
@@ -32,7 +37,11 @@ _logger = logging.getLogger(__name__)
 RESULT_ISSUER = "invoice-ai"
 RESULT_AUDIENCE = "odoo.invoice-agent"
 RESULT_SUBJECT = "extract.done"
-RESULT_TTL_SECONDS = 300  # 5 min — long enough for broker + consumer backlog
+# The token is minted immediately before each delivery (``_deliver_result``
+# signs at send time, not at job start), so 5 minutes is far more headroom
+# than the HTTP round-trip needs — it only has to outlive clock skew between
+# the two containers plus the request itself.
+RESULT_TTL_SECONDS = 300
 
 
 class ResultSigningError(Exception):

@@ -3,22 +3,22 @@
 v0.9 — the uniqueness guard proving a redelivered job never creates a second
 draft ``account.move``.
 
-``account.move`` results arrive over AMQP with at-least-once delivery: a
-crash between "worker published extract.done" and "Odoo consumer committed
-the apply" redelivers the message. The consumer must therefore apply each
+``account.move`` results arrive with at-least-once delivery: a crash between
+"worker sent extract.done" and "Odoo committed the apply" causes the worker
+to send the same result again. The receiver must therefore apply each
 ``job_uuid`` exactly once. The ledger does that with the database itself:
 
     ``invoice.agent.applied.job`` (job_uuid UNIQUE)
 
-Before applying a result, the consumer runs ``INSERT ... ON CONFLICT DO
-NOTHING`` for the ``job_uuid``. If the insert reports zero rows created, the
-job was already applied — the redelivered message is a no-op. If one row was
-created (or the job is new), the apply proceeds. Row creation and the apply
-commit in the same transaction, so a crash mid-apply leaves no ledger row
-and the next redelivery retries safely.
+Before applying a result, ``invoice.agent.result.service`` runs
+``INSERT ... ON CONFLICT DO NOTHING`` for the ``job_uuid``. If the insert
+reports zero rows created, the job was already applied — the redelivered
+message is a no-op. If one row was created (or the job is new), the apply
+proceeds. Row creation and the apply commit in the same transaction, so a
+crash mid-apply leaves no ledger row and the next delivery retries safely.
 
 This mirrors the classic transactional-outbox pattern (ADR-004) on the
-consumer side: the dedupe decision is atomic with the work it guards.
+receiving side: the dedupe decision is atomic with the work it guards.
 """
 
 from odoo import fields, models
@@ -62,8 +62,8 @@ class InvoiceAgentAppliedJob(models.Model):
         ``models.Constraint`` are only materialized during module
         install/upgrade; a table created before this constraint existed
         (or a schema that drifted) can end up WITHOUT the unique index,
-        which makes the consumer's ``INSERT ... ON CONFLICT (job_uuid)
-        DO NOTHING`` in ``queue_consumer._claim_job_uuid`` raise
+        which makes the receiver's ``INSERT ... ON CONFLICT (job_uuid)
+        DO NOTHING`` in ``result_service.claim_job_uuid`` raise
         "no unique or exclusion constraint matching the ON CONFLICT
         specification" and every result fails to apply. This idempotent
         ``CREATE UNIQUE INDEX IF NOT EXISTS`` closes that gap on every

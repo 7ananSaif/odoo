@@ -327,7 +327,7 @@ class AccountMove(models.Model):
         "attempted on this bill, so it runs at most once.",
     )
 
-    # === Phase 2: RAG Validation (validate.py + queue_consumer.py) ===
+    # === Phase 2: RAG Validation (validate.py + result_service.py) ===
     ai_duplicate_move_id = fields.Many2one(
         comodel_name="account.move",
         string="AI Duplicate Of",
@@ -529,7 +529,7 @@ class AccountMove(models.Model):
         notes = payload["notes"] if isinstance(payload.get("notes"), str) else ""
 
         # NOTE: the rescued payload is persisted by the *writers*
-        # (``_apply_extraction_payload`` / ``_apply_queue_result``), never
+        # (``_apply_extraction_payload`` / ``apply_result``), never
         # here. A stored compute must not write a field it depends on: doing
         # so re-entered the compute and made the score depend on its own
         # output. The rescue itself stays visible in ``details`` below.
@@ -1385,7 +1385,7 @@ class AccountMove(models.Model):
     # -------------------------------------------------------------------------
     # PHASE 2: RAG VALIDATION — apply validation verdict
     # -------------------------------------------------------------------------
-    # Called by ``_apply_queue_result`` in queue_consumer.py when the
+    # Called by ``invoice.agent.result.service.apply_result`` when the
     # ``extract.done`` result carries a ``validation`` envelope from the
     # invoice-ai service.  Writes the suggested GL account, duplicate flag,
     # amount plausibility, and per-flag rows onto the move.
