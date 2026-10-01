@@ -648,7 +648,10 @@ Finally `request.make_json_response({...}, status=201)` returns the id.
 
 ```python
 @http.route(
-    "/invoice_agent/status/<int:move_id>", type="jsonrpc", auth="bearer", methods=["POST"]
+    "/invoice_agent/status/<int:move_id>",
+    type="jsonrpc",
+    auth="bearer",
+    methods=["POST"],
 )
 def invoice_agent_status(self, move_id, **kwargs):
     move = request.env["account.move"].browse(move_id)
