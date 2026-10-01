@@ -189,13 +189,20 @@ class InvoiceAgentJob(models.Model):
                     # "queued" without a page refresh. Best-effort: a bus
                     # failure must never break the drain.
                     try:
-                        from odoo.addons.invoice_agent.models.queue_consumer import (
-                            _publish_live_status,
-                        )
-
+                        # Live status goes through the result service, which
+                        # now owns the bus notification (the module-level
+                        # ``_publish_live_status`` that used to live in
+                        # ``queue_consumer.py`` — and was imported from here —
+                        # is gone with the consumer thread).
                         move = job.move_id
                         if move:
-                            _publish_live_status(move, "queued", {"job_id": job.id})
+                            self.env[
+                                "invoice.agent.result.service"
+                            ].publish_live_status(
+                                move,
+                                "queued",
+                                {"job_id": job.id},
+                            )
                     except Exception:
                         _logger.exception(
                             "invoice_agent failed to publish queued status for "

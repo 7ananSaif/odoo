@@ -86,6 +86,14 @@ class TestLlmServiceHttp(TransactionCase):
         icp.set_param("invoice_agent.llm_service_url", "http://invoice-ai:8000")
         icp.set_param("invoice_agent.jwt_secret", TEST_JWT_SECRET)
         self.service = self.env["invoice.llm.service"]
+        # The secret the service ACTUALLY signs with, asked of its single owner
+        # rather than assumed. ``_jwt_secret`` reads the .env variable
+        # ``INVOICE_AI_JWT_SECRET`` BEFORE the parameter set just above, so on a
+        # deployment configured through .env that parameter is not what wins —
+        # and an assertion written against ``TEST_JWT_SECRET`` then fails to
+        # verify the very header the service sent. The parameter above is still
+        # set so the suite also works on a database with no .env at all.
+        self.secret = self.env["invoice.llm.service"]._jwt_secret()
         svc._circuit["consecutive_failures"] = 0
         svc._circuit["open_until"] = 0.0
 
@@ -168,12 +176,13 @@ class TestLlmServiceHttp(TransactionCase):
         # Multipart form: text file part + effort form field.
         self.assertEqual(captured["files"], {"text": (None, "ACME SUPPLIES LLC")})
         self.assertEqual(captured["data"], {"effort": "normal"})
-        # Authorization header carries a valid JWT for the shared secret.
+        # Authorization header carries a valid JWT for the shared secret — the
+        # resolved one from setUp, not the parameter value.
         bearer = captured["headers"]["Authorization"]
         self.assertTrue(bearer.startswith("Bearer "))
         claims = jwt.decode(
             bearer[len("Bearer ") :],
-            TEST_JWT_SECRET,
+            self.secret,
             algorithms=["HS256"],
             audience="invoice-ai",
         )

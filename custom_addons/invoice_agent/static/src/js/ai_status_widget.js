@@ -3,6 +3,7 @@
 
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
+import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { Component, useState } from "@odoo/owl";
 
 /**
@@ -16,17 +17,15 @@ import { Component, useState } from "@odoo/owl";
 export class AIStatusWidget extends Component {
     static template = "invoice_agent.ai_status_widget";
 
-    static props = {
-        record: Object,
-        fieldInfo: { type: Object, optional: true },
-        readonly: { type: Boolean, optional: true },
-    };
+    // The form renderer passes `id`, `name`, `readonly` and `record`; declaring
+    // anything narrower (or expecting `fieldInfo`) makes Owl reject the props.
+    static props = { ...standardFieldProps };
 
     setup() {
         this.orm = useService("orm");
         this.busService = useService("bus_service");
         this.state = useState({
-            liveStatus: this.props.record?.data?.ai_job_uuid ? "queued" : "",
+            liveStatus: this.props.record?.data?.[this.props.name] ? "queued" : "",
         });
         this.busService.addChannel("invoice_agent");
         this._busHandle = this.busService.subscribe(

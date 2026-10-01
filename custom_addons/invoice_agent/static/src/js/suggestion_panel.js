@@ -3,6 +3,7 @@
 
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
+import { standardFieldProps } from "@web/views/fields/standard_field_props";
 import { Component, useState } from "@odoo/owl";
 
 /**
@@ -22,17 +23,18 @@ import { Component, useState } from "@odoo/owl";
 export class InvoiceSuggestionPanel extends Component {
     static template = "invoice_agent.suggestion_panel";
 
-    static props = {
-        record: Object,
-        fieldInfo: { type: Object, optional: true },
-        readonly: { type: Boolean, optional: true },
-    };
+    // The form renderer passes `id`, `name`, `readonly` and `record` — not the
+    // `fieldInfo` descriptor — so the bound field name is `props.name`.
+    static props = { ...standardFieldProps };
 
     setup() {
         this.orm = useService("orm");
+        // Plain objects (not Sets): Owl's reactivity observes property writes,
+        // not Set mutations, so a Set would mutate without re-rendering the
+        // panel — no spinner, no disabled state, and chips never disappearing.
         this.state = useState({
-            applying: new Set(), // field_name -> call in flight
-            spent: new Set(), // field_name -> accepted or rejected this session
+            applying: {}, // field_name -> true while a call is in flight
+            spent: {}, // field_name -> true once accepted or rejected
         });
     }
 
@@ -40,18 +42,18 @@ export class InvoiceSuggestionPanel extends Component {
     // State
     // ------------------------------------------------------------------
     get suggestions() {
-        const fieldName = this.props.fieldInfo?.name;
+        const fieldName = this.props.name;
         if (!fieldName) {
             return [];
         }
         const data = this.props.record?.data?.[fieldName] || {};
         return (data.records || []).filter(
-            (suggestion) => !this.state.spent.has(suggestion.data?.field_name)
+            (suggestion) => !this.state.spent[suggestion.data?.field_name]
         );
     }
 
     get busy() {
-        return this.state.applying.size > 0;
+        return Object.values(this.state.applying).some(Boolean);
     }
 
     get disabled() {
@@ -63,10 +65,10 @@ export class InvoiceSuggestionPanel extends Component {
     // ------------------------------------------------------------------
     async acceptSuggestion(suggestion) {
         const fieldName = suggestion.data?.field_name;
-        if (!fieldName || this.state.applying.has(fieldName)) {
+        if (!fieldName || this.state.applying[fieldName]) {
             return; // double-click guard: one call per field
         }
-        this.state.applying.add(fieldName);
+        this.state.applying[fieldName] = true;
         try {
             await this.orm.call(
                 this.props.record.model,
@@ -74,24 +76,24 @@ export class InvoiceSuggestionPanel extends Component {
                 [this.props.record.resId],
                 { field_name: fieldName }
             );
-            this.state.spent.add(fieldName);
+            this.state.spent[fieldName] = true;
         } catch (error) {
             // Keep the chip visible so the accountant can retry after fixing
             // the underlying issue (e.g. vendor not found).
             console.warn("invoice_agent: apply_suggested_value failed", error);
             throw error;
         } finally {
-            this.state.applying.delete(fieldName);
+            this.state.applying[fieldName] = false;
         }
         await this.props.record.load();
     }
 
     async rejectSuggestion(suggestion) {
         const fieldName = suggestion.data?.field_name;
-        if (!fieldName || this.state.applying.has(fieldName)) {
+        if (!fieldName || this.state.applying[fieldName]) {
             return;
         }
-        this.state.spent.add(fieldName);
+        this.state.spent[fieldName] = true;
         // Rejection is purely local: no backend write. A later "Suggest with
         // AI" run regenerates the full suggestion set.
     }

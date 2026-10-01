@@ -2,7 +2,7 @@
 
 Covered here:
 
-* /invoice_agent/upload (``type='http'``, ``auth='none'``, ``csrf=False``)
+* /invoice_agent/upload (``type='http'``, ``auth='bearer'``, ``csrf=False``)
   - 401 JSON when the Bearer token is missing
   - 401 JSON when the token is invalid / revoked
   - 401 JSON when the token has the wrong scope

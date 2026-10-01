@@ -5,11 +5,25 @@ Idempotent topology script for the ``invoice.agent`` topic exchange:
     exchange     invoice.agent         (durable topic, survives broker restarts)
     exchange     invoice.extract.dlx   (durable direct — dead-letter exchange)
     queue        invoice.extract       (durable, bound on ``extract.request``)
-    queue        invoice.result        (durable, bound on ``extract.started``/``extract.done``)
     queue        retry.5s              (durable, TTL 5 s, DLX back to invoice.agent)
     queue        retry.30s             (durable, TTL 30 s, DLX back to invoice.agent)
     queue        retry.5m              (durable, TTL 5 min, DLX back to invoice.agent)
     queue        invoice.extract.dead  (durable — poison invoices land here)
+
+``invoice.result`` is deliberately **absent** as of Wave 3 (review finding
+P1-3): results are no longer published to the broker at all. Odoo used to
+drain that queue with a daemon thread in every process; it now exposes
+``POST /invoice_agent/result`` and the worker POSTs the signed JWT there
+(``invoice-ai/app/odoo_result.py``). Only the *request* direction still uses
+AMQP, because that is the direction Odoo initiates and the queue gives it the
+durability, ordering and retry ladder it needs.
+
+A broker provisioned before Wave 3 still holds the queue and its two
+bindings: this script stops *declaring* them, but AMQP has no "undeclare", so
+they persist until an operator removes them. ``delete_result_queue()`` below
+does exactly that, and is deliberately **never** called by
+``declare_topology()`` — removing a queue can discard messages, which is an
+operator's decision, not a side effect of a topology script.
 
 Why topic and not direct/fanout:
 
@@ -21,10 +35,10 @@ Why topic and not direct/fanout:
   express "extraction requests go here, extraction results go there".
 * *Topic* gives us both: a ``#`` (multi-segment) or ``*`` (single-segment)
   wildcard lets future consumers bind ``invoice.#`` to observe every
-  extraction event, while today's explicit bindings keep the two queues
-  isolated. The routing-key namespace (``extract.request`` / ``extract.done``)
-  is itself the semantic contract between the Odoo publisher, the worker and
-  the result consumer.
+  extraction event, while today's explicit bindings keep the participating
+  queues isolated. The routing-key namespace (``extract.request`` /
+  ``extract.dead``) is itself the semantic contract between the Odoo
+  publisher, the worker and the broker's dead-letter exchange.
 
 Retry ladder / dead-lettering (v0.9 — see docs/queue-contract.md §Retries):
 
@@ -111,17 +125,19 @@ _logger = logging.getLogger("invoice_queue.topology")
 EXCHANGE_NAME = "invoice.agent"
 EXCHANGE_TYPE = "topic"
 QUEUE_EXTRACT = "invoice.extract"
-QUEUE_RESULT = "invoice.result"
 QUEUE_DEAD = "invoice.extract.dead"
-# v0.10: RAG embed jobs. The Odoo outbox publishes embed.request; the
-# worker answers by calling /v1/embed and publishing a signed embed.done
-# result back on invoice.result.
+# ``invoice.result`` is deliberately NOT declared any more (see the module
+# docstring): results are delivered over HTTP since Wave 3 (review P1-3). The
+# name is kept as a constant only so ``delete_result_queue()`` can remove the
+# leftover queue from a broker that was provisioned before the change.
+LEGACY_QUEUE_RESULT = "invoice.result"
+# v0.10: RAG embed jobs. The Odoo outbox publishes embed.request; the worker
+# answers by calling /v1/embed and upserting the embedding inline — the result
+# no longer round-trips through the broker.
 QUEUE_EMBED = "invoice.embed"
 DLX_EXCHANGE = "invoice.extract.dlx"
 DLX_TYPE = "direct"
 ROUTING_KEY_REQUEST = "extract.request"
-ROUTING_KEY_STARTED = "extract.started"
-ROUTING_KEY_DONE = "extract.done"
 ROUTING_KEY_DEAD = "extract.dead"
 ROUTING_KEY_EMBED_REQUEST = "embed.request"
 ROUTING_KEY_EMBED_DONE = "embed.done"
@@ -152,17 +168,12 @@ DELIVERY_LIMIT = 3
 #   invoice.extract <- extract.request : JOB REQUEST. Body = {"move_id": N,
 #                                        "attachment_id": M, "attempt": K,
 #                                        "job_uuid": "...", "ocr_text": "..."}
-#   invoice.result  <- extract.done    : JOB RESULT.  Body = {"token": "<jwt>"}
-#                                        — signed HS256 with the shared secret;
-#                                        claims carry the parsed extraction.
 #   retry.*         (DLX binding)      : transient-failure retries, TTL-backed
 #   invoice.extract.dead <- extract.dead : poison messages (x-death inspectable)
+#
+# There is no ``invoice.result`` row: results no longer travel over AMQP.
 QUEUE_BINDINGS = [
     (QUEUE_EXTRACT, ROUTING_KEY_REQUEST),
-    # invoice.result receives both lifecycle signals from the worker: the
-    # "extracting" start event and the signed "done/failed" result.
-    (QUEUE_RESULT, ROUTING_KEY_STARTED),
-    (QUEUE_RESULT, ROUTING_KEY_DONE),
     # Dead-letter exchange bindings. The main queue's DLX argument routes
     # here; the dead queue binds the poison key.
     (QUEUE_DEAD, ROUTING_KEY_DEAD),
@@ -310,7 +321,10 @@ def verify_bindings(base_url):
     user = os.environ.get("RABBITMQ_USER", "guest")
     password = os.environ.get("RABBITMQ_PASS", "guest")
     results = []
-    for queue_name in (QUEUE_EXTRACT, QUEUE_RESULT, QUEUE_DEAD,
+    # ``LEGACY_QUEUE_RESULT`` is deliberately absent: the queue is no longer
+    # part of the contract after Wave 3, and asserting on it would make this
+    # verification fail on a broker that has already been cleaned up.
+    for queue_name in (QUEUE_EXTRACT, QUEUE_DEAD,
                        *(name for name, _ in RETRY_TIERS)):
         url = f"{base_url.rstrip('/')}/api/queues/%2F/{queue_name}/bindings"
         # RabbitMQ's management API uses URL-encoded vhost in the path; %2F
@@ -377,6 +391,57 @@ def inspect_dead_letter(queue_name=QUEUE_DEAD, base_url=None, limit=1):
     return messages
 
 
+def delete_result_queue(connection=None):
+    """Delete the *legacy* ``invoice.result`` queue and its bindings.
+
+    Wave 3 (review finding P1-3) moved result delivery to HTTP, so nothing
+    consumes this queue any more. It is left in place on a pre-existing broker
+    because AMQP has no "undeclare", and this function is deliberately **not**
+    called by :func:`declare_topology`: deleting a queue can discard messages,
+    which must be an explicit operator decision.
+
+    Run it once, by hand, after deploying the Wave 3 code::
+
+        python -c "from invoice_queue.topology import delete_result_queue; \\
+                   delete_result_queue()"
+
+    Deleting the queue also removes its bindings, so the two
+    ``extract.started`` / ``extract.done`` routes disappear with it. A stale
+    worker image still publishing those keys would then have its message
+    dropped by the exchange (unroutable) instead of accumulating in a queue
+    nobody drains — which is the failure mode this cleanup exists to prevent.
+
+    :return: ``True`` when a queue was deleted, ``False`` when there was
+        nothing to delete. RabbitMQ answers ``queue_delete`` for a missing
+        queue by closing the channel with 404; that is treated as success
+        because the desired end state ("the queue does not exist") holds.
+    """
+    own_connection = connection is None
+    if own_connection:
+        connection = pika.BlockingConnection(connection_parameters())
+
+    try:
+        channel = connection.channel()
+        try:
+            channel.queue_delete(queue=LEGACY_QUEUE_RESULT)
+        except pika.exceptions.ChannelClosedByBroker as exc:
+            if exc.reply_code == 404:
+                _logger.info(
+                    "%s does not exist — nothing to delete",
+                    LEGACY_QUEUE_RESULT,
+                )
+                return False
+            raise
+        _logger.warning(
+            "deleted legacy queue %s (result delivery is HTTP since Wave 3)",
+            LEGACY_QUEUE_RESULT,
+        )
+        return True
+    finally:
+        if own_connection:
+            connection.close()
+
+
 def main():
     """CLI entry point: declare the topology, then verify via the API."""
     logging.basicConfig(
@@ -404,8 +469,6 @@ def main():
 
     expected = [
         (QUEUE_EXTRACT, ROUTING_KEY_REQUEST, EXCHANGE_NAME),
-        (QUEUE_RESULT, ROUTING_KEY_STARTED, EXCHANGE_NAME),
-        (QUEUE_RESULT, ROUTING_KEY_DONE, EXCHANGE_NAME),
         (QUEUE_DEAD, ROUTING_KEY_DEAD, EXCHANGE_NAME),
         (QUEUE_DEAD, ROUTING_KEY_DEAD, DLX_EXCHANGE),
     ]

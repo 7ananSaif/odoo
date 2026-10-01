@@ -28,16 +28,16 @@
                               t-out="suggestion.data.extracted_value || '—'"/>
                         <button class="btn btn-sm btn-success p-0 px-1 me-1"
                                 t-attf-title="Apply {{ suggestion.data.extracted_value }}"
-                                t-on-click="() => acceptSuggestion(suggestion)"
+                                t-on-click="() => this.acceptSuggestion(suggestion)"
                                 t-att-disabled="disabled">
                             <i class="fa fa-check"/>
-                            <t t-if="state.applying.has(suggestion.data.field_name)">
+                            <t t-if="state.applying[suggestion.data.field_name]">
                                 <i class="fa fa-spinner fa-spin"/>
                             </t>
                         </button>
                         <button class="btn btn-sm btn-danger p-0 px-1"
                                 t-attf-title="Reject {{ suggestion.data.field_name }}"
-                                t-on-click="() => rejectSuggestion(suggestion)"
+                                t-on-click="() => this.rejectSuggestion(suggestion)"
                                 t-att-disabled="disabled">
                             <i class="fa fa-times"/>
                         </button>
@@ -54,7 +54,7 @@
          ================================================================ -->
     <t t-name="invoice_agent.ai_status_widget">
         <span class="o_ai_status_widget d-inline-flex align-items-center gap-1" t-att-class="decorationClass">
-            <i t-attf-class="iconClass me-1"/>
+            <i t-attf-class="{{ iconClass }} me-1"/>
             <span t-out="label"/>
         </span>
     </t>

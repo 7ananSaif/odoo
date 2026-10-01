@@ -3,7 +3,7 @@
 This file is the *teaching core* of the module: it exercises every piece of
 the Odoo 19 HTTP stack documented in ``docs/tutorial_http_controllers.md``:
 
-* ``@http.route(type='http', auth='none', methods=['POST'], csrf=False)``
+* ``@http.route(type='http', auth='bearer', methods=['POST'], csrf=False)``
 * ``@http.route(type='jsonrpc', auth='bearer')`` -- Odoo 19: ``type='json'``
   is a deprecated alias, see the ``route()`` decorator in ``odoo/http.py``.
   ``auth='bearer'`` accepts a session (interactive browser, which sends the
@@ -17,30 +17,36 @@ the Odoo 19 HTTP stack documented in ``docs/tutorial_http_controllers.md``:
 * Clean ``werkzeug.exceptions.BadRequest`` / JSON ``Unauthorized`` responses
   instead of leaked tracebacks
 
-Why ``auth='none'`` on the upload route:
+Why ``auth='bearer'`` on the upload route:
 
-  Odoo's ``auth='user'`` pre-filter runs *before* the endpoint and raises
-  ``SessionExpiredException`` for anonymous sessions, which the
-  ``HttpDispatcher`` turns into a redirect to ``/web/login`` (HTML). This
-  endpoint is a machine route: we want the bearer decorator to be the *only*
-  authentication layer so that every unauthenticated attempt (missing key,
-  revoked key, wrong scope) gets a JSON 401, never an HTML login page.
-  ``auth='none'`` deactivates the session pre-filter (``ir.http._auth_method_none``
-  sets ``request.env`` uid to ``None``) and lets the decorator decide. We also
-  pass ``save_session=False`` so no session cookie is ever written -- the same
-  behaviour Odoo applies automatically to ``auth='bearer'`` routes.
+  ``auth='bearer'`` is Odoo 19's native API-key authentication: it reads the
+  ``Authorization: Bearer <key>`` header, resolves it with
+  ``res.users.apikeys._check_credentials(scope='rpc', key=key)``, rebinds the
+  environment through ``request.update_env(user=uid)`` and sets
+  ``session.can_save = False`` -- see ``ir.http._auth_method_bearer``. Using
+  it here means the module implements no credential checking at all, and it
+  matches ``/invoice_agent/status``, so every route in this API authenticates
+  the same way.
 
-  If you switch this route to ``auth='user'`` or ``auth='public'`` you can
-  observe the deliberate auth-mode failures described in the tutorial.
+  A ``type='http'`` route renders an ``Unauthorized`` as an HTML page by
+  default, which a machine client cannot read. ``models/ir_http.py``
+  overrides ``ir.http._handle_error`` so error bodies on ``/invoice_agent/*``
+  stay JSON; that is what keeps the client contract -- and the JSON-401 tests
+  in ``tests/test_controllers.py`` -- intact under the native auth mode.
+
+  ``auth='bearer'`` additionally accepts a browser session for top-level
+  navigations carrying the browser's ``Sec-Fetch-*`` headers. That is the
+  native behaviour and it is CSRF-safe: a cross-site form post arrives with
+  ``Sec-Fetch-Site: cross-site`` and fails the ``check_sec_headers()`` guard
+  inside ``_auth_method_bearer``.
 """
 
-import functools
 import logging
 import time
 
-from werkzeug.exceptions import BadRequest, NotFound, Unauthorized
+from werkzeug.exceptions import BadRequest, NotFound
 
-from odoo import http
+from odoo import SUPERUSER_ID, http
 from odoo.http import request
 from odoo.tools.translate import _
 
@@ -53,70 +59,6 @@ MAX_UPLOAD_BYTES = 10 * 1024 * 1024  # 10 MB
 ALLOWED_MIMETYPES = ("application/pdf",)
 
 
-def _unauthorized_json(message):
-    """Build a werkzeug 401 exception whose body is JSON, not an HTML page."""
-    body = request.make_json_response(
-        {"error": {"message": message}},
-        status=401,
-    )
-    return Unauthorized(response=body)
-
-
-def _require_bearer_auth(endpoint):
-    """Decorator: authenticate a machine-to-machine HTTP call with an API key.
-
-    The route uses ``auth='none'`` so the session layer never intercepts the
-    request. This decorator is the single authentication gate:
-
-    * missing key        -> JSON 401
-    * unknown / revoked /
-      wrong-scope key    -> JSON 401
-    * valid key          -> ``request.update_env(user=uid)`` rebinds the ORM
-      environment, so every ``request.env`` call in the endpoint runs as that
-      user, then calls the real endpoint.
-
-    ``_check_credentials(scope='rpc', key=...)`` is the same call used by the
-    XML-RPC layer and by ``ir.http._auth_method_bearer`` in Odoo 19. Scope
-    ``'rpc'`` matches keys whose ``scope`` column is NULL (global keys) or
-    exactly ``'rpc'`` -- see ``res_users._check_apikey_credentials``.
-    """
-
-    @functools.wraps(endpoint)
-    def wrapper(self, *args, **kwargs):
-        httprequest = request.httprequest
-        authorization = httprequest.headers.get("Authorization", "")
-        scheme, _separator, token = authorization.partition(" ")
-
-        if scheme.lower() != "bearer" or not token.strip():
-            _logger.warning(
-                "Unauthorized upload attempt (missing bearer token) from %s",
-                httprequest.remote_addr,
-            )
-            msg = "Missing Bearer API key in Authorization header"
-            raise _unauthorized_json(
-                msg,
-            )
-
-        apikeys = request.env["res.users.apikeys"]
-        uid = apikeys._check_credentials(scope="rpc", key=token.strip())
-        if not uid:
-            _logger.warning(
-                "Unauthorized upload attempt (invalid API key) from %s",
-                httprequest.remote_addr,
-            )
-            msg = "Invalid, revoked or wrong-scope API key"
-            raise _unauthorized_json(
-                msg,
-            )
-
-        # Rebind the ORM environment to the API-key user. This is exactly what
-        # ir.http._auth_method_bearer does after a successful key check.
-        request.update_env(user=uid)
-        return endpoint(self, *args, **kwargs)
-
-    return wrapper
-
-
 class InvoiceAgentController(http.Controller):
     # ------------------------------------------------------------------
     # POST /invoice_agent/upload  (multipart/form-data, machine route)
@@ -124,13 +66,12 @@ class InvoiceAgentController(http.Controller):
     @http.route(
         "/invoice_agent/upload",
         type="http",
-        auth="none",
+        auth="bearer",
         methods=["POST"],
         csrf=False,
         save_session=False,
         readonly=False,
     )
-    @_require_bearer_auth
     def invoice_agent_upload(self, **kwargs):
         """Accept a PDF, store it as an ir.attachment, create a draft
         account.move (bill) with ``ai_extraction_status='pending'`` and return
@@ -191,32 +132,12 @@ class InvoiceAgentController(http.Controller):
                 },
             )
 
-        # ---- Manual bearer-token authentication (from _require_bearer_auth) ----
-        authorization = httprequest.headers.get("Authorization", "")
-        scheme, _separator, token = authorization.partition(" ")
-
-        if scheme.lower() != "bearer" or not token.strip():
-            _logger.warning(
-                "Unauthorized upload attempt (missing bearer token) from %s",
-                httprequest.remote_addr,
-            )
-            msg = "Missing Bearer API key in Authorization header"
-            raise _unauthorized_json(
-                msg,
-            )
-
-        apikeys = request.env["res.users.apikeys"]
-        uid = apikeys._check_credentials(scope="rpc", key=token.strip())
-        if not uid:
-            _logger.warning(
-                "Unauthorized upload attempt (invalid API key) from %s",
-                httprequest.remote_addr,
-            )
-            msg = "Invalid, revoked or wrong-scope API key"
-            raise _unauthorized_json(
-                msg,
-            )
-        request.update_env(user=uid)
+        # NOTE: authentication happens in ``ir.http._auth_method_bearer``,
+        # before this body runs: the native handler validates the API key and
+        # rebinds ``request.env`` to that user. The module therefore performs
+        # no credential check of its own. This body used to re-run the entire
+        # check a second time, so every upload cost two ``res.users.apikeys``
+        # resolution rounds and the two copies were free to drift apart.
 
         # ---- Store the source document ----
         attachment = request.env["ir.attachment"].create(
@@ -243,7 +164,21 @@ class InvoiceAgentController(http.Controller):
             },
         )
         if move:
+            # Link the document to the bill AND register it as the bill's main
+            # attachment. ``_message_set_main_attachment_id`` stamps
+            # ``message_main_attachment_id`` (so the uploaded PDF appears in
+            # the bill's chatter and attachment box) and calls
+            # ``register_as_main_attachment``, which fills in
+            # ``res_model``/``res_id`` — the same hook the native
+            # ``account_invoice_extract`` flow hangs off. Previously the PDF
+            # was an orphaned attachment with no chatter entry, so an
+            # accountant reviewing the bill could not see the source document.
             attachment.write({"res_id": move.id})
+            move._message_set_main_attachment_id(
+                attachment,
+                force=True,
+                filter_xml=False,
+            )
 
         # ---- Enqueue the extraction hook (placeholder; the real OCR/Claude
         # work runs on the queue worker). The move is 'pending', which is what
@@ -280,6 +215,104 @@ class InvoiceAgentController(http.Controller):
             },
             status=201,
         )
+
+    # ------------------------------------------------------------------
+    # POST /invoice_agent/result  (invoice-ai worker -> Odoo webhook)
+    # ------------------------------------------------------------------
+    # Replaces the AMQP result consumer (review finding P1-3). The worker used
+    # to publish its signed result to the ``invoice.result`` queue, which Odoo
+    # drained with a daemon thread started from ``post_load`` — one thread and
+    # one broker connection per Odoo process, an environment rebuilt by hand
+    # from ``registry.cursor()``, and a hardcoded database fallback. The worker
+    # now POSTs the same signed JWT here instead, and
+    # ``models/result_service.py`` verifies and applies it inside this request.
+    #
+    # Auth mode: ``auth='none'`` + a signature check, not Odoo auth. That is
+    # deliberate and mirrors ``account_invoice_extract``'s
+    # ``/request_done/<uuid>`` webhook (``auth='public'``): the caller is a
+    # machine on the internal network holding the shared HS256 secret, and the
+    # signature IS the authentication. ``auth='none'`` is chosen over
+    # ``auth='public'`` so the route neither depends on the public user being
+    # enabled nor inherits its record rules — the service scopes the write to
+    # the bill's own company instead.
+    #
+    # ``csrf=False`` for the same reason as the upload route: this is not a
+    # browser form. A cross-site form post cannot mint a valid HS256 signature,
+    # so the CSRF vector does not exist here.
+    #
+    # ``auth='none'`` has one consequence that is easy to miss and expensive to
+    # debug, so it is handled explicitly in the handler: it yields an
+    # environment with **no user at all** (``env.user`` is an empty
+    # ``res.users``). The ORM defers recomputation to the end of the request
+    # and runs it in this very environment (``Environment.default_env``), so a
+    # pending compute — and any ``base.automation`` rule it triggers — would
+    # later die in ``mail_thread.message_post`` at
+    # ``self.env.user._is_public()``: an HTTP 500 raised *after* the result was
+    # already written. Binding a real uid for the whole request is therefore
+    # mandatory, not cosmetic.
+    @http.route(
+        "/invoice_agent/result",
+        type="http",
+        auth="none",
+        methods=["POST"],
+        csrf=False,
+        save_session=False,
+        readonly=False,
+    )
+    def invoice_agent_result(self, **kwargs):
+        """Accept a signed worker result and apply it to the originating bill.
+
+        Body: ``{"token": "<HS256 JWT>"}`` — the same envelope the worker used
+        to publish to ``invoice.result``, so the worker's signing path is
+        unchanged. All three lifecycle messages (``extracting`` / ``done`` /
+        ``failed``) arrive here; ``invoice.agent.result.service`` decides.
+
+        Status codes, and why each is what it is:
+
+        * ``200`` — processed. Covers an applied result, a duplicate the
+          idempotency ledger skipped, and a dead-letter notification: none of
+          them should be retried, so none of them is an error.
+        * ``401`` — the token is missing, expired, or signed with the wrong
+          secret. A *configuration* problem, so it is surfaced loudly; retrying
+          cannot fix a secret mismatch.
+        * ``409`` — the token is valid but no bill matches it (yet). The claim
+          was released, so a later retry is safe and is the right behaviour.
+        * ``400`` — the body was not a JSON object.
+        """
+        try:
+            body = request.get_json_data()
+        except Exception:
+            body = None
+        if not isinstance(body, dict):
+            _logger.warning(
+                "invoice_agent result: non-JSON body from %s",
+                request.httprequest.remote_addr,
+            )
+            return request.make_json_response(
+                {"ok": False, "error": "body must be a JSON object"},
+                status=400,
+            )
+
+        # Bind the request's own environment, not a local one. The deferred
+        # recompute described above runs in ``default_env``, which *is* this
+        # environment, so a binding that lasted only for the service call would
+        # not survive to the flush that triggers the automation. The caller is
+        # a machine authenticated by its HS256 signature, so the superuser is
+        # the honest identity for it — and ``result_service`` scopes every
+        # write to the bill's own company, so the privilege does not spread.
+        request.update_env(user=SUPERUSER_ID, su=True)
+
+        outcome = request.env["invoice.agent.result.service"].handle_payload(body)
+        status = 200
+        if not outcome.get("ok"):
+            reason = outcome.get("reason")
+            if reason == "invalid_token":
+                status = 401
+            elif reason == "no_move":
+                status = 409
+            else:
+                status = 400
+        return request.make_json_response(outcome, status=status)
 
     # ------------------------------------------------------------------
     # POST /invoice_agent/measure/trigger  (dev-only measurement route)

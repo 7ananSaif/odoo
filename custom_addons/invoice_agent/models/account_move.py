@@ -1,12 +1,13 @@
-import base64
-import io
 import json
 import logging
 import uuid
 from datetime import timedelta
 
+from markupsafe import Markup
+
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
+from odoo.fields import Command
 
 from .llm_service import DEFAULT_AUTO_FILL_THRESHOLD, AIServiceUnavailable
 
@@ -119,12 +120,18 @@ class AccountMove(models.Model):
         help="JSON blob containing full unprocessed OCR/AI response.",
     )
     # === Persisted raw Structured-Output payload (Suggest with AI) ===
+    # Single source of truth is ``ai_extracted_json``. ``extraction_json`` is
+    # a stored *derived* view of it (serialized text) kept for audit exports
+    # and the OWL panel, so the two can never diverge — previously both were
+    # written independently and drifted (one held the rescued payload, the
+    # other the raw one).
     extraction_json = fields.Text(
         string="Extraction JSON",
+        compute="_compute_extraction_json",
+        store=True,
         readonly=True,
-        help="Raw schema-validated payload returned by the Claude extraction "
-        "service (client.messages.parse). Persisted verbatim so later prompt "
-        "changes stay auditable against real output.",
+        help="Serialized view of ai_extracted_json (the single stored source "
+        "of truth). Kept for audit exports and backwards compatibility.",
     )
     extraction_model = fields.Char(
         string="Extraction Model",
@@ -292,7 +299,35 @@ class AccountMove(models.Model):
         "are stored in invoice_agent_vendor_doc.",
     )
 
-    # === Phase 2: RAG Validation (validate.py + queue_consumer.py) ===
+    # === Pipeline timing / second-pass guard (week 7-8 hardening) ===
+    # ``ai_processing_started_at`` is set whenever the bill enters a working
+    # state ('processing' / ocr 'running'). Stuck-record detection compares
+    # against it instead of ``write_date``: a chatter post or a confidence
+    # recompute used to bump ``write_date`` and make an in-flight bill look
+    # fresh, so a genuinely stuck bill was never recycled.
+    ai_processing_started_at = fields.Datetime(
+        string="AI Processing Started At",
+        readonly=True,
+        copy=False,
+        help="When this bill last entered an active pipeline state "
+        "('processing' extraction or 'running' OCR). Used by the stuck-record "
+        "cron; falls back to write_date for rows created before this field.",
+    )
+    # Plain boolean guard for the high-effort second pass. It used to be a
+    # marker inside the stored ``ai_confidence_details`` compute, which meant
+    # the guard was rewritten by the very compute it was protecting (writing
+    # the details re-ran the compute, which could drop or duplicate the
+    # marker). A plain field cannot be clobbered by a compute.
+    ai_high_effort_attempted = fields.Boolean(
+        string="High-Effort Pass Attempted",
+        default=False,
+        copy=False,
+        readonly=True,
+        help="True once the effort='high' second extraction pass has been "
+        "attempted on this bill, so it runs at most once.",
+    )
+
+    # === Phase 2: RAG Validation (validate.py + result_service.py) ===
     ai_duplicate_move_id = fields.Many2one(
         comodel_name="account.move",
         string="AI Duplicate Of",
@@ -339,6 +374,15 @@ class AccountMove(models.Model):
         copy=False,
         help="Free-text explanation from the RAG validation step.",
     )
+
+    # -------------------------------------------------------------------------
+    # COMPUTE: Serialized view of the stored extraction payload
+    # -------------------------------------------------------------------------
+    @api.depends("ai_extracted_json")
+    def _compute_extraction_json(self):
+        for move in self:
+            payload = move.ai_extracted_json
+            move.extraction_json = json.dumps(payload) if payload else False
 
     # -------------------------------------------------------------------------
     # COMPUTE: AI Variance
@@ -402,20 +446,50 @@ class AccountMove(models.Model):
         "journal_id.ai_min_confidence",
     )
     def _compute_confidence_score(self):
+        # Resolve the three routing thresholds ONCE per compute batch.
+        # ``ir.config_parameter.get_param`` issues a ``search()`` on every
+        # call and is not memoised, so reading them per record cost 3-4
+        # queries per bill inside this stored compute — several hundred on a
+        # single kanban page, for values that cannot change in a transaction.
+        auto_fill, review, legacy = self._resolve_routing_thresholds()
         for move in self:
-            move._score_and_route_move()
+            move._score_and_route_move(auto_fill, review, legacy)
 
-    def _score_and_route_move(self):
+    def _resolve_routing_thresholds(self):
+        """Read the three routing thresholds from their config sources once.
+
+        :return: ``(auto_fill, review, legacy)`` as configured. The
+            journal/module-default fallback is applied per move by
+            :meth:`_get_tiered_thresholds`.
+        """
+        svc = self.env["invoice.llm.service"]
+        return (
+            svc.auto_fill_threshold(),
+            svc.review_threshold(),
+            svc.confidence_threshold(),
+        )
+
+    def _score_and_route_move(self, auto_fill=None, review=None, legacy=None):
         """Score one move and set its kanban routing state.
 
         Never raises: a malformed stored payload or a missing OCR text
         degrades the move to ``needs_review`` so nothing silently slips
         through as Auto.
+
+        ``auto_fill``/``review``/``legacy`` may be supplied by the caller so
+        the config parameters are read once per batch instead of once per
+        record; when omitted they are resolved here (direct calls, tests).
         """
         self.ensure_one()
+        # Work on a copy: ``score_extraction`` may mutate the payload it is
+        # handed (VAT/IBAN rescue), and a stored compute must never mutate the
+        # field it depends on — doing so desynchronised the cache from the
+        # column and re-entered the compute with its own output.
         payload = self.ai_extracted_json
         if not isinstance(payload, dict):
             payload = {}
+        else:
+            payload = dict(payload)
 
         if self.ai_extraction_status == "validated":
             # A human confirmed the bill — the state is Approved regardless
@@ -454,17 +528,18 @@ class AccountMove(models.Model):
 
         notes = payload["notes"] if isinstance(payload.get("notes"), str) else ""
 
-        # Re-rescue the (possibly mutated) payload so the audit trail and the
-        # stored payload stay in sync with what the blend actually saw.
-        if details.get("checks") and self.ai_extracted_json != payload:
-            self.ai_extracted_json = payload
+        # NOTE: the rescued payload is persisted by the *writers*
+        # (``_apply_extraction_payload`` / ``apply_result``), never
+        # here. A stored compute must not write a field it depends on: doing
+        # so re-entered the compute and made the score depend on its own
+        # output. The rescue itself stays visible in ``details`` below.
 
         self.confidence_score = score
         self.ai_confidence_details = details
         self.ai_confidence_notes = notes
 
         # --- Three-tier routing ---
-        auto_fill, review = self._get_tiered_thresholds()
+        auto_fill, review = self._get_tiered_thresholds(auto_fill, review, legacy)
         if self.ai_extraction_status == "failed":
             self.ai_extraction_state = "needs_review"
             self.ai_review_required = True
@@ -478,6 +553,31 @@ class AccountMove(models.Model):
             self.ai_extraction_state = "needs_human"
             self.ai_review_required = True
 
+    def _score_and_rescue(self, payload, checks=None):
+        """Score a payload and return ``(score, details, payload_to_store)``.
+
+        The single place the rescue rule lives. ``score_extraction`` may return
+        a VAT/IBAN-corrected copy of the payload under ``rescued_payload``, and
+        that corrected copy is the one the writers persist as
+        ``ai_extracted_json``. Keeping the rule here is what makes the
+        synchronous apply path and the queue consumer agree on which version of
+        the payload is stored — they each used to apply the rescue inline.
+
+        ``checks`` is passed through to ``score_extraction`` (the high-effort
+        pass records its provenance that way); it defaults to the empty list
+        the writers used.
+
+        :return: ``(score, details, payload)`` where ``payload`` is the rescued
+            copy when the rescue fired, otherwise the input unchanged.
+        """
+        score, details = self.env["invoice.llm.service"].score_extraction(
+            payload,
+            ocr_text=self.ocr_text or self.ai_ocr_text,
+            ocr_confidence=self.ocr_confidence,
+            checks=checks or [],
+        )
+        return score, details, (details.get("rescued_payload") or payload)
+
     def _flag_needs_review(self, reason="low confidence"):
         """Mark a bill for human review and post the reason on the chatter.
 
@@ -490,16 +590,25 @@ class AccountMove(models.Model):
         """
         self.ensure_one()
         self.write({"ai_review_required": True})
-        body = (
+        # ``reason`` and ``ai_confidence_notes`` both originate from the
+        # extraction — i.e. from OCR of a vendor-supplied PDF — so they are
+        # interpolated into ``Markup``, which escapes any plain string placed
+        # in it. Unescaped, a crafted document could store a live
+        # <script>/<img onerror> on the bill, rendered to every accountant who
+        # opens it. Composing the body as ``Markup`` (rather than a plain
+        # ``str``) is also what stops ``message_post`` from escaping the
+        # markup itself, so the intended bold text renders as bold instead of
+        # as literal tags.
+        body = Markup(
             "\u26a0\ufe0f <b>AI Needs Review</b><br/>"
-            f"Confidence score: <b>{(self.confidence_score or 0.0) * 100:.0f}%</b><br/>Reason: {reason}"
-        )
+            "Confidence score: <b>%s%%</b><br/>Reason: %s",
+        ) % (round((self.confidence_score or 0.0) * 100), reason)
         if self.ai_confidence_notes:
-            body += f"<br/>Notes: <i>{self.ai_confidence_notes}</i>"
+            body += Markup("<br/>Notes: <i>%s</i>") % self.ai_confidence_notes
         try:
             self.message_post(
                 body=body,
-                subject=f"AI Needs Review: {self.display_name}",
+                subject="AI Needs Review: %s" % self.display_name,
             )
         except Exception:
             _logger.exception(
@@ -541,7 +650,7 @@ class AccountMove(models.Model):
             return self.journal_id.ai_min_confidence
         return 0.70
 
-    def _get_tiered_thresholds(self):
+    def _get_tiered_thresholds(self, auto_fill=None, review=None, legacy=None):
         """Resolve the three-tier routing thresholds for this move.
 
         Returns ``(auto_fill_threshold, review_threshold)``:
@@ -563,10 +672,8 @@ class AccountMove(models.Model):
         4. The 0.90 module default as a last resort.
         """
         self.ensure_one()
-        svc = self.env["invoice.llm.service"]
-        auto_fill = svc.auto_fill_threshold()
-        review = svc.review_threshold()
-        legacy = svc.confidence_threshold()
+        if auto_fill is None:
+            auto_fill, review, legacy = self._resolve_routing_thresholds()
         if legacy is not None and auto_fill == DEFAULT_AUTO_FILL_THRESHOLD:
             auto_fill = legacy
         elif (
@@ -594,17 +701,10 @@ class AccountMove(models.Model):
     def _suggested_vendor_id(self, extraction):
         """Best-effort partner resolution for the suggested vendor_name."""
         self.ensure_one()
-        partner = self.env["res.partner"]
-        if extraction.vendor_vat:
-            partner = partner.search(
-                [("vat", "=", extraction.vendor_vat), ("parent_id", "=", False)],
-                limit=1,
-            )
-        if not partner and extraction.vendor_name:
-            partner = partner.search(
-                [("name", "ilike", extraction.vendor_name), ("parent_id", "=", False)],
-                limit=1,
-            )
+        partner = self._find_vendor_partner(
+            vat=extraction.vendor_vat,
+            name=extraction.vendor_name,
+        )
         return partner.id or False
 
     def _suggested_field_lines(self, payload):
@@ -619,12 +719,10 @@ class AccountMove(models.Model):
         panel) and ``field_confidence``. The OWL chips render one row each.
         """
         self.ensure_one()
+        # NOTE: a bare ``self.env["res.currency"].search(...)`` expression used
+        # to sit here. It resolved nothing and assigned nothing — a dead
+        # lookup that read as if the currency were being validated.
         currency_code = payload.get("currency") or ""
-        (
-            self.env["res.currency"].search([("name", "=", currency_code)], limit=1)
-            if currency_code
-            else self.env["res.currency"]
-        )
         # Per-field self-reported confidence from the schema's
         # ``field_confidence`` block, when the model provided it. The OWL
         # panel renders the chip with this number instead of a flat 1.0.
@@ -740,7 +838,8 @@ class AccountMove(models.Model):
             # keep the rest as Accept/Reject suggestions in the OWL panel.
             partner_id = self._suggested_vendor_id(extraction)
             write_vals = {
-                "extraction_json": json.dumps(payload),
+                # ``extraction_json`` is a stored compute of
+                # ``ai_extracted_json`` — only the source is written.
                 "extraction_model": result["model"],
                 "ai_extracted_json": payload,
                 "ai_extracted_total": float(extraction.amount_total),
@@ -850,25 +949,21 @@ class AccountMove(models.Model):
         Removes the Awaited suggestion row once applied.
         """
         self.ensure_one()
-        if not self.extraction_json:
+        stored = self.ai_extracted_json
+        if not isinstance(stored, dict) or not stored:
             raise UserError(_("No extraction payload to apply from."))
-        payload = json.loads(self.extraction_json or "{}")
+        # Read from the single stored payload (ai_extracted_json) rather than
+        # the derived ``extraction_json`` text — one source of truth.
+        payload = dict(stored)
 
         if field_name == "vendor_name":
             vendor_name = payload.get("vendor_name")
             if not vendor_name:
                 raise UserError(_("No vendor_name suggestion stored."))
-            partner = self.env["res.partner"]
-            if payload.get("vendor_vat"):
-                partner = partner.search(
-                    [("vat", "=", payload["vendor_vat"]), ("parent_id", "=", False)],
-                    limit=1,
-                )
-            if not partner:
-                partner = partner.search(
-                    [("name", "ilike", vendor_name), ("parent_id", "=", False)],
-                    limit=1,
-                )
+            partner = self._find_vendor_partner(
+                vat=payload.get("vendor_vat"),
+                name=vendor_name,
+            )
             if not partner:
                 raise UserError(
                     _(
@@ -884,7 +979,7 @@ class AccountMove(models.Model):
         elif field_name == "amount_total":
             # Totals are computed from lines on a bill — applying the
             # suggested total means applying the suggested line items.
-            self._apply_suggested_lines(payload.get("lines") or [])
+            self._replace_lines_with_payload({"lines": payload.get("lines") or []})
             self.write(
                 {"ai_extracted_total": float(payload.get("amount_total") or 0.0)}
             )
@@ -893,12 +988,12 @@ class AccountMove(models.Model):
             lines = payload.get("lines") or []
             if index >= len(lines):
                 raise UserError(_("Suggested line %s no longer exists.", field_name))
-            self._apply_suggested_lines([lines[index]])
+            self._apply_suggested_line(index, lines[index], len(lines))
         elif field_name in ("subtotal", "tax_total", "currency", "vendor_vat"):
-            # Extraction metadata: fold back into the persisted payload.
+            # Extraction metadata: fold back into the single stored payload.
             if payload.get(field_name) is not None:
                 payload[field_name] = self._json_value(payload[field_name])
-                self.write({"extraction_json": json.dumps(payload)})
+                self.write({"ai_extracted_json": payload})
         else:
             raise UserError(_("Unknown suggestion field: %s", field_name))
 
@@ -915,67 +1010,157 @@ class AccountMove(models.Model):
             return value
         return str(value)
 
-    def _apply_suggested_lines(self, lines):
-        """Write suggested line items onto the bill (replacing current ones).
+    @staticmethod
+    def _coerce_line_amounts(line):
+        """Return ``(price_unit, quantity)`` from an extraction line.
 
-        Used by ``apply_suggested_value('amount_total')`` and by individual
-        ``line:N`` chips. Keeps Odoo's computed amounts as the source of
-        truth for the real total.
+        The single place for the numeric coercion, so the fallbacks cannot
+        drift between the apply paths and the external-API facade: a missing
+        or non-numeric value falls back to ``(0.0, 1.0)``, which is the
+        contract documented in ``docs/api.md``.
+        """
+        try:
+            price_unit = float(line.get("price_unit") or 0.0)
+            quantity = float(line.get("quantity") or 1.0)
+        except (TypeError, ValueError):
+            return 0.0, 1.0
+        return price_unit, quantity
+
+    def _line_values_from_payload(self, payload):
+        """Build ``account.move.line`` values from an extraction payload.
+
+        The single place that turns ``payload['lines']`` into line values.
+        The extraction apply path, the suggestion chips and the queue
+        consumer all route through it, so line handling is defined once
+        instead of five times with subtle differences.
+        """
+        values_list = []
+        for line in payload.get("lines") or []:
+            if not isinstance(line, dict):
+                continue
+            price_unit, quantity = self._coerce_line_amounts(line)
+            values = {
+                "name": line.get("name") or "Imported line",
+                "price_unit": price_unit,
+                "quantity": quantity,
+            }
+            confidence = line.get("confidence")
+            if confidence is not None:
+                values["ai_confidence"] = confidence
+            values_list.append(values)
+        return values_list
+
+    def _line_commands(self, values_list):
+        """Assemble ``invoice_line_ids`` commands for a list of line values.
+
+        The single place that builds the command list, and the reason it is a
+        helper at all: the replace-not-append rule is ``Command.clear()``
+        *then* the creates. ``Command.create`` on its own *appends* to the
+        one2many, and every writer here is re-runnable (the high-effort pass,
+        a queue redelivery, a second Accept chip), so dropping the ``clear()``
+        in any one copy doubles the bill's lines and its total *there only*.
+        Keeping the assembly in one function makes that impossible.
+
+        :return: the command list to write into ``invoice_line_ids``.
+        """
+        return [
+            Command.clear(),
+            *[Command.create(values) for values in values_list],
+        ]
+
+    def _replace_lines_with_payload(self, payload):
+        """Replace this bill's invoice lines with the payload's lines.
+
+        :return: the number of lines written.
+        """
+        self.ensure_one()
+        values_list = self._line_values_from_payload(payload)
+        if not values_list:
+            return 0
+        self.write({"invoice_line_ids": self._line_commands(values_list)})
+        return len(values_list)
+
+    def _apply_suggested_line(self, index, line, suggested_count):
+        """Apply one suggested line without duplicating the existing ones.
+
+        When the bill's line count already mirrors the suggestion set the
+        matching line is updated in place; otherwise the accepted line is
+        appended, because there is no existing line to map it onto and
+        replacing the whole set would silently discard the accountant's work.
+        """
+        self.ensure_one()
+        values_list = self._line_values_from_payload({"lines": [line]})
+        if not values_list:
+            raise UserError(_("The extraction did not suggest any lines."))
+        current = self.invoice_line_ids.filtered(
+            lambda row: row.display_type in (False, "product"),
+        )
+        if len(current) == suggested_count:
+            current[index].write(values_list[0])
+            return
+        self.write({"invoice_line_ids": [Command.create(values_list[0])]})
+
+    def _apply_suggested_lines(self, lines):
+        """Replace the bill's lines with ``lines``.
+
+        Kept as the named entry point used by ``apply_suggested_value``;
+        delegates to :meth:`_replace_lines_with_payload` so the
+        replace-not-append semantics live in exactly one place.
         """
         self.ensure_one()
         if not lines:
             raise UserError(_("The extraction did not suggest any lines."))
-        line_vals = []
-        for line in lines:
-            try:
-                price_unit = float(line.get("price_unit") or 0.0)
-                quantity = float(line.get("quantity") or 1.0)
-            except (TypeError, ValueError):
-                price_unit = 0.0
-                quantity = 1.0
-            line_vals.append(
-                (
-                    0,
-                    0,
-                    {
-                        "name": line.get("name") or "Suggested line",
-                        "price_unit": price_unit,
-                        "quantity": quantity,
-                    },
-                ),
-            )
-        self.write({"invoice_line_ids": line_vals})
+        return self._replace_lines_with_payload({"lines": lines})
 
     # -------------------------------------------------------------------------
     # VENDOR MATCHING
     # -------------------------------------------------------------------------
+    def _find_vendor_partner(self, vat=None, name=None, company=None):
+        """Resolve a vendor partner: VAT first, then fuzzy name.
+
+        This is the single vendor lookup. It was previously written four
+        times (here, the suggestion path, the Claude-payload parser and the
+        queue consumer) with subtly different behaviour, and none of the
+        copies scoped the search to the bill's company — on a multi-company
+        database that can resolve a partner the bill's company cannot use,
+        surfacing later as a validation error at post time.
+
+        ``_check_company_domain`` keeps the search inside the bill's company
+        while still matching company-agnostic partners (``company_id`` False).
+
+        :return: a ``res.partner`` recordset; empty when nothing matched.
+        """
+        partner_model = self.env["res.partner"]
+        company = company or self.company_id or self.env.company
+        company_domain = partner_model._check_company_domain(company)
+        if vat:
+            partner = partner_model.search(
+                [*company_domain, ("vat", "=", vat), ("parent_id", "=", False)],
+                limit=1,
+            )
+            if partner:
+                return partner
+        if name:
+            return partner_model.search(
+                [*company_domain, ("name", "ilike", name), ("parent_id", "=", False)],
+                limit=1,
+            )
+        return partner_model
+
     def _match_vendor(self):
         self.ensure_one()
         if not self.ai_extracted_json:
             return None
         payload = self.ai_extracted_json
-        partner_obj = self.env["res.partner"]
-        vat = payload.get("vat") or payload.get("tax_id") or payload.get("company_vat")
-        if vat:
-            partner = partner_obj.search(
-                [("vat", "=", vat), ("parent_id", "=", False)],
-                limit=1,
-            )
-            if partner:
-                return partner
-        company_name = (
-            payload.get("company_name")
+        partner = self._find_vendor_partner(
+            vat=payload.get("vat")
+            or payload.get("tax_id")
+            or payload.get("company_vat"),
+            name=payload.get("company_name")
             or payload.get("supplier_name")
-            or payload.get("vendor_name")
+            or payload.get("vendor_name"),
         )
-        if company_name:
-            partner = partner_obj.search(
-                [("name", "ilike", company_name), ("parent_id", "=", False)],
-                limit=1,
-            )
-            if partner:
-                return partner
-        return None
+        return partner or None
 
     @api.onchange("ai_ocr_text")
     def _onchange_ai_ocr_text(self):
@@ -1001,6 +1186,16 @@ class AccountMove(models.Model):
     # ORM Overrides
     # -------------------------------------------------------------------------
     def write(self, vals):
+        vals = dict(vals)
+        # Stamp when the bill enters an active pipeline state. The stuck-record
+        # cron ages bills off this field instead of ``write_date``, which any
+        # chatter post or confidence recompute bumps — making an in-flight bill
+        # look permanently fresh so it was never recycled.
+        if (
+            vals.get("ai_extraction_status") == "processing"
+            or vals.get("ocr_state") == "running"
+        ):
+            vals.setdefault("ai_processing_started_at", fields.Datetime.now())
         res = super().write(vals)
         if "ai_extraction_status" in vals:
             if vals["ai_extraction_status"] == "validated":
@@ -1190,7 +1385,7 @@ class AccountMove(models.Model):
     # -------------------------------------------------------------------------
     # PHASE 2: RAG VALIDATION — apply validation verdict
     # -------------------------------------------------------------------------
-    # Called by ``_apply_queue_result`` in queue_consumer.py when the
+    # Called by ``invoice.agent.result.service.apply_result`` when the
     # ``extract.done`` result carries a ``validation`` envelope from the
     # invoice-ai service.  Writes the suggested GL account, duplicate flag,
     # amount plausibility, and per-flag rows onto the move.
@@ -1233,7 +1428,6 @@ class AccountMove(models.Model):
         # --- Per-flag rows (clear + re-create) ---
         self.ai_flag_ids.unlink()
         if flags:
-            self.env["invoice.agent.validation.flag"]
             flag_lines = [
                 (0, 0, {"flag": flag, "reasoning": reasoning}) for flag in flags
             ]
@@ -1248,12 +1442,16 @@ class AccountMove(models.Model):
             dup_name = self.ai_duplicate_move_id.display_name or str(dup_move_id)
             try:
                 self.message_post(
-                    body=(
+                    # dup_name is a document reference and can be
+                    # attacker-influenced, so it is interpolated into Markup,
+                    # which escapes it.
+                    body=Markup(
                         "\U0001f6a9 <b>Duplicate Invoice Detected</b><br/>"
                         "This invoice appears to be a duplicate of "
-                        f"<b>{dup_name}</b>. Please verify before posting."
-                    ),
-                    subject=f"AI Duplicate Detection: {self.display_name}",
+                        "<b>%s</b>. Please verify before posting.",
+                    )
+                    % dup_name,
+                    subject="AI Duplicate Detection: %s" % self.display_name,
                 )
             except Exception:
                 _logger.exception(
@@ -1295,7 +1493,11 @@ class AccountMove(models.Model):
         if not evidence:
             return
 
-        lines = ["<b>\U0001f4ca RAG Validation Evidence:</b><br/>"]
+        # Every interpolated value here comes from the extraction/validation
+        # response — ultimately from a vendor-supplied document — so the body
+        # is composed as ``Markup``, which escapes each plain string placed in
+        # it while leaving the intended tags and the citation link intact.
+        lines = [Markup("<b>\U0001f4ca RAG Validation Evidence:</b><br/>")]
         for i, citation in enumerate(evidence, 1):
             move_id = citation.get("move_id") or 0
             quoted = citation.get("quoted_line", "")
@@ -1303,29 +1505,33 @@ class AccountMove(models.Model):
             if move_id:
                 move = self.env["account.move"].browse(move_id)
                 if move.exists():
-                    link = ('<a href="/web#id=%d&model=account.move">%s</a>') % (
-                        move.id,
-                        move.display_name,
-                    )
+                    link = Markup(
+                        '<a href="/web#id=%s&model=account.move">%s</a>',
+                    ) % (move.id, move.display_name)
                     lines.append(
-                        "%d. %s<br/>"
-                        "   <i>%s</i><br/>"
-                        "   <code>%s</code><br/>" % (i, link, reasoning, quoted)
+                        Markup(
+                            "%s. %s<br/>   <i>%s</i><br/>   <code>%s</code><br/>",
+                        )
+                        % (i, link, reasoning, quoted)
                     )
                 else:
                     lines.append(
-                        "%d. <i>move_id=%d (not found)</i><br/>"
-                        "   %s<br/>" % (i, move_id, reasoning)
+                        Markup(
+                            "%s. <i>move_id=%s (not found)</i><br/>   %s<br/>",
+                        )
+                        % (i, move_id, reasoning)
                     )
             else:
                 lines.append(
-                    "%d. <i>No historical bills available</i><br/>"
-                    "   %s<br/>" % (i, reasoning)
+                    Markup(
+                        "%s. <i>No historical bills available</i><br/>   %s<br/>",
+                    )
+                    % (i, reasoning)
                 )
 
         try:
             self.message_post(
-                body="".join(lines),
+                body=Markup("").join(lines),
                 subject=f"RAG Evidence: {self.display_name}",
             )
         except Exception:
@@ -1343,8 +1549,14 @@ class AccountMove(models.Model):
         not a hard constraint.
         """
         self.ensure_one()
+        # Account codes are unique per company, not globally: without the
+        # company scope this could pre-fill another company's account of the
+        # same code and leave the bill unpostable.
         account = self.env["account.account"].search(
-            [("code", "=", account_code)],
+            [
+                *self.env["account.account"]._check_company_domain(self.company_id),
+                ("code", "=", account_code),
+            ],
             limit=1,
         )
         if not account:
@@ -1470,14 +1682,35 @@ class AccountMove(models.Model):
 
     @api.model
     def _cron_backfill_embeddings_all(self):
-        """ir.cron entry point (runs repeatedly until the corpus is caught up)."""
-        total = 0
-        while True:
-            batch = self._cron_backfill_embeddings(batch_size=100)
-            total += batch
-            if batch < 100:
-                break
-        return total
+        """ir.cron entry point: one batch per tick, then reschedule ASAP.
+
+        The previous implementation looped ``while True`` until the corpus was
+        drained. On a cold corpus of tens of thousands of bills that is
+        hundreds of sequential embed round-trips inside a single invocation,
+        with no progress reporting and no time budget — and Odoo 19 deactivates
+        crons that time out, so the practical outcome was a silently
+        deactivated backfill cron and a permanently cold corpus.
+
+        Now: embed one batch, report progress through ``_commit_progress`` so
+        the cron keeps its time budget, and re-trigger the job while work
+        remains instead of waiting a full interval.
+        """
+        batch_size = 100
+        processed = self._cron_backfill_embeddings(batch_size=batch_size)
+        if not self.env["ir.cron"]._commit_progress(processed):
+            # Out of time for this tick; ir.cron reschedules us ASAP.
+            return processed
+        remaining = self.search_count(
+            [
+                ("move_type", "=", "in_invoice"),
+                ("state", "=", "posted"),
+                ("ai_indexed", "=", False),
+            ],
+        )
+        if remaining:
+            # Still bills to embed: run again as soon as possible.
+            self.env.ref("invoice_agent.cron_backfill_embeddings")._trigger()
+        return processed
 
     def _embed_posted_move(self, move):
         """Embed one posted bill; True when indexed, False when deferred."""
@@ -1515,6 +1748,26 @@ class AccountMove(models.Model):
     # CRON: Retry stuck extractions
     # -------------------------------------------------------------------------
     @api.model
+    def _stuck_domain(self, status_field, status_value, threshold):
+        """Domain for records stuck in ``status_value`` for over an hour.
+
+        Age is measured from ``ai_processing_started_at`` whenever it is set.
+        ``write_date`` is only a fallback for rows that predate the field: it
+        is bumped by chatter posts and confidence recomputes, so a genuinely
+        stuck bill could look permanently fresh and never be recycled.
+        """
+        return [
+            (status_field, "=", status_value),
+            "|",
+            "&",
+            ("ai_processing_started_at", "!=", False),
+            ("ai_processing_started_at", "<", threshold),
+            "&",
+            ("ai_processing_started_at", "=", False),
+            ("write_date", "<", threshold),
+        ]
+
+    @api.model
     def _cron_retry_stuck_extractions(self):
         """Called by ir.cron every 30 minutes.
 
@@ -1530,10 +1783,7 @@ class AccountMove(models.Model):
         count = 0
 
         stuck_extractions = self.search(
-            [
-                ("ai_extraction_status", "=", "processing"),
-                ("write_date", "<", threshold),
-            ],
+            self._stuck_domain("ai_extraction_status", "processing", threshold),
         )
         for move in stuck_extractions:
             try:
@@ -1551,10 +1801,7 @@ class AccountMove(models.Model):
                 )
 
         stuck_ocr = self.search(
-            [
-                ("ocr_state", "=", "running"),
-                ("write_date", "<", threshold),
-            ],
+            self._stuck_domain("ocr_state", "running", threshold),
         )
         for move in stuck_ocr:
             try:
@@ -1575,6 +1822,47 @@ class AccountMove(models.Model):
                 len(stuck_ocr),
             )
         return count
+
+    # -------------------------------------------------------------------------
+    # CRON CLAIM HELPERS: lock rows before processing (SKIP LOCKED)
+    # -------------------------------------------------------------------------
+    # ``ir.cron`` guarantees a *job* runs once; it does not lock the *records*
+    # the job selects. With max_cron_threads > 1 two workers can run the same
+    # cron concurrently and both select the same pending bill, running OCR (or
+    # the LLM call) on it twice. The native answer — the one
+    # ``ir_cron._acquire_one_job`` uses — is a row lock taken with
+    # ``FOR NO KEY UPDATE SKIP LOCKED``: the second worker skips rows the first
+    # already holds, and a crashed worker releases its lock at transaction end
+    # instead of leaving the row stuck in 'running'.
+    @api.model
+    def _claim_pending_ocr(self, limit):
+        """Row-lock and return up to ``limit`` bills waiting for OCR."""
+        self.env.cr.execute(
+            """
+            SELECT id FROM account_move
+            WHERE ocr_state = 'pending' AND ai_source_attachment_id IS NOT NULL
+            ORDER BY write_date, id
+            FOR NO KEY UPDATE SKIP LOCKED
+            LIMIT %s
+            """,
+            (limit,),
+        )
+        return self.browse([row[0] for row in self.env.cr.fetchall()])
+
+    @api.model
+    def _claim_pending_extractions(self, limit):
+        """Row-lock and return up to ``limit`` bills waiting for extraction."""
+        self.env.cr.execute(
+            """
+            SELECT id FROM account_move
+            WHERE ai_extraction_status = 'processing' AND ocr_state = 'done'
+            ORDER BY write_date, id
+            FOR NO KEY UPDATE SKIP LOCKED
+            LIMIT %s
+            """,
+            (limit,),
+        )
+        return self.browse([row[0] for row in self.env.cr.fetchall()])
 
     # -------------------------------------------------------------------------
     # OCR CRON WORKER: claim pending records in batches, commit per record
@@ -1626,14 +1914,14 @@ class AccountMove(models.Model):
         """
         processed = 0
         try:
-            self.env.cr.rollback()  # clear any aborted txn inherited from prior jobs
-            moves = self.search(
+            # Row-lock the batch so a concurrent cron worker cannot claim the
+            # same bills (ir.cron serialises the job, not the records).
+            moves = self._claim_pending_ocr(batch_size)
+            remaining = self.search_count(
                 [
                     ("ocr_state", "=", "pending"),
                     ("ai_source_attachment_id", "!=", False),
                 ],
-                order="write_date asc, id asc",
-                limit=batch_size,
             )
         except Exception:
             _logger.exception(
@@ -1644,15 +1932,24 @@ class AccountMove(models.Model):
         for move in moves:
             try:
                 move._ocr_process_one(move.id)
-                processed += 1
-                self.env.cr.commit()  # persist this record, isolate it from the batch
             except Exception:
                 _logger.exception(
                     "OCR cron failed for move %s — marked failed and continuing",
                     move.display_name,
                 )
-                self.env.cr.rollback()  # drop any partial work from this record
-                self.env.cr.commit()  # leave a clean txn for the next record
+                move.write(
+                    {
+                        "ocr_state": "failed",
+                        "ocr_error_message": "OCR cron worker error",
+                    },
+                )
+            processed += 1
+            remaining -= 1
+            # Commit incrementally and honour the cron's time budget; a partly
+            # drained batch is rescheduled ASAP by ir.cron instead of being
+            # killed (and eventually deactivated) mid-run.
+            if not self.env["ir.cron"]._commit_progress(1, remaining=remaining):
+                break
         return processed
 
     def _ocr_process_one(self, move_id):
@@ -1724,13 +2021,14 @@ class AccountMove(models.Model):
         if not attachment:
             return ""
         try:
-            import pytesseract
-            from PIL import Image
-
-            raw = attachment.raw
-            if isinstance(raw, str):
-                raw = base64.b64decode(raw)
-            return pytesseract.image_to_string(Image.open(io.BytesIO(raw))) or ""
+            # Route through the module's own OCR service, which rasterises the
+            # PDF with poppler before handing pages to Tesseract. The previous
+            # implementation opened the raw *PDF bytes* with ``PIL.Image.open``
+            # — which cannot read a PDF — and swallowed the failure into an
+            # empty string, so every PDF silently produced an empty extraction
+            # input on this path.
+            result = self.env["invoice.ocr.service"]._extract_text(attachment)
+            return result.get("text") or ""
         except Exception:
             _logger.warning(
                 "invoice_agent OCR unavailable for %s — continuing with empty text",
@@ -1828,10 +2126,13 @@ class AccountMove(models.Model):
                 or data.get("vendor_name")
             )
             if company_name:
-                vendor = vendor.search(
-                    [("name", "ilike", company_name), ("parent_id", "=", False)],
-                    limit=1,
-                )
+                # Route through the model's single vendor lookup so this path
+                # is company-scoped like every other one. It used to run its
+                # own unscoped ``search([("name", "ilike", ...)])`` here — the
+                # last surviving copy of the P2-2 defect, and on a
+                # multi-company database it could resolve a partner belonging
+                # to a different company.
+                vendor = self._find_vendor_partner(name=company_name)
 
         payload = {
             "extracted_vendor_id": vendor.id or None,
@@ -1860,15 +2161,11 @@ class AccountMove(models.Model):
         silently posted.
         """
         self.ensure_one()
-        ocr_text = self.ocr_text or self.ai_ocr_text
-        score, details = self.env["invoice.llm.service"].score_extraction(
-            payload,
-            ocr_text=ocr_text,
-            ocr_confidence=self.ocr_confidence,
-        )
-        # Keep the rescued payload (VAT/IBAN filled from the OCR text) as the
-        # audit source of truth for this run.
-        payload = details.get("rescued_payload") or payload
+        # Score once through the shared helper, which also applies the rescue
+        # rule (VAT/IBAN filled from the OCR text) — so the payload persisted
+        # here is exactly the one the queue consumer would persist for the
+        # same extraction.
+        score, _details, payload = self._score_and_rescue(payload)
 
         # NOTE: confidence_score / ai_confidence_details / ai_confidence_notes
         # are stored *computed* fields — never write them directly. They
@@ -1894,39 +2191,21 @@ class AccountMove(models.Model):
             if payload.get(field_name):
                 vals[field_name] = payload[field_name]
 
-        line_vals = []
-        for line in payload.get("lines") or []:
-            if not isinstance(line, dict):
-                continue
-            try:
-                price_unit = float(line.get("price_unit") or 0.0)
-                quantity = float(line.get("quantity") or 1.0)
-            except (TypeError, ValueError):
-                price_unit = 0.0
-                quantity = 1.0
-            line_vals.append(
-                (
-                    0,
-                    0,
-                    {
-                        "name": line.get("name") or "Imported line",
-                        "price_unit": price_unit,
-                        "quantity": quantity,
-                        "ai_confidence": line.get("confidence"),
-                    },
-                ),
-            )
-        if line_vals:
-            vals["invoice_line_ids"] = line_vals
+        line_values = self._line_values_from_payload(payload)
+        if line_values:
+            # ``_line_commands`` is the single place that assembles
+            # clear-then-create. This method is re-entrant (the high-effort
+            # second pass, a queue redelivery, a manual re-run), so sharing it
+            # is what keeps the replace-not-append rule from drifting apart
+            # from the queue consumer's copy.
+            vals["invoice_line_ids"] = self._line_commands(line_values)
         self.write(vals)  # write() stamps ai_extracted_on on status change
 
         # Route: sub-threshold or pipeline-flagged extractions must land in
-        # Needs Review with the reason visible on the chatter.
-        threshold = (
-            self.journal_id.ai_min_confidence
-            if self.journal_id.ai_agent_enabled
-            else 0.70
-        )
+        # Needs Review with the reason visible on the chatter. The bar is the
+        # same tiered auto-fill threshold the routing compute uses, resolved in
+        # one place instead of a second, divergent copy.
+        threshold, _review = self._get_tiered_thresholds()
         if self.ai_review_required or score < threshold:
             self._flag_needs_review(
                 reason=(
@@ -2005,17 +2284,10 @@ class AccountMove(models.Model):
         amount_total = float(amount_total)
 
         # ---- Resolve the vendor: VAT first, then fuzzy name, else empty ----
-        partner = self.env["res.partner"]
-        if extraction.vendor_vat:
-            partner = partner.search(
-                [("vat", "=", extraction.vendor_vat), ("parent_id", "=", False)],
-                limit=1,
-            )
-        if not partner and extraction.vendor_name:
-            partner = partner.search(
-                [("name", "ilike", extraction.vendor_name), ("parent_id", "=", False)],
-                limit=1,
-            )
+        partner = self._find_vendor_partner(
+            vat=extraction.vendor_vat,
+            name=extraction.vendor_name,
+        )
 
         # ---- Resolve the currency from the ISO-4217 code ----
         currency = self.env["res.currency"]
@@ -2034,26 +2306,12 @@ class AccountMove(models.Model):
             ocr_confidence=0.5,
         )
 
-        invoice_line_vals = []
-        for line in lines:
-            try:
-                price_unit = float(line.get("price_unit") or 0.0)
-                quantity = float(line.get("quantity") or 1.0)
-            except (TypeError, ValueError):
-                price_unit = 0.0
-                quantity = 1.0
-            invoice_line_vals.append(
-                (
-                    0,
-                    0,
-                    {
-                        "name": line.get("name") or "Imported line",
-                        "price_unit": price_unit,
-                        "quantity": quantity,
-                        "ai_confidence": line.get("confidence"),
-                    },
-                ),
-            )
+        # Line values come from the module's single payload->values helper, so
+        # the numeric coercion and the "Imported line" fallback cannot drift
+        # from the apply paths.
+        invoice_line_vals = [
+            (0, 0, values) for values in self._line_values_from_payload(payload)
+        ]
 
         vals = {
             "move_type": "in_invoice",
@@ -2087,7 +2345,6 @@ class AccountMove(models.Model):
             ),
             "ai_extracted_total": amount_total,
             "ai_extracted_json": payload,
-            "extraction_json": json.dumps(payload),
         }
         if currency:
             vals["currency_id"] = currency.id
@@ -2186,9 +2443,15 @@ class AccountMove(models.Model):
         :return: True when the high-effort pass produced a better score.
         """
         self.ensure_one()
+        if self.ai_high_effort_attempted:
+            # The second pass runs at most once per bill. A plain boolean guard
+            # cannot be rewritten by the confidence compute the way a marker
+            # kept inside ``ai_confidence_details`` could.
+            return False
         ocr_text = self.ocr_text or self.ai_ocr_text
         if not ocr_text:
             return False
+        self.write({"ai_high_effort_attempted": True})
         try:
             result = self.env["invoice.llm.service"].extract_invoice(
                 ocr_text,
@@ -2262,18 +2525,18 @@ class AccountMove(models.Model):
         journal threshold, one ``_run_high_effort_pass`` before being
         routed to Auto / Needs Review.
         """
-        moves = self.search(
+        # Row-lock the batch: with max_cron_threads > 1 two workers could
+        # otherwise both claim and extract the same bill.
+        moves = self._claim_pending_extractions(batch_size)
+        remaining = self.search_count(
             [
                 ("ai_extraction_status", "=", "processing"),
                 ("ocr_state", "=", "done"),
             ],
-            order="write_date asc, id asc",
-            limit=batch_size,
         )
         processed = 0
         for move in moves:
             try:
-                self.env.cr.commit()
                 move._run_extraction()
                 if (
                     move.ai_extraction_status == "extracted"
@@ -2287,15 +2550,20 @@ class AccountMove(models.Model):
                             "original extraction stands",
                             move.id,
                         )
-                processed += 1
             except Exception:
                 _logger.exception(
                     "Extraction cron failed for move %s — marked failed and continuing",
                     move.display_name,
                 )
-            finally:
-                self.env.cr.rollback()
-                self.env.cr.commit()
+            processed += 1
+            remaining -= 1
+            # Commit incrementally and honour the cron's time budget. This
+            # replaces the hand-rolled rollback()/commit() pair whose
+            # ``finally: rollback()`` silently DISCARDED every successful
+            # extraction — the reason this cron looked like it worked while
+            # losing all of its work.
+            if not self.env["ir.cron"]._commit_progress(1, remaining=remaining):
+                break
         return processed
 
     def _run_extraction(self):
@@ -2408,11 +2676,13 @@ class AccountMove(models.Model):
                 )
         else:
             partner_name = payload.get("partner_name") or payload.get("vendor_name")
+            # Single company-scoped lookup (see ``_find_vendor_partner``). This
+            # path used to run its own unscoped search, which on a
+            # multi-company database could resolve a partner from another
+            # company. ``self`` is an empty recordset here (``@api.model``)
+            # and the helper falls back to ``self.env.company``.
             partner = (
-                self.env["res.partner"].search(
-                    [("name", "ilike", partner_name), ("parent_id", "=", False)],
-                    limit=1,
-                )
+                self._find_vendor_partner(name=partner_name)
                 if partner_name
                 else self.env["res.partner"]
             )
@@ -2428,14 +2698,13 @@ class AccountMove(models.Model):
                 )
 
         # ---- Build and create the draft bill ----
+        # This facade accepts a wider line contract than the extraction payload
+        # (product_id / tax_ids), so it is a distinct mapping rather than a
+        # duplicate — but the numeric coercion is shared, so its fallbacks
+        # cannot diverge from the extraction paths.
         invoice_line_vals = []
         for line in lines:
-            try:
-                price_unit = float(line.get("price_unit") or 0.0)
-                quantity = float(line.get("quantity") or 1.0)
-            except (TypeError, ValueError):
-                price_unit = 0.0
-                quantity = 1.0
+            price_unit, quantity = self._coerce_line_amounts(line)
             invoice_line_vals.append(
                 {
                     "name": line.get("name") or "Imported line",
