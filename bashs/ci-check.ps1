@@ -171,7 +171,11 @@ else {
     #   addons  - base Odoo core, unchanged upstream code
     #   venv    - local virtualenv, gitignored
     #   .git    - object store, gitignored from scan perspective
-    & trivy fs --severity CRITICAL, HIGH --ignore-unfixed --exit-code 1 --quiet --timeout 10m --skip-dirs addons, venv, .git .
+    # --severity / --skip-dirs take comma-separated values, so they MUST be
+    # quoted. Unquoted, PowerShell splits "CRITICAL, HIGH" into separate
+    # arguments and trivy treats the extras as further scan targets, aborting
+    # with "multiple targets cannot be specified".
+    & trivy fs --severity "CRITICAL,HIGH" --ignore-unfixed --exit-code 1 --quiet --timeout 10m --skip-dirs "addons,venv,.git" .
     if ($LASTEXITCODE -ne 0) { 
         Fail-Step "trivy fs found CRITICAL/HIGH vulnerabilities" 
     } 
@@ -405,7 +409,7 @@ if (Test-CommandExists "trivy" -and Test-CommandExists "docker") {
         Fail-Step "docker build ./invoice-ai failed"
     }
     else {
-        & trivy image --severity CRITICAL, HIGH --ignore-unfixed --exit-code 1 --quiet invoice-ai:security-scan
+        & trivy image --severity "CRITICAL,HIGH" --ignore-unfixed --exit-code 1 --quiet invoice-ai:security-scan
         if ($LASTEXITCODE -ne 0) { Fail-Step "trivy image vulnerabilities found" }
         else { Write-Host "    image scan clean" -ForegroundColor Green }
     }
