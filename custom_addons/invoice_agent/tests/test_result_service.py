@@ -26,13 +26,13 @@ from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
 import jwt
-from odoo.tests import HttpCase, tagged
 
 from odoo.addons.invoice_agent.models.result_service import (
     RESULT_AUDIENCE,
     RESULT_ISSUER,
     RESULT_SUBJECT,
 )
+from odoo.tests import HttpCase, tagged
 
 from .test_extraction import InvoiceAgentTestCommon
 
