@@ -40,6 +40,13 @@ from .test_extraction import InvoiceAgentTestCommon
 # the environment variable the owner reads first.
 ENV_OVERRIDE_SECRET = "invoice-agent-test-env-secret-0123456789abcdef"
 
+# The secret the suite installs as the ``invoice_agent.jwt_secret`` config
+# parameter so the tests run on a fresh CI database with no ``.env`` at all.
+# 32+ bytes keeps HMAC-SHA256 from warning. ``_jwt_secret`` prefers the
+# ``INVOICE_AI_JWT_SECRET`` env var, so a deployment configured through
+# ``.env`` still resolves its own value.
+TEST_JWT_SECRET = "invoice-agent-test-jwt-secret-0123456789abcdef"
+
 
 def _mint(
     payload,
@@ -85,6 +92,14 @@ class TestResultService(InvoiceAgentTestCommon):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # Make the suite self-contained: CI installs the addon on a fresh DB
+        # with no .env, so set the shared secret as the config parameter before
+        # any caller resolves it. ``_jwt_secret`` reads the env var first, so a
+        # deployment configured through .env still wins.
+        cls.env["ir.config_parameter"].sudo().set_param(
+            "invoice_agent.jwt_secret",
+            TEST_JWT_SECRET,
+        )
         cls.service = cls.env["invoice.agent.result.service"]
         # The deployment's real secret, from the single owner both sides use.
         cls.secret = cls.env["invoice.llm.service"]._jwt_secret()
@@ -344,6 +359,14 @@ class TestResultRoute(HttpCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # Self-contained config: the shared secret lives in the parameter so
+        # the suite runs on a fresh CI DB with no .env. HttpCase runs its HTTP
+        # requests on this test cursor, so the route handler resolves the same
+        # secret this class signed with.
+        cls.env["ir.config_parameter"].sudo().set_param(
+            "invoice_agent.jwt_secret",
+            TEST_JWT_SECRET,
+        )
         cls.secret = cls.env["invoice.llm.service"]._jwt_secret()
         cls.purchase_journal = cls.env["account.journal"].search(
             [
