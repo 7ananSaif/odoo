@@ -15,6 +15,7 @@ The in-process Claude SDK mapping is gone; the addon now calls the
   breaker matrix — the focus here is the error mapping itself).
 """
 
+import os
 import warnings
 from unittest.mock import patch
 
@@ -139,15 +140,26 @@ class TestLlmHttpErrorChain(TransactionCase):
         self.assertEqual(mock_post.call_count, svc.TIMEOUT_RETRIES + 1)
 
     def test_missing_url_raises_user_error(self):
+        # BOTH sources must be empty: ``_service_url`` reads the .env variable
+        # FIRST and only then the parameter. Clearing only the parameter would
+        # leave the environment's URL in force and the call would reach the
+        # network instead of raising.
         self.env["ir.config_parameter"].sudo().set_param(
             "invoice_agent.llm_service_url", ""
         )
-        with self.assertRaises(UserError) as ctx:
-            self.service.extract_invoice("invoice text")
+        with patch.dict(os.environ, {"INVOICE_AI_LLM_SERVICE_URL": ""}):
+            with self.assertRaises(UserError) as ctx:
+                self.service.extract_invoice("invoice text")
         self.assertIn("URL", ctx.exception.args[0])
 
     def test_missing_secret_raises_user_error(self):
+        # BOTH sources must be empty. ``_jwt_secret`` reads the .env variable
+        # FIRST and only then the parameter, so clearing only the parameter
+        # leaves the environment's value in force: the call then proceeds to a
+        # real POST instead of raising. That is exactly how this test failed on
+        # any deployment that configures the stack through .env.
         self.env["ir.config_parameter"].sudo().set_param("invoice_agent.jwt_secret", "")
-        with self.assertRaises(UserError) as ctx:
-            self.service.extract_invoice("invoice text")
+        with patch.dict(os.environ, {"INVOICE_AI_JWT_SECRET": ""}):
+            with self.assertRaises(UserError) as ctx:
+                self.service.extract_invoice("invoice text")
         self.assertIn("JWT", ctx.exception.args[0])

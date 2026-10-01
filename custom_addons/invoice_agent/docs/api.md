@@ -139,8 +139,11 @@ missing) should prefer JSON-2 and match on `message`/`name`.
 
 ### 3.1 `POST /invoice_agent/upload`
 
-Machine route (`type='http'`, `auth='none'` + bearer decorator,
-`csrf=False`, `save_session=False`).
+Machine route (`type='http'`, `auth='bearer'`, `csrf=False`,
+`save_session=False`). Authentication is Odoo's native API-key handler
+(`ir.http._auth_method_bearer`); error bodies on `/invoice_agent/*` stay JSON
+rather than HTML via the `ir.http._handle_error` override in
+`models/ir_http.py`.
 
 Request:
 
@@ -157,8 +160,8 @@ Responses:
 | Status | Body |
 |---|---|
 | 201 | `{"jsonrpc": "2.0", "id": null, "result": {"move_id": 42, "name": "VEND/...", "state": "draft", "ai_extraction_status": "processing"}}` |
-| 400 | `{"error": {"message": "..."}}` — missing `file`, non-PDF mimetype, >10 MiB |
-| 401 | `{"error": {"message": "..."}}` — missing/invalid/revoked/wrong-scope key |
+| 400 | `{"jsonrpc": "2.0", "id": null, "error": {"code": 400, "message": "..."}}` — missing `file`, non-PDF mimetype, >10 MiB |
+| 401 | `{"jsonrpc": "2.0", "id": null, "error": {"code": 401, "message": "..."}}` — missing/invalid/revoked/wrong-scope key |
 
 ### 3.2 `POST /invoice_agent/status/<move_id>`
 

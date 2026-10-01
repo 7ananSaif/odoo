@@ -5,13 +5,16 @@ The worker re-declares the topology on every (re)connect: AMQP 0-9-1
 declaration is a no-op when name/type/flags match, so this is cheap, safe,
 and heals a broker that was reset while the worker slept.
 
-Routing-key namespace (the semantic contract between Odoo, the worker and
-the result consumer):
+Routing-key namespace (the semantic contract between Odoo and the worker):
 
 * ``extract.request``  Odoo outbox -> ``invoice.extract``      (job request)
-* ``extract.started``  worker     -> ``invoice.result``       (lifecycle: extracting)
-* ``extract.done``     worker     -> ``invoice.result``       (lifecycle: ready/failed)
 * ``extract.dead``     worker     -> ``invoice.extract.dead`` (poison invoice)
+
+There is deliberately **no result routing key** any more: since Wave 3
+(review finding P1-3) the worker delivers its signed result to Odoo over HTTP
+at ``POST /invoice_agent/result`` (``app/odoo_result.py``) instead of
+publishing ``extract.started`` / ``extract.done`` on ``invoice.result``. Only
+the *request* direction still uses AMQP.
 
 Dead-lettering / retry ladder (v0.9 — contract in docs/queue-contract.md):
 
@@ -39,13 +42,12 @@ _logger = logging.getLogger(__name__)
 EXCHANGE_NAME = "invoice.agent"
 EXCHANGE_TYPE = "topic"
 QUEUE_EXTRACT = "invoice.extract"
-QUEUE_RESULT = "invoice.result"
 QUEUE_DEAD = "invoice.extract.dead"
+# NOTE: ``invoice.result`` is intentionally not declared — results are
+# delivered over HTTP since Wave 3 (review P1-3). See the module docstring.
 DLX_EXCHANGE = "invoice.extract.dlx"
 DLX_TYPE = "direct"
 ROUTING_KEY_REQUEST = "extract.request"
-ROUTING_KEY_STARTED = "extract.started"
-ROUTING_KEY_DONE = "extract.done"
 ROUTING_KEY_DEAD = "extract.dead"
 
 # Retry ladder tiers (name -> TTL ms). Keep in lockstep with
@@ -61,8 +63,6 @@ DELIVERY_LIMIT = 3
 
 TOPOLOGY_BINDINGS = [
     (QUEUE_EXTRACT, ROUTING_KEY_REQUEST),
-    (QUEUE_RESULT, ROUTING_KEY_STARTED),
-    (QUEUE_RESULT, ROUTING_KEY_DONE),
     (QUEUE_DEAD, ROUTING_KEY_DEAD),
 ]
 

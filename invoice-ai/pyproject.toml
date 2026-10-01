@@ -12,6 +12,12 @@ license = { text = "LGPL-3" }
 dependencies = [
     "anthropic>=0.70.0",
     "fastapi>=0.115.0",
+    # httpx is used at runtime by app/odoo_result.py to deliver finished
+    # results to Odoo's POST /invoice_agent/result webhook (review P1-3 /
+    # Wave 3). It was previously a dev-only dependency (arriving transitively
+    # via starlette's TestClient); the result path now depends on it directly,
+    # so it is declared here rather than relied on by accident.
+    "httpx>=0.27.0",
     "uvicorn[standard]>=0.30.0",
     "pydantic>=2.8.0",
     "pydantic-settings>=2.4.0",

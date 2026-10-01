@@ -1,21 +1,28 @@
-"""Async worker — consumes ``invoice.extract`` jobs and publishes results.
+"""Async worker — consumes ``invoice.extract`` jobs and applies them.
 
 Run with ``python -m app.consumer`` (the compose ``worker`` service command).
 Flow per job (QoS prefetch=1, manual ack):
 
-1. Connect robustly (``aio_pika.connect_robust``) and declare the full
-   topology (``app/amqp.py``) — re-declared on every reconnect so a broker
-   reset heals itself.
+1. Connect robustly (``aio_pika.connect_robust``) and declare the topology
+   (``app/amqp.py``) — re-declared on every reconnect so a broker reset heals
+   itself.
 2. Consume one ``extract.request`` message. Body contract
    (docs/queue-contract.md): ``{"move_id", "attachment_id", "attempt",
    "job_uuid", "ocr_text"}``.
-3. Publish ``extract.started`` on the ``invoice.agent`` topic exchange ->
-   ``invoice.result`` so the Odoo UI flips to *extracting* live.
+3. Deliver ``extract.started`` to Odoo so the UI flips to *extracting* live.
 4. Run Claude extraction (``ClaudeService.extract`` — AsyncAnthropic, never
    a blocking SDK call on the loop).
-5. Publish the JWT-signed result (``app/result_signing.py``) on
-   ``invoice.agent``/``extract.done`` -> ``invoice.result``, then ack the
-   original.
+5. Deliver the JWT-signed result (``app/result_signing.py``) to Odoo, then ack
+   the original.
+
+**Result delivery is HTTP, not AMQP.** Results used to be published on
+``invoice.agent``/``extract.done`` to the ``invoice.result`` queue, which Odoo
+drained with a daemon thread in every process. Odoo now exposes
+``POST /invoice_agent/result`` (review finding P1-3 / Wave 3) and
+``app/odoo_result.py`` posts the same signed ``{"token": ...}`` envelope
+there. Only the *result* direction moved: ``invoice.extract`` is still AMQP,
+because that is the direction Odoo initiates and the queue gives it the
+durability, ordering and retry-ladder behaviour it needs.
 
 Failure routing (v0.9 — retry ladder + dead-letter queue, see app/retry.py):
 
@@ -25,12 +32,17 @@ Failure routing (v0.9 — retry ladder + dead-letter queue, see app/retry.py):
   original. The tier's ``x-message-ttl`` is the backoff; expiry re-publishes
   to ``invoice.agent``/``extract.request``. Exhausting the ladder
   dead-letters instead.
+* ``ResultDeliveryError`` — routed the same way, using its own ``transient``
+  flag: a transport error, HTTP 5xx, 429, or 409 (Odoo has no bill for this
+  result *yet*) rides the ladder; 400 or 401 dead-letters immediately,
+  because retrying cannot fix a malformed envelope or a shared secret the two
+  sides disagree about.
 * ``BadRequestError`` / ``ExtractionValidationError`` / malformed body:
-  publish on the DLX to ``extract.dead`` AND a signed ``status:"failed"``
-  result on the topic exchange, then ack the original. The dead queue owns
-  the message; the signed failure lets the Odoo result consumer mark the
-  originating outbox job dead and flag the move. Retrying never fixes a bad
-  schema — these must never burn another Anthropic call.
+  publish on the DLX to ``extract.dead`` AND deliver a signed
+  ``status:"failed"`` result to Odoo, then ack the original. The dead queue
+  owns the message; the signed failure lets Odoo mark the originating outbox
+  job dead and flag the move. Retrying never fixes a bad schema — these must
+  never burn another Anthropic call.
 * Unknown failure without an attempt counter: discard (ack, no republish).
 * ``x-delivery-limit: 3`` on the queue is the safety net: a worker crash
   mid-job (unacked) redelivers at most 3 times before the broker itself
@@ -39,12 +51,6 @@ Failure routing (v0.9 — retry ladder + dead-letter queue, see app/retry.py):
 ``connect_robust`` reattaches after broker restarts with built-in retry and
 redeclares the topology on each reconnect, so the worker survives RabbitMQ
 outages mid-batch.
-
-Why publish on the named exchanges and never the default exchange: the
-default exchange routes only by *exact queue name*. ``extract.done`` is a
-routing key on the ``invoice.agent`` topic exchange bound by the
-``invoice.result`` queue — publishing it on the default exchange would
-silently drop the result.
 """
 
 from __future__ import annotations
@@ -52,18 +58,16 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-from collections.abc import Callable
+import time
+from collections.abc import Awaitable, Callable
 from typing import Any
 
 import aio_pika
-from aio_pika.abc import AbstractChannel, AbstractExchange, AbstractIncomingMessage
+from aio_pika.abc import AbstractExchange, AbstractIncomingMessage
 
 from .amqp import (
     DLX_EXCHANGE,
-    EXCHANGE_NAME,
     QUEUE_EXTRACT,
-    ROUTING_KEY_DONE,
-    ROUTING_KEY_STARTED,
     declare_topology,
 )
 from .claude import ClaudeService
@@ -76,13 +80,16 @@ from .metrics import (
     Timer,
     record_claude_tokens,
 )
+from .odoo_result import OdooResultClient, ResultDeliveryError
 from .result_signing import ResultSigningError, sign_result
 from .retrieve import retrieve_vendor_context
 from .retry import (
     DEAD_ROUTING_KEY,
     RetryDecision,
+    RetryExhausted,
     attempt_from_body,
     classify_failure,
+    tier_for_attempt,
 )
 from .schemas import InvoiceExtraction
 from .validate import validate_extraction
@@ -90,6 +97,11 @@ from .validate import validate_extraction
 _logger = logging.getLogger(__name__)
 
 PREFETCH_COUNT = 1
+
+# How the worker hands a signed envelope to Odoo. A callable seam (rather than
+# a hard call to ``OdooResultClient``) so tests can record deliveries without
+# a live Odoo, exactly like the ``sign`` seam.
+DeliverFn = Callable[[dict[str, Any]], Awaitable[None]]
 
 
 class WorkerError(Exception):
@@ -111,21 +123,28 @@ def _parse_body(message: AbstractIncomingMessage) -> dict:
     return payload
 
 
+async def _deliver_to_odoo(envelope: dict[str, Any]) -> None:
+    """Default delivery: POST the signed envelope to Odoo's result webhook."""
+    await OdooResultClient().post_result(envelope)
+
+
 class InvoiceConsumer:
     """aio-pika consumer for the ``invoice.extract`` queue.
 
-    Owns one robust connection + channel. Injectable ``claude`` and
-    ``sign`` seams so tests can run the full routing logic on a fake broker
-    (aio-pika's in-memory ``connect``) without touching Anthropic.
+    Owns one robust connection + channel. Injectable ``claude``, ``sign`` and
+    ``deliver`` seams so tests exercise the full routing logic on a fake
+    broker and a recording transport without touching Anthropic or Odoo.
     """
 
     def __init__(
         self,
         claude: ClaudeService | None = None,
         sign: Callable[[dict[str, Any]], str] = sign_result,
+        deliver: DeliverFn = _deliver_to_odoo,
     ):
         self._claude = claude or ClaudeService()
         self._sign = sign
+        self._deliver = deliver
 
     async def run(self, amqp_url: str) -> None:
         """Connect robustly and consume until cancelled."""
@@ -142,8 +161,8 @@ class InvoiceConsumer:
         await declare_topology(channel)
 
         queue = await channel.get_queue(QUEUE_EXTRACT)
-
-        topic_exchange = await channel.get_exchange(EXCHANGE_NAME)
+        # Only the DLX is still needed: results no longer go to a topic
+        # exchange, so the ``invoice.agent`` exchange is not fetched here.
         dlx = await channel.get_exchange(DLX_EXCHANGE)
 
         _logger.info(
@@ -154,28 +173,21 @@ class InvoiceConsumer:
         try:
             async with queue.iterator() as queue_iter:
                 async for message in queue_iter:
-                    await self._handle_message(
-                        channel,
-                        message,
-                        topic_exchange,
-                        dlx,
-                    )
+                    await self._handle_message(message, dlx)
         finally:
             await connection.close()
             _logger.info("invoice-ai worker: connection closed")
 
     async def _handle_message(
         self,
-        channel: AbstractChannel,
         message: AbstractIncomingMessage,
-        topic_exchange: AbstractExchange,
         dlx: AbstractExchange,
     ) -> None:
         async with message.process(requeue=False):
             try:
                 body = _parse_body(message)
             except WorkerError as exc:
-                await self._dead_letter(dlx, message, exc, topic_exchange)
+                await self._dead_letter(dlx, message, exc)
                 return
 
             attempt = attempt_from_body(body)
@@ -183,21 +195,31 @@ class InvoiceConsumer:
             move_id = body.get("move_id")
             ocr_text = body.get("ocr_text") or ""
 
-            # Track overall job duration from consume to result publish
-            job_start = __import__("time").monotonic()
+            # Track overall job duration from consume to result delivery.
+            job_start = time.monotonic()
 
             if not job_uuid or not move_id:
                 await self._dead_letter(
                     dlx,
                     message,
                     WorkerError("job body missing job_uuid/move_id"),
-                    topic_exchange,
                 )
                 return
 
+            # Live UI state: best-effort. Failing to tell Odoo "extracting" must
+            # never cost the extraction itself, so this is logged and swallowed
+            # — the result delivery at the end is what must succeed.
             try:
-                await self._publish_started(topic_exchange, job_uuid, move_id)
+                await self._deliver_status(job_uuid, move_id, "extracting")
+            except Exception:
+                _logger.warning(
+                    "invoice-ai worker: could not deliver extracting status "
+                    "for move_id=%s (continuing with the extraction)",
+                    move_id,
+                    exc_info=True,
+                )
 
+            try:
                 # --- LLM cache lookup ---
                 # Check Redis for a cached extraction before calling Claude.
                 # On hit, skip the API call entirely (saves tokens + latency).
@@ -232,17 +254,17 @@ class InvoiceConsumer:
                         )
             except (ClaudeRateLimitError, ClaudeUpstreamError, BadRequestError) as exc:
                 decision = classify_failure(exc, attempt)
-                await self._route_failure(dlx, message, decision, topic_exchange)
+                await self._route_failure(dlx, message, decision)
                 return
             except Exception as exc:
                 # Unknown/validation errors — be conservative, dead-letter.
                 decision = classify_failure(exc, attempt)
-                await self._route_failure(dlx, message, decision, topic_exchange)
+                await self._route_failure(dlx, message, decision)
                 return
 
             # Cache writes store `parsed` as JSON (pydantic models are
             # serialized in app/llm_cache.py). Re-validate it back to the
-            # model so the publish + validation paths below can call
+            # model so the delivery + validation paths below can call
             # `model_dump()` / attribute access unchanged. Only dict input
             # (the JSON form from cache) is re-validated — model instances
             # and test doubles are left untouched.
@@ -253,8 +275,8 @@ class InvoiceConsumer:
 
             # --- Phase 2: RAG validation (retrieve + validate) ---
             # Best-effort: if retrieval or validation fails, the extraction
-            # result is still published — the Odoo side can surface it
-            # without the validation envelope.
+            # result is still delivered — Odoo can surface it without the
+            # validation envelope.
             #
             # The ``rag_enabled`` flag is a kill switch stored as
             # ``ir.config_parameter``. When False, the worker skips
@@ -318,21 +340,28 @@ class InvoiceConsumer:
                 payload["validation"] = validation_verdict
                 payload["validation_usage"] = validation_usage
             try:
-                await self._publish_result(topic_exchange, payload)
+                await self._deliver_result(payload)
             except ResultSigningError as exc:
                 # Config error (missing INVOICE_AI_JWT_SECRET) — retrying can
                 # never fix a missing secret. Dead-letter the job so it is
                 # visible on the taskboard instead of looping forever.
-                await self._dead_letter(dlx, message, exc, topic_exchange)
+                await self._dead_letter(dlx, message, exc)
+                return
+            except ResultDeliveryError as exc:
+                # Odoo's own status code decides: transient (transport, 5xx,
+                # 429, 409) rides the retry ladder; permanent (400, 401)
+                # dead-letters immediately.
+                decision = self._classify_delivery_failure(exc, attempt)
+                await self._route_failure(dlx, message, decision)
                 return
             except Exception as exc:
-                # Any other publish failure: route through the retry/dead logic.
+                # Any other delivery failure: route through the retry/dead logic.
                 decision = classify_failure(exc, attempt)
-                await self._route_failure(dlx, message, decision, topic_exchange)
+                await self._route_failure(dlx, message, decision)
                 return
 
             # Record successful job metrics
-            job_elapsed = __import__("time").monotonic() - job_start
+            job_elapsed = time.monotonic() - job_start
             WORKER_JOBS_TOTAL.labels(status="done").inc()
             WORKER_JOB_DURATION.observe(job_elapsed)
             _logger.info(
@@ -344,42 +373,76 @@ class InvoiceConsumer:
                 job_elapsed,
             )
 
-    async def _publish_started(
+    async def _deliver_status(
         self,
-        topic_exchange: AbstractExchange,
         job_uuid: str,
         move_id: int,
+        status: str,
+        **extra: Any,
     ) -> None:
-        """Publish ``extract.started`` on the topic exchange (live UI state)."""
-        await topic_exchange.publish(
-            aio_pika.Message(
-                body=json.dumps(
-                    {
-                        "job_uuid": job_uuid,
-                        "move_id": int(move_id),
-                        "status": "extracting",
-                    },
-                ).encode("utf-8"),
-                content_type="application/json",
-                delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
-            ),
-            routing_key=ROUTING_KEY_STARTED,
-        )
+        """Deliver a lifecycle status (``extracting``) to Odoo, signed.
 
-    async def _publish_result(
-        self,
-        topic_exchange: AbstractExchange,
-        payload: dict,
-    ) -> None:
-        """Publish the JWT-signed ``extract.done`` result on the topic exchange."""
+        The status message goes through the same signed envelope as a result,
+        because Odoo's route verifies the signature before it trusts anything
+        in the body — including a status. The signing function pins the
+        ``sub`` claim; the ``status`` field is what Odoo branches on.
+        """
+        payload = {
+            "job_uuid": job_uuid,
+            "move_id": int(move_id),
+            "status": status,
+        }
+        payload.update(extra)
         token = self._sign(payload)
-        await topic_exchange.publish(
-            aio_pika.Message(
-                body=json.dumps({"token": token}).encode("utf-8"),
-                content_type="application/json",
-                delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
-            ),
-            routing_key=ROUTING_KEY_DONE,
+        await self._deliver({"token": token})
+
+    async def _deliver_result(self, payload: dict) -> None:
+        """Sign a result payload and POST it to Odoo."""
+        token = self._sign(payload)
+        await self._deliver({"token": token})
+
+    @staticmethod
+    def _classify_delivery_failure(
+        exc: ResultDeliveryError,
+        attempt: int | None,
+    ) -> RetryDecision:
+        """Map a ``ResultDeliveryError`` onto the retry ladder.
+
+        Kept here rather than in ``app/retry.py`` on purpose: ``retry.py`` is
+        deliberately free of any transport or SDK import so it unit-tests with
+        no dependencies, and ``ResultDeliveryError`` lives with httpx. The
+        classification itself is the same shape as ``classify_failure``'s.
+        """
+        if attempt is None:
+            return RetryDecision(
+                route="discard",
+                reason=f"unclassifiable delivery failure (no attempt): {exc}",
+            )
+        if not exc.transient:
+            return RetryDecision(
+                route="dead",
+                attempt=attempt,
+                reason=(
+                    f"permanent result delivery failure "
+                    f"(HTTP {exc.status_code}): {exc}"
+                ),
+            )
+        try:
+            tier = tier_for_attempt(attempt)
+        except RetryExhausted:
+            return RetryDecision(
+                route="dead",
+                attempt=attempt,
+                reason=(
+                    "transient result delivery failure exhausted the retry "
+                    f"ladder: {exc}"
+                ),
+            )
+        return RetryDecision(
+            route="retry",
+            tier=tier,
+            attempt=attempt,
+            reason=f"transient result delivery failure: {exc}",
         )
 
     async def _route_failure(
@@ -387,7 +450,6 @@ class InvoiceConsumer:
         dlx: AbstractExchange,
         message: AbstractIncomingMessage,
         decision: RetryDecision,
-        topic_exchange: AbstractExchange | None = None,
     ) -> None:
         """Route a failed job to the retry ladder or the dead queue.
 
@@ -409,7 +471,7 @@ class InvoiceConsumer:
                 decision.attempt,
             )
         elif decision.is_dead:
-            await self._dead_letter(dlx, message, decision.reason, topic_exchange)
+            await self._dead_letter(dlx, message, decision.reason)
         else:
             WORKER_JOBS_TOTAL.labels(status="failed").inc()
             _logger.warning(
@@ -422,17 +484,17 @@ class InvoiceConsumer:
         dlx: AbstractExchange,
         message: AbstractIncomingMessage,
         reason: Any,
-        topic_exchange: AbstractExchange | None = None,
+        notify_odoo: bool = True,
     ) -> None:
         """Publish to the poison queue and let the original ack.
 
         ``reason`` is surfaced as the ``x-death-reason`` header on the dead
         message so the dead queue (and the management UI) shows WHY the job
         was poisoned. When the body carries a correlatable ``job_uuid``, a
-        signed ``status:"failed"`` result is ALSO published on the topic
-        exchange so the Odoo result consumer can mark the originating outbox
-        job dead and flag the move — the dead-letter is visible in the Odoo
-        taskboard, not just the management UI.
+        signed ``status:"failed"`` result is ALSO delivered to Odoo so it can
+        mark the originating outbox job dead and flag the move — the
+        dead-letter is visible in the Odoo taskboard, not just the management
+        UI.
         """
         headers = dict(message.headers or {})
         headers["x-death-reason"] = str(reason)[:2000]
@@ -442,7 +504,7 @@ class InvoiceConsumer:
             body=message.body,
             headers=headers,
         )
-        if topic_exchange is not None:
+        if notify_odoo:
             try:
                 body = _parse_body(message)
                 job_uuid = body.get("job_uuid") or ""
@@ -454,10 +516,11 @@ class InvoiceConsumer:
                         "status": "failed",
                         "error": str(reason)[:2000],
                     }
-                    await self._publish_result(topic_exchange, failed_payload)
+                    await self._deliver_result(failed_payload)
             except Exception:
                 _logger.exception(
-                    "invoice-ai worker: could not publish failed result for dead-lettered job",
+                    "invoice-ai worker: could not deliver failed result for "
+                    "dead-lettered job",
                 )
         WORKER_JOBS_TOTAL.labels(status="dead-lettered").inc()
         _logger.warning("invoice-ai worker: dead-lettered job: %s", reason)

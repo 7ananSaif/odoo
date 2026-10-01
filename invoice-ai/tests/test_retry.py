@@ -6,10 +6,14 @@ Two layers are covered:
    tier selection, attempt parsing — no broker involved.
 2. **Consumer routing** (``app/consumer.py``): the worker must publish
    transient failures to the correct retry tier on the DLX, permanent
-   failures to ``extract.dead``, and happy-path results as a signed
-   ``extract.done`` on the topic exchange — exercised with a fake Claude
-   and a fake "broker" (a recording stub channel), never RabbitMQ,
-   never Anthropic.
+   failures to ``extract.dead``, and deliver happy-path results as a signed
+   envelope to Odoo *over HTTP* — exercised with a fake Claude, a recording
+   stub channel for the AMQP half and a recording ``deliver`` callable for
+   the HTTP half. Never RabbitMQ, never Anthropic, never a live Odoo.
+
+The split matters: only the *result* direction moved to HTTP (review P1-3 /
+Wave 3), so the DLX assertions here are still AMQP while the result
+assertions are now HTTP deliveries.
 """
 
 import json
@@ -23,6 +27,7 @@ from app.errors import (
     ClaudeUpstreamError,
     ExtractionValidationError,
 )
+from app.odoo_result import ResultDeliveryError
 from app.retry import (
     MAX_RETRY_ATTEMPTS,
     RetryExhausted,
@@ -134,16 +139,38 @@ class FakeExchange:
 
 
 class FakeChannel:
-    """Records exchanges passed to the consumer and the published messages."""
+    """Records the DLX publishes the consumer issues.
+
+    Only the dead-letter/retry half of the worker still talks AMQP — results
+    are delivered over HTTP and recorded by :class:`RecordingDeliver` — so
+    there is no topic exchange to fake any more.
+    """
 
     def __init__(self):
         self.records: list[FakePublished] = []
-        self.default_exchange = None
-        self.topic = FakeExchange("invoice.agent", self.records)
         self.dlx = FakeExchange("invoice.extract.dlx", self.records)
 
-    async def publish(self, exchange, routing_key, body):
-        self.records.append(FakePublished(exchange, routing_key, body, {}))
+
+class RecordingDeliver:
+    """Records the signed envelopes the worker POSTs to Odoo.
+
+    Mirrors the ``deliver`` seam on ``InvoiceConsumer``. The ``sign`` stub in
+    these tests is ``json.dumps``, so ``json.loads(envelope["token"])``
+    recovers the exact payload the worker tried to deliver.
+    """
+
+    def __init__(self, error: Exception | None = None):
+        self.envelopes: list[dict] = []
+        self.error = error
+
+    async def __call__(self, envelope: dict) -> None:
+        if self.error is not None:
+            raise self.error
+        self.envelopes.append(envelope)
+
+    def payloads(self) -> list[dict]:
+        """The delivered payloads, decoded from their stubbed tokens."""
+        return [json.loads(env["token"]) for env in self.envelopes]
 
 
 class _FakeProcessContext:
@@ -224,98 +251,163 @@ def _done_result():
 
 
 @pytest.mark.anyio
-async def test_happy_path_publishes_signed_done():
+async def test_happy_path_delivers_signed_done():
     channel = FakeChannel()
+    deliver = RecordingDeliver()
     consumer = InvoiceConsumer(
         claude=FakeClaude(result=_done_result()),
-        sign=lambda payload: f"signed.{payload['job_uuid']}",
+        sign=json.dumps,
+        deliver=deliver,
     )
     message = FakeMessage(json.dumps(_job_body()).encode("utf-8"))
 
-    await consumer._handle_message(channel, message, channel.topic, channel.dlx)
+    await consumer._handle_message(message, channel.dlx)
 
-    # Two publishes: extract.started on topic, extract.done on topic.
-    assert len(channel.records) == 2
-    started = channel.records[0]
-    assert started.exchange == "invoice.agent"
-    assert started.routing_key == "extract.started"
-    done = channel.records[1]
-    assert done.exchange == "invoice.agent"
-    assert done.routing_key == "extract.done"
-    body = json.loads(done.body)
-    assert body["token"] == "signed.uuid-123"
+    # Two HTTP deliveries: the extracting status, then the result. Nothing is
+    # published to AMQP for a result any more.
+    assert channel.records == []
+    assert len(deliver.envelopes) == 2
+    started, done = deliver.payloads()
+    assert started["status"] == "extracting"
+    assert started["job_uuid"] == "uuid-123"
+    assert done["status"] == "done"
+    assert done["job_uuid"] == "uuid-123"
+    assert done["parsed_output"]["vendor_name"] == "ACME"
 
 
 @pytest.mark.anyio
 async def test_rate_limit_routes_to_retry_tier():
     channel = FakeChannel()
+    deliver = RecordingDeliver()
     consumer = InvoiceConsumer(
         claude=FakeClaude(error=ClaudeRateLimitError(retry_after_seconds=17)),
-        sign=lambda payload: "signed",
+        sign=json.dumps,
+        deliver=deliver,
     )
     message = FakeMessage(json.dumps(_job_body(attempt=1)).encode("utf-8"))
 
-    await consumer._handle_message(channel, message, channel.topic, channel.dlx)
+    await consumer._handle_message(message, channel.dlx)
 
-    assert len(channel.records) == 2  # started + retry publish
-    retry = channel.records[1]
+    # The started status still goes out, then the transient failure rides the
+    # retry ladder. One AMQP publish: the retry tier.
+    assert len(channel.records) == 1
+    retry = channel.records[0]
     assert retry.exchange == "invoice.extract.dlx"
     assert retry.routing_key == "retry.retry.5s"
+    assert deliver.payloads()[0]["status"] == "extracting"
 
 
 @pytest.mark.anyio
 async def test_bad_request_dead_letters():
     channel = FakeChannel()
+    deliver = RecordingDeliver()
     consumer = InvoiceConsumer(
         claude=FakeClaude(error=BadRequestError("bad schema")),
-        sign=lambda payload: "signed",
+        sign=json.dumps,
+        deliver=deliver,
     )
     message = FakeMessage(json.dumps(_job_body(attempt=1)).encode("utf-8"))
 
-    await consumer._handle_message(channel, message, channel.topic, channel.dlx)
+    await consumer._handle_message(message, channel.dlx)
 
-    # started + dead-letter publish + signed failed result
-    assert len(channel.records) == 3
-    dead = channel.records[1]
+    # One AMQP publish (the dead-letter) + two HTTP deliveries: the started
+    # status and the signed failed result that lets Odoo flag the bill.
+    assert len(channel.records) == 1
+    dead = channel.records[0]
     assert dead.exchange == "invoice.extract.dlx"
     assert dead.routing_key == "extract.dead"
     assert "x-death-reason" in dead.headers
-    failed = channel.records[2]
-    assert failed.exchange == "invoice.agent"
-    assert failed.routing_key == "extract.done"
-    failed_body = json.loads(failed.body)
-    assert failed_body["token"] == "signed"
+    started, failed = deliver.payloads()
+    assert started["status"] == "extracting"
+    assert failed["status"] == "failed"
+    assert "bad schema" in failed["error"]
 
 
 @pytest.mark.anyio
 async def test_malformed_json_dead_letters():
     channel = FakeChannel()
+    deliver = RecordingDeliver()
     consumer = InvoiceConsumer(
         claude=FakeClaude(result=_done_result()),
-        sign=lambda payload: "signed",
+        sign=json.dumps,
+        deliver=deliver,
     )
     message = FakeMessage(b"not-json{{{")
 
-    await consumer._handle_message(channel, message, channel.topic, channel.dlx)
+    await consumer._handle_message(message, channel.dlx)
 
-    # Malformed body: no job_uuid to correlate -> dead-letter publish only.
+    # Malformed body: no job_uuid to correlate -> dead-letter publish, and
+    # nothing delivered to Odoo (there is nothing to correlate on).
     assert len(channel.records) == 1
     assert channel.records[0].routing_key == "extract.dead"
+    assert deliver.envelopes == []
 
 
 @pytest.mark.anyio
 async def test_missing_job_uuid_dead_letters():
     channel = FakeChannel()
+    deliver = RecordingDeliver()
     consumer = InvoiceConsumer(
         claude=FakeClaude(result=_done_result()),
-        sign=lambda payload: "signed",
+        sign=json.dumps,
+        deliver=deliver,
     )
     message = FakeMessage(json.dumps(_job_body(job_uuid="")).encode("utf-8"))
 
-    await consumer._handle_message(channel, message, channel.topic, channel.dlx)
+    await consumer._handle_message(message, channel.dlx)
 
     assert len(channel.records) == 1
     assert channel.records[0].routing_key == "extract.dead"
+    assert deliver.envelopes == []
+
+
+@pytest.mark.anyio
+async def test_transient_delivery_failure_rides_the_ladder():
+    """A transport error / 5xx / 409 on result delivery must be retried."""
+    channel = FakeChannel()
+    deliver = RecordingDeliver(
+        error=ResultDeliveryError("webhook unreachable", transient=True),
+    )
+    consumer = InvoiceConsumer(
+        claude=FakeClaude(result=_done_result()),
+        sign=json.dumps,
+        deliver=deliver,
+    )
+    message = FakeMessage(json.dumps(_job_body(attempt=1)).encode("utf-8"))
+
+    await consumer._handle_message(message, channel.dlx)
+
+    # attempt=1 -> first retry tier; the job is not lost.
+    retried = [r for r in channel.records if r.routing_key.startswith("retry.")]
+    assert len(retried) == 1
+    assert retried[0].routing_key == "retry.retry.5s"
+    assert not [r for r in channel.records if r.routing_key == "extract.dead"]
+
+
+@pytest.mark.anyio
+async def test_permanent_delivery_failure_dead_letters():
+    """A 401 (secret mismatch) must NOT ride the ladder — retrying cannot fix it."""
+    channel = FakeChannel()
+    deliver = RecordingDeliver(
+        error=ResultDeliveryError(
+            "Odoo rejected the result (HTTP 401)",
+            status_code=401,
+            transient=False,
+        ),
+    )
+    consumer = InvoiceConsumer(
+        claude=FakeClaude(result=_done_result()),
+        sign=json.dumps,
+        deliver=deliver,
+    )
+    message = FakeMessage(json.dumps(_job_body(attempt=1)).encode("utf-8"))
+
+    await consumer._handle_message(message, channel.dlx)
+
+    dead = [r for r in channel.records if r.routing_key == "extract.dead"]
+    assert dead, "a permanent delivery failure must be dead-lettered"
+    retried = [r for r in channel.records if r.routing_key.startswith("retry.")]
+    assert not retried, "a 401 must never be retried"
 
 
 def test_parse_body_rejects_non_object():
