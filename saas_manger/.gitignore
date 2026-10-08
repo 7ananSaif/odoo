@@ -1,0 +1,64 @@
+# ============================================================================
+# SaaS Manager — git ignore rules
+# ============================================================================
+
+# --- Secrets (NEVER commit) -------------------------------------------------
+.env
+
+# --- Python -----------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# --- Virtual environments ---------------------------------------------------
+venv/
+.venv/
+env/
+ENV/
+
+# --- Test / tooling caches --------------------------------------------------
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# --- Local databases, dumps and backups -------------------------------------
+# The manager's own database lives in PostgreSQL; anything SQLite-shaped here
+# is a local scratch artefact and must not be committed.
+*.db
+*.sqlite
+*.sqlite3
+*.dump
+backups/
+
+# --- Notes belonging to the previous browser-verification pass ---------------
+# (client fixture for a demo UI pass; not part of the deliverables)
+_smoke_check.py
+_totp_prep.py
+_ui_setup.py
+*_out*.txt
+collect_out.txt
+
+# --- Editor / OS ------------------------------------------------------------
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# --- Sixth workspace scratch ------------------------------------------------
+.sixth/
+
+# --- Runtime artefacts (server) ---------------------------------------------
+logs/
+*.pid
+celerybeat-schedule
+celerybeat-schedule.*

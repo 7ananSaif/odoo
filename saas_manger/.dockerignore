@@ -1,0 +1,42 @@
+# =============================================================================
+# .dockerignore — keep the SaaS Manager image small and free of secrets.
+#
+# The single most important entry is `.env`: it holds the session signing key,
+# the Fernet key and the Odoo master password, and must NEVER be baked into an
+# image layer. Runtime configuration is injected by docker-compose instead.
+# =============================================================================
+
+# --- Secrets / machine-specific environment ---------------------------------
+.env
+.env.*
+!.env.example
+
+# --- Local virtualenvs and caches -------------------------------------------
+venv/
+.venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# --- VCS and editor state ---------------------------------------------------
+.git/
+.gitignore
+.gitattributes
+.github/
+.sixth/
+.vscode/
+.idea/
+
+# --- Runtime data -----------------------------------------------------------
+logs/
+backups/
+*.log
+
+# --- Not needed inside the runtime image ------------------------------------
+tests/
+docs/
+deploy/
+patch/

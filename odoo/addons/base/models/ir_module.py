@@ -23,6 +23,7 @@ from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
 from odoo.exceptions import AccessDenied, UserError, ValidationError
 from odoo.fields import Domain
 from odoo.tools import config
+from odoo.tools import saas_lock  # SAAS-PATCH
 from odoo.tools.parse_version import parse_version
 from odoo.tools.misc import topological_sort, get_flag
 from odoo.tools.translate import TranslationImporter, get_po_paths, get_datafile_translation_path
@@ -406,6 +407,8 @@ class IrModuleModule(models.Model):
 
     @assert_log_admin_access
     def button_install(self):
+        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may install.
+        saas_lock.check_module_operation(self.env, operation='install')
         company_countries = self.env['res.company'].search([]).country_id
         # domain to select auto-installable (but not yet installed) modules
         auto_domain = [('state', '=', 'uninstalled'), ('auto_install', '=', True)]
@@ -481,6 +484,8 @@ class IrModuleModule(models.Model):
         :returns: next res.config item to execute
         :rtype: dict[str, object]
         """
+        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may install.
+        saas_lock.check_module_operation(self.env, operation='immediate install')
         _logger.info('User #%d triggered module installation', self.env.uid)
         # We use here the request object (which is thread-local) as a kind of
         # "global" env because the env is not usable in the following use case.
@@ -490,11 +495,14 @@ class IrModuleModule(models.Model):
         # configure the CoA on his own company, which makes no sense.
         if request:
             request.allowed_company_ids = self.env.companies.ids
-        return self._button_immediate_function(self.env.registry[self._name].button_install)
+        with saas_lock.internal_context():  # SAAS-PATCH: authorize internal loads
+            return self._button_immediate_function(self.env.registry[self._name].button_install)
 
     @assert_log_admin_access
     @api.model
     def button_reset_state(self):
+        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may reset states.
+        saas_lock.check_module_operation(self.env, operation='reset state')
         # reset the transient state for all modules in case the module operation is stopped in an unexpected way.
         self.search([('state', '=', 'to install')]).state = 'uninstalled'
         self.search([('state', 'in', ('to upgrade', 'to remove'))]).state = 'installed'
@@ -510,6 +518,8 @@ class IrModuleModule(models.Model):
         including the deletion of all database structures created by the module:
         tables, columns, constraints, etc.
         """
+        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may uninstall.
+        saas_lock.check_module_operation(self.env, operation='module uninstall')
         modules_to_remove = self.mapped('name')
         self.env['ir.model.data']._module_data_uninstall(modules_to_remove)
         # we deactivate prefetching to not try to read a column that has been deleted
@@ -664,10 +674,15 @@ class IrModuleModule(models.Model):
         returns the next res.config action to execute
         """
         _logger.info('User #%d triggered module uninstallation', self.env.uid)
-        return self._button_immediate_function(self.env.registry[self._name].button_uninstall)
+        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may uninstall.
+        saas_lock.check_module_operation(self.env, operation='immediate uninstall')
+        with saas_lock.internal_context():  # SAAS-PATCH: authorize internal loads
+            return self._button_immediate_function(self.env.registry[self._name].button_uninstall)
 
     @assert_log_admin_access
     def button_uninstall(self):
+        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may uninstall.
+        saas_lock.check_module_operation(self.env, operation='uninstall')
         un_installable_modules = set(odoo.tools.config['server_wide_modules']) & set(self.mapped('name'))
         if un_installable_modules:
             raise UserError(_("Those modules cannot be uninstalled: %s", ', '.join(un_installable_modules)))
@@ -683,6 +698,8 @@ class IrModuleModule(models.Model):
     @assert_log_admin_access
     def button_uninstall_wizard(self):
         """ Launch the wizard to uninstall the given module. """
+        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may uninstall.
+        saas_lock.check_module_operation(self.env, operation='uninstall wizard')
         return {
             'type': 'ir.actions.act_window',
             'target': 'new',
@@ -698,10 +715,15 @@ class IrModuleModule(models.Model):
         Upgrade the selected module(s) immediately and fully,
         return the next res.config action to execute
         """
-        return self._button_immediate_function(self.env.registry[self._name].button_upgrade)
+        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may upgrade.
+        saas_lock.check_module_operation(self.env, operation='immediate upgrade')
+        with saas_lock.internal_context():  # SAAS-PATCH: authorize internal loads
+            return self._button_immediate_function(self.env.registry[self._name].button_upgrade)
 
     @assert_log_admin_access
     def button_upgrade(self):
+        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may upgrade.
+        saas_lock.check_module_operation(self.env, operation='upgrade')
         if not self:
             return
         Dependency = self.env['ir.module.module.dependency']
@@ -785,6 +807,8 @@ class IrModuleModule(models.Model):
     @assert_log_admin_access
     @api.model
     def update_list(self):
+        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may rescan apps.
+        saas_lock.check_module_operation(self.env, operation='update list')
         res = [0, 0]    # [update, add]
 
         default_version = modules.adapt_version('1.0')

@@ -8,7 +8,9 @@ import logging
 
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError
+from odoo.fields import Domain
 from odoo.tools import config, ormcache, mute_logger
+from odoo.tools import saas_lock  # SAAS-PATCH
 
 _logger = logging.getLogger(__name__)
 
@@ -65,8 +67,18 @@ class IrConfig_Parameter(models.Model):
         :return: The value of the parameter, or ``default`` if it does not exist.
         :rtype: string
         """
+        # SAAS-PATCH: hide `saas.*` parameters from client users.
+        if str(key).startswith(saas_lock.SAAS_PARAM_PREFIX) and saas_lock.hide_saas_params(self.env):
+            return default
         self.browse().check_access('read')
         return self._get_param(key) or default
+
+    @api.model
+    def search(self, domain, offset=0, limit=None, order=None):
+        # SAAS-PATCH: hide `saas.*` parameters from client users.
+        if saas_lock.hide_saas_params(self.env):
+            domain = Domain.AND([domain, Domain('key', 'not like', saas_lock.SAAS_PARAM_PREFIX + '%')])
+        return super().search(domain, offset=offset, limit=limit, order=order)
 
     @api.model
     @ormcache('key', cache='stable')
@@ -104,10 +116,17 @@ class IrConfig_Parameter(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        # SAAS-PATCH: only the SaaS Manager may create `saas.*` parameters.
+        saas_lock.check_saas_param_write(self.env, [vals.get('key') for vals in vals_list])
         self.env.registry.clear_cache('stable')
         return super().create(vals_list)
 
     def write(self, vals):
+        # SAAS-PATCH: only the SaaS Manager may modify `saas.*` parameters.
+        keys = list(self.mapped('key'))
+        if vals.get('key'):
+            keys.append(vals['key'])
+        saas_lock.check_saas_param_write(self.env, keys)
         if 'key' in vals:
             illegal = _default_parameters.keys() & self.mapped('key')
             if illegal:
@@ -116,6 +135,8 @@ class IrConfig_Parameter(models.Model):
         return super().write(vals)
 
     def unlink(self):
+        # SAAS-PATCH: only the SaaS Manager may delete `saas.*` parameters.
+        saas_lock.check_saas_param_write(self.env, list(self.mapped('key')))
         self.env.registry.clear_cache('stable')
         return super().unlink()
 

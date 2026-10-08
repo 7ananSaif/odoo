@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Plans · {{ app_name }}{% endblock %}
+{% block heading %}Plans{% endblock %}
+{% block actions %}
+  <a class="btn btn-primary" href="/plans/new">New plan</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  {% if plans %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th><th>Code</th><th>Apps</th>
+        <th>Users</th><th>Warehouses</th><th>Companies</th><th>Storage</th>
+        <th class="right">Monthly</th><th class="right">Yearly</th><th>Active</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for p in plans %}
+      <tr>
+        <td><a href="/plans/{{ p.id }}/edit">{{ p.name }}</a></td>
+        <td><code>{{ p.code }}</code></td>
+        <td>{{ p.module_names | length }}</td>
+        <td>{{ p.max_users }}</td>
+        <td>{{ p.max_warehouses }}</td>
+        <td>{{ p.max_companies }}</td>
+        <td class="nowrap">{{ p.max_storage_mb }} MB</td>
+        <td class="right nowrap">{{ p.price_month | money(p.currency) }}</td>
+        <td class="right nowrap">{{ p.price_year | money(p.currency) }}</td>
+        <td>{% if p.active %}<span class="badge badge-success">yes</span>{% else %}<span class="badge badge-muted">no</span>{% endif %}</td>
+        <td class="right nowrap">
+          <a class="btn btn-ghost btn-sm" href="/plans/{{ p.id }}/diff">Apps</a>
+          <a class="btn btn-ghost btn-sm" href="/plans/{{ p.id }}/edit">Edit</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <p class="muted">No plans yet. <a href="/plans/new">Create the first plan</a>.</p>
+  {% endif %}
+</section>
+{% endblock %}

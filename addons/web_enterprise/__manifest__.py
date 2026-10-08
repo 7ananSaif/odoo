@@ -12,7 +12,15 @@ Odoo Enterprise Web Client.
 This module modifies the web addon to provide Enterprise design and responsiveness.
         """,
     'depends': ['web', 'base_setup'],
-    'auto_install': ['web'],
+    # Auto-install disabled locally. Upstream ships `['web']`, which selects
+    # Web Enterprise on every database that has `web` -- i.e. all of them.
+    # That collides with muk_web_theme (which auto-installs and declares
+    # `excludes: ['web_enterprise']`), aborting the install with:
+    #   UserError: Modules "MuK Backend Theme" and "Web Enterprise" are
+    #              incompatible.
+    # With this set to False, Web Enterprise is opt-in only; enterprise
+    # modules that depend on it still pull it in when they are installed.
+    'auto_install': False,
     'data': [
         'views/webclient_templates.xml',
         'views/res_users_views.xml',

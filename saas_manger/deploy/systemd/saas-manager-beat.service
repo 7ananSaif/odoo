@@ -1,0 +1,32 @@
+# =============================================================================
+# SaaS Manager — Celery beat (periodic scheduler)
+#
+# Template: deploy/setup-server.sh substitutes __APP_USER__ and __APP_DIR__ and
+# installs the result as /etc/systemd/system/saas-manager-beat.service.
+#
+# Run exactly ONE beat instance. Its schedule database (celerybeat-schedule) is
+# written in WorkingDirectory. .env is read from WorkingDirectory by
+# pydantic-settings.
+# =============================================================================
+[Unit]
+Description=SaaS Manager - Celery beat scheduler
+Documentation=file://__APP_DIR__/deploy/README.md
+After=network-online.target redis-server.service redis6.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_USER__
+WorkingDirectory=__APP_DIR__
+ExecStart=__APP_DIR__/venv/bin/python -m celery -A app.workers.celery_app.celery_app beat --loglevel=INFO
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=30
+NoNewPrivileges=true
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

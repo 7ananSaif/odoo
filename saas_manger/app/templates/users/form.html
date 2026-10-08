@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% set editing = account is not none %}
+{% block title %}{{ 'Edit' if editing else 'New' }} user · {{ app_name }}{% endblock %}
+{% block heading %}{{ 'Edit user' if editing else 'New user' }}{% endblock %}
+{% block actions %}
+  <a class="btn btn-ghost" href="/users">Back</a>
+{% endblock %}
+
+{% block content %}
+<form method="post" action="{{ '/users/%d/edit'|format(account.id) if editing else '/users/new' }}">
+  <div class="card">
+    <h2>Account</h2>
+    <div class="form-grid">
+      <label>Email
+        <input type="email" name="email" value="{{ account.email if editing else '' }}" required
+               autocomplete="off">
+        <span class="help">Used as the sign-in name. Lower-cased and unique.</span>
+      </label>
+      <label>Display name
+        <input type="text" name="name" value="{{ account.name if editing else '' }}"
+               placeholder="Jane Doe">
+      </label>
+      <label>Role
+        <select name="role">
+          {% for r in assignable_roles %}
+          <option value="{{ r.value }}"
+                  {{ 'selected' if editing and account.role == r.value else ('selected' if not editing and loop.first else '') }}>
+            {{ r.label }} — {{ r.description }}
+          </option>
+          {% endfor %}
+        </select>
+        <span class="help">Only roles at or below your own can be assigned.</span>
+      </label>
+      {% if editing %}
+      <label class="check">
+        <input type="checkbox" name="is_active" value="true" {{ 'checked' if account.is_active else '' }}
+               {{ 'disabled' if is_self else '' }}>
+        Active account
+      </label>
+      {% endif %}
+    </div>
+    {% if editing and is_self %}
+    <p class="help">You cannot deactivate your own account.</p>
+    {% endif %}
+    {% if editing and is_last_active_owner %}
+    <p class="help">This is the last active owner — promote another owner before changing its role or deactivating it.</p>
+    {% endif %}
+  </div>
+
+  <div class="card">
+    <h2>{{ 'Reset password' if editing else 'Password' }}</h2>
+    <div class="form-grid">
+      {% if editing %}
+      <label>New password
+        <input type="password" name="password" value="" autocomplete="new-password" minlength="{{ min_password }}"
+               placeholder="leave empty to keep the current password">
+      </label>
+      {% else %}
+      <label>Password
+        <input type="password" name="password" id="password" value="" required autocomplete="new-password"
+               minlength="{{ min_password }}">
+      </label>
+      <label>Confirm password
+        <input type="password" name="password_confirm" id="password_confirm" value="" required
+               autocomplete="new-password" minlength="{{ min_password }}">
+      </label>
+      {% endif %}
+    </div>
+    {% if not editing %}
+    <div class="actions-row">
+      <button type="button" class="btn btn-ghost btn-sm" onclick="saasSuggestPassword()">Suggest a strong password</button>
+    </div>
+    <p class="help">At least {{ min_password }} characters. 2FA is enrolled by the user on their first sign-in.</p>
+    {% endif %}
+  </div>
+
+  <div class="actions-row">
+    <button type="submit" class="btn btn-primary">{{ 'Save changes' if editing else 'Create user' }}</button>
+    <a class="btn btn-ghost" href="/users">Cancel</a>
+  </div>
+</form>
+
+{% if not editing %}
+<script>
+  // Client-side password suggestion: the value never leaves the browser
+  // (a generated password is never put in a redirect URL or server log).
+  function saasSuggestPassword() {
+    const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#%^&*";
+    const bytes = new Uint32Array(20);
+    crypto.getRandomValues(bytes);
+    let out = "";
+    for (let i = 0; i < bytes.length; i++) out += alphabet[bytes[i] % alphabet.length];
+    const pwd = document.getElementById("password");
+    const confirm = document.getElementById("password_confirm");
+    if (pwd) pwd.value = out;
+    if (confirm) confirm.value = out;
+  }
+</script>
+{% endif %}
+{% endblock %}

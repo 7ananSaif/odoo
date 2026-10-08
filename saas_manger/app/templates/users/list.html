@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}Users · {{ app_name }}{% endblock %}
+{% block heading %}Users{% endblock %}
+{% block actions %}
+  {% if can_manage %}<a class="btn btn-primary" href="/users/new">New user</a>{% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>Operator accounts</h2>
+  {% if accounts %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>2FA</th>
+        <th>Last sign-in</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for account in accounts %}
+      <tr>
+        <td>
+          {{ account.name or "—" }}
+          {% if account.id == current_user_id %}<span class="badge badge-info">you</span>{% endif %}
+        </td>
+        <td class="mono">{{ account.email }}</td>
+        <td><span class="badge badge-{{ 'success' if account.role == 'owner' else ('info' if account.role == 'admin' else 'muted') }}">{{ account.role }}</span></td>
+        <td>
+          {% if account.is_active %}<span class="badge badge-success">active</span>
+          {% else %}<span class="badge badge-danger">disabled</span>{% endif %}
+        </td>
+        <td>
+          {% if account.totp_enabled %}<span class="badge badge-success">on</span>
+          {% else %}<span class="badge badge-muted">pending</span>{% endif %}
+        </td>
+        <td class="nowrap">{{ account.last_login_at | dt }}</td>
+        <td class="right nowrap">
+          {% if can_manage %}
+          <a class="btn btn-ghost btn-sm" href="/users/{{ account.id }}/edit">Edit</a>
+          {% if account.id != current_user_id %}
+          <form method="post" action="/users/{{ account.id }}/toggle-active" class="inline">
+            <button class="btn btn-ghost btn-sm">{{ 'Disable' if account.is_active else 'Enable' }}</button>
+          </form>
+          <form method="post" action="/users/{{ account.id }}/reset-2fa" class="inline">
+            <button class="btn btn-ghost btn-sm">Reset 2FA</button>
+          </form>
+          <form method="post" action="/users/{{ account.id }}/delete" class="inline"
+                onsubmit="return confirm('Delete {{ account.email }} permanently?');">
+            <button class="btn btn-danger btn-sm">Delete</button>
+          </form>
+          {% endif %}
+          {% else %}
+          <span class="muted">—</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <p class="muted">No users yet.</p>
+  {% endif %}
+  <p class="help">
+    2FA is enrolled by each user on their first sign-in. “Reset 2FA” clears the stored
+    secret so they re-enrol on their next sign-in (use it when someone loses their device).
+  </p>
+</section>
+
+<section class="card">
+  <h2>Roles & permissions</h2>
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Role</th><th>What it can do</th></tr></thead>
+    <tbody>
+      {% for row in role_matrix %}
+      <tr>
+        <td class="nowrap">
+          <span class="badge badge-{{ 'success' if row.role == 'owner' else ('info' if row.role == 'admin' else 'muted') }}">{{ row.label }}</span>
+        </td>
+        <td>
+          <div>{{ row.description }}</div>
+          <div class="muted">{{ row.permissions | join(', ') }}</div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endblock %}

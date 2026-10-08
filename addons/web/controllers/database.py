@@ -13,6 +13,7 @@ import odoo.modules.registry
 from odoo import http
 from odoo.http import content_disposition, dispatch_rpc, request, Response
 from odoo.service import db
+from odoo.tools import saas_lock  # SAAS-PATCH
 from odoo.tools.misc import file_open, str2bool
 from odoo.tools.translate import _
 
@@ -58,18 +59,24 @@ class Database(http.Controller):
 
     @http.route('/web/database/selector', type='http', auth="none")
     def selector(self, **kw):
+        # SAAS-PATCH: the database selector is reserved to the SaaS Manager.
+        saas_lock.check_db_operation(method='web:selector')
         if request.db:
             request.env.cr.close()
         return self._render_template(manage=False)
 
     @http.route('/web/database/manager', type='http', auth="none")
     def manager(self, **kw):
+        # SAAS-PATCH: the database manager is reserved to the SaaS Manager.
+        saas_lock.check_db_operation(method='web:manager')
         if request.db:
             request.env.cr.close()
         return self._render_template()
 
     @http.route('/web/database/create', type='http', auth="none", methods=['POST'], csrf=False)
     def create(self, master_pwd, name, lang, password, **post):
+        # SAAS-PATCH: database creation is reserved to the SaaS Manager.
+        saas_lock.check_db_operation(method='web:create')
         insecure = odoo.tools.config.verify_admin_password('admin')
         if insecure and master_pwd:
             dispatch_rpc('db', 'change_admin_password', ["admin", master_pwd])
@@ -93,6 +100,8 @@ class Database(http.Controller):
 
     @http.route('/web/database/duplicate', type='http', auth="none", methods=['POST'], csrf=False)
     def duplicate(self, master_pwd, name, new_name, neutralize_database=False):
+        # SAAS-PATCH: database duplication is reserved to the SaaS Manager.
+        saas_lock.check_db_operation(method='web:duplicate')
         insecure = odoo.tools.config.verify_admin_password('admin')
         if insecure and master_pwd:
             dispatch_rpc('db', 'change_admin_password', ["admin", master_pwd])
@@ -110,6 +119,8 @@ class Database(http.Controller):
 
     @http.route('/web/database/drop', type='http', auth="none", methods=['POST'], csrf=False)
     def drop(self, master_pwd, name):
+        # SAAS-PATCH: database removal is reserved to the SaaS Manager.
+        saas_lock.check_db_operation(method='web:drop')
         insecure = odoo.tools.config.verify_admin_password('admin')
         if insecure and master_pwd:
             dispatch_rpc('db', 'change_admin_password', ["admin", master_pwd])
@@ -125,6 +136,8 @@ class Database(http.Controller):
 
     @http.route('/web/database/backup', type='http', auth="none", methods=['POST'], csrf=False)
     def backup(self, master_pwd, name, backup_format='zip', filestore=True):
+        # SAAS-PATCH: database backup is reserved to the SaaS Manager.
+        saas_lock.check_db_operation(method='web:backup')
         filestore = str2bool(filestore)
         insecure = odoo.tools.config.verify_admin_password('admin')
         if insecure and master_pwd:
@@ -149,6 +162,8 @@ class Database(http.Controller):
 
     @http.route('/web/database/restore', type='http', auth="none", methods=['POST'], csrf=False, max_content_length=None)
     def restore(self, master_pwd, backup_file, name, copy=False, neutralize_database=False):
+        # SAAS-PATCH: database restore is reserved to the SaaS Manager.
+        saas_lock.check_db_operation(method='web:restore')
         insecure = odoo.tools.config.verify_admin_password('admin')
         if insecure and master_pwd:
             dispatch_rpc('db', 'change_admin_password', ["admin", master_pwd])
@@ -168,6 +183,8 @@ class Database(http.Controller):
 
     @http.route('/web/database/change_password', type='http', auth="none", methods=['POST'], csrf=False)
     def change_password(self, master_pwd, master_pwd_new):
+        # SAAS-PATCH: master password change is reserved to the SaaS Manager.
+        saas_lock.check_db_operation(method='web:change_password')
         try:
             dispatch_rpc('db', 'change_admin_password', [master_pwd, master_pwd_new])
             return request.redirect('/web/database/manager')
@@ -177,6 +194,8 @@ class Database(http.Controller):
 
     @http.route('/web/database/list', type='jsonrpc', auth='none')
     def list(self):
+        # SAAS-PATCH: database listing is reserved to the SaaS Manager.
+        saas_lock.check_db_operation(method='web:list')
         """
         Used by Mobile application for listing database
         :return: List of databases
