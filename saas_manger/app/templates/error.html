@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} · {{ app_name }}{% endblock %}
+{% block heading %}Error{% endblock %}
+
+{% block content %}
+{% if user %}
+<section class="card">
+  <h2>{{ code }} — {{ message }}</h2>
+  <p class="muted">Return to the <a href="/">dashboard</a>.</p>
+</section>
+{% else %}
+<section class="card">
+  <h2>{{ code }} — {{ message }}</h2>
+  <p class="muted">Return to the <a href="/login">sign-in page</a>.</p>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block anon %}
+<section class="card">
+  <h2>{{ code }} — {{ message }}</h2>
+  <p class="muted">Return to the <a href="/login">sign-in page</a>.</p>
+</section>
+{% endblock %}

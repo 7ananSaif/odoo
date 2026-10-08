@@ -8,6 +8,7 @@ import re
 from odoo import api, fields, models, tools
 from odoo.exceptions import ValidationError
 from odoo.http import request
+from odoo.tools import saas_lock  # SAAS-PATCH
 
 MENU_ITEM_SEPARATOR = "/"
 NUMBER_PARENS = re.compile(r"\(([0-9]+)\)")
@@ -133,7 +134,32 @@ class IrUiMenu(models.Model):
                 menu = menu.parent_id
                 menu_id =  menu.id
 
+        # SAAS-PATCH: hide the Apps and Technical menus for client users.
+        blocked_ids = self._saas_blocked_menu_ids()
+        if blocked_ids:
+            visible_ids -= blocked_ids
         return frozenset(visible_ids)
+
+    @api.model
+    @tools.ormcache(cache='stable')
+    def _saas_blocked_menu_ids(self):
+        """SAAS-PATCH: menu ids hidden from client users when saas_lock is on.
+
+        Hides the whole "Apps" application menu and the "Settings > Technical"
+        subtree. Returns an empty set when the lock is disabled.
+        """
+        if not saas_lock.saas_enabled():
+            return frozenset()
+        iref = self.env['ir.model.data'].sudo()
+        root_ids = []
+        for xmlid in ('base.menu_apps', 'base.menu_management', 'base.menu_custom'):
+            res_id = iref._xmlid_to_res_id(xmlid, raise_if_not_found=False)
+            if res_id:
+                root_ids.append(res_id)
+        if not root_ids:
+            return frozenset()
+        menus = self.sudo().with_context(active_test=False).search([('id', 'child_of', root_ids)])
+        return frozenset(menus.ids)
 
     def _filter_visible_menus(self):
         """ Filter `self` to only keep the menu items that should be visible in

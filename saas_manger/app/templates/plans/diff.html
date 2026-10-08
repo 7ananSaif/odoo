@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{{ plan.name }} apps · {{ app_name }}{% endblock %}
+{% block heading %}{{ plan.name }} — allowed applications{% endblock %}
+{% block actions %}
+  <a class="btn btn-ghost" href="/plans/{{ plan.id }}/edit">Edit plan</a>
+  <a class="btn btn-ghost" href="/plans">Back</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>{{ allowed | length }} modules allowed</h2>
+  <p class="muted">When a tenant uses this plan, the manager installs the missing modules and uninstalls any
+    installed module that is not in this list (except <code>base</code> and <code>web</code>).</p>
+  {% if allowed %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>#</th><th>Module</th></tr></thead>
+    <tbody>
+      {% for m in allowed %}
+      <tr><td class="muted">{{ loop.index }}</td><td><code>{{ m }}</code></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <p class="muted">No modules configured.</p>
+  {% endif %}
+</section>
+{% endblock %}

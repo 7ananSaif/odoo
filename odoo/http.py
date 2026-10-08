@@ -207,6 +207,7 @@ from .tools import (config, consteq, file_path, get_lang, json_default,
 from .tools.facade import Proxy, ProxyAttr, ProxyFunc
 from .tools.func import filter_kwargs
 from .tools.misc import submap, real_time
+from .tools import saas_lock  # SAAS-PATCH
 from .tools._vendor import sessions
 from .tools._vendor.useragents import UserAgent
 
@@ -446,6 +447,9 @@ def dispatch_rpc(service_name, method, params):
         threading.current_thread().dbname = None
 
         dispatch = rpc_dispatchers[service_name]
+        # SAAS-PATCH: block database management through generic RPC (XML-RPC/JSON-RPC).
+        if service_name == 'db':
+            saas_lock.check_db_operation(method=method)
         return dispatch(method, params)
 
 
@@ -1208,6 +1212,9 @@ class Session(collections.abc.MutableMapping):
 
     @property
     def debug(self):
+        # SAAS-PATCH: developer mode is disabled for client users when saas_lock is on.
+        if saas_lock.hide_dev_mode():
+            return ''
         return self.get('debug')
 
     @debug.setter
@@ -2419,6 +2426,24 @@ class Dispatcher(ABC):
         extract some info from the request query-string or headers and
         to save them in the session or in the context.
         """
+        # SAAS-PATCH: put the database in read-only mode when the tenant is
+        # suspended or expired (safe methods are kept so the user can still log
+        # in and view data). Disable with `saas.block_writes = 0`.
+        path = self.request.httprequest.path
+        if (
+            self.request.db
+            and self.request.httprequest.method not in SAFE_HTTP_METHODS
+            and not path.startswith(('/web/login', '/web/session'))
+        ):
+            request_env = self.request.env
+            if (
+                saas_lock.is_blocked(request_env)
+                and saas_lock.block_writes_enabled(request_env)
+                and not saas_lock.is_manager_call(env=request_env)
+            ):
+                from odoo.exceptions import AccessError  # noqa: PLC0415
+                raise AccessError("This subscription is suspended or expired; the database is read-only.")
+
         routing = rule.endpoint.routing
         self.request.session.can_save &= routing.get('save_session', True)
 
