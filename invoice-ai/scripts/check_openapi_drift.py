@@ -15,8 +15,13 @@ contract:
 * ``required`` lists
 * property names
 * each property's canonical type (object/array/string/date/number/integer/
-  boolean + nullable flag; pydantic's ``Decimal``-as-string is canonicalized
-  to ``number`` because the wire value is a JSON number)
+  boolean + nullable flag). ``Decimal`` fields canonicalize to **string**,
+  because that is what they are on the wire: pydantic serializes ``Decimal``
+  as a JSON string (``"1350.00"``, asserted in ``tests/test_extract.py``) and
+  the Odoo side consumes it as a value. pydantic <=2.13 marked that string
+  with a decimal ``pattern``, 2.14 emits a bare ``{"type": "string"}``; both
+  canonicalize to ``string``, so this gate no longer depends on which
+  generator version CI happens to install.
 
 Documented, tolerated drift (locked by the runtime tests, re-checked here
 so accidental *semantic* drift still fails the build):
@@ -88,18 +93,16 @@ def _canonical_type(schema: Any) -> str:
         return "|".join(sorted(kinds))
 
     kind = schema["type"]
-    if kind == "string":
-        # pydantic renders Decimal as {"type": "string", "format": "decimal"}
-        # but the wire value is a JSON number — canonicalize it so the YAML
-        # contract (number) and the generated spec compare equal.
-        if schema.get("format") == "decimal":
-            return "number"
-        if schema.get("format") == "date":
-            return "date"
-        # This FastAPI/pydantic build renders Decimal WITHOUT a format key,
-        # only the decimal regex pattern — map it to "number" the same way.
-        if schema.get("pattern") == "^(?!^[-+.]*$)[+-]?0*\\d*\\.?\\d*$":
-            return "number"
+    # ``format: date`` is the only string flavour that carries contract
+    # meaning: the YAML spells a date union as
+    # {type: [string, "null"], format: date}, so the format has to survive
+    # canonicalization. A ``Decimal`` needs no case of its own — its wire
+    # value is a JSON string, and the ``pattern``/``format: decimal`` markers
+    # are generator detail that pydantic 2.14 stopped emitting at all (see
+    # the module docstring). Treating them as part of the contract is what
+    # made this check fail against a newer pydantic.
+    if kind == "string" and schema.get("format") == "date":
+        return "date"
     if kind == "array" and "$ref" in (schema.get("items") or {}):
         return "array(" + schema["items"]["$ref"].rsplit("/", 1)[-1] + ")"
     return kind
