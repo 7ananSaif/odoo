@@ -205,6 +205,11 @@ class configmanager:
         parser = optparse.OptionParser(version=version, option_class=OdooOption)
 
         parser.add_option(FileOnlyOption(dest='admin_passwd', my_default='admin'))
+        # SAAS-PATCH: SaaS lock switches (odoo.conf only, never exported by --save).
+        #   saas_lock = True                 -> enable all SaaS restrictions
+        #   saas_manager_token = <secret>    -> token the SaaS Manager must send
+        parser.add_option(FileOnlyOption(dest='saas_lock', type='bool', my_default=False))
+        parser.add_option(FileOnlyOption(dest='saas_manager_token', my_default='', file_exportable=False))
         parser.add_option(FileOnlyOption(dest='bin_path', type='path', my_default='', file_exportable=False))
         parser.add_option(FileOnlyOption(dest='csv_internal_sep', my_default=','))
         parser.add_option(FileOnlyOption(dest='default_productivity_apps', type='bool', my_default=False, file_exportable=False))

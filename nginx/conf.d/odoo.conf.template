@@ -76,6 +76,30 @@ server {
     proxy_redirect off;
 
     # ========================
+    # Database-management endpoints — BLOCKED for everyone (defense in depth)
+    # ========================
+    # The public Odoo instance already runs with list_db = False, which hides
+    # the database selector and "Manage Databases" link and blocks every web
+    # database operation at Odoo's service layer. This nginx block is a second
+    # line of defense: even if that config is ever lost, renamed or replaced,
+    # these paths can never reach Odoo from the internet.
+    #
+    # The owner keeps full management by using the admin-only `odoo-master`
+    # instance over an SSH tunnel, or the `odoo db` CLI on the server — never
+    # through this public host. See docs/db-management-owner-runbook.md.
+    location = /web/database {
+        return 404;
+    }
+    location ^~ /web/database/ {
+        return 404;
+    }
+    # Legacy XML-RPC database service (/xmlrpc/db and /xmlrpc/2/db) exposes the
+    # same list/create/drop/backup operations over XML-RPC.
+    location ~ ^/(xmlrpc|xmlrpc/2)/db$ {
+        return 404;
+    }
+
+    # ========================
     # Standard Odoo requests (HTTP)
     # ========================
     location / {

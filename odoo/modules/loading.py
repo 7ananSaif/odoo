@@ -18,6 +18,7 @@ import odoo.tools.sql
 import odoo.tools.translate
 from odoo import api, tools
 from odoo.tools import OrderedSet
+from odoo.tools import saas_lock  # SAAS-PATCH
 from odoo.tools.convert import convert_file, IdRef, ConvertMode as LoadMode
 
 from . import db as modules_db
@@ -424,19 +425,22 @@ def load_modules(
         if update_module:
             Module = env['ir.module.module']
             _logger.info('updating modules list')
-            Module.update_list()
+            with saas_lock.internal_context():  # SAAS-PATCH: trusted internal module scan
+                Module.update_list()
 
             _check_module_names(cr, itertools.chain(install_modules, upgrade_modules))
 
             if install_modules:
                 modules = Module.search([('state', '=', 'uninstalled'), ('name', 'in', tuple(install_modules))])
                 if modules:
-                    modules.button_install()
+                    with saas_lock.internal_context():  # SAAS-PATCH: trusted internal install
+                        modules.button_install()
 
             if upgrade_modules:
                 modules = Module.search([('state', 'in', ('installed', 'to upgrade')), ('name', 'in', tuple(upgrade_modules))])
                 if modules:
-                    modules.button_upgrade()
+                    with saas_lock.internal_context():  # SAAS-PATCH: trusted internal upgrade
+                        modules.button_upgrade()
 
             if reinit_modules:
                 modules = Module.search([('state', 'in', ('installed', 'to upgrade')), ('name', 'in', tuple(reinit_modules))])
@@ -545,7 +549,8 @@ def load_modules(
                         env.flush_all()
 
                 Module = env['ir.module.module']
-                Module.browse(modules_to_remove.values()).module_uninstall()
+                with saas_lock.internal_context():  # SAAS-PATCH: trusted internal uninstall
+                    Module.browse(modules_to_remove.values()).module_uninstall()
                 # Recursive reload, should only happen once, because there should be no
                 # modules to remove next time
                 cr.commit()

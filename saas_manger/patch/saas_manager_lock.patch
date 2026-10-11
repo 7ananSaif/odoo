@@ -1,0 +1,1051 @@
+diff --git a/addons/stock/models/stock_warehouse.py b/addons/stock/models/stock_warehouse.py
+index 9eef52627b6..dca183b8ebe 100644
+--- a/addons/stock/models/stock_warehouse.py
++++ b/addons/stock/models/stock_warehouse.py
+@@ -4,6 +4,7 @@
+ from collections import namedtuple
+ 
+ from odoo import api, fields, models
++from odoo.tools import saas_lock  # SAAS-PATCH
+ from odoo.exceptions import UserError, RedirectWarning
+ from odoo.tools.translate import _, LazyTranslate
+ 
+@@ -112,6 +113,8 @@ class StockWarehouse(models.Model):
+ 
+     @api.model_create_multi
+     def create(self, vals_list):
++        # SAAS-PATCH: enforce the subscription plan's warehouse limit.
++        saas_lock.check_saas_limit(self.env, 'max_warehouses', extra=len(vals_list))
+         for vals in vals_list:
+             if vals.get('company_id'):
+                 company = self.env['res.company'].browse(vals['company_id'])
+diff --git a/addons/web/controllers/database.py b/addons/web/controllers/database.py
+index 434b915ceb3..4c5e92160a1 100644
+--- a/addons/web/controllers/database.py
++++ b/addons/web/controllers/database.py
+@@ -13,6 +13,7 @@ import odoo.modules.registry
+ from odoo import http
+ from odoo.http import content_disposition, dispatch_rpc, request, Response
+ from odoo.service import db
++from odoo.tools import saas_lock  # SAAS-PATCH
+ from odoo.tools.misc import file_open, str2bool
+ from odoo.tools.translate import _
+ 
+@@ -58,18 +59,24 @@ class Database(http.Controller):
+ 
+     @http.route('/web/database/selector', type='http', auth="none")
+     def selector(self, **kw):
++        # SAAS-PATCH: the database selector is reserved to the SaaS Manager.
++        saas_lock.check_db_operation(method='web:selector')
+         if request.db:
+             request.env.cr.close()
+         return self._render_template(manage=False)
+ 
+     @http.route('/web/database/manager', type='http', auth="none")
+     def manager(self, **kw):
++        # SAAS-PATCH: the database manager is reserved to the SaaS Manager.
++        saas_lock.check_db_operation(method='web:manager')
+         if request.db:
+             request.env.cr.close()
+         return self._render_template()
+ 
+     @http.route('/web/database/create', type='http', auth="none", methods=['POST'], csrf=False)
+     def create(self, master_pwd, name, lang, password, **post):
++        # SAAS-PATCH: database creation is reserved to the SaaS Manager.
++        saas_lock.check_db_operation(method='web:create')
+         insecure = odoo.tools.config.verify_admin_password('admin')
+         if insecure and master_pwd:
+             dispatch_rpc('db', 'change_admin_password', ["admin", master_pwd])
+@@ -93,6 +100,8 @@ class Database(http.Controller):
+ 
+     @http.route('/web/database/duplicate', type='http', auth="none", methods=['POST'], csrf=False)
+     def duplicate(self, master_pwd, name, new_name, neutralize_database=False):
++        # SAAS-PATCH: database duplication is reserved to the SaaS Manager.
++        saas_lock.check_db_operation(method='web:duplicate')
+         insecure = odoo.tools.config.verify_admin_password('admin')
+         if insecure and master_pwd:
+             dispatch_rpc('db', 'change_admin_password', ["admin", master_pwd])
+@@ -110,6 +119,8 @@ class Database(http.Controller):
+ 
+     @http.route('/web/database/drop', type='http', auth="none", methods=['POST'], csrf=False)
+     def drop(self, master_pwd, name):
++        # SAAS-PATCH: database removal is reserved to the SaaS Manager.
++        saas_lock.check_db_operation(method='web:drop')
+         insecure = odoo.tools.config.verify_admin_password('admin')
+         if insecure and master_pwd:
+             dispatch_rpc('db', 'change_admin_password', ["admin", master_pwd])
+@@ -125,6 +136,8 @@ class Database(http.Controller):
+ 
+     @http.route('/web/database/backup', type='http', auth="none", methods=['POST'], csrf=False)
+     def backup(self, master_pwd, name, backup_format='zip', filestore=True):
++        # SAAS-PATCH: database backup is reserved to the SaaS Manager.
++        saas_lock.check_db_operation(method='web:backup')
+         filestore = str2bool(filestore)
+         insecure = odoo.tools.config.verify_admin_password('admin')
+         if insecure and master_pwd:
+@@ -149,6 +162,8 @@ class Database(http.Controller):
+ 
+     @http.route('/web/database/restore', type='http', auth="none", methods=['POST'], csrf=False, max_content_length=None)
+     def restore(self, master_pwd, backup_file, name, copy=False, neutralize_database=False):
++        # SAAS-PATCH: database restore is reserved to the SaaS Manager.
++        saas_lock.check_db_operation(method='web:restore')
+         insecure = odoo.tools.config.verify_admin_password('admin')
+         if insecure and master_pwd:
+             dispatch_rpc('db', 'change_admin_password', ["admin", master_pwd])
+@@ -168,6 +183,8 @@ class Database(http.Controller):
+ 
+     @http.route('/web/database/change_password', type='http', auth="none", methods=['POST'], csrf=False)
+     def change_password(self, master_pwd, master_pwd_new):
++        # SAAS-PATCH: master password change is reserved to the SaaS Manager.
++        saas_lock.check_db_operation(method='web:change_password')
+         try:
+             dispatch_rpc('db', 'change_admin_password', [master_pwd, master_pwd_new])
+             return request.redirect('/web/database/manager')
+@@ -177,6 +194,8 @@ class Database(http.Controller):
+ 
+     @http.route('/web/database/list', type='jsonrpc', auth='none')
+     def list(self):
++        # SAAS-PATCH: database listing is reserved to the SaaS Manager.
++        saas_lock.check_db_operation(method='web:list')
+         """
+         Used by Mobile application for listing database
+         :return: List of databases
+diff --git a/odoo/addons/base/models/ir_attachment.py b/odoo/addons/base/models/ir_attachment.py
+index 905ae118b8c..2f157456b4a 100644
+--- a/odoo/addons/base/models/ir_attachment.py
++++ b/odoo/addons/base/models/ir_attachment.py
+@@ -19,6 +19,7 @@ import werkzeug
+ from odoo import _, api, fields, models
+ from odoo.exceptions import AccessError, MissingError, UserError, ValidationError
+ from odoo.fields import Domain
++from odoo.tools import saas_lock  # SAAS-PATCH
+ from odoo.http import Stream, request, root
+ from odoo.tools import (
+     OrderedSet,
+@@ -752,6 +753,8 @@ class IrAttachment(models.Model):
+ 
+     @api.model_create_multi
+     def create(self, vals_list):
++        # SAAS-PATCH: enforce the subscription plan's storage limit (optional).
++        saas_lock.check_saas_limit(self.env, 'max_storage_mb')
+         record_tuple_set = set()
+ 
+         # remove computed field depending of datas
+diff --git a/odoo/addons/base/models/ir_config_parameter.py b/odoo/addons/base/models/ir_config_parameter.py
+index 21c82bf62ed..b4b1c5a3a79 100644
+--- a/odoo/addons/base/models/ir_config_parameter.py
++++ b/odoo/addons/base/models/ir_config_parameter.py
+@@ -8,7 +8,9 @@ import logging
+ 
+ from odoo import api, fields, models
+ from odoo.exceptions import ValidationError
++from odoo.fields import Domain
+ from odoo.tools import config, ormcache, mute_logger
++from odoo.tools import saas_lock  # SAAS-PATCH
+ 
+ _logger = logging.getLogger(__name__)
+ 
+@@ -65,9 +67,19 @@ class IrConfig_Parameter(models.Model):
+         :return: The value of the parameter, or ``default`` if it does not exist.
+         :rtype: string
+         """
++        # SAAS-PATCH: hide `saas.*` parameters from client users.
++        if str(key).startswith(saas_lock.SAAS_PARAM_PREFIX) and saas_lock.hide_saas_params(self.env):
++            return default
+         self.browse().check_access('read')
+         return self._get_param(key) or default
+ 
++    @api.model
++    def search(self, domain, offset=0, limit=None, order=None):
++        # SAAS-PATCH: hide `saas.*` parameters from client users.
++        if saas_lock.hide_saas_params(self.env):
++            domain = Domain.AND([domain, Domain('key', 'not like', saas_lock.SAAS_PARAM_PREFIX + '%')])
++        return super().search(domain, offset=offset, limit=limit, order=order)
++
+     @api.model
+     @ormcache('key', cache='stable')
+     def _get_param(self, key):
+@@ -104,10 +116,17 @@ class IrConfig_Parameter(models.Model):
+ 
+     @api.model_create_multi
+     def create(self, vals_list):
++        # SAAS-PATCH: only the SaaS Manager may create `saas.*` parameters.
++        saas_lock.check_saas_param_write(self.env, [vals.get('key') for vals in vals_list])
+         self.env.registry.clear_cache('stable')
+         return super().create(vals_list)
+ 
+     def write(self, vals):
++        # SAAS-PATCH: only the SaaS Manager may modify `saas.*` parameters.
++        keys = list(self.mapped('key'))
++        if vals.get('key'):
++            keys.append(vals['key'])
++        saas_lock.check_saas_param_write(self.env, keys)
+         if 'key' in vals:
+             illegal = _default_parameters.keys() & self.mapped('key')
+             if illegal:
+@@ -116,6 +135,8 @@ class IrConfig_Parameter(models.Model):
+         return super().write(vals)
+ 
+     def unlink(self):
++        # SAAS-PATCH: only the SaaS Manager may delete `saas.*` parameters.
++        saas_lock.check_saas_param_write(self.env, list(self.mapped('key')))
+         self.env.registry.clear_cache('stable')
+         return super().unlink()
+ 
+diff --git a/odoo/addons/base/models/ir_module.py b/odoo/addons/base/models/ir_module.py
+index 175d9da4c05..22e71a8fad7 100644
+--- a/odoo/addons/base/models/ir_module.py
++++ b/odoo/addons/base/models/ir_module.py
+@@ -23,6 +23,7 @@ from odoo.addons.base.models.ir_model import MODULE_UNINSTALL_FLAG
+ from odoo.exceptions import AccessDenied, UserError, ValidationError
+ from odoo.fields import Domain
+ from odoo.tools import config
++from odoo.tools import saas_lock  # SAAS-PATCH
+ from odoo.tools.parse_version import parse_version
+ from odoo.tools.misc import topological_sort, get_flag
+ from odoo.tools.translate import TranslationImporter, get_po_paths, get_datafile_translation_path
+@@ -406,6 +407,8 @@ class IrModuleModule(models.Model):
+ 
+     @assert_log_admin_access
+     def button_install(self):
++        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may install.
++        saas_lock.check_module_operation(self.env, operation='install')
+         company_countries = self.env['res.company'].search([]).country_id
+         # domain to select auto-installable (but not yet installed) modules
+         auto_domain = [('state', '=', 'uninstalled'), ('auto_install', '=', True)]
+@@ -481,6 +484,8 @@ class IrModuleModule(models.Model):
+         :returns: next res.config item to execute
+         :rtype: dict[str, object]
+         """
++        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may install.
++        saas_lock.check_module_operation(self.env, operation='immediate install')
+         _logger.info('User #%d triggered module installation', self.env.uid)
+         # We use here the request object (which is thread-local) as a kind of
+         # "global" env because the env is not usable in the following use case.
+@@ -490,11 +495,14 @@ class IrModuleModule(models.Model):
+         # configure the CoA on his own company, which makes no sense.
+         if request:
+             request.allowed_company_ids = self.env.companies.ids
+-        return self._button_immediate_function(self.env.registry[self._name].button_install)
++        with saas_lock.internal_context():  # SAAS-PATCH: authorize internal loads
++            return self._button_immediate_function(self.env.registry[self._name].button_install)
+ 
+     @assert_log_admin_access
+     @api.model
+     def button_reset_state(self):
++        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may reset states.
++        saas_lock.check_module_operation(self.env, operation='reset state')
+         # reset the transient state for all modules in case the module operation is stopped in an unexpected way.
+         self.search([('state', '=', 'to install')]).state = 'uninstalled'
+         self.search([('state', 'in', ('to upgrade', 'to remove'))]).state = 'installed'
+@@ -510,6 +518,8 @@ class IrModuleModule(models.Model):
+         including the deletion of all database structures created by the module:
+         tables, columns, constraints, etc.
+         """
++        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may uninstall.
++        saas_lock.check_module_operation(self.env, operation='module uninstall')
+         modules_to_remove = self.mapped('name')
+         self.env['ir.model.data']._module_data_uninstall(modules_to_remove)
+         # we deactivate prefetching to not try to read a column that has been deleted
+@@ -664,10 +674,15 @@ class IrModuleModule(models.Model):
+         returns the next res.config action to execute
+         """
+         _logger.info('User #%d triggered module uninstallation', self.env.uid)
+-        return self._button_immediate_function(self.env.registry[self._name].button_uninstall)
++        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may uninstall.
++        saas_lock.check_module_operation(self.env, operation='immediate uninstall')
++        with saas_lock.internal_context():  # SAAS-PATCH: authorize internal loads
++            return self._button_immediate_function(self.env.registry[self._name].button_uninstall)
+ 
+     @assert_log_admin_access
+     def button_uninstall(self):
++        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may uninstall.
++        saas_lock.check_module_operation(self.env, operation='uninstall')
+         un_installable_modules = set(odoo.tools.config['server_wide_modules']) & set(self.mapped('name'))
+         if un_installable_modules:
+             raise UserError(_("Those modules cannot be uninstalled: %s", ', '.join(un_installable_modules)))
+@@ -683,6 +698,8 @@ class IrModuleModule(models.Model):
+     @assert_log_admin_access
+     def button_uninstall_wizard(self):
+         """ Launch the wizard to uninstall the given module. """
++        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may uninstall.
++        saas_lock.check_module_operation(self.env, operation='uninstall wizard')
+         return {
+             'type': 'ir.actions.act_window',
+             'target': 'new',
+@@ -698,10 +715,15 @@ class IrModuleModule(models.Model):
+         Upgrade the selected module(s) immediately and fully,
+         return the next res.config action to execute
+         """
+-        return self._button_immediate_function(self.env.registry[self._name].button_upgrade)
++        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may upgrade.
++        saas_lock.check_module_operation(self.env, operation='immediate upgrade')
++        with saas_lock.internal_context():  # SAAS-PATCH: authorize internal loads
++            return self._button_immediate_function(self.env.registry[self._name].button_upgrade)
+ 
+     @assert_log_admin_access
+     def button_upgrade(self):
++        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may upgrade.
++        saas_lock.check_module_operation(self.env, operation='upgrade')
+         if not self:
+             return
+         Dependency = self.env['ir.module.module.dependency']
+@@ -785,6 +807,8 @@ class IrModuleModule(models.Model):
+     @assert_log_admin_access
+     @api.model
+     def update_list(self):
++        # SAAS-PATCH: only the SaaS Manager (token / internal / CLI) may rescan apps.
++        saas_lock.check_module_operation(self.env, operation='update list')
+         res = [0, 0]    # [update, add]
+ 
+         default_version = modules.adapt_version('1.0')
+diff --git a/odoo/addons/base/models/ir_ui_menu.py b/odoo/addons/base/models/ir_ui_menu.py
+index c23c100b817..c6b968d525d 100644
+--- a/odoo/addons/base/models/ir_ui_menu.py
++++ b/odoo/addons/base/models/ir_ui_menu.py
+@@ -8,6 +8,7 @@ import re
+ from odoo import api, fields, models, tools
+ from odoo.exceptions import ValidationError
+ from odoo.http import request
++from odoo.tools import saas_lock  # SAAS-PATCH
+ 
+ MENU_ITEM_SEPARATOR = "/"
+ NUMBER_PARENS = re.compile(r"\(([0-9]+)\)")
+@@ -133,8 +134,33 @@ class IrUiMenu(models.Model):
+                 menu = menu.parent_id
+                 menu_id =  menu.id
+ 
++        # SAAS-PATCH: hide the Apps and Technical menus for client users.
++        blocked_ids = self._saas_blocked_menu_ids()
++        if blocked_ids:
++            visible_ids -= blocked_ids
+         return frozenset(visible_ids)
+ 
++    @api.model
++    @tools.ormcache(cache='stable')
++    def _saas_blocked_menu_ids(self):
++        """SAAS-PATCH: menu ids hidden from client users when saas_lock is on.
++
++        Hides the whole "Apps" application menu and the "Settings > Technical"
++        subtree. Returns an empty set when the lock is disabled.
++        """
++        if not saas_lock.saas_enabled():
++            return frozenset()
++        iref = self.env['ir.model.data'].sudo()
++        root_ids = []
++        for xmlid in ('base.menu_apps', 'base.menu_management', 'base.menu_custom'):
++            res_id = iref._xmlid_to_res_id(xmlid, raise_if_not_found=False)
++            if res_id:
++                root_ids.append(res_id)
++        if not root_ids:
++            return frozenset()
++        menus = self.sudo().with_context(active_test=False).search([('id', 'child_of', root_ids)])
++        return frozenset(menus.ids)
++
+     def _filter_visible_menus(self):
+         """ Filter `self` to only keep the menu items that should be visible in
+             the menu hierarchy of the current user.
+diff --git a/odoo/addons/base/models/res_company.py b/odoo/addons/base/models/res_company.py
+index a597a3e0fdf..aa5674346e8 100644
+--- a/odoo/addons/base/models/res_company.py
++++ b/odoo/addons/base/models/res_company.py
+@@ -8,6 +8,7 @@ from odoo.api import SUPERUSER_ID
+ from odoo.exceptions import ValidationError, UserError
+ from odoo.fields import Command, Domain
+ from odoo.tools import html2plaintext, file_open, ormcache
++from odoo.tools import saas_lock  # SAAS-PATCH
+ from odoo.tools.image import image_process
+ 
+ _logger = logging.getLogger(__name__)
+@@ -272,6 +273,8 @@ class ResCompany(models.Model):
+ 
+     @api.model_create_multi
+     def create(self, vals_list):
++        # SAAS-PATCH: enforce the subscription plan's company limit.
++        saas_lock.check_saas_limit(self.env, 'max_companies', extra=len(vals_list))
+ 
+         # create missing partners
+         no_partner_vals_list = [
+diff --git a/odoo/addons/base/models/res_users.py b/odoo/addons/base/models/res_users.py
+index d0664aa75a6..8b66f72c199 100644
+--- a/odoo/addons/base/models/res_users.py
++++ b/odoo/addons/base/models/res_users.py
+@@ -25,6 +25,7 @@ from odoo.api import SUPERUSER_ID
+ from odoo.exceptions import AccessDenied, AccessError, UserError, ValidationError
+ from odoo.fields import Command, Domain
+ from odoo.http import request, DEFAULT_LANG
++from odoo.tools import saas_lock  # SAAS-PATCH
+ from odoo.tools import email_domain_extract, is_html_empty, frozendict, reset_cached_properties, str2bool, SQL
+ 
+ 
+@@ -577,6 +578,8 @@ class ResUsers(models.Model):
+ 
+     @api.model_create_multi
+     def create(self, vals_list):
++        # SAAS-PATCH: enforce the subscription plan's internal-user limit.
++        saas_lock.check_users_extra(self.env, vals_list)
+         users = super().create(vals_list)
+         setting_vals = []
+         for user in users:
+@@ -594,6 +597,9 @@ class ResUsers(models.Model):
+         return users
+ 
+     def write(self, vals):
++        # SAAS-PATCH: enforce the subscription plan's internal-user limit when
++        # a user is activated (or turned from portal into internal).
++        saas_lock.check_users_extra(self.env, vals, current_records=self)
+         if vals.get('active') and SUPERUSER_ID in self._ids:
+             raise UserError(_("You cannot activate the superuser."))
+         if vals.get('active') == False and self.env.uid in self._ids:  # noqa: E712
+diff --git a/odoo/http.py b/odoo/http.py
+index 7aa4e551c15..176a70a93dd 100644
+--- a/odoo/http.py
++++ b/odoo/http.py
+@@ -207,6 +207,7 @@ from .tools import (config, consteq, file_path, get_lang, json_default,
+ from .tools.facade import Proxy, ProxyAttr, ProxyFunc
+ from .tools.func import filter_kwargs
+ from .tools.misc import submap, real_time
++from .tools import saas_lock  # SAAS-PATCH
+ from .tools._vendor import sessions
+ from .tools._vendor.useragents import UserAgent
+ 
+@@ -446,6 +447,9 @@ def dispatch_rpc(service_name, method, params):
+         threading.current_thread().dbname = None
+ 
+         dispatch = rpc_dispatchers[service_name]
++        # SAAS-PATCH: block database management through generic RPC (XML-RPC/JSON-RPC).
++        if service_name == 'db':
++            saas_lock.check_db_operation(method=method)
+         return dispatch(method, params)
+ 
+ 
+@@ -1208,6 +1212,9 @@ class Session(collections.abc.MutableMapping):
+ 
+     @property
+     def debug(self):
++        # SAAS-PATCH: developer mode is disabled for client users when saas_lock is on.
++        if saas_lock.hide_dev_mode():
++            return ''
+         return self.get('debug')
+ 
+     @debug.setter
+@@ -2419,6 +2426,24 @@ class Dispatcher(ABC):
+         extract some info from the request query-string or headers and
+         to save them in the session or in the context.
+         """
++        # SAAS-PATCH: put the database in read-only mode when the tenant is
++        # suspended or expired (safe methods are kept so the user can still log
++        # in and view data). Disable with `saas.block_writes = 0`.
++        path = self.request.httprequest.path
++        if (
++            self.request.db
++            and self.request.httprequest.method not in SAFE_HTTP_METHODS
++            and not path.startswith(('/web/login', '/web/session'))
++        ):
++            request_env = self.request.env
++            if (
++                saas_lock.is_blocked(request_env)
++                and saas_lock.block_writes_enabled(request_env)
++                and not saas_lock.is_manager_call(env=request_env)
++            ):
++                from odoo.exceptions import AccessError  # noqa: PLC0415
++                raise AccessError("This subscription is suspended or expired; the database is read-only.")
++
+         routing = rule.endpoint.routing
+         self.request.session.can_save &= routing.get('save_session', True)
+ 
+diff --git a/odoo/modules/loading.py b/odoo/modules/loading.py
+index 7be8669d7bb..ce18668d897 100644
+--- a/odoo/modules/loading.py
++++ b/odoo/modules/loading.py
+@@ -18,6 +18,7 @@ import odoo.tools.sql
+ import odoo.tools.translate
+ from odoo import api, tools
+ from odoo.tools import OrderedSet
++from odoo.tools import saas_lock  # SAAS-PATCH
+ from odoo.tools.convert import convert_file, IdRef, ConvertMode as LoadMode
+ 
+ from . import db as modules_db
+@@ -424,19 +425,22 @@ def load_modules(
+         if update_module:
+             Module = env['ir.module.module']
+             _logger.info('updating modules list')
+-            Module.update_list()
++            with saas_lock.internal_context():  # SAAS-PATCH: trusted internal module scan
++                Module.update_list()
+ 
+             _check_module_names(cr, itertools.chain(install_modules, upgrade_modules))
+ 
+             if install_modules:
+                 modules = Module.search([('state', '=', 'uninstalled'), ('name', 'in', tuple(install_modules))])
+                 if modules:
+-                    modules.button_install()
++                    with saas_lock.internal_context():  # SAAS-PATCH: trusted internal install
++                        modules.button_install()
+ 
+             if upgrade_modules:
+                 modules = Module.search([('state', 'in', ('installed', 'to upgrade')), ('name', 'in', tuple(upgrade_modules))])
+                 if modules:
+-                    modules.button_upgrade()
++                    with saas_lock.internal_context():  # SAAS-PATCH: trusted internal upgrade
++                        modules.button_upgrade()
+ 
+             if reinit_modules:
+                 modules = Module.search([('state', 'in', ('installed', 'to upgrade')), ('name', 'in', tuple(reinit_modules))])
+@@ -545,7 +549,8 @@ def load_modules(
+                         env.flush_all()
+ 
+                 Module = env['ir.module.module']
+-                Module.browse(modules_to_remove.values()).module_uninstall()
++                with saas_lock.internal_context():  # SAAS-PATCH: trusted internal uninstall
++                    Module.browse(modules_to_remove.values()).module_uninstall()
+                 # Recursive reload, should only happen once, because there should be no
+                 # modules to remove next time
+                 cr.commit()
+diff --git a/odoo/service/db.py b/odoo/service/db.py
+index 33f597221af..420b7fa856f 100644
+--- a/odoo/service/db.py
++++ b/odoo/service/db.py
+@@ -25,6 +25,7 @@ from odoo.exceptions import AccessDenied
+ from odoo.release import version_info
+ from odoo.sql_db import db_connect
+ from odoo.tools import osutil, SQL
++from odoo.tools import saas_lock  # SAAS-PATCH
+ from odoo.tools.misc import exec_pg_environ, find_pg_tool
+ 
+ _logger = logging.getLogger(__name__)
+@@ -515,6 +516,8 @@ def dispatch(method, params):
+     elif exp_method_name in g:
+         passwd = params[0]
+         params = params[1:]
++        # SAAS-PATCH: database management is reserved to the SaaS Manager (token).
++        saas_lock.check_db_operation(method=method)
+         check_super(passwd)
+         return g[exp_method_name](*params)
+     else:
+diff --git a/odoo/tools/config.py b/odoo/tools/config.py
+index bfbf1619105..57db901ca34 100644
+--- a/odoo/tools/config.py
++++ b/odoo/tools/config.py
+@@ -205,6 +205,11 @@ class configmanager:
+         parser = optparse.OptionParser(version=version, option_class=OdooOption)
+ 
+         parser.add_option(FileOnlyOption(dest='admin_passwd', my_default='admin'))
++        # SAAS-PATCH: SaaS lock switches (odoo.conf only, never exported by --save).
++        #   saas_lock = True                 -> enable all SaaS restrictions
++        #   saas_manager_token = <secret>    -> token the SaaS Manager must send
++        parser.add_option(FileOnlyOption(dest='saas_lock', type='bool', my_default=False))
++        parser.add_option(FileOnlyOption(dest='saas_manager_token', my_default='', file_exportable=False))
+         parser.add_option(FileOnlyOption(dest='bin_path', type='path', my_default='', file_exportable=False))
+         parser.add_option(FileOnlyOption(dest='csv_internal_sep', my_default=','))
+         parser.add_option(FileOnlyOption(dest='default_productivity_apps', type='bool', my_default=False, file_exportable=False))
+diff --git a/odoo/tools/saas_lock.py b/odoo/tools/saas_lock.py
+new file mode 100644
+index 00000000000..6a0f78aa3dd
+--- /dev/null
++++ b/odoo/tools/saas_lock.py
+@@ -0,0 +1,504 @@
++# Part of Odoo. See LICENSE file for full copyright and licensing details.
++#
++# SAAS-PATCH ###################################################################
++# Centralized "SaaS lock" helper.
++#
++# This module is the SINGLE enforcement point for every SaaS restriction added
++# to the Odoo core. All other patched files import the functions defined here,
++# so the whole patch can be found by searching for the marker `# SAAS-PATCH`.
++#
++# What it does:
++#   * Reads two config switches added to odoo.conf:
++#         saas_lock = True            # master switch (default: False)
++#         saas_manager_token = <secret>   # token the SaaS Manager must send
++#   * Blocks module installation/uninstallation/upgrade operations unless they
++#     are performed by the SaaS Manager (token), by an internal manager-authorized
++#     call (thread flag), or by the server owner through the CLI (-i / -u).
++#   * Blocks database management (create/drop/backup/restore/duplicate/rename/
++#     change master password) unless performed by the SaaS Manager (token).
++#   * Enforces per-tenant plan limits (users / warehouses / companies / storage)
++#     inside the client database, based on `saas.*` ir.config_parameter keys that
++#     only the manager can write.
++#   * Centralizes the `saas.*` parameter keys and their protection.
++#
++# This file is intentionally dependency-light: it must be importable very early
++# (during module loading) without creating circular imports.
++# SAAS-PATCH ###################################################################
++from __future__ import annotations
++
++import hmac
++import logging
++import threading
++from contextlib import contextmanager
++
++from odoo.tools import config
++
++_logger = logging.getLogger(__name__)
++
++#: Version of the core patch, useful for support / diagnostics.
++SAAS_PATCH_VERSION = '1.0.0'
++
++#: Prefix of every parameter managed by the SaaS Manager.
++SAAS_PARAM_PREFIX = 'saas.'
++
++#: ir.config_parameter keys owned by the SaaS Manager. Client admins may neither
++#: read nor write these keys.
++SAAS_PARAM_KEYS = (
++    'saas.status',          # trial / active / suspended / expired / cancelled
++    'saas.expiry_date',     # ISO date (YYYY-MM-DD) or empty
++    'saas.trial_days',      # integer
++    'saas.max_users',
++    'saas.max_warehouses',
++    'saas.max_companies',
++    'saas.max_storage_mb',
++    'saas.max_db_size_mb',
++    'saas.block_writes',        # '1' to force read-only when suspended/expired
++    'saas.count_portal_users',  # '1' to also count portal/public users
++    'saas.tenant_id',       # SaaS Manager tenant identifier
++    'saas.plan',            # informational plan name
++    'saas.last_push',       # ISO datetime of the last manager push
++)
++
++#: HTTP header carrying the manager token.
++SAAS_TOKEN_HEADER = 'X-Saas-Manager-Token'
++
++#: Context key the manager may use instead of / in addition to the header.
++SAAS_TOKEN_CONTEXT_KEY = 'saas_manager_token'
++
++#: Statuses that make a database read-only (or blocked).
++SAAS_BLOCKING_STATUSES = ('suspended', 'expired', 'cancelled')
++
++#: Statuses considered "not blocked" for limit checks (business as usual).
++SAAS_ACTIVE_STATUSES = ('trial', 'active')
++
++# Thread-local flag: set while an internal (already authorized) module/database
++# operation is running, so the low-level model methods do not re-check the token.
++_local = threading.local()
++
++
++# ---------------------------------------------------------------------------
++# Config accessors
++# ---------------------------------------------------------------------------
++def saas_enabled() -> bool:
++    """Return True when the SaaS lock is enabled in odoo.conf."""
++    try:
++        return bool(config.get('saas_lock'))
++    except Exception:  # noqa: BLE001 - config not parsed yet (very early import)
++        return False
++
++
++def configured_token() -> str:
++    """Return the manager token configured in odoo.conf (may be empty)."""
++    try:
++        return str(config.get('saas_manager_token') or '')
++    except Exception:  # noqa: BLE001
++        return ''
++
++
++def is_cli_run() -> bool:
++    """Return True when the server was started with -i / -u / --reinit.
++
++    This is how the server owner performs one-shot installs/upgrades. It is only
++    honoured when there is no live HTTP request (see :func:`manager_token_ok` and
++    the guards), so a long-running server started with -u does not silently
++    unlock the UI.
++    """
++    try:
++        return bool(config['init'] or config['update'] or config['reinit'])
++    except Exception:  # noqa: BLE001
++        return False
++
++
++# ---------------------------------------------------------------------------
++# Internal (authorized) thread flag
++# ---------------------------------------------------------------------------
++def is_internal() -> bool:
++    """Return True while an internal/authorized operation is running."""
++    return bool(getattr(_local, 'internal', False))
++
++
++def mark_internal(flag: bool = True) -> bool:
++    """Set the internal flag, returning its previous value."""
++    previous = bool(getattr(_local, 'internal', False))
++    _local.internal = bool(flag)
++    return previous
++
++
++@contextmanager
++def internal_context():
++    """Context manager that sets the internal flag for the duration of a block."""
++    previous = mark_internal(True)
++    try:
++        yield
++    finally:
++        _local.internal = previous
++
++
++# ---------------------------------------------------------------------------
++# Request / token helpers
++# ---------------------------------------------------------------------------
++def _current_request():
++    """Return the current odoo.http.request, or None outside a request."""
++    try:
++        from odoo.http import request  # noqa: PLC0415 - avoid circular import
++    except Exception:  # noqa: BLE001
++        return None
++    # `request` is a LocalProxy: touching it outside a request raises.
++    try:
++        if request and getattr(request, 'httprequest', None) is not None:
++            return request
++    except Exception:  # noqa: BLE001
++        return None
++    return None
++
++
++def has_http_request() -> bool:
++    """Return True when the current thread is serving an HTTP request."""
++    return _current_request() is not None
++
++
++def _candidate_tokens(token=None, env=None):
++    """Collect every token presented by the caller."""
++    candidates = []
++    if token:
++        candidates.append(token)
++    if env is not None:
++        try:
++            context = env.context or {}
++        except Exception:  # noqa: BLE001
++            context = {}
++        value = context.get(SAAS_TOKEN_CONTEXT_KEY)
++        if value:
++            candidates.append(value)
++    request = _current_request()
++    if request is not None:
++        httprequest = request.httprequest
++        try:
++            header_value = httprequest.headers.get(SAAS_TOKEN_HEADER)
++        except Exception:  # noqa: BLE001
++            header_value = None
++        if header_value:
++            candidates.append(header_value)
++        for store in (getattr(httprequest, 'args', None), getattr(httprequest, 'form', None)):
++            if not store:
++                continue
++            try:
++                value = store.get(SAAS_TOKEN_CONTEXT_KEY)
++            except Exception:  # noqa: BLE001
++                value = None
++            if value:
++                candidates.append(value)
++    return candidates
++
++
++def _token_matches(candidate, expected) -> bool:
++    try:
++        return hmac.compare_digest(str(candidate).encode(), str(expected).encode())
++    except Exception:  # noqa: BLE001
++        return False
++
++
++def manager_token_ok(token=None, env=None) -> bool:
++    """Return True when the caller presented the configured manager token."""
++    expected = configured_token()
++    if not expected:
++        return False
++    return any(_token_matches(candidate, expected) for candidate in _candidate_tokens(token, env))
++
++
++def is_manager_call(token=None, env=None) -> bool:
++    """True for any call the manager is allowed to make (token or internal)."""
++    return is_internal() or manager_token_ok(token, env)
++
++
++def hide_dev_mode() -> bool:
++    """Return True when developer mode must be disabled for the caller.
++
++    When the SaaS lock is on, client users must not be able to enable developer
++    mode (which would reveal the Technical menu, debug menus, ...). Manager
++    calls keep their rights.
++    """
++    if not saas_enabled():
++        return False
++    return not is_manager_call()
++
++
++# ---------------------------------------------------------------------------
++# Guards
++# ---------------------------------------------------------------------------
++def _deny(message):
++    from odoo.exceptions import AccessError  # noqa: PLC0415
++    _logger.warning('SAAS-PATCH: access denied: %s', message)
++    raise AccessError(message)
++
++
++def check_module_operation(env=None, token=None, operation='module operation'):
++    """Guard every ir.module.module state-changing operation.
++
++    Allowed when:
++      * the SaaS lock is disabled, OR
++      * the call is internal (already authorized by the manager), OR
++      * the caller presented the manager token, OR
++      * the process is a CLI run (-i / -u) with no live HTTP request.
++    """
++    if not saas_enabled():
++        return
++    if is_internal():
++        return
++    if manager_token_ok(token, env):
++        return
++    if is_cli_run() and not has_http_request():
++        return
++    _deny(
++        "Application management is disabled on this database. "
++        "Please contact your service provider to install, upgrade or "
++        "uninstall applications (%s)." % operation
++    )
++
++
++def check_db_operation(method=None, token=None, env=None):
++    """Guard database management (create/drop/backup/restore/...)."""
++    if not saas_enabled():
++        return
++    if is_internal():
++        return
++    if manager_token_ok(token, env):
++        return
++    if is_cli_run() and not has_http_request():
++        return
++    _deny(
++        "Database management is disabled. Only the SaaS Manager may manage "
++        "databases (%s)." % (method or 'database operation')
++    )
++
++
++def check_saas_param_write(env=None, keys=None, token=None):
++    """Guard writes to `saas.*` ir.config_parameter keys."""
++    if not saas_enabled():
++        return
++    if is_internal():
++        return
++    if manager_token_ok(token, env):
++        return
++    for key in keys or ():
++        if key and str(key).startswith(SAAS_PARAM_PREFIX):
++            _deny(
++                "SaaS parameters are managed by your provider and cannot be "
++                "modified (%s)." % key
++            )
++
++
++def hide_saas_params(env=None, token=None) -> bool:
++    """Return True when `saas.*` parameters must be hidden from the caller."""
++    if not saas_enabled():
++        return False
++    return not is_manager_call(token, env)
++
++
++# ---------------------------------------------------------------------------
++# Tenant status / expiry
++# ---------------------------------------------------------------------------
++def get_saas_param(env, key, default=None):
++    """Read a `saas.*` parameter (full key expected, e.g. 'saas.status')."""
++    if not saas_enabled() or env is None:
++        return default
++    try:
++        # Use the raw accessor to bypass the ir.config_parameter visibility guard.
++        value = env['ir.config_parameter'].sudo()._get_param(key)
++        return value if value not in (None, False) else default
++    except Exception:  # noqa: BLE001 - registry/table may not exist yet
++        return default
++
++
++def get_status(env) -> str:
++    """Return the current tenant status (defaults to 'active')."""
++    return str(get_saas_param(env, 'saas.status', 'active') or 'active').lower()
++
++
++def is_blocked(env) -> bool:
++    """Return True when the database is suspended/expired and must be read-only."""
++    if not saas_enabled():
++        return False
++    return get_status(env) in SAAS_BLOCKING_STATUSES
++
++
++def block_writes_enabled(env) -> bool:
++    """Whether blocking emails the instance into write-protection mode."""
++    value = get_saas_param(env, 'saas.block_writes', '1')
++    return str(value) not in ('0', 'False', 'false', '')
++
++
++def get_expiry_date(env):
++    """Return the expiry date string (YYYY-MM-DD) or None."""
++    value = get_saas_param(env, 'saas.expiry_date', None)
++    return value or None
++
++
++# ---------------------------------------------------------------------------
++# Plan limits
++# ---------------------------------------------------------------------------
++def _int_param(env, key):
++    value = get_saas_param(env, key)
++    if value in (None, '', False):
++        return None
++    try:
++        return int(float(value))
++    except (TypeError, ValueError):
++        _logger.warning('SAAS-PATCH: invalid integer for %s: %r', key, value)
++        return None
++
++
++def count_portal_users_enabled(env) -> bool:
++    """Whether portal/public users are also counted against `saas.max_users`.
++
++    Configurable per tenant through the `saas.count_portal_users` parameter
++    (default: off — only internal users are counted).
++    """
++    value = get_saas_param(env, 'saas.count_portal_users', '0')
++    return str(value).strip().lower() in ('1', 'true', 'yes', 'on')
++
++
++def count_internal_users(env) -> int:
++    """Count the users that consume the `saas.max_users` quota.
++
++    By default this is active internal users only — portal and public users are
++    free. Set `saas.count_portal_users` to also count portal/public users.
++    """
++    domain = [('active', '=', True)]
++    if not count_portal_users_enabled(env):
++        domain.append(('share', '=', False))
++    return env['res.users'].with_context(active_test=True).search_count(domain)
++
++
++def count_warehouses(env) -> int:
++    if 'stock.warehouse' not in env:
++        return 0
++    return env['stock.warehouse'].with_context(active_test=True).search_count([
++        ('active', '=', True),
++    ])
++
++
++def count_companies(env) -> int:
++    return env['res.company'].with_context(active_test=True).search_count([
++        ('active', '=', True),
++    ])
++
++
++def storage_mb(env) -> float:
++    """Return the current filestore size in megabytes (best effort)."""
++    if 'ir.attachment' not in env:
++        return 0.0
++    env.cr.execute("SELECT COALESCE(SUM(file_size), 0) FROM ir_attachment")
++    total = env.cr.fetchone()[0] or 0
++    return float(total) / (1024.0 * 1024.0)
++
++
++#: Human label used in the limit error message, per limit kind.
++LIMIT_LABELS = {
++    'user': 'User',
++    'warehouse': 'Warehouse',
++    'company': 'Company',
++    'storage': 'Storage',
++}
++
++
++def _raise_limit(kind):
++    """Raise the standard plan-limit UserError (message shown to the client)."""
++    from odoo.exceptions import UserError  # noqa: PLC0415
++    label = LIMIT_LABELS.get(kind, kind.capitalize())
++    raise UserError(
++        "%s limit reached for your plan. Contact your provider." % label
++    )
++
++
++def check_saas_limit(env, limit_key, extra=0):
++    """Enforce a plan limit inside the client database.
++
++    :param env: current environment
++    :param limit_key: one of 'max_users', 'max_warehouses', 'max_companies',
++                      'max_storage_mb'
++    :param extra: how many additional units the pending operation would add
++    :return: True when the operation is allowed
++    :raises UserError: when the limit would be exceeded
++    """
++    if not saas_enabled() or env is None:
++        return True
++    # Managers and internal (already authorized) operations bypass the limits.
++    if is_manager_call(env=env):
++        return True
++    # Never enforce while the registry is initializing (install time).
++    try:
++        if not env.registry.ready or env.registry._init:
++            return True
++    except Exception:  # noqa: BLE001
++        return True
++
++    if limit_key == 'max_users':
++        limit = _int_param(env, 'saas.max_users')
++        if limit is None:
++            return True
++        current = count_internal_users(env)
++        if current + extra > limit:
++            _raise_limit("user")
++    elif limit_key == 'max_warehouses':
++        limit = _int_param(env, 'saas.max_warehouses')
++        if limit is None:
++            return True
++        current = count_warehouses(env)
++        if current + extra > limit:
++            _raise_limit("warehouse")
++    elif limit_key == 'max_companies':
++        limit = _int_param(env, 'saas.max_companies')
++        if limit is None:
++            return True
++        current = count_companies(env)
++        if current + extra > limit:
++            _raise_limit("company")
++    elif limit_key == 'max_storage_mb':
++        limit = _int_param(env, 'saas.max_storage_mb')
++        if limit is None:
++            return True
++        if storage_mb(env) > limit:
++            _raise_limit("storage")
++    return True
++
++
++def check_users_extra(env, vals_list, current_records=None):
++    """Helper for res.users create/write: check whether the operation activates
++    internal users beyond the plan limit.
++
++    :param vals_list: list of value dicts (create) or a single vals dict (write)
++    :param current_records: recordset being written (for write), else None
++    """
++    if not saas_enabled() or env is None:
++        return True
++    if is_manager_call(env=env):
++        return True
++    if not isinstance(vals_list, list):
++        vals_list = [vals_list]
++
++    if current_records is None:
++        # create(): a new user counts when active and internal. We cannot know
++        # `share` for sure before creation, so count any explicitly active user
++        # that is not explicitly a portal/share user.
++        extra = 0
++        for vals in vals_list:
++            if vals.get('active', True) is False:
++                continue
++            if vals.get('share'):
++                continue
++            extra += 1
++        if extra:
++            check_saas_limit(env, 'max_users', extra=extra)
++        return True
++
++    # write(): count only records transitioning to active internal.
++    extra = 0
++    for record in current_records:
++        was_internal = record.active and not record.share
++        becomes_internal = vals_list[0].get('active', record.active) and not vals_list[0].get('share', record.share)
++        if becomes_internal and not was_internal:
++            extra += 1
++    if extra:
++        check_saas_limit(env, 'max_users', extra=extra)
++    return True

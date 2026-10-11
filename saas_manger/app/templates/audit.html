@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}Audit log · {{ app_name }}{% endblock %}
+{% block heading %}Audit log{% endblock %}
+
+{% block content %}
+<section class="card">
+  <form method="get" action="/audit" class="actions-row" style="align-items:flex-end">
+    <label style="flex:1">Search (action, actor, detail)
+      <input type="search" name="q" value="{{ q }}" placeholder="tenant.create, invoice, ...">
+    </label>
+    <label style="max-width:180px">Level
+      <select name="level">
+        <option value="">All</option>
+        <option value="info" {{ 'selected' if level == 'info' else '' }}>info</option>
+        <option value="warning" {{ 'selected' if level == 'warning' else '' }}>warning</option>
+        <option value="error" {{ 'selected' if level == 'error' else '' }}>error</option>
+      </select>
+    </label>
+    <button class="btn btn-ghost btn-sm">Filter</button>
+  </form>
+</section>
+
+<section class="card">
+  {% if entries %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>When</th><th>Level</th><th>Actor</th><th>Action</th><th>Target</th><th>Detail</th><th>IP</th></tr></thead>
+    <tbody>
+      {% for e in entries %}
+      <tr>
+        <td class="nowrap">{{ e.created_at | dt('%Y-%m-%d %H:%M:%S') }}</td>
+        <td><span class="badge badge-{{ 'warning' if e.level == 'warning' else ('danger' if e.level == 'error' else 'muted') }}">{{ e.level }}</span></td>
+        <td class="nowrap">{{ e.actor }}</td>
+        <td><code>{{ e.action }}</code></td>
+        <td class="nowrap">{% if e.target_type %}{{ e.target_type }}:{{ e.target_id }}{% else %}—{% endif %}</td>
+        <td class="muted">{{ e.detail }}</td>
+        <td class="mono">{{ e.ip }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <div class="actions-row" style="margin-top:12px">
+    {% if page > 1 %}<a class="btn btn-ghost btn-sm" href="/audit?page={{ page - 1 }}&q={{ q }}&level={{ level }}">Previous</a>{% endif %}
+    {% if has_next %}<a class="btn btn-ghost btn-sm" href="/audit?page={{ page + 1 }}&q={{ q }}&level={{ level }}">Next</a>{% endif %}
+    <span class="muted">Page {{ page }}</span>
+  </div>
+  {% else %}
+  <p class="muted">No audit entries match.</p>
+  {% endif %}
+</section>
+{% endblock %}

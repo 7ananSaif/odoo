@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Update run #{{ run.id }} · {{ app_name }}{% endblock %}
+{% block heading %}Update run #{{ run.id }}{% endblock %}
+{% block actions %}
+  <a class="btn btn-ghost" href="/updates/runs/{{ run.id }}/logs.txt">Download logs</a>
+  <a class="btn btn-ghost" href="/updates">Back</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>Summary</h2>
+  <dl class="dl">
+    <dt>Status</dt><dd><span class="badge badge-{{ run.status | status_color }}">{{ run.status }}</span></dd>
+    <dt>Target</dt><dd>{{ run.target }}</dd>
+    <dt>Modules</dt><dd><code>{{ run.modules or 'all' }}</code></dd>
+    <dt>Backup first</dt><dd>{{ 'yes' if run.backup_first else 'no' }}</dd>
+    <dt>Maintenance mode</dt><dd>{{ 'yes' if run.maintenance_mode else 'no' }}</dd>
+    <dt>Created by</dt><dd>{{ run.created_by or '—' }}</dd>
+    <dt>Started</dt><dd>{{ run.started_at | dt }}</dd>
+    <dt>Finished</dt><dd>{{ run.finished_at | dt }}</dd>
+  </dl>
+</section>
+
+<section class="card">
+  <h2>Databases ({{ run.jobs | length }})</h2>
+  {% if run.jobs %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Database</th><th>Status</th><th>Attempt</th><th>Rolled back</th><th>Started</th><th>Finished</th><th></th></tr></thead>
+    <tbody>
+      {% for job in run.jobs %}
+      <tr>
+        <td><code>{{ job.db_name }}</code></td>
+        <td><span class="badge badge-{{ job.status | status_color }}">{{ job.status }}</span></td>
+        <td>{{ job.attempt }}</td>
+        <td>{% if job.rolled_back %}<span class="badge badge-warning">yes</span>{% else %}<span class="muted">no</span>{% endif %}</td>
+        <td class="nowrap">{{ job.started_at | dt }}</td>
+        <td class="nowrap">{{ job.finished_at | dt }}</td>
+        <td class="right nowrap">
+          <a class="btn btn-ghost btn-sm" href="/updates/jobs/{{ job.id }}">Logs</a>
+          {% if job.status == 'failed' %}
+          <form method="post" action="/updates/jobs/{{ job.id }}/retry">
+            <button class="btn btn-ghost btn-sm">Retry</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}<p class="muted">This run has no jobs.</p>{% endif %}
+</section>
+{% endblock %}

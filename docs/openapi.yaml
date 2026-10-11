@@ -126,6 +126,13 @@ components:
     # Mirrors custom_addons/invoice_agent/models/invoice_extraction.py
     # verbatim. additionalProperties:false everywhere; required only where
     # a real vendor invoice always carries the field; no constraints.
+    #
+    # Money and quantity fields are pydantic ``Decimal``s, which serialize
+    # as JSON *strings* ("1350.00") — locked by tests/test_extract.py and
+    # consumed as a value by the Odoo side (result_service.apply_result).
+    # They are documented as strings here because that is the wire format;
+    # the decimal ``pattern`` is the generator's own spelling of the same
+    # type, and is ignored by scripts/check_openapi_drift.py.
     # ----------------------------------------------------------------
     InvoiceExtraction:
       type: object
@@ -146,11 +153,14 @@ components:
           type: string
           description: ISO-4217 code, e.g. EUR
         subtotal:
-          type: [number, "null"]
+          type: [string, "null"]
+          pattern: '^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$'
         tax_total:
-          type: [number, "null"]
+          type: [string, "null"]
+          pattern: '^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$'
         amount_total:
-          type: number
+          type: string
+          pattern: '^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$'
         lines:
           type: array
           items:
@@ -168,9 +178,11 @@ components:
         name:
           type: string
         quantity:
-          type: number
+          type: string
+          pattern: '^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$'
         price_unit:
-          type: number
+          type: string
+          pattern: '^(?!^[-+.]*$)[+-]?0*\d*\.?\d*$'
         confidence:
           type: [number, "null"]
 

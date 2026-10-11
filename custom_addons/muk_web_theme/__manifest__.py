@@ -61,23 +61,21 @@
     ],
     'installable': True,
     'application': False,
-    # Deliberately NOT auto_install (upstream ships this as True).
+    # Auto-install is intentionally enabled: the backend theme is the base
+    # module for the rest of the MuK Web suite, so it is selected on every
+    # database whose dependencies it can satisfy (all of its dependencies are
+    # community auto-install modules: muk_web_group / appsbar / colors /
+    # chatter / dialog / refresh).
     #
-    # Upstream's comment reads "this is must insalled, because it is the base
-    # module for all other MuK Web modules", but as an auto-install module this
-    # is selected on every database whose modules satisfy its dependencies
-    # (web, mail, base_automation, bus, ...). Combined with the 'excludes'
-    # entry above, any install that also pulls in web_enterprise therefore
-    # aborts with:
+    # WARNING: because 'excludes' above lists web_enterprise, a database that
+    # also installs web_enterprise will abort during install with:
     #
     #   UserError: Modules "MuK Backend Theme" and "Web Enterprise" are
     #              incompatible.
     #
-    # Install it explicitly when you want it (-i muk_web_theme); nothing else
-    # in the MuK suite depends on it, so it will simply no longer appear by
-    # surprise on databases that must stay enterprise-only (CI, the Hotel
-    # industry package, ...).
-    'auto_install': False,
+    # This affects enterprise-only databases (CI, the Hotel industry package).
+    # Remove the 'excludes' entry if the theme must coexist with web_enterprise.
+    'auto_install': True,
     'post_init_hook': '_setup_module',
     'uninstall_hook': '_uninstall_cleanup',
 }

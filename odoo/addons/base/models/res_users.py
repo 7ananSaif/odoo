@@ -25,6 +25,7 @@ from odoo.api import SUPERUSER_ID
 from odoo.exceptions import AccessDenied, AccessError, UserError, ValidationError
 from odoo.fields import Command, Domain
 from odoo.http import request, DEFAULT_LANG
+from odoo.tools import saas_lock  # SAAS-PATCH
 from odoo.tools import email_domain_extract, is_html_empty, frozendict, reset_cached_properties, str2bool, SQL
 
 
@@ -577,6 +578,8 @@ class ResUsers(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        # SAAS-PATCH: enforce the subscription plan's internal-user limit.
+        saas_lock.check_users_extra(self.env, vals_list)
         users = super().create(vals_list)
         setting_vals = []
         for user in users:
@@ -594,6 +597,9 @@ class ResUsers(models.Model):
         return users
 
     def write(self, vals):
+        # SAAS-PATCH: enforce the subscription plan's internal-user limit when
+        # a user is activated (or turned from portal into internal).
+        saas_lock.check_users_extra(self.env, vals, current_records=self)
         if vals.get('active') and SUPERUSER_ID in self._ids:
             raise UserError(_("You cannot activate the superuser."))
         if vals.get('active') == False and self.env.uid in self._ids:  # noqa: E712

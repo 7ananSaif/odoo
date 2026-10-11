@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · {{ app_name }}{% endblock %}
+{% block heading %}Dashboard{% endblock %}
+{% block actions %}
+  <a class="btn btn-ghost" href="/export/dashboard.csv">Export CSV</a>
+  <a class="btn btn-primary" href="/tenants/new">New tenant</a>
+{% endblock %}
+
+{% block content %}
+<section class="kpi-row">
+  <div class="kpi"><span class="kpi-label">Tenants</span><span class="kpi-value">{{ counts.total }}</span></div>
+  <div class="kpi"><span class="kpi-label">Active</span><span class="kpi-value">{{ counts.active }}</span></div>
+  <div class="kpi"><span class="kpi-label">Trial</span><span class="kpi-value">{{ counts.trial }}</span></div>
+  <div class="kpi"><span class="kpi-label">Suspended</span><span class="kpi-value">{{ counts.suspended }}</span></div>
+  <div class="kpi"><span class="kpi-label">Expired</span><span class="kpi-value">{{ counts.expired }}</span></div>
+</section>
+
+<section class="kpi-row">
+  <div class="kpi kpi-money"><span class="kpi-label">MRR</span><span class="kpi-value">{{ metrics.mrr | money }}</span></div>
+  <div class="kpi kpi-money"><span class="kpi-label">Revenue {{ now_year if now_year else "" }}</span><span class="kpi-value">{{ metrics.yearly | money }}</span></div>
+  <div class="kpi kpi-money"><span class="kpi-label">Outstanding</span><span class="kpi-value">{{ metrics.outstanding | money }}</span></div>
+  <div class="kpi kpi-money"><span class="kpi-label">Overdue</span><span class="kpi-value">{{ metrics.overdue | money }}</span></div>
+</section>
+
+{% if alerts %}
+<section class="card">
+  <h2>Usage alerts</h2>
+  <ul class="alert-list">
+    {% for a in alerts %}<li class="alert alert-warning">{{ a }}</li>{% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<div class="grid-2">
+  <section class="card">
+    <h2>Expiring within 30 days</h2>
+    {% if expiring %}
+    <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Tenant</th><th>Plan</th><th>Expiry</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for t in expiring %}
+        <tr>
+          <td><a href="/tenants/{{ t.id }}">{{ t.name }}</a></td>
+          <td>{{ t.plan.name if t.plan else "—" }}</td>
+          <td>{{ t.expiry_date | date }}</td>
+          <td><span class="badge badge-{{ t.status | status_color }}">{{ t.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}<p class="muted">Nothing expiring in the next 30 days.</p>{% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Revenue per plan</h2>
+    {% if metrics.revenue_per_plan %}
+    <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Plan</th><th class="right">Invoiced</th></tr></thead>
+      <tbody>
+        {% for row in metrics.revenue_per_plan %}
+        <tr><td>{{ row.plan }}</td><td class="right">{{ row.total | money(row.currency) }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}<p class="muted">No invoices yet.</p>{% endif %}
+  </section>
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <h2>Recent invoices</h2>
+    {% if recent_invoices %}
+    <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Number</th><th>Status</th><th class="right">Total</th></tr></thead>
+      <tbody>
+        {% for inv in recent_invoices %}
+        <tr>
+          <td><a href="/finance/invoices/{{ inv.id }}">{{ inv.number }}</a></td>
+          <td><span class="badge badge-{{ inv.status | status_color }}">{{ inv.status }}</span></td>
+          <td class="right">{{ inv.total | money(inv.currency) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}<p class="muted">No invoices yet.</p>{% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Recent tenants</h2>
+    {% if recent_tenants %}
+    <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Tenant</th><th>Subdomain</th><th>Status</th></tr></thead>
+      <tbody>
+        {% for t in recent_tenants %}
+        <tr>
+          <td><a href="/tenants/{{ t.id }}">{{ t.name }}</a></td>
+          <td><code>{{ t.subdomain }}</code></td>
+          <td><span class="badge badge-{{ t.status | status_color }}">{{ t.status }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}<p class="muted">No tenants yet. <a href="/tenants/new">Create the first one</a>.</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

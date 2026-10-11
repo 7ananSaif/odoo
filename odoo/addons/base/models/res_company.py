@@ -8,6 +8,7 @@ from odoo.api import SUPERUSER_ID
 from odoo.exceptions import ValidationError, UserError
 from odoo.fields import Command, Domain
 from odoo.tools import html2plaintext, file_open, ormcache
+from odoo.tools import saas_lock  # SAAS-PATCH
 from odoo.tools.image import image_process
 
 _logger = logging.getLogger(__name__)
@@ -272,6 +273,8 @@ class ResCompany(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        # SAAS-PATCH: enforce the subscription plan's company limit.
+        saas_lock.check_saas_limit(self.env, 'max_companies', extra=len(vals_list))
 
         # create missing partners
         no_partner_vals_list = [

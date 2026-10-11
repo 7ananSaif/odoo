@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Finance · {{ app_name }}{% endblock %}
+{% block heading %}Finance{% endblock %}
+{% block actions %}
+  <a class="btn btn-ghost" href="/finance/reports">Reports</a>
+  <form method="post" action="/finance/mark-overdue"><button class="btn btn-ghost btn-sm">Sweep overdue</button></form>
+{% endblock %}
+
+{% block content %}
+<section class="kpi-row">
+  <div class="kpi kpi-money"><span class="kpi-label">MRR</span><span class="kpi-value">{{ mrr | money }}</span></div>
+  <div class="kpi kpi-money"><span class="kpi-label">Revenue this year</span><span class="kpi-value">{{ yearly | money }}</span></div>
+  <div class="kpi kpi-money"><span class="kpi-label">Outstanding</span><span class="kpi-value">{{ outstanding | money }}</span></div>
+  <div class="kpi kpi-money"><span class="kpi-label">Overdue</span><span class="kpi-value">{{ overdue | money }}</span></div>
+</section>
+
+<section class="card">
+  <h2>Subscriptions ({{ subscriptions | length }})</h2>
+  {% if subscriptions %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Tenant</th><th>Cycle</th><th>Status</th><th>Next invoice</th><th class="right">Discount</th><th></th></tr></thead>
+    <tbody>
+      {% for s in subscriptions %}
+      <tr>
+        <td>{{ tenants.get(s.tenant_id).name if tenants.get(s.tenant_id) else s.tenant_id }}</td>
+        <td>{{ s.cycle }}</td>
+        <td><span class="badge badge-{{ s.status | status_color }}">{{ s.status }}</span></td>
+        <td class="nowrap">{{ s.next_invoice_date | date }}</td>
+        <td class="right">{{ s.discount_percent }}% + {{ s.discount_fixed | money(s.currency) }}</td>
+        <td class="right">
+          <form method="post" action="/finance/subscriptions/{{ s.id }}/generate-invoice">
+            <button class="btn btn-ghost btn-sm">Generate invoice</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}<p class="muted">No subscriptions yet. They are created automatically with each tenant.</p>{% endif %}
+</section>
+
+<section class="card">
+  <h2>Invoices ({{ invoices | length }})</h2>
+  {% if invoices %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Number</th><th>Tenant</th><th>Status</th><th>Issued</th><th>Due</th><th class="right">Total</th><th class="right">Balance</th><th></th></tr></thead>
+    <tbody>
+      {% for inv in invoices %}
+      <tr>
+        <td><a href="/finance/invoices/{{ inv.id }}">{{ inv.number }}</a></td>
+        <td>{{ tenants.get(inv.tenant_id).name if tenants.get(inv.tenant_id) else inv.tenant_id }}</td>
+        <td><span class="badge badge-{{ inv.status | status_color }}">{{ inv.status }}</span></td>
+        <td class="nowrap">{{ inv.issue_date | date }}</td>
+        <td class="nowrap">{{ inv.due_date | date }}</td>
+        <td class="right nowrap">{{ inv.total | money(inv.currency) }}</td>
+        <td class="right nowrap">{{ inv.balance | money(inv.currency) }}</td>
+        <td class="right nowrap">
+          <a class="btn btn-ghost btn-sm" href="/finance/invoices/{{ inv.id }}/pdf">PDF</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}<p class="muted">No invoices yet.</p>{% endif %}
+</section>
+{% endblock %}

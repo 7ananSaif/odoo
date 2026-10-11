@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% set editing = plan is not none %}
+{% block title %}{{ 'Edit' if editing else 'New' }} plan · {{ app_name }}{% endblock %}
+{% block heading %}{{ 'Edit plan' if editing else 'New plan' }}{% endblock %}
+{% block actions %}<a class="btn btn-ghost" href="/plans">Back</a>{% endblock %}
+
+{% block content %}
+<form method="post" action="{{ '/plans/%d/edit'|format(plan.id) if editing else '/plans/new' }}">
+  <div class="card">
+    <h2>Identity</h2>
+    <div class="form-grid">
+      <label>Name
+        <input type="text" name="name" value="{{ plan.name if editing else '' }}" required>
+      </label>
+      <label>Code (slug)
+        <input type="text" name="code" value="{{ plan.code if editing else '' }}" required pattern="[a-z0-9_-]+">
+      </label>
+      <label class="full">Description
+        <textarea name="description">{{ plan.description if editing else '' }}</textarea>
+      </label>
+      {% if editing %}
+      <label class="check">
+        <input type="checkbox" name="active" value="true" {{ 'checked' if plan.active else '' }}>
+        Active (offered to new tenants)
+      </label>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Allowed applications (Odoo modules)</h2>
+    <label class="full">Technical module names, comma or newline separated
+      <textarea name="modules" rows="6" placeholder="sale_management, stock, account, mrp">{{ modules_raw }}</textarea>
+      <span class="help"><code>base</code> and <code>web</code> are always allowed. Installing this plan adds the
+        missing modules and removes the ones not listed.</span>
+    </label>
+  </div>
+
+  <div class="card">
+    <h2>Default limits</h2>
+    <div class="form-grid">
+      <label>Max users
+        <input type="number" name="max_users" value="{{ plan.max_users if editing else 5 }}" min="0">
+      </label>
+      <label>Max warehouses
+        <input type="number" name="max_warehouses" value="{{ plan.max_warehouses if editing else 1 }}" min="0">
+      </label>
+      <label>Max companies
+        <input type="number" name="max_companies" value="{{ plan.max_companies if editing else 1 }}" min="0">
+      </label>
+      <label>Max storage (MB)
+        <input type="number" name="max_storage_mb" value="{{ plan.max_storage_mb if editing else 5120 }}" min="0">
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Pricing</h2>
+    <div class="form-grid">
+      <label>Currency
+        <input type="text" name="currency" value="{{ plan.currency if editing else 'USD' }}" maxlength="8">
+      </label>
+      <label>Tax rate (0.19 = 19%)
+        <input type="text" name="tax_rate" value="{{ plan.tax_rate if editing else '0' }}">
+      </label>
+      <label>Price / month
+        <input type="text" name="price_month" value="{{ plan.price_month if editing else '0' }}">
+      </label>
+      <label>Price / year
+        <input type="text" name="price_year" value="{{ plan.price_year if editing else '0' }}">
+      </label>
+      <label>Setup fee
+        <input type="text" name="setup_fee" value="{{ plan.setup_fee if editing else '0' }}">
+      </label>
+      <label>Trial days
+        <input type="number" name="trial_days" value="{{ plan.trial_days if editing else 14 }}" min="0">
+      </label>
+      <label>Price per extra user
+        <input type="text" name="price_extra_user" value="{{ plan.price_extra_user if editing else '0' }}">
+      </label>
+      <label>Price per extra warehouse
+        <input type="text" name="price_extra_warehouse" value="{{ plan.price_extra_warehouse if editing else '0' }}">
+      </label>
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <button type="submit" class="btn btn-primary">{{ 'Save changes' if editing else 'Create plan' }}</button>
+    <a class="btn btn-ghost" href="/plans">Cancel</a>
+  </div>
+</form>
+
+{% if editing %}
+<form method="post" action="/plans/{{ plan.id }}/delete" style="margin-top:12px"
+      onsubmit="return confirm('Delete this plan? Tenants on it will lose the plan reference.');">
+  <button class="btn btn-danger">Delete plan</button>
+</form>
+{% endif %}
+{% endblock %}

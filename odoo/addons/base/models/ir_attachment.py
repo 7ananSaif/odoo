@@ -19,6 +19,7 @@ import werkzeug
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, MissingError, UserError, ValidationError
 from odoo.fields import Domain
+from odoo.tools import saas_lock  # SAAS-PATCH
 from odoo.http import Stream, request, root
 from odoo.tools import (
     OrderedSet,
@@ -752,6 +753,8 @@ class IrAttachment(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        # SAAS-PATCH: enforce the subscription plan's storage limit (optional).
+        saas_lock.check_saas_limit(self.env, 'max_storage_mb')
         record_tuple_set = set()
 
         # remove computed field depending of datas

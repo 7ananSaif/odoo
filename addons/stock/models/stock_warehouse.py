@@ -4,6 +4,7 @@
 from collections import namedtuple
 
 from odoo import api, fields, models
+from odoo.tools import saas_lock  # SAAS-PATCH
 from odoo.exceptions import UserError, RedirectWarning
 from odoo.tools.translate import _, LazyTranslate
 
@@ -112,6 +113,8 @@ class StockWarehouse(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        # SAAS-PATCH: enforce the subscription plan's warehouse limit.
+        saas_lock.check_saas_limit(self.env, 'max_warehouses', extra=len(vals_list))
         for vals in vals_list:
             if vals.get('company_id'):
                 company = self.env['res.company'].browse(vals['company_id'])

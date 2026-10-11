@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block title %}{{ tenant.name }} · {{ app_name }}{% endblock %}
+{% block heading %}{{ tenant.name }}{% endblock %}
+{% block actions %}
+  <a class="btn btn-primary" href="/tenants/{{ tenant.id }}/open" target="_blank" rel="noopener">Open in Odoo</a>
+  <a class="btn btn-ghost" href="{{ tenant.url }}" target="_blank" rel="noopener">Odoo URL</a>
+  <a class="btn btn-ghost" href="/tenants/{{ tenant.id }}/edit">Edit</a>
+  <a class="btn btn-ghost" href="/finance?tenant={{ tenant.id }}">Billing</a>
+{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+  <section class="card">
+    <h2>Overview</h2>
+    <dl class="dl">
+      <dt>Status</dt><dd><span class="badge badge-{{ tenant.status | status_color }}">{{ tenant.status }}</span>
+        {% if tenant.maintenance_mode %} <span class="badge badge-warning">maintenance</span>{% endif %}</dd>
+      <dt>Subdomain</dt><dd><a href="{{ tenant.url }}" target="_blank" rel="noopener">{{ tenant.subdomain }}</a></dd>
+      <dt>Database</dt><dd class="mono">{{ tenant.db_name }}</dd>
+      <dt>Plan</dt><dd>{{ tenant.plan.name if tenant.plan else "—" }}</dd>
+      <dt>Contact</dt><dd>{{ tenant.contact_name or "—" }}</dd>
+      <dt>Email / phone</dt><dd>{{ tenant.email or "—" }} · {{ tenant.phone or "—" }}</dd>
+      <dt>Country / tax ID</dt><dd>{{ tenant.country or "—" }} · {{ tenant.tax_id or "—" }}</dd>
+      <dt>Start date</dt><dd>{{ tenant.start_date | date }}</dd>
+      <dt>Expiry date</dt><dd>{{ tenant.expiry_date | date }} {% if tenant.auto_renew %}<span class="muted">(auto-renew)</span>{% endif %}</dd>
+      <dt>Balance</dt><dd><strong>{{ balance | money }}</strong></dd>
+      <dt>Last backup</dt><dd>{{ tenant.last_backup_at | dt }}</dd>
+      <dt>Last update</dt><dd>{{ tenant.last_update_at | dt }}</dd>
+      <dt>Usage checked</dt><dd>{{ tenant.last_usage_check | dt }}</dd>
+    </dl>
+  </section>
+
+  <section class="card">
+    <h2>Usage vs limits</h2>
+    <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Metric</th><th>Used</th><th>Limit</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Users</td><td>{{ tenant.current_users }}</td><td>{{ tenant.max_users }}</td>
+          <td><div class="meter {{ 'over' if percentages.users >= 100 else ('warn' if percentages.users >= 80 else '') }}">
+            <span style="width: {{ [percentages.users, 100] | min }}%"></span></div> {{ percentages.users }}%</td>
+        </tr>
+        <tr>
+          <td>Warehouses</td><td>{{ tenant.current_warehouses }}</td><td>{{ tenant.max_warehouses }}</td>
+          <td><div class="meter {{ 'over' if percentages.warehouses >= 100 else ('warn' if percentages.warehouses >= 80 else '') }}">
+            <span style="width: {{ [percentages.warehouses, 100] | min }}%"></span></div> {{ percentages.warehouses }}%</td>
+        </tr>
+        <tr>
+          <td>Companies</td><td>{{ tenant.current_companies }}</td><td>{{ tenant.max_companies }}</td>
+          <td><div class="meter {{ 'over' if percentages.companies >= 100 else ('warn' if percentages.companies >= 80 else '') }}">
+            <span style="width: {{ [percentages.companies, 100] | min }}%"></span></div> {{ percentages.companies }}%</td>
+        </tr>
+        <tr>
+          <td>Storage (MB)</td><td>{{ '%.0f'|format(tenant.current_storage_mb) }}</td><td>{{ tenant.max_storage_mb }}</td>
+          <td><div class="meter {{ 'over' if percentages.storage >= 100 else ('warn' if percentages.storage >= 80 else '') }}">
+            <span style="width: {{ [percentages.storage, 100] | min }}%"></span></div> {{ percentages.storage }}%</td>
+        </tr>
+        <tr>
+          <td>DB size (MB)</td><td>{{ '%.0f'|format(tenant.current_db_size_mb) }}</td>
+          <td>{{ tenant.max_db_size_mb if tenant.max_db_size_mb else "unlimited" }}</td>
+          <td><div class="meter {{ 'over' if percentages.db_size >= 100 else ('warn' if percentages.db_size >= 80 else '') }}">
+            <span style="width: {{ [percentages.db_size, 100] | min }}%"></span></div> {{ percentages.db_size }}%</td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Actions</h2>
+  <div class="actions-row">
+    <form method="post" action="/tenants/{{ tenant.id }}/refresh-usage"><button class="btn btn-ghost btn-sm">Refresh usage</button></form>
+    <form method="post" action="/tenants/{{ tenant.id }}/push-limits"><button class="btn btn-ghost btn-sm">Push limits to database</button></form>
+    <form method="post" action="/tenants/{{ tenant.id }}/backup"><button class="btn btn-ghost btn-sm">Backup now</button></form>
+    {% if tenant.provisioned %}
+      <form method="post" action="/tenants/{{ tenant.id }}/test-odoo"><button class="btn btn-ghost btn-sm">Test Odoo</button></form>
+    {% endif %}
+    {% if tenant.status == 'suspended' or tenant.maintenance_mode %}
+      <form method="post" action="/tenants/{{ tenant.id }}/activate"><button class="btn btn-primary btn-sm">Activate</button></form>
+    {% else %}
+      <form method="post" action="/tenants/{{ tenant.id }}/suspend"><button class="btn btn-ghost btn-sm">Suspend</button></form>
+    {% endif %}
+    {% if not tenant.provisioned %}
+      <form method="post" action="/tenants/{{ tenant.id }}/provision"><button class="btn btn-primary btn-sm">Provision database</button></form>
+      <form method="post" action="/tenants/{{ tenant.id }}/provision">
+        <input type="hidden" name="demo" value="true">
+        <button class="btn btn-ghost btn-sm">Provision with demo data</button>
+      </form>
+    {% endif %}
+  </div>
+  <p class="help">
+    <strong>Test Odoo</strong> confirms the manager can sign in to this tenant's database and
+    reports its version, user count and installed apps. <strong>Open in Odoo</strong> hands your
+    browser a ready session so you land inside the tenant already signed in as its admin.
+  </p>
+</section>
+
+<section class="card">
+  <h2>Money movements</h2>
+  {% set tenant_currency = tenant.plan.currency if tenant.plan else 'USD' %}
+  <div class="grid-3">
+    <form method="post" action="/finance/tenants/{{ tenant.id }}/pay" class="stack">
+      <label>Payment ({{ tenant_currency }})
+        <input type="text" name="amount" required>
+      </label>
+      <label>Method
+        <input type="text" name="method" value="bank_transfer">
+      </label>
+      <label>Reference
+        <input type="text" name="reference">
+      </label>
+      <button class="btn btn-primary btn-sm">Record payment</button>
+    </form>
+    <form method="post" action="/finance/tenants/{{ tenant.id }}/deposit" class="stack">
+      <label>Deposit ({{ tenant_currency }})
+        <input type="text" name="amount" required>
+      </label>
+      <label>Method
+        <input type="text" name="method" value="bank_transfer">
+      </label>
+      <label>Reference
+        <input type="text" name="reference">
+      </label>
+      <button class="btn btn-ghost btn-sm">Record deposit</button>
+    </form>
+    <form method="post" action="/finance/tenants/{{ tenant.id }}/refund" class="stack">
+      <label>Refund ({{ tenant_currency }})
+        <input type="text" name="amount" required>
+      </label>
+      <label>Method
+        <input type="text" name="method" value="bank_transfer">
+      </label>
+      <label>Reference
+        <input type="text" name="reference">
+      </label>
+      <button class="btn btn-ghost btn-sm">Record refund</button>
+    </form>
+  </div>
+  <p class="help">
+    A payment settles the oldest open invoice; a deposit is held in advance; a refund
+    is paid back and increases the outstanding balance.
+  </p>
+</section>
+
+<div class="grid-2">
+  <section class="card">
+    <h2>Backups</h2>
+    {% if backups %}
+    <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>When</th><th>Reason</th><th>Size</th><th></th></tr></thead>
+      <tbody>
+        {% for b in backups %}
+        <tr>
+          <td class="nowrap">{{ b.created_at | dt }}</td>
+          <td><span class="badge badge-{{ 'success' if b.succeeded else 'danger' }}">{{ b.reason }}</span></td>
+          <td class="nowrap">{{ '%.1f'|format(b.size_bytes / 1048576) }} MB</td>
+          <td class="right">
+            <form method="post" action="/tenants/{{ tenant.id }}/restore/{{ b.id }}"
+                  onsubmit="return confirm('Restore this backup? The current database will be overwritten.');">
+              <button class="btn btn-ghost btn-sm">Restore</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}<p class="muted">No backups yet.</p>{% endif %}
+  </section>
+
+  <section class="card">
+    <h2>Invoices</h2>
+    {% if invoices %}
+    <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Number</th><th>Status</th><th class="right">Total</th><th class="right">Balance</th></tr></thead>
+      <tbody>
+        {% for inv in invoices %}
+        <tr>
+          <td><a href="/finance/invoices/{{ inv.id }}">{{ inv.number }}</a></td>
+          <td><span class="badge badge-{{ inv.status | status_color }}">{{ inv.status }}</span></td>
+          <td class="right">{{ inv.total | money(inv.currency) }}</td>
+          <td class="right">{{ inv.balance | money(inv.currency) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}<p class="muted">No invoices yet.</p>{% endif %}
+  </section>
+</div>
+
+<section class="card">
+  <h2>Danger zone</h2>
+  <form method="post" action="/tenants/{{ tenant.id }}/duplicate" class="actions-row" style="align-items:flex-end">
+    <label style="max-width:240px">Duplicate as subdomain
+      <input type="text" name="subdomain" placeholder="acme-copy" pattern="[a-z0-9-]+" required>
+    </label>
+    <button class="btn btn-ghost btn-sm">Duplicate database</button>
+  </form>
+
+  <form method="post" action="/tenants/{{ tenant.id }}/delete" style="margin-top:14px"
+        onsubmit="return confirm('Delete this tenant permanently?');">
+    <label>Type <code>{{ tenant.subdomain }}</code> to confirm
+      <input type="text" name="confirm" placeholder="{{ tenant.subdomain }}" required>
+    </label>
+    <label class="check" style="margin:8px 0">
+      <input type="checkbox" name="drop_database" value="true">
+      Also drop the database <code>{{ tenant.db_name }}</code> (irreversible)
+    </label>
+    <button class="btn btn-danger btn-sm">Delete tenant</button>
+  </form>
+</section>
+{% endblock %}

@@ -267,11 +267,19 @@ services:
       - ./custom_addons:/mnt/extra-addons
       # Named volume: filestore survives container recreation
       - odoo-web-data:/var/lib/odoo
+      # Public-instance config, mounted read-only over the image default.
+      # It sets list_db = False (no database manager for anyone) and
+      # proxy_mode = True. See docker/odoo.conf for the full rationale.
+      - ./docker/odoo.conf:/etc/odoo/odoo.conf:ro
+    # --no-database-list mirrors list_db = False from docker/odoo.conf as a
+    # belt-and-suspenders default: the lock survives even if the config mount
+    # is ever removed or replaced.
+    #
     # --dev=reload enables hot-reload of Python files when running on Linux
     # hosts (EC2, WSL2, native Linux). On Docker Desktop for Windows the
     # bind-mount doesn't emit inotify events, so you must restart the
     # container after .py edits:  docker compose restart odoo
-    command: odoo --addons-path=/opt/odoo/addons,/mnt/extra-addons --dev=reload,qweb,werkzeug,xml
+    command: odoo --addons-path=/opt/odoo/addons,/mnt/extra-addons --no-database-list --dev=reload,qweb,werkzeug,xml
     logging:
       driver: json-file
       options:
@@ -283,6 +291,328 @@ services:
           memory: 2G
         reservations:
           memory: 512M
+
+  # ============================================================================
+  # odoo-master — OWNER-ONLY control instance (never exposed publicly)
+  #
+  # The public `odoo` service runs with list_db = False, so nobody can manage
+  # databases from its login page. This companion instance is the ONLY one with
+  # the database manager enabled; it exists so the owner keeps full management
+  # (web "Manage Databases" plus the saas_manager control panel) without
+  # reopening the public surface. It is deliberately locked down:
+  #   * `profiles: [saas-master]` — NOT started by a plain `docker compose up`;
+  #   * bound to 127.0.0.1 only (loopback port 8070) with no nginx upstream;
+  #   * `--max-cron-threads=0` so it never double-runs scheduled jobs;
+  #   * its own config (docker/odoo-master.conf) with a private master password.
+  #
+  # Use it on demand, then reach it through an SSH tunnel from your machine:
+  #   docker compose --profile saas-master up -d odoo-master
+  #   ssh -L 8070:127.0.0.1:8070 you@server
+  #   → http://127.0.0.1:8070   (Manage Databases / SaaS ▸ Tenants)
+  #   docker compose --profile saas-master stop odoo-master
+  # Stop it when done: while it is up, the database manager is reachable on the
+  # host loopback — keep it stopped when you are not managing databases.
+  # ============================================================================
+  odoo-master:
+    build:
+      context: .
+    profiles: [ "saas-master" ]
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      # Database coordinates come from .env via the image entrypoint, exactly
+      # like the public service — no credentials are written to any file.
+      HOST: ${ODOO_DB_HOST:-db}
+      PORT: ${ODOO_DB_PORT:-5432}
+      USER: ${ODOO_DB_USER:-odoo}
+      PASSWORD: ${ODOO_DB_PASSWORD:-odoo}
+      # Not behind a proxy: never trust X-Forwarded-* on this instance.
+      PROXY_MODE: "False"
+    ports:
+      # Loopback ONLY. Nothing beyond the host (not even nginx) can reach it.
+      - "127.0.0.1:8070:8070"
+    volumes:
+      - ./custom_addons:/mnt/extra-addons
+      # Same filestore as the public instance — one filestore per DB.
+      - odoo-web-data:/var/lib/odoo
+      # Admin-only config: list_db = True, loopback bind, cron off, and the
+      # private master password. See docker/odoo-master.conf.
+      - ./docker/odoo-master.conf:/etc/odoo/odoo.conf:ro
+    command: odoo --addons-path=/opt/odoo/addons,/mnt/extra-addons --http-port=8070 --max-cron-threads=0
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+
+  # ============================================================================
+  # odoo-control — INTERNAL control instance for the SaaS Manager
+  #
+  # The manager (see saas_manger/) creates and manages one database per tenant
+  # through Odoo's `db` service, which the public `odoo` instance refuses
+  # (list_db = False, and nginx 404s /xmlrpc/2/db). This instance enables it
+  # (list_db = True in docker/odoo-control.conf) and is reachable ONLY on the
+  # private compose network as `odoo-control:8069`:
+  #   * it publishes NO host port and is referenced by NO nginx upstream;
+  #   * it shares the same database and filestore volume as the public instance,
+  #     so tenants it creates are served by `odoo` immediately;
+  #   * --max-cron-threads=0 so only the public instance runs scheduled jobs.
+  #
+  # Started together with the manager under the `saas-manager` profile:
+  #   docker compose --profile saas-manager up -d
+  # ============================================================================
+  odoo-control:
+    build:
+      context: .
+    profiles: [ "saas-manager" ]
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      HOST: ${ODOO_DB_HOST:-db}
+      PORT: ${ODOO_DB_PORT:-5432}
+      USER: ${ODOO_DB_USER:-odoo}
+      PASSWORD: ${ODOO_DB_PASSWORD:-odoo}
+      # Not behind a proxy: never trust X-Forwarded-* on this instance.
+      PROXY_MODE: "False"
+      # Harmony with the public instance: if the session_redis addon is active
+      # in a tenant database, this instance needs Redis too — on its own key
+      # prefix so its sessions never collide with the public instance's.
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      ODOO_SESSION_REDIS_PREFIX: "odoo-control-session:"
+    volumes:
+      - ./custom_addons:/mnt/extra-addons
+      # Same filestore as the public instance — one filestore per database.
+      - odoo-web-data:/var/lib/odoo
+      # list_db = True, no proxy, no cron, and the private master password.
+      # See docker/odoo-control.conf.
+      - ./docker/odoo-control.conf:/etc/odoo/odoo.conf:ro
+    command: odoo --addons-path=/opt/odoo/addons,/mnt/extra-addons --http-port=8069 --max-cron-threads=0
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+
+  # ============================================================================
+  # saas-manager-web / -worker / -beat — the SaaS control panel
+  #
+  # One image (built from ./saas_manger), three roles:
+  #   * web    — FastAPI/uvicorn on :8080, bound to host loopback only. Reach it
+  #              through an SSH tunnel (owner-only), exactly like odoo-master:
+  #                ssh -L 8080:127.0.0.1:8080 you@server  →  http://127.0.0.1:8080
+  #   * worker — Celery worker for provisioning / updates / backups
+  #   * beat   — Celery beat scheduler (usage refresh + daily billing sweep)
+  #
+  # Each role sets its own environment explicitly (no YAML anchors/merge keys —
+  # the editor's YAML formatter rewrites them and breaks the file). The web role
+  # creates the manager database and schema; worker/beat only wait for Postgres.
+  #
+  # Started with the control instance under the `saas-manager` profile:
+  #   docker compose --profile saas-manager up -d
+  # ============================================================================
+  saas-manager-web:
+    build:
+      context: ./saas_manger
+    profiles: [ "saas-manager" ]
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      odoo-control:
+        condition: service_started
+    environment:
+      # --- web app ---------------------------------------------------------
+      SECRET_KEY: ${SAAS_SECRET_KEY:-change-me-session-signing-key}
+      OWNER_EMAIL: ${SAAS_OWNER_EMAIL:-owner@example.com}
+      OWNER_NAME: ${SAAS_OWNER_NAME:-SaaS Owner}
+      SECRETS_KEY: ${SAAS_SECRETS_KEY:-}
+      # --- manager database (created by the entrypoint on first boot) ------
+      MANAGER_DB_URL: postgresql+psycopg2://${POSTGRES_USER:-odoo}:${POSTGRES_PASSWORD:-odoo}@db:5432/saas_manager
+      # --- Odoo (internal control instance) --------------------------------
+      ODOO_BASE_URL: http://odoo-control:8069
+      ODOO_DOMAIN: ${DOMAIN:-example.com}
+      ODOO_MASTER_PASSWORD: ${SAAS_ODOO_MASTER_PASSWORD:-}
+      ODOO_MANAGER_TOKEN: ${SAAS_MANAGER_TOKEN:-}
+      ODOO_DATA_DIR: /var/lib/odoo
+      # --- PostgreSQL client tools (installed in the image) ----------------
+      PG_DUMP: pg_dump
+      PG_RESTORE: pg_restore
+      PG_PSQL: psql
+      PG_HOST: db
+      PG_PORT: "5432"
+      PG_USER: ${POSTGRES_USER:-odoo}
+      PG_PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      BACKUP_DIR: /app/backups
+      # --- Celery (dedicated Redis DBs so keys never clash) ----------------
+      CELERY_BROKER_URL: redis://redis:6379/2
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
+      UPDATE_MAX_PARALLEL: "2"
+      SCHEDULER_ENABLED: "true"
+      # --- "Open in Odoo" auto-login (browser-reachable URL) ---------------
+      # The manager talks to Odoo internally at ODOO_BASE_URL, but a browser
+      # cannot resolve that host. Set SAAS_ODOO_PUBLIC_URL to the URL the
+      # *browser* uses (empty → fall back to each tenant's subdomain URL).
+      ODOO_PUBLIC_URL: ${SAAS_ODOO_PUBLIC_URL:-}
+      # --- entrypoint: create the DB + schema on the web role only ---------
+      SAAS_CREATE_DB: "1"
+      SAAS_DB_INIT: "1"
+    ports:
+      # Loopback only — the owner reaches it through an SSH tunnel. The host
+      # port is configurable (SAAS_MANAGER_PORT) so a conflict with a port
+      # already bound on the host can be worked around from .env alone.
+      - "127.0.0.1:${SAAS_MANAGER_PORT:-8080}:8080"
+    volumes:
+      # Tenant backups (pg_dump + filestore zips) survive container recreation.
+      - saas-manager-backups:/app/backups
+      # The Odoo filestore, so backups capture it and restores can write it back.
+      - odoo-web-data:/var/lib/odoo
+    healthcheck:
+      test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=5)\"" ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 256M
+
+  saas-manager-worker:
+    build:
+      context: ./saas_manger
+    profiles: [ "saas-manager" ]
+    restart: unless-stopped
+    depends_on:
+      saas-manager-web:
+        condition: service_started
+    environment:
+      # --- web app ---------------------------------------------------------
+      SECRET_KEY: ${SAAS_SECRET_KEY:-change-me-session-signing-key}
+      OWNER_EMAIL: ${SAAS_OWNER_EMAIL:-owner@example.com}
+      OWNER_NAME: ${SAAS_OWNER_NAME:-SaaS Owner}
+      SECRETS_KEY: ${SAAS_SECRETS_KEY:-}
+      # --- manager database ------------------------------------------------
+      MANAGER_DB_URL: postgresql+psycopg2://${POSTGRES_USER:-odoo}:${POSTGRES_PASSWORD:-odoo}@db:5432/saas_manager
+      # --- Odoo (internal control instance) --------------------------------
+      ODOO_BASE_URL: http://odoo-control:8069
+      ODOO_DOMAIN: ${DOMAIN:-example.com}
+      ODOO_MASTER_PASSWORD: ${SAAS_ODOO_MASTER_PASSWORD:-}
+      ODOO_MANAGER_TOKEN: ${SAAS_MANAGER_TOKEN:-}
+      ODOO_DATA_DIR: /var/lib/odoo
+      # --- PostgreSQL client tools (installed in the image) ----------------
+      PG_DUMP: pg_dump
+      PG_RESTORE: pg_restore
+      PG_PSQL: psql
+      PG_HOST: db
+      PG_PORT: "5432"
+      PG_USER: ${POSTGRES_USER:-odoo}
+      PG_PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      BACKUP_DIR: /app/backups
+      # --- Celery (dedicated Redis DBs so keys never clash) ----------------
+      CELERY_BROKER_URL: redis://redis:6379/2
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
+      UPDATE_MAX_PARALLEL: "2"
+      SCHEDULER_ENABLED: "true"
+      # --- entrypoint: only the web role creates the DB and schema ---------
+      SAAS_CREATE_DB: "0"
+      SAAS_DB_INIT: "0"
+    command: python -m celery -A app.workers.celery_app.celery_app worker --loglevel=INFO -Q default,updates,backups
+    volumes:
+      - saas-manager-backups:/app/backups
+      - odoo-web-data:/var/lib/odoo
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 768M
+        reservations:
+          memory: 256M
+
+  saas-manager-beat:
+    build:
+      context: ./saas_manger
+    profiles: [ "saas-manager" ]
+    restart: unless-stopped
+    depends_on:
+      saas-manager-web:
+        condition: service_started
+    environment:
+      # --- web app ---------------------------------------------------------
+      SECRET_KEY: ${SAAS_SECRET_KEY:-change-me-session-signing-key}
+      OWNER_EMAIL: ${SAAS_OWNER_EMAIL:-owner@example.com}
+      OWNER_NAME: ${SAAS_OWNER_NAME:-SaaS Owner}
+      SECRETS_KEY: ${SAAS_SECRETS_KEY:-}
+      # --- manager database ------------------------------------------------
+      MANAGER_DB_URL: postgresql+psycopg2://${POSTGRES_USER:-odoo}:${POSTGRES_PASSWORD:-odoo}@db:5432/saas_manager
+      # --- Odoo (internal control instance) --------------------------------
+      ODOO_BASE_URL: http://odoo-control:8069
+      ODOO_DOMAIN: ${DOMAIN:-example.com}
+      ODOO_MASTER_PASSWORD: ${SAAS_ODOO_MASTER_PASSWORD:-}
+      ODOO_MANAGER_TOKEN: ${SAAS_MANAGER_TOKEN:-}
+      ODOO_DATA_DIR: /var/lib/odoo
+      # --- PostgreSQL client tools (installed in the image) ----------------
+      PG_DUMP: pg_dump
+      PG_RESTORE: pg_restore
+      PG_PSQL: psql
+      PG_HOST: db
+      PG_PORT: "5432"
+      PG_USER: ${POSTGRES_USER:-odoo}
+      PG_PASSWORD: ${POSTGRES_PASSWORD:-odoo}
+      BACKUP_DIR: /app/backups
+      # --- Celery (dedicated Redis DBs so keys never clash) ----------------
+      CELERY_BROKER_URL: redis://redis:6379/2
+      CELERY_RESULT_BACKEND: redis://redis:6379/3
+      UPDATE_MAX_PARALLEL: "2"
+      SCHEDULER_ENABLED: "true"
+      # --- entrypoint: only the web role creates the DB and schema ---------
+      SAAS_CREATE_DB: "0"
+      SAAS_DB_INIT: "0"
+    command: python -m celery -A app.workers.celery_app.celery_app beat --loglevel=INFO
+    volumes:
+      - saas-manager-backups:/app/backups
+      - odoo-web-data:/var/lib/odoo
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 128M
 
   # ============================================================================
   # nginx — Reverse proxy, TLS termination, websocket forwarding
@@ -345,3 +675,5 @@ volumes:
     name: certbot-www
   certbot-conf:
     name: certbot-conf
+  saas-manager-backups:
+    name: saas-manager-backups
