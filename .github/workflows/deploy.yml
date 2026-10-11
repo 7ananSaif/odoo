@@ -31,6 +31,33 @@ jobs:
             - uses: actions/checkout@v4
 
             # ------------------------------------------------------------------
+            # Fail fast when the OIDC role is not configured.
+            #
+            # Without this, an unset AWS_EKS_DEPLOY_ROLE_ARN is passed as an
+            # empty 'role-to-assume' and configure-aws-credentials stops with
+            # the opaque "Could not load credentials from any providers".
+            # ------------------------------------------------------------------
+            - name: Verify deploy configuration is present
+              env:
+                  ROLE_ARN: ${{ secrets.AWS_EKS_DEPLOY_ROLE_ARN }}
+                  DOMAIN: ${{ secrets.DOMAIN }}
+              run: |
+                  missing=0
+                  if [ -z "$ROLE_ARN" ]; then
+                      echo "::error::secrets.AWS_EKS_DEPLOY_ROLE_ARN is not set for the 'production' environment."
+                      echo "::error::Add it under Settings > Environments > production > Environment secrets."
+                      echo "::error::Without it configure-aws-credentials has no role to assume and every deploy stops here."
+                      missing=1
+                  fi
+                  if [ -z "$DOMAIN" ]; then
+                      echo "::error::secrets.DOMAIN is not set for the 'production' environment."
+                      echo "::error::It is the public hostname the post-deploy smoke test checks."
+                      missing=1
+                  fi
+                  [ "$missing" -eq 0 ] || exit 1
+                  echo "Deploy role and domain are configured."
+
+            # ------------------------------------------------------------------
             # EKS auth via OIDC — assume a short-lived IAM role. The role's
             # trust policy allows the GitHub repo + environment to assume it,
             # so no AWS_ACCESS_KEY_ID / SECRET are stored as secrets.
@@ -58,22 +85,24 @@ jobs:
             # ------------------------------------------------------------------
             # Record the current release revision before upgrading, so we can
             # roll back to it if the post-deploy smoke test fails.
+            #
+            # 'prev' is always a number: 0 means "nothing to roll back to"
+            # (first deploy, single revision, or helm unavailable).
             # ------------------------------------------------------------------
             - name: Capture previous helm revision
               id: revision
               run: |
-                  set -e
-                  # If the release doesn't exist yet (first deploy) there is no
-                  # previous revision to roll back to.
+                  set -euo pipefail
+                  PREV=0
                   if helm history odoo -n odoo >/dev/null 2>&1; then
-                      PREV=$(helm history odoo -n odoo --max 2 2>/dev/null \
-                          | awk 'NR==2 {print $1}' || echo "0")
-                      echo "prev=$PREV" >> "$GITHUB_OUTPUT"
-                      echo "Previous revision: $PREV"
-                  else
-                      echo "prev=0" >> "$GITHUB_OUTPUT"
-                      echo "No existing release — first deploy."
+                      PREV=$(helm history odoo -n odoo --max 2 2>/dev/null | awk 'NR==2 {print $1}')
+                      PREV=${PREV:-0}
                   fi
+                  case "$PREV" in
+                      ''|*[!0-9]*) PREV=0 ;;
+                  esac
+                  echo "prev=$PREV" >> "$GITHUB_OUTPUT"
+                  echo "Previous revision: $PREV"
 
             # ------------------------------------------------------------------
             # The deploy — a single helm upgrade --install. --atomic makes helm
@@ -89,29 +118,48 @@ jobs:
                     --atomic --timeout 10m
 
             # ------------------------------------------------------------------
-            # Post-deploy smoke test — the same smoke test used on the old EC2
-            # path, now against the EKS-backed ALB/domain.
+            # In-cluster assertion that the rollout actually completed. --atomic
+            # already waits for readiness, so this is a cheap explicit check
+            # against the Deployment the chart renders (release 'odoo' + chart
+            # 'odoo-stack' => fullname 'odoo', see templates/_helpers.tpl).
+            # ------------------------------------------------------------------
+            - name: Verify Odoo rollout
+              run: kubectl rollout status deployment/odoo-odoo -n odoo --timeout=5m
+
+            # ------------------------------------------------------------------
+            # Post-deploy smoke test against the public endpoint — i.e. what the
+            # chart actually deploys (Odoo + filestore PVC; Postgres is RDS).
+            #
+            # This deliberately does NOT call scripts/smoke-test.sh any more:
+            # that script is written for the local docker-compose topology and
+            # probes invoice-ai / RabbitMQ / Prometheus / Grafana on localhost,
+            # none of which exist in the cluster or on a GitHub runner, so it
+            # failed on every run.
             # ------------------------------------------------------------------
             - name: Smoke test
               id: smoke
               run: |
                   set -e
-                  chmod +x scripts/smoke-test.sh
-                  ./scripts/smoke-test.sh "${{ secrets.DOMAIN }}"
+                  chmod +x scripts/smoke-test-eks.sh
+                  ./scripts/smoke-test-eks.sh "${{ secrets.DOMAIN }}"
 
             # ------------------------------------------------------------------
-            # Automatic rollback — if the smoke test fails, roll the release
-            # back to the previous revision (sub-5-minute bar, matching the old
-            # EC2 rollback).
+            # Automatic rollback — run only when the smoke test itself failed
+            # (sub-5-minute bar, matching the old EC2 rollback).
+            #
+            # Gating on steps.smoke.outcome == 'failure' matters: the previous
+            # condition also fired when an EARLIER step failed (for example the
+            # AWS auth above), which skipped the smoke test entirely and then
+            # ran 'helm rollback' with an empty revision, producing
+            #   could not convert revision to a number: strconv.Atoi: parsing ""
             # ------------------------------------------------------------------
             - name: Roll back on smoke failure
-              if: ${{ steps.smoke.outcome != 'success' || failure() }}
+              if: ${{ always() && steps.smoke.outcome == 'failure' }}
               run: |
                   PREV="${{ steps.revision.outputs.prev }}"
-                  if [ "$PREV" != "0" ]; then
-                      echo "Smoke test failed — rolling back to revision $PREV"
-                      helm rollback odoo "$PREV" -n odoo --timeout 10m
-                  else
-                      echo "Smoke test failed and there is no previous revision — manual intervention required"
+                  if [ -z "$PREV" ] || [ "$PREV" = "0" ]; then
+                      echo "::error::Smoke test failed and there is no previous revision to roll back to — manual intervention required."
                       exit 1
                   fi
+                  echo "Smoke test failed — rolling back to revision $PREV"
+                  helm rollback odoo "$PREV" -n odoo --timeout 10m

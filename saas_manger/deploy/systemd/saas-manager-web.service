@@ -1,0 +1,31 @@
+# =============================================================================
+# SaaS Manager — web (FastAPI via uvicorn)
+#
+# Template: deploy/setup-server.sh substitutes __APP_USER__ and __APP_DIR__ and
+# installs the result as /etc/systemd/system/saas-manager-web.service.
+#
+# Configuration (.env) is read from WorkingDirectory by pydantic-settings, so it
+# must live at __APP_DIR__/.env.
+# =============================================================================
+[Unit]
+Description=SaaS Manager - web (uvicorn)
+Documentation=file://__APP_DIR__/deploy/README.md
+After=network-online.target redis-server.service redis6.service postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_USER__
+WorkingDirectory=__APP_DIR__
+ExecStart=__APP_DIR__/venv/bin/python -m uvicorn app.main:app --host 0.0.0.0 --port 8080 --proxy-headers
+Restart=always
+RestartSec=3
+KillSignal=SIGINT
+TimeoutStopSec=30
+NoNewPrivileges=true
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

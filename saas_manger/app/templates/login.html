@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Sign in · {{ app_name }}{% endblock %}
+{% block body_class %}anon-body{% endblock %}
+{% block anon %}
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+        <path d="M4 7l8-4 8 4v10l-8 4-8-4z"/><path d="M4 7l8 4 8-4M12 11v10"/>
+      </svg>
+      <span>{{ app_name }}</span>
+    </div>
+
+    {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+    {% if step == 'password' %}
+      <p class="muted">Sign in to manage your tenants.</p>
+      <form method="post" action="/login" class="stack">
+        <input type="hidden" name="next" value="{{ next }}">
+        <label>Email
+          <input type="email" name="email" autocomplete="username" required autofocus>
+        </label>
+        <label>Password
+          <input type="password" name="password" autocomplete="current-password" required>
+        </label>
+        <button type="submit" class="btn btn-primary">Sign in</button>
+      </form>
+
+    {% elif step == 'enroll' %}
+      <p class="muted">Two-factor authentication is not set up yet. Scan this QR code with your
+        authenticator app, then enter the 6-digit code to finish.</p>
+      <div class="qr-box"><img src="data:image/png;base64,{{ qr }}" alt="TOTP QR code" width="180" height="180"></div>
+      <p class="muted center">Manual key: <code>{{ secret }}</code></p>
+      <form method="post" action="/login/totp" class="stack">
+        <input type="hidden" name="next" value="{{ next }}">
+        <input type="hidden" name="email" value="{{ email }}">
+        <label>Authentication code
+          <input type="text" name="code" inputmode="numeric" pattern="[0-9 ]*" autocomplete="one-time-code" required autofocus>
+        </label>
+        <button type="submit" class="btn btn-primary">Confirm & sign in</button>
+      </form>
+
+    {% else %}
+      <p class="muted">Enter the 6-digit code from your authenticator app.</p>
+      <form method="post" action="/login/totp" class="stack">
+        <input type="hidden" name="next" value="{{ next }}">
+        <input type="hidden" name="email" value="{{ email }}">
+        <label>Authentication code
+          <input type="text" name="code" inputmode="numeric" pattern="[0-9 ]*" autocomplete="one-time-code" required autofocus>
+        </label>
+        <button type="submit" class="btn btn-primary">Verify</button>
+      </form>
+      <p class="muted center"><a href="/login">Back</a></p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,8 @@
+FROM odoo:19.0
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng tesseract-ocr-ara poppler-utils \
+    && rm -rf /var/lib/apt/lists/*
+COPY custom_addons/invoice_agent/requirements.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir --break-system-packages -r /tmp/requirements.txt
+USER odoo

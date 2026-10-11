@@ -25,6 +25,7 @@ from odoo.exceptions import AccessDenied
 from odoo.release import version_info
 from odoo.sql_db import db_connect
 from odoo.tools import osutil, SQL
+from odoo.tools import saas_lock  # SAAS-PATCH
 from odoo.tools.misc import exec_pg_environ, find_pg_tool
 
 _logger = logging.getLogger(__name__)
@@ -515,6 +516,8 @@ def dispatch(method, params):
     elif exp_method_name in g:
         passwd = params[0]
         params = params[1:]
+        # SAAS-PATCH: database management is reserved to the SaaS Manager (token).
+        saas_lock.check_db_operation(method=method)
         check_super(passwd)
         return g[exp_method_name](*params)
     else:

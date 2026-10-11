@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Reports · {{ app_name }}{% endblock %}
+{% block heading %}Financial reports{% endblock %}
+{% block actions %}
+  <a class="btn btn-ghost" href="/finance/reports/invoices.xlsx">Export invoices (xlsx)</a>
+  <a class="btn btn-ghost" href="/finance/reports/payments.csv">Export payments (csv)</a>
+  <a class="btn btn-ghost" href="/finance">Back</a>
+{% endblock %}
+
+{% block content %}
+<section class="kpi-row">
+  <div class="kpi kpi-money"><span class="kpi-label">MRR</span><span class="kpi-value">{{ mrr | money }}</span></div>
+  <div class="kpi kpi-money"><span class="kpi-label">Revenue this year</span><span class="kpi-value">{{ yearly | money }}</span></div>
+  <div class="kpi kpi-money"><span class="kpi-label">Outstanding</span><span class="kpi-value">{{ outstanding | money }}</span></div>
+  <div class="kpi kpi-money"><span class="kpi-label">Overdue</span><span class="kpi-value">{{ overdue | money }}</span></div>
+</section>
+
+<section class="card">
+  <h2>Revenue per plan</h2>
+  {% if per_plan %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Plan</th><th class="right">Invoiced</th></tr></thead>
+    <tbody>
+      {% for row in per_plan %}
+      <tr><td>{{ row.plan }}</td><td class="right nowrap">{{ row.total | money(row.currency) }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}<p class="muted">No invoiced revenue yet.</p>{% endif %}
+</section>
+
+<div class="grid-2">
+  <section class="card">
+    <h2>Churn (last 12 months)</h2>
+    <dl class="dl">
+      <dt>Active tenants</dt><dd>{{ churn.active }}</dd>
+      <dt>Churned</dt><dd>{{ churn.churned }}</dd>
+      <dt>Churn rate</dt>
+      <dd><strong>{{ churn.churn_rate }}%</strong>
+        <div class="meter {{ 'over' if churn.churn_rate >= 10 else ('warn' if churn.churn_rate >= 5 else '') }}">
+          <span style="width: {{ [churn.churn_rate, 100] | min }}%"></span>
+        </div>
+      </dd>
+    </dl>
+    <p class="help">Churned = tenants cancelled or expired within the window.</p>
+  </section>
+
+  <section class="card">
+    <h2>Expiring soon (30 days)</h2>
+    {% if expiring %}
+    <div class="table-wrap">
+    <table class="table">
+      <thead><tr><th>Tenant</th><th>Plan</th><th>Expires</th></tr></thead>
+      <tbody>
+        {% for t in expiring %}
+        <tr>
+          <td><a href="/tenants/{{ t.id }}">{{ t.name }}</a></td>
+          <td>{{ t.plan.name if t.plan else "—" }}</td>
+          <td class="nowrap">{{ t.expiry_date | date }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    {% else %}<p class="muted">No subscriptions expiring in the next 30 days.</p>{% endif %}
+  </section>
+</div>
+
+<section class="card">
+  <h2>Expired / cancelled</h2>
+  {% if expired %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Tenant</th><th>Status</th><th>Expired</th></tr></thead>
+    <tbody>
+      {% for t in expired %}
+      <tr>
+        <td><a href="/tenants/{{ t.id }}">{{ t.name }}</a></td>
+        <td><span class="badge badge-{{ t.status | status_color }}">{{ t.status }}</span></td>
+        <td class="nowrap">{{ t.expiry_date | date }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}<p class="muted">No expired subscriptions.</p>{% endif %}
+</section>
+
+<section class="card">
+  <h2>Definitions</h2>
+  <dl class="dl">
+    <dt>MRR</dt><dd>Sum of active subscriptions normalised to one month (yearly plans divided by 12), after discounts.</dd>
+    <dt>Outstanding</dt><dd>Unpaid balances on sent and overdue invoices.</dd>
+    <dt>Overdue</dt><dd>Unpaid balances on invoices past their due date.</dd>
+    <dt>Yearly revenue</dt><dd>Total of all non-cancelled invoices issued in the current year.</dd>
+    <dt>Churn rate</dt><dd>Churned tenants divided by active + churned tenants, over the window.</dd>
+  </dl>
+</section>
+{% endblock %}

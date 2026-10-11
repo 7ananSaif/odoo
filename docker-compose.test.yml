@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: odoo
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 5s
+      retries: 10
+
+  odoo-test:
+    build:
+      context: .
+      dockerfile: Dockerfile.odoo-test
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      HOST: db
+      USER: odoo
+      PASSWORD: odoo
+    volumes:
+      - ./custom_addons/invoice_agent:/mnt/extra-addons/invoice_agent:ro
+    command: >
+      odoo -d test_invoice_agent -i invoice_agent
+      --test-enable --test-tags /invoice_agent
+      --stop-after-init --log-level=test

@@ -1,0 +1,97 @@
+# =============================================================================
+# nginx/conf.d/saas-manager.conf.example — OPTIONAL public route for the
+# SaaS Manager control panel.
+#
+# By default the manager is bound to host loopback only (127.0.0.1:8080) and is
+# reached through an SSH tunnel — the same model as the odoo-master instance.
+# This file is an opt-in alternative that exposes it at https://manager.<DOMAIN>.
+#
+# It is NOT loaded automatically: the nginx service only instantiates files in
+# this directory that end in ".template" (nginx:alpine's envsubst). To enable:
+#
+#   1. Point DNS:   manager.<DOMAIN>  →  this host's IP
+#   2. Issue a certificate that covers BOTH names (so the existing vhost keeps
+#      working). Either re-issue with a SAN:
+#
+#        docker compose run --rm certbot certonly --webroot \
+#            -w /var/www/certbot \
+#            -d <DOMAIN> -d manager.<DOMAIN> \
+#            --expand
+#
+#      …or issue a separate certificate for the subdomain alone:
+#
+#        docker compose run --rm certbot certonly --webroot \
+#            -w /var/www/certbot -d manager.<DOMAIN>
+#
+#   3. Rename this file so nginx picks it up, then reload:
+#
+#        mv nginx/conf.d/saas-manager.conf.example \
+#           nginx/conf.d/saas-manager.conf.template
+#        docker compose exec nginx nginx -s reload
+#
+# Reaching the panel over the public internet means it is only as safe as the
+# owner password + TOTP 2FA. Keep it loopback-only unless you truly need this.
+# =============================================================================
+
+# HTTP → HTTPS redirect (keeps the ACME challenge reachable on :80).
+server {
+    listen 80;
+    listen [::]:80;
+    server_name manager.${DOMAIN};
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+        try_files $uri =404;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name manager.${DOMAIN};
+
+    # If you used --expand in step 2, the certificate already covers this name;
+    # otherwise point these at the manager.<DOMAIN> lineage instead.
+    ssl_certificate     /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache   shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+
+    # Large JSON/CSV uploads (plan imports, exports).
+    client_max_body_size 25m;
+
+    location /static/ {
+        proxy_pass http://saas-manager-web:8080;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        access_log off;
+    }
+
+    location / {
+        proxy_pass http://saas-manager-web:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+
+        # Provision / backup / update calls can be slow.
+        proxy_connect_timeout 30s;
+        proxy_send_timeout    300s;
+        proxy_read_timeout    300s;
+    }
+}
+</content>

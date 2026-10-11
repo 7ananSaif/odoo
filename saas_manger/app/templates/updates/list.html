@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Updates · {{ app_name }}{% endblock %}
+{% block heading %}Updates{% endblock %}
+{% block actions %}
+  <a class="btn btn-primary" href="/updates/new">New update run</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>Versions</h2>
+  {% if versions %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Name</th><th>Series</th><th>Modules</th><th>Current</th><th>Notes</th><th></th></tr></thead>
+    <tbody>
+      {% for v in versions %}
+      <tr>
+        <td>{{ v.name }}</td>
+        <td><code>{{ v.odoo_series }}</code></td>
+        <td>{% if v.module_list %}<code>{{ v.modules }}</code>{% else %}<span class="muted">all modules</span>{% endif %}</td>
+        <td>{% if v.is_current %}<span class="badge badge-success">current</span>{% else %}<span class="muted">—</span>{% endif %}</td>
+        <td class="muted">{{ v.notes }}</td>
+        <td class="right">
+          <form method="post" action="/updates/versions/{{ v.id }}/delete" onsubmit="return confirm('Delete this version?');">
+            <button class="btn btn-ghost btn-sm">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}<p class="muted">No versions registered yet.</p>{% endif %}
+
+  <form method="post" action="/updates/versions" style="margin-top:16px">
+    <div class="form-grid">
+      <label>Name
+        <input type="text" name="name" placeholder="19.0.1.2 — warehouse fixes" required>
+      </label>
+      <label>Odoo series
+        <input type="text" name="odoo_series" value="19.0">
+      </label>
+      <label class="full">Modules to update (empty = all)
+        <input type="text" name="modules" placeholder="stock, sale_management">
+      </label>
+      <label class="full">Notes
+        <input type="text" name="notes">
+      </label>
+      <label class="check">
+        <input type="checkbox" name="is_current" value="true"> Mark as current
+      </label>
+    </div>
+    <div class="actions-row"><button class="btn btn-primary btn-sm">Register version</button></div>
+  </form>
+</section>
+
+<section class="card">
+  <h2>Recent runs</h2>
+  {% if runs %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>#</th><th>Status</th><th>Target</th><th>Modules</th><th>Backup</th><th>Started</th><th class="right">Jobs</th><th></th></tr></thead>
+    <tbody>
+      {% for r in runs %}
+      <tr>
+        <td>{{ r.id }}</td>
+        <td><span class="badge badge-{{ r.status | status_color }}">{{ r.status }}</span></td>
+        <td>{{ r.target }}</td>
+        <td><code>{{ r.modules or 'all' }}</code></td>
+        <td>{% if r.backup_first %}<span class="badge badge-success">yes</span>{% else %}<span class="muted">no</span>{% endif %}</td>
+        <td class="nowrap">{{ r.started_at | dt }}</td>
+        <td class="right">
+          {{ r.jobs | selectattr('status', 'equalto', 'success') | list | length }}
+          / {{ r.jobs | length }}
+        </td>
+        <td class="right nowrap">
+          <a class="btn btn-ghost btn-sm" href="/updates/runs/{{ r.id }}">Open</a>
+          <a class="btn btn-ghost btn-sm" href="/updates/runs/{{ r.id }}/logs.txt">Logs</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}<p class="muted">No update runs yet.</p>{% endif %}
+</section>
+{% endblock %}
