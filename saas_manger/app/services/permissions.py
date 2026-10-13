@@ -8,9 +8,10 @@ admin
     Everything an operator can do, plus plan and finance administration, but
     *not* user management or settings.
 operator
-    Day-to-day tenant work: create/edit tenants, push limits, backups, updates.
+    Day-to-day tenant work: create/edit tenants, push limits, a tenant's Odoo
+    apps (bounded by the plan), backups, updates.
 viewer
-    Read-only access to tenants, plans, finance and the audit log.
+    Read-only access to tenants, plans, finance, apps and the audit log.
 
 Permissions are plain string keys ("tenants.manage").  The helpers here are
 model-agnostic on purpose: they accept anything carrying a ``role`` attribute
@@ -47,8 +48,8 @@ ROLE_LABELS: dict = {
 ROLE_DESCRIPTIONS: dict = {
     ROLE_OWNER: "Full control: users, settings, tenants, plans, finance and operations.",
     ROLE_ADMIN: "Everything except user management and settings.",
-    ROLE_OPERATOR: "Day-to-day tenant work: create/edit, push limits, backups and updates.",
-    ROLE_VIEWER: "Read-only access to tenants, plans, finance and the audit log.",
+    ROLE_OPERATOR: "Day-to-day tenant work: create/edit, push limits, a tenant's apps, backups and updates.",
+    ROLE_VIEWER: "Read-only access to tenants, plans, finance, apps and the audit log.",
 }
 
 # ---------------------------------------------------------------------------
@@ -67,8 +68,12 @@ PERM_FINANCE_MANAGE = "finance.manage"
 PERM_BACKUPS_MANAGE = "backups.manage"
 PERM_UPDATES_MANAGE = "updates.manage"
 PERM_AUDIT_VIEW = "audit.view"
+#: A tenant's Odoo apps — what the tenant runs inside its own database.
 PERM_APPS_VIEW = "apps.view"
 PERM_APPS_MANAGE = "apps.manage"
+#: The stack's own Docker containers — infrastructure, not a tenant's data.
+PERM_CONTAINERS_VIEW = "containers.view"
+PERM_CONTAINERS_MANAGE = "containers.manage"
 
 ALL_PERMISSIONS: tuple = (
     PERM_USERS_VIEW,
@@ -86,6 +91,8 @@ ALL_PERMISSIONS: tuple = (
     PERM_AUDIT_VIEW,
     PERM_APPS_VIEW,
     PERM_APPS_MANAGE,
+    PERM_CONTAINERS_VIEW,
+    PERM_CONTAINERS_MANAGE,
 )
 
 PERMISSION_LABELS: dict = {
@@ -102,8 +109,10 @@ PERMISSION_LABELS: dict = {
     PERM_BACKUPS_MANAGE: "Create and restore backups",
     PERM_UPDATES_MANAGE: "Run module/app updates",
     PERM_AUDIT_VIEW: "Read the audit log",
-    PERM_APPS_VIEW: "View the stack's application containers",
-    PERM_APPS_MANAGE: "Start, stop and restart application containers",
+    PERM_APPS_VIEW: "View the apps a tenant runs",
+    PERM_APPS_MANAGE: "Install, remove and upgrade a tenant's apps",
+    PERM_CONTAINERS_VIEW: "View the stack's application containers",
+    PERM_CONTAINERS_MANAGE: "Start, stop and restart application containers",
 }
 
 _OPERATOR_PERMISSIONS = frozenset({
@@ -114,7 +123,11 @@ _OPERATOR_PERMISSIONS = frozenset({
     PERM_BACKUPS_MANAGE,
     PERM_UPDATES_MANAGE,
     PERM_AUDIT_VIEW,
+    # A tenant's apps are bounded by its plan, so day-to-day staff manage them.
+    # The stack's own containers are infrastructure and stay admin-only.
     PERM_APPS_VIEW,
+    PERM_APPS_MANAGE,
+    PERM_CONTAINERS_VIEW,
 })
 
 _VIEWER_PERMISSIONS = frozenset({
@@ -123,13 +136,14 @@ _VIEWER_PERMISSIONS = frozenset({
     PERM_FINANCE_VIEW,
     PERM_AUDIT_VIEW,
     PERM_APPS_VIEW,
+    PERM_CONTAINERS_VIEW,
 })
 
 _ADMIN_PERMISSIONS = _OPERATOR_PERMISSIONS | frozenset({
     PERM_TENANTS_DELETE,
     PERM_PLANS_MANAGE,
     PERM_FINANCE_MANAGE,
-    PERM_APPS_MANAGE,
+    PERM_CONTAINERS_MANAGE,
 })
 
 ROLE_PERMISSIONS: dict = {

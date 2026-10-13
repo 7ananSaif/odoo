@@ -24,6 +24,11 @@ What it covers:
 * role enforcement over real HTTP (403s where a role lacks a permission);
 * the write guards (viewer cannot create plans, operator cannot save settings);
 * the self-protection rails (no self-deactivation, no self-deletion, last owner);
+* the Containers screen — who may see it, who may control it, that protected
+  services are refused, and a real start/stop round-trip against one container;
+* the Apps screen — reading a tenant's Odoo modules over RPC, the plan gate that
+  refuses a module the plan does not include, role enforcement, and installing
+  the tenant guard so Odoo's own Apps menu disappears inside the database;
 * the tenant page's Test Odoo / Open in Odoo controls, a live ``Test Odoo``
   call against a provisioned database, and the auto-login session hand-off.
 
@@ -48,7 +53,7 @@ from app.db import SessionLocal  # noqa: E402
 from app.models.tenant import Tenant  # noqa: E402
 from app.models.user import User  # noqa: E402
 from app.security import create_session_token  # noqa: E402
-from app.services import odoo_login, permissions as perms  # noqa: E402
+from app.services import docker_control, odoo_login, permissions as perms  # noqa: E402
 
 BASE_URL = "http://127.0.0.1:8080"
 TEST_PASSWORD = "ChangeMe-User-2026!"
@@ -85,6 +90,53 @@ def session_client(email: str, timeout: float = 30.0) -> httpx.Client:
         follow_redirects=False,
         timeout=timeout,
     )
+
+
+def check_containers_panel(owner: httpx.Client) -> None:
+    """The container-control page: access control, then a real start/stop."""
+    print("\n== containers (stack control) ==")
+    page = owner.get("/containers")
+    check("containers page renders", page.status_code == 200, f"HTTP {page.status_code}")
+    check("containers entry in the navigation", 'href="/containers"' in owner.get("/").text)
+    check("containers page names the allowlist", "odoo" in page.text)
+
+    viewer = session_client("viewer@example.com")
+    check("viewer can read the containers page", viewer.get("/containers").status_code == 200)
+    response = viewer.post("/containers/worker/restart")
+    check("viewer cannot control containers",
+          "error=" in response.headers.get("location", ""),
+          response.headers.get("location", ""))
+
+    response = owner.post("/containers/db/restart")
+    check("a protected service is refused",
+          "error=" in response.headers.get("location", ""),
+          response.headers.get("location", ""))
+    response = owner.post("/containers/worker/explode")
+    check("an unknown action is refused",
+          "error=" in response.headers.get("location", ""),
+          response.headers.get("location", ""))
+
+    if not docker_control.socket_available():
+        print("  (no Docker socket in this container — page checks only)")
+        return
+
+    print("\n== live container round-trip ==")
+    apps = docker_control.list_apps()
+    check("the allow-listed containers are visible", bool(apps),
+          ", ".join(app.service for app in apps))
+    target = next((app for app in apps if app.service in ("worker", "invoice-ai")), None)
+    if target is None:
+        print("  (no lightweight app container to drive — skipping)")
+        return
+    was_running = target.is_running
+    started = docker_control.control(target.service, "start")
+    check(f"started {target.service}", started is not None and started.is_running,
+          started.state_label if started else "no container")
+    if not was_running:
+        stopped = docker_control.control(target.service, "stop")
+        check(f"stopped {target.service} again",
+              stopped is not None and not stopped.is_running,
+              stopped.state_label if stopped else "no container")
 
 
 def reset_test_data() -> None:
@@ -271,7 +323,7 @@ def pick_tenant() -> tuple[int | None, str]:
         return tenant.id, f"{tenant.subdomain} (provisioned={tenant.provisioned})"
 
 
-def check_tenant_and_odoo(owner: httpx.Client) -> None:
+def check_tenant_and_odoo(owner: httpx.Client) -> int | None:
     print("\n== tenant page, Test Odoo and auto-login ==")
     tenant_id, label = pick_tenant()
     print(f"  using tenant: {label}")
@@ -304,7 +356,7 @@ def check_tenant_and_odoo(owner: httpx.Client) -> None:
 
     if not provisioned:
         print("  (no provisioned tenant — skipping the live Odoo checks)")
-        return
+        return None
 
     print("\n== Test Odoo against the live database ==")
     response = owner.post(f"/tenants/{tenant_id}/test-odoo", timeout=180.0)
@@ -317,6 +369,77 @@ def check_tenant_and_odoo(owner: httpx.Client) -> None:
     location = response.headers.get("location", "")
     check("open redirects to Odoo", "://" in location and "/web" in location, location)
     check("open sets a session_id cookie", "session_id=" in cookie, cookie[:120])
+    return tenant_id
+
+
+def check_tenant_apps(owner: httpx.Client, tenant_id: int) -> None:
+    """The Apps screen: a tenant's modules, the plan gate, and hiding Odoo's menu."""
+    from app.services import odoo_apps, tenant_service
+
+    print("\n== apps (Odoo modules of one tenant) ==")
+    index = owner.get("/apps")
+    check("apps index renders", index.status_code == 200, f"HTTP {index.status_code}")
+    check("apps entry in the navigation", 'href="/apps"' in owner.get("/").text)
+
+    page = owner.get(f"/apps/{tenant_id}")
+    check("tenant apps page renders", page.status_code == 200, f"HTTP {page.status_code}")
+    check("apps page reports Odoo's Apps menu", "Odoo's Apps menu" in page.text)
+    check("apps page shows plan membership",
+          "in plan" in page.text or "not in plan" in page.text)
+
+    viewer = session_client("viewer@example.com")
+    check("viewer can read a tenant's apps",
+          viewer.get(f"/apps/{tenant_id}").status_code == 200)
+    response = viewer.post(f"/apps/{tenant_id}/base/upgrade")
+    check("viewer cannot change a tenant's apps", response.status_code == 403,
+          f"HTTP {response.status_code}")
+
+    with SessionLocal() as session:
+        tenant = session.get(Tenant, tenant_id)
+        plan = tenant.plan
+
+    try:
+        odoo_apps.assert_install_allowed(plan, ["definitely_not_a_plan_module"])
+        outside_refused = False
+    except odoo_apps.AppError:
+        outside_refused = True
+    check("a module outside the plan is refused", outside_refused)
+
+    try:
+        odoo_apps.assert_uninstall_allowed(["base"])
+        base_removable = True
+    except odoo_apps.AppError:
+        base_removable = False
+    check("base can never be removed", not base_removable)
+
+    print("\n== install the guard, then hide Odoo's Apps menu in the tenant ==")
+    try:
+        client = tenant_service.authenticated_client(tenant)
+    except Exception as exc:  # noqa: BLE001
+        check("tenant client for the app checks", False, str(exc))
+        return
+
+    try:
+        if "saas_tenant_guard" not in set(client.installed_modules()):
+            response = owner.post(f"/apps/{tenant_id}/saas_tenant_guard/install", timeout=900.0)
+            location = response.headers.get("location", "")
+            check("installed saas_tenant_guard through the panel",
+                  response.status_code == 303 and "error=" not in location, location[:200])
+            client.close()
+            client = tenant_service.authenticated_client(tenant)
+        check("saas_tenant_guard is installed",
+              "saas_tenant_guard" in set(client.installed_modules()))
+
+        response = owner.post(f"/apps/{tenant_id}/hide-menu", timeout=600.0)
+        location = response.headers.get("location", "")
+        check("hide-menu reported success",
+              response.status_code == 303 and "error=" not in location, location[:200])
+
+        remaining = odoo_apps.apps_menu_active_count(client)
+        check("Odoo's Apps menu is hidden in the tenant", remaining == 0,
+              f"still reachable: {remaining}")
+    finally:
+        client.close()
 
 
 def main() -> int:
@@ -327,8 +450,11 @@ def main() -> int:
     owner = check_owner_sections()
     check_account_creation(owner)
     check_role_enforcement()
+    check_containers_panel(owner)
     check_self_protection(owner)
-    check_tenant_and_odoo(owner)
+    tenant_id = check_tenant_and_odoo(owner)
+    if tenant_id is not None:
+        check_tenant_apps(owner, tenant_id)
 
     print()
     total = _passed + len(_failed)

@@ -17,8 +17,10 @@ from app.deps import get_current_user
 from app.db import SessionLocal
 from app.services import permissions
 from app.web.ratelimit import limiter
+from app.web.routes_apps import router as apps_router
 from app.web.routes_audit import router as audit_router
 from app.web.routes_auth import router as auth_router
+from app.web.routes_containers import router as containers_router
 from app.web.routes_dashboard import router as dashboard_router
 from app.web.routes_finance import router as finance_router
 from app.web.routes_plans import router as plans_router
@@ -125,6 +127,19 @@ app.include_router(
     dependencies=[Depends(permissions.require_permission(permissions.PERM_AUDIT_VIEW))],
 )
 app.include_router(users_router)
+app.include_router(
+    apps_router,
+    # A tenant's Odoo apps: reading needs apps.view, and every install, removal
+    # or upgrade needs apps.manage.
+    dependencies=[Depends(permissions.require_permission_for_write(
+        permissions.PERM_APPS_VIEW, permissions.PERM_APPS_MANAGE))],
+)
+app.include_router(
+    containers_router,
+    # The stack's own containers: seeing them needs containers.view, and every
+    # start/stop/restart is guarded again with containers.manage in the handlers.
+    dependencies=[Depends(permissions.require_permission(permissions.PERM_CONTAINERS_VIEW))],
+)
 
 
 @app.get("/health", response_class=JSONResponse)

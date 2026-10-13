@@ -83,6 +83,19 @@ class Settings(BaseSettings):
     email_from_name: str = Field(default="SaaS Manager Billing")
     email_timeout: int = Field(default=20)
 
+    # --- Apps panel (start / stop / restart the stack's containers) --------
+    # Path of the Docker daemon socket *inside this container*. The compose file
+    # bind-mounts the host's /var/run/docker.sock here. When the socket is not
+    # present the Apps page still renders, but explains that control is off.
+    docker_socket: str = Field(default="/var/run/docker.sock")
+    # Compose project whose containers may be controlled ("" disables the check).
+    compose_project: str = Field(default="odoo")
+    # Comma-separated allowlist of compose *service* names the panel may start,
+    # stop or restart. app/services/docker_control.py also strips
+    # PROTECTED_SERVICES (db, redis, rabbitmq, certbot and the manager itself)
+    # from whatever is configured here.
+    app_services: str = Field(default="odoo,odoo-control,worker,invoice-ai,nginx")
+
     @property
     def email_configured(self) -> bool:
         """True when enough SMTP settings are present to send mail."""
