@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% block title %}{{ tenant.name }} apps · {{ app_name }}{% endblock %}
+{% block heading %}{{ tenant.name }} — apps{% endblock %}
+{% block actions %}
+  <a class="btn btn-ghost" href="/apps">All tenants</a>
+  <a class="btn btn-ghost" href="/tenants/{{ tenant.id }}">Tenant page</a>
+{% endblock %}
+
+{% block content %}
+{% if load_error %}
+<div class="alert alert-danger">{{ load_error }}</div>
+{% endif %}
+
+<section class="card">
+  <h2>Tenant</h2>
+  <div class="dl">
+    <dt>Subdomain</dt><dd class="mono">{{ tenant.subdomain }}</dd>
+    <dt>Database</dt><dd class="mono">{{ tenant.db_name }}</dd>
+    <dt>Plan</dt>
+    <dd>
+      {% if plan %}
+        <a href="/plans/{{ plan.id }}">{{ plan.name }}</a>
+        <span class="muted">· {{ plan_app_count }} of its apps are listed here</span>
+      {% else %}
+        <span class="muted">no plan — nothing is authorised beyond base and web</span>
+      {% endif %}
+    </dd>
+    <dt>Installed</dt><dd>{{ installed_count }} of {{ total }} modules in this database</dd>
+    <dt>Odoo's Apps menu</dt>
+    <dd>
+      {% if menu_active is none %}
+        <span class="badge badge-muted">unknown</span>
+      {% elif menu_active == 0 %}
+        <span class="badge badge-success">hidden</span>
+        <span class="muted">— tenants cannot install their own apps</span>
+      {% else %}
+        <span class="badge badge-warning">visible</span>
+        <span class="muted">— {{ menu_active }} module menu(s) still reachable by this tenant</span>
+        {% if can_manage %}
+        <form method="post" action="/apps/{{ tenant.id }}/hide-menu" class="inline">
+          <button class="btn btn-ghost btn-sm">Hide it now</button>
+        </form>
+        {% endif %}
+      {% endif %}
+    </dd>
+  </div>
+  {% if menu_active and not guard_installed %}
+  <p class="help">
+    Hiding needs <code>saas_tenant_guard</code> in this database. It rides on every plan —
+    install it below (filter: In the plan), and the Apps menu disappears for the tenant.
+  </p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Apps</h2>
+  <form method="get" action="/apps/{{ tenant.id }}" class="actions-row">
+    <label class="inline" style="flex-direction:row;align-items:center;gap:8px">
+      <span>Filter</span>
+      <select name="filter" onchange="this.form.submit()">
+        <option value="installed" {{ 'selected' if filter == 'installed' else '' }}>Installed</option>
+        <option value="plan" {{ 'selected' if filter == 'plan' else '' }}>In the plan</option>
+        <option value="apps" {{ 'selected' if filter == 'apps' else '' }}>All apps</option>
+        <option value="all" {{ 'selected' if filter == 'all' else '' }}>All modules</option>
+      </select>
+    </label>
+    <label class="inline" style="flex-direction:row;align-items:center;gap:8px">
+      <span>Search</span>
+      <input type="search" name="q" value="{{ q }}" placeholder="name or app">
+    </label>
+    <button class="btn btn-ghost">Show</button>
+  </form>
+
+  {% if apps %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>App</th><th>Category</th><th>Version</th><th>State</th>
+        <th class="right"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in apps %}
+      <tr>
+        <td>
+          <strong>{{ app.label }}</strong>
+          {% if app.name in allowed %}<span class="badge badge-info">in plan</span>{% endif %}
+          {% if not app.is_app %}<span class="badge badge-muted">module</span>{% endif %}
+          <br><span class="muted mono">{{ app.name }}</span>
+          {% if app.summary %}<br><span class="muted">{{ app.summary }}</span>{% endif %}
+        </td>
+        <td class="muted">{{ app.category or '—' }}</td>
+        <td class="mono muted">{{ app.installed_version or app.latest_version or '—' }}</td>
+        <td>
+          <span class="badge badge-{{ 'success' if app.is_installed else 'muted' }}">{{ app.state_label }}</span>
+        </td>
+        <td class="right nowrap">
+          {% if can_manage %}
+            {% if app.is_installed %}
+              {% if app.can_uninstall %}
+              <form method="post" action="/apps/{{ tenant.id }}/{{ app.name }}/upgrade" class="inline">
+                <button class="btn btn-ghost btn-sm">Upgrade</button>
+              </form>
+              <form method="post" action="/apps/{{ tenant.id }}/{{ app.name }}/uninstall" class="inline"
+                    onsubmit="return confirm('Remove {{ app.label }} from {{ tenant.name }}? Its data goes with it.');">
+                <button class="btn btn-danger btn-sm">Remove</button>
+              </form>
+              {% else %}
+              <span class="muted">required</span>
+              {% endif %}
+            {% elif app.name in allowed %}
+              <form method="post" action="/apps/{{ tenant.id }}/{{ app.name }}/install" class="inline">
+                <button class="btn btn-primary btn-sm">Install</button>
+              </form>
+            {% else %}
+              <span class="muted" title="Not part of this tenant's plan">not in plan</span>
+            {% endif %}
+          {% else %}
+            <span class="muted">—</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <p class="help">{{ apps | length }} shown. Installations run immediately in the tenant's database.</p>
+  {% else %}
+  <p class="muted">Nothing matches this filter.</p>
+  {% endif %}
+</section>
+{% endblock %}

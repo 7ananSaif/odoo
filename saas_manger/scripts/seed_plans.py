@@ -29,7 +29,11 @@ from app.models.plan import Plan, PlanModule  # noqa: E402
 # the target server is simply skipped when the plan is applied (see
 # OdooClient.install_modules), so listing an Enterprise app here is harmless on
 # a Community instance.
-BASE_MODULES = ["base", "web", "contacts", "mail"]
+#
+# `saas_tenant_guard` rides along on every plan on purpose: it is what hides
+# Odoo's own Apps (module installer) menu inside the tenant and enforces the
+# seat limit, so a tenant without it would be able to install apps by itself.
+BASE_MODULES = ["base", "web", "contacts", "mail", "saas_tenant_guard"]
 
 PLANS: list[dict] = [
     {

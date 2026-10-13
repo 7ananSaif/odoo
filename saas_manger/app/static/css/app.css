@@ -557,6 +557,18 @@ legend {
     white-space: nowrap;
 }
 
+/* A <form> wrapping a single button (per-row actions) must not break the row. */
+form.inline,
+.inline {
+    display: inline-block;
+    margin: 0 4px 0 0;
+    vertical-align: middle;
+}
+
+.inline:last-child {
+    margin-right: 0;
+}
+
 .actions-row {
     display: flex;
     flex-wrap: wrap;
