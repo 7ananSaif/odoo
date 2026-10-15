@@ -128,14 +128,27 @@ def apply_plan_limits(tenant: Tenant, plan: Plan | None) -> None:
     tenant.trial_days = plan.trial_days or tenant.trial_days
 
 
-def push_limits_to_database(tenant: Tenant) -> dict[str, str]:
-    """Write the tenant's ``saas.*`` parameters into its client database."""
-    client = authenticated_client(tenant)
+def push_limits_to_database(
+    tenant: Tenant,
+    *,
+    hidden_modules=None,
+    client: OdooClient | None = None,
+) -> dict[str, str]:
+    """Write the tenant's ``saas.*`` parameters into its client database.
+
+    ``hidden_modules`` is forwarded to :func:`limits.push_limits`, so a caller
+    that knows which apps the tenant must not see can push that in the same
+    round-trip. Pass ``client`` when the caller already holds an authenticated
+    client (the apps screen does, so it can reapply the guard on the same
+    connection); otherwise a short-lived one is opened and closed here.
+    """
+    owned = client is None
+    client = client or authenticated_client(tenant)
     try:
-        payload = limits_service.push_limits(client, tenant)
-        return payload
+        return limits_service.push_limits(client, tenant, hidden_modules=hidden_modules)
     finally:
-        client.close()
+        if owned:
+            client.close()
 
 
 def set_status(tenant: Tenant, status: TenantStatus) -> None:

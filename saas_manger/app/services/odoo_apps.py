@@ -119,6 +119,17 @@ def list_apps(client, *, applications_only: bool = False) -> list[AppInfo]:
     return apps
 
 
+def refresh_module_list(client) -> int:
+    """Ask Odoo to rescan its addons paths, so a newly added folder shows up.
+
+    Odoo only learns about a module folder dropped on disk when its module list
+    is updated. Returns how many modules exist afterwards, so the caller can
+    report the effect.
+    """
+    client.call_kw("ir.module.module", "update_list", [])
+    return len(list_apps(client))
+
+
 def installed_count(client) -> int:
     """How many apps the tenant currently has installed."""
     try:
@@ -152,23 +163,49 @@ def apps_menu_active_count(client) -> int | None:
 # Plan gating
 # ---------------------------------------------------------------------------
 def allowed_by_plan(plan: Plan | None) -> set[str]:
-    """The technical names the tenant's plan authorises (always base + web)."""
+    """The technical names the tenant's plan lists (always base + web).
+
+    This is the plan's declared content. A white-label plan also authorises
+    everything else — installing is checked against :func:`plan_allows`, not
+    against this set.
+    """
     return plan_service.allowed_modules(plan)
 
 
-def assert_install_allowed(plan: Plan | None, names: list[str]) -> None:
-    """Refuse modules the tenant's plan does not include.
+def plan_allows_all(plan: Plan | None) -> bool:
+    """True when the plan is white-label: every app in the database is allowed."""
+    return plan_service.allows_all(plan)
+
+
+def plan_allows(plan: Plan | None, name: str, *, extra: set[str] | None = None) -> bool:
+    """True when installing ``name`` is authorised for this plan.
+
+    ``extra`` carries the tenant's manually activated apps — turned on for one
+    tenant without touching the plan (see :mod:`app.services.tenant_modules`).
+    """
+    return plan_service.plan_allows_module(plan, name, extra=extra)
+
+
+def assert_install_allowed(
+    plan: Plan | None,
+    names: list[str],
+    *,
+    extra: set[str] | None = None,
+) -> None:
+    """Refuse modules neither the tenant's plan nor a manual activation allows.
 
     Dependencies of an allowed module are pulled in by Odoo itself, so the check
-    only looks at what the operator explicitly asked for.
+    only looks at what the operator explicitly asked for. Nothing bypasses it:
+    an app that no bouquet lists stays uninstallable until it is added to a plan
+    or activated manually for this tenant.
     """
-    allowed = allowed_by_plan(plan)
-    refused = sorted({name for name in names if name not in allowed})
+    refused = sorted({name for name in names if not plan_allows(plan, name, extra=extra)})
     if refused:
         plan_name = plan.name if plan else "the tenant's plan"
         raise AppError(
-            f"{', '.join(refused)} is not part of {plan_name}. Add it to the plan "
-            f"first, or move the tenant to a plan that includes it."
+            f"{', '.join(refused)} is not part of {plan_name}. Add it to the plan, "
+            f"activate it for this tenant, or move the tenant to a plan that "
+            f"includes it."
         )
 
 
@@ -182,10 +219,20 @@ def assert_uninstall_allowed(names: list[str]) -> None:
 # ---------------------------------------------------------------------------
 # Writes
 # ---------------------------------------------------------------------------
-def install_apps(client, plan: Plan | None, names: list[str]) -> list[str]:
-    """Install ``names`` for a tenant, checking the plan first."""
+def install_apps(
+    client,
+    plan: Plan | None,
+    names: list[str],
+    *,
+    extra: set[str] | None = None,
+) -> list[str]:
+    """Install ``names`` for a tenant, checking the plan (and manual apps) first.
+
+    ``extra`` is the tenant's set of manually activated apps, which are allowed
+    even though the plan does not list them.
+    """
     names = _clean(names)
-    assert_install_allowed(plan, names)
+    assert_install_allowed(plan, names, extra=extra)
     _logger.info("apps: installing %s", names)
     client.install_modules(names)
     hide_apps_menu(client)

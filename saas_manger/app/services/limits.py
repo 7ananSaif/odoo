@@ -21,8 +21,27 @@ LIMIT_PARAM_MAP: dict[str, str] = {
 }
 
 
-def build_param_payload(tenant: Tenant) -> dict[str, str]:
-    """Return the complete ``saas.*`` payload for a tenant."""
+#: Comma-separated list of modules the tenant must not see. Read by
+#: ``saas_tenant_guard`` to hide a whole app without uninstalling it.
+HIDDEN_MODULES_PARAM = "saas.hidden_modules"
+
+
+def hidden_modules_value(names) -> str:
+    """Render a set of module names for the ``saas.hidden_modules`` parameter."""
+    return ",".join(sorted({name for name in (names or ()) if name}))
+
+
+def build_param_payload(
+    tenant: Tenant,
+    *,
+    hidden_modules=None,
+) -> dict[str, str]:
+    """Return the complete ``saas.*`` payload for a tenant.
+
+    ``hidden_modules`` is optional on purpose: when it is ``None`` the
+    parameter is left untouched in the client database, so a plain "push
+    limits" never un-hides an app the operator hid.
+    """
     payload: dict[str, str] = {
         "saas.status": tenant.status,
         "saas.tenant_id": str(tenant.id),
@@ -35,18 +54,18 @@ def build_param_payload(tenant: Tenant) -> dict[str, str]:
     for attribute, key in LIMIT_PARAM_MAP.items():
         value = getattr(tenant, attribute, 0) or 0
         payload[key] = str(value)
+    if hidden_modules is not None:
+        payload[HIDDEN_MODULES_PARAM] = hidden_modules_value(hidden_modules)
     return payload
 
 
-def push_limits(client, tenant: Tenant) -> dict[str, str]:
+def push_limits(client, tenant: Tenant, *, hidden_modules=None) -> dict[str, str]:
     """Write every ``saas.*`` parameter of ``tenant`` into its client DB.
 
     ``client`` is an authenticated :class:`~app.services.odoo_client.OdooClient`.
     Returns the payload that was pushed.
     """
-    from app.services import settings_service  # noqa: PLC0415 (avoid cycle at import time)
-
-    payload = build_param_payload(tenant)
+    payload = build_param_payload(tenant, hidden_modules=hidden_modules)
     # 'suspended'/'expired' also honours the global block_writes default.
     client.push_saas_params(payload)
     return payload

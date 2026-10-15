@@ -2,13 +2,26 @@
 
 Odoo's own Apps screen is hidden inside tenant databases by
 ``saas_tenant_guard``, because installing and removing apps is the provider's
-decision, not the tenant's. This is where that decision is made: pick a tenant,
-see the apps it runs, install the ones its plan allows and remove the rest.
+decision, not the tenant's. This is where that decision is made.
 
-Reads need ``apps.view`` (enforced at the router in :mod:`app.main`); every
-change needs ``apps.manage`` and is checked again in the handlers below. Which
-apps a tenant may install is decided by its plan (a.k.a. bouquet — see
-:mod:`app.services.plan_service`), and every change is written to the audit log.
+Three things decide what a tenant may run, and this screen applies all three:
+
+* its **plan** ("bouquet") — the commercial list of apps;
+* a **manual activation** — an app turned on for this one tenant without
+  editing the plan, which would change every other tenant on it;
+* a **hide** — an installed app the tenant must not *see* (it stays installed;
+  its data and URL keep working).
+
+Nothing can be installed that no bouquet lists and that was not manually
+activated: :func:`app.services.odoo_apps.assert_install_allowed` refuses it, and
+the page never offers the button. Every change is written to the audit log.
+
+The catalogue is not frozen, either. Every time this screen reads a tenant's
+apps it hands them to :mod:`app.services.catalogue_service`, which records any
+application the shipped catalogue did not know and adds it to the white-label
+bouquet — so a module folder dropped into the addons path joins the offer on its
+own. **Rescan apps** goes one step further and asks Odoo to re-read its addons
+paths first, which is what makes Odoo notice a folder that is new on disk.
 
 The Docker containers behind the stack are a different screen: see
 :mod:`app.web.routes_containers`.
@@ -22,14 +35,22 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 
 from app.deps import CurrentUser, SessionDep, client_ip
 from app.models.tenant import Tenant
-from app.services import audit, odoo_apps, permissions, tenant_service
+from app.services import (
+    audit,
+    catalogue_service,
+    limits,
+    odoo_apps,
+    permissions,
+    tenant_modules,
+    tenant_service,
+)
 from app.web import guards
 from app.web.templating import render
 
 router = APIRouter(prefix="/apps", tags=["apps"])
 
 #: The filter values the module list accepts.
-FILTERS = ("installed", "plan", "apps", "all")
+FILTERS = ("installed", "plan", "manual", "hidden", "apps", "all")
 
 
 def _redirect(url: str, flash: str = "", error: str = "") -> RedirectResponse:
@@ -70,15 +91,53 @@ def _normalize_filter(value: str) -> str:
     return value if value in FILTERS else "installed"
 
 
-def _matches(app: odoo_apps.AppInfo, wanted: str, allowed: set[str]) -> bool:
+def _matches(
+    app: odoo_apps.AppInfo,
+    wanted: str,
+    allowed: set[str],
+    manual: set[str],
+    hidden: set[str],
+    allows_all: bool,
+) -> bool:
     """Apply the selected filter to one module."""
     if wanted == "installed":
         return app.is_installed
     if wanted == "plan":
-        return app.name in allowed
+        return allows_all or app.name in allowed
+    if wanted == "manual":
+        return app.name in manual
+    if wanted == "hidden":
+        return app.name in hidden
     if wanted == "apps":
         return app.is_app
     return True
+
+
+def _orphan_apps(session, apps: list[odoo_apps.AppInfo], allowed: set[str]) -> list[str]:
+    """Sellable apps this tenant runs that no bouquet lists and no plan allows.
+
+    Only real applications count. Odoo's own technical modules (``base_*``,
+    ``auth_*``, …) are dependencies the server pulls in by itself; reporting
+    them as "missing from every bouquet" would be noise, not a finding.
+    """
+    known = catalogue_service.known_names(session)
+    return sorted(
+        app.name for app in apps
+        if app.is_app and app.is_installed
+        and app.name not in known and app.name not in allowed
+    )
+
+
+def _push_hidden(client, tenant: Tenant, names: set[str]) -> dict[str, str]:
+    """Store the hidden apps in the tenant's database and reapply the guard.
+
+    Reapplying is what makes the change visible immediately: the guard both
+    hides the newly hidden apps' menus and brings back the ones that were just
+    revealed.
+    """
+    payload = limits.push_limits(client, tenant, hidden_modules=names)
+    odoo_apps.hide_apps_menu(client)
+    return payload
 
 
 # ---------------------------------------------------------------------------
@@ -88,7 +147,15 @@ def _matches(app: odoo_apps.AppInfo, wanted: str, allowed: set[str]) -> bool:
 def list_view(request: Request, session: SessionDep, user: CurrentUser):
     """Every tenant, with the plan that decides which apps it may run."""
     tenants = tenant_service.list_tenants(session)
-    return render(request, "apps/list.html", {"tenants": tenants})
+    overrides = {
+        tenant.id: len(tenant_modules.list_overrides(session, tenant.id))
+        for tenant in tenants
+    }
+    return render(request, "apps/list.html", {
+        "tenants": tenants,
+        "overrides": overrides,
+        "discovered_count": len(catalogue_service.discovered_names(session)),
+    })
 
 
 # ---------------------------------------------------------------------------
@@ -97,12 +164,13 @@ def list_view(request: Request, session: SessionDep, user: CurrentUser):
 @router.get("/{tenant_id}", response_class=HTMLResponse)
 def detail(request: Request, session: SessionDep, user: CurrentUser, tenant_id: int,
            q: str = "", filter: str = "installed"):
-    """List a tenant's apps and let an operator install or remove them."""
+    """List a tenant's apps and let an operator install, activate or hide them."""
     tenant = _tenant_or_404(session, tenant_id)
     wanted = _normalize_filter(filter)
     apps: list[odoo_apps.AppInfo] = []
     installed: set[str] = set()
     menu_active: int | None = None
+    just_discovered: list[str] = []
     # Named ``load_error`` and not ``error``: ``render`` fills ``error`` from the
     # query string for the redirect pattern, and this page wants to say that
     # *reading* the tenant failed, not that the last action did.
@@ -118,9 +186,23 @@ def detail(request: Request, session: SessionDep, user: CurrentUser, tenant_id: 
                 menu_active = odoo_apps.apps_menu_active_count(client)
         except Exception as exc:  # noqa: BLE001 - a broken tenant must still render
             load_error = f"Could not read this tenant's apps: {exc}"
+        if apps:
+            # Anything this server offers that the catalogue did not know joins
+            # it now, and is adopted into the white-label bouquet.
+            just_discovered = catalogue_service.sync(session, apps, source=tenant.db_name)
+            if just_discovered:
+                session.commit()
 
-    allowed = odoo_apps.allowed_by_plan(tenant.plan)
-    rows = [app for app in apps if _matches(app, wanted, allowed)]
+    plan = tenant.plan
+    allows_all = odoo_apps.plan_allows_all(plan)
+    manual = tenant_modules.manual_names(session, tenant.id)
+    hidden = tenant_modules.hidden_names(session, tenant.id)
+    overrides = tenant_modules.overrides_by_name(session, tenant.id)
+    listed = odoo_apps.allowed_by_plan(plan)
+    allowed = listed | manual
+    known = catalogue_service.known_names(session)
+
+    rows = [app for app in apps if _matches(app, wanted, listed, manual, hidden, allows_all)]
     if q.strip():
         needle = q.strip().lower()
         rows = [app for app in rows
@@ -128,31 +210,43 @@ def detail(request: Request, session: SessionDep, user: CurrentUser, tenant_id: 
 
     return render(request, "apps/modules.html", {
         "tenant": tenant,
-        "plan": tenant.plan,
+        "plan": plan,
         "apps": rows,
         "total": len(apps),
         "installed_count": len(installed),
         "allowed": allowed,
-        "plan_app_count": len({app.name for app in apps if app.name in allowed}),
+        "listed": listed,
+        "manual": manual,
+        "hidden": hidden,
+        "overrides": overrides,
+        "plan_allows_all": allows_all,
+        "catalogue_allowed": sorted(allowed),
+        "plan_app_count": len({app.name for app in apps if app.name in listed}),
+        "orphaned": _orphan_apps(session, apps, allowed),
+        "catalogue_size": len(known),
+        "discovered_count": len(catalogue_service.discovered_names(session)),
+        "just_discovered": just_discovered,
         "menu_active": menu_active,
-        "guard_installed": "saas_tenant_guard" in installed,
+        "guard_installed": odoo_apps.GUARD_MODULE in installed,
         "q": q,
         "filter": wanted,
         "load_error": load_error,
         "can_manage": permissions.has_permission(user, permissions.PERM_APPS_MANAGE),
     })
-
-
+# ---------------------------------------------------------------------------
+# Install / remove / upgrade
+# ---------------------------------------------------------------------------
 @router.post("/{tenant_id}/{module}/install")
 def install_app(request: Request, session: SessionDep, user: CurrentUser,
                 tenant_id: int, module: str):
-    """Install one app, if the tenant's plan allows it."""
+    """Install one app, if the tenant's plan — or a manual activation — allows it."""
     if error := _manage_error(user):
         return _redirect(f"/apps/{tenant_id}", error=error)
     tenant = _tenant_or_404(session, tenant_id)
+    manual = tenant_modules.manual_names(session, tenant.id)
     try:
         with _client(tenant) as client:
-            odoo_apps.install_apps(client, tenant.plan, [module])
+            odoo_apps.install_apps(client, tenant.plan, [module], extra=manual)
     except Exception as exc:  # noqa: BLE001 - reported to the operator
         _audit(request, session, user, "apps.install", tenant, module, str(exc), level="error")
         return _redirect(f"/apps/{tenant.id}", error=f"Could not install {module}: {exc}")
@@ -175,6 +269,9 @@ def uninstall_app(request: Request, session: SessionDep, user: CurrentUser,
         _audit(request, session, user, "apps.uninstall", tenant, module, str(exc), level="error")
         return _redirect(f"/apps/{tenant.id}", error=f"Could not remove {module}: {exc}")
 
+    # A removed app cannot be hidden any more; the manual activation stays, so
+    # the operator can put the app back without re-deciding.
+    tenant_modules.reveal(session, tenant.id, module)
     _audit(request, session, user, "apps.uninstall", tenant, module, "removed", level="warning")
     return _redirect(f"/apps/{tenant.id}", flash=f"{module} removed")
 
@@ -197,9 +294,180 @@ def upgrade_app(request: Request, session: SessionDep, user: CurrentUser,
     return _redirect(f"/apps/{tenant.id}", flash=f"{module} upgraded")
 
 
+# ---------------------------------------------------------------------------
+# Manual activation: an app turned on for this tenant, beyond its plan
+# ---------------------------------------------------------------------------
+@router.post("/{tenant_id}/{module}/activate")
+def activate_app(request: Request, session: SessionDep, user: CurrentUser,
+                 tenant_id: int, module: str, install: bool = Form(False)):
+    """Manually activate one app for this tenant, and install it on request.
+
+    The decision is recorded first, so it survives an install failure: the
+    operator can fix the tenant and press Install again.
+    """
+    if error := _manage_error(user):
+        return _redirect(f"/apps/{tenant_id}", error=error)
+    tenant = _tenant_or_404(session, tenant_id)
+    try:
+        tenant_modules.activate(session, tenant.id, module)
+        session.commit()
+    except tenant_modules.TenantModuleError as exc:
+        return _redirect(f"/apps/{tenant.id}", error=str(exc))
+
+    _audit(request, session, user, "apps.activate", tenant, module,
+           "manually activated", level="warning")
+
+    if not install:
+        return _redirect(f"/apps/{tenant.id}", flash=f"{module} activated for this tenant")
+
+    manual = tenant_modules.manual_names(session, tenant.id)
+    try:
+        with _client(tenant) as client:
+            odoo_apps.install_apps(client, tenant.plan, [module], extra=manual)
+    except Exception as exc:  # noqa: BLE001
+        return _redirect(
+            f"/apps/{tenant.id}",
+            error=f"{module} was activated for this tenant but could not be installed: {exc}",
+        )
+    _audit(request, session, user, "apps.install", tenant, module, "installed (manual)")
+    return _redirect(f"/apps/{tenant.id}", flash=f"{module} activated and installed")
+
+
+@router.post("/{tenant_id}/{module}/deactivate")
+def deactivate_app(request: Request, session: SessionDep, user: CurrentUser,
+                   tenant_id: int, module: str):
+    """Drop the manual activation: the app follows the plan again."""
+    if error := _manage_error(user):
+        return _redirect(f"/apps/{tenant_id}", error=error)
+    tenant = _tenant_or_404(session, tenant_id)
+    tenant_modules.deactivate(session, tenant.id, module)
+    _audit(request, session, user, "apps.deactivate", tenant, module,
+           "manual activation removed", level="warning")
+    return _redirect(
+        f"/apps/{tenant.id}",
+        flash=f"{module} follows the plan again (it is still installed)",
+    )
+
+
+# ---------------------------------------------------------------------------
+# Hiding: installed, but the tenant must not see it
+# ---------------------------------------------------------------------------
+@router.post("/{tenant_id}/{module}/hide")
+def hide_app(request: Request, session: SessionDep, user: CurrentUser,
+             tenant_id: int, module: str):
+    """Hide one installed app from the tenant without uninstalling it."""
+    if error := _manage_error(user):
+        return _redirect(f"/apps/{tenant_id}", error=error)
+    tenant = _tenant_or_404(session, tenant_id)
+
+    if module in odoo_apps.PROTECTED:
+        return _redirect(f"/apps/{tenant.id}", error=f"{module} cannot be hidden")
+
+    try:
+        with _client(tenant) as client:
+            if module not in set(client.installed_modules()):
+                return _redirect(f"/apps/{tenant.id}",
+                                 error=f"{module} is not installed in this tenant")
+            tenant_modules.hide(session, tenant.id, module)
+            session.commit()
+            names = tenant_modules.hidden_names(session, tenant.id)
+            _push_hidden(client, tenant, names)
+    except Exception as exc:  # noqa: BLE001
+        session.rollback()
+        _audit(request, session, user, "apps.hide", tenant, module, str(exc), level="error")
+        return _redirect(f"/apps/{tenant.id}", error=f"Could not hide {module}: {exc}")
+
+    _audit(request, session, user, "apps.hide", tenant, module, "hidden", level="warning")
+    return _redirect(f"/apps/{tenant.id}", flash=f"{module} is now hidden from {tenant.name}")
+
+
+@router.post("/{tenant_id}/{module}/unhide")
+def unhide_app(request: Request, session: SessionDep, user: CurrentUser,
+               tenant_id: int, module: str):
+    """Show a hidden app to the tenant again."""
+    if error := _manage_error(user):
+        return _redirect(f"/apps/{tenant_id}", error=error)
+    tenant = _tenant_or_404(session, tenant_id)
+    try:
+        with _client(tenant) as client:
+            tenant_modules.reveal(session, tenant.id, module)
+            session.commit()
+            names = tenant_modules.hidden_names(session, tenant.id)
+            _push_hidden(client, tenant, names)
+    except Exception as exc:  # noqa: BLE001
+        session.rollback()
+        _audit(request, session, user, "apps.unhide", tenant, module, str(exc), level="error")
+        return _redirect(f"/apps/{tenant.id}", error=f"Could not show {module}: {exc}")
+
+    _audit(request, session, user, "apps.unhide", tenant, module, "visible again")
+    return _redirect(f"/apps/{tenant.id}", flash=f"{module} is visible to the tenant again")
+
+
+# ---------------------------------------------------------------------------
+# Keeping every app inside a bouquet
+# ---------------------------------------------------------------------------
+@router.post("/{tenant_id}/{module}/add-to-bouquet")
+def add_to_bouquet(request: Request, session: SessionDep, user: CurrentUser,
+                   tenant_id: int, module: str):
+    """Record an app the tenant runs in the white-label bouquet.
+
+    Discovery normally does this on its own; this is the manual door for the
+    case where the white-label bouquet was created after the app was seen.
+    """
+    if error := _manage_error(user):
+        return _redirect(f"/apps/{tenant_id}", error=error)
+    tenant = _tenant_or_404(session, tenant_id)
+
+    plan = catalogue_service.adopt(session, [module])
+    if plan is None:
+        return _redirect(
+            f"/apps/{tenant.id}",
+            error="No white-label bouquet exists — mark a plan as white-label first.",
+        )
+    if module in {m.technical_name for m in plan.modules}:
+        return _redirect(f"/apps/{tenant.id}",
+                         flash=f"{module} is already in {plan.name}")
+
+    session.commit()
+    _audit(request, session, user, "apps.add_to_bouquet", tenant, module, f"added to {plan.code}",
+           level="warning")
+    return _redirect(f"/apps/{tenant.id}", flash=f"{module} added to the {plan.name} bouquet")
+
+
+@router.post("/{tenant_id}/rescan")
+def rescan_apps(request: Request, session: SessionDep, user: CurrentUser, tenant_id: int):
+    """Re-read the tenant's addons paths, then sync the catalogue.
+
+    Dropping a module folder on disk is not enough for Odoo to know about it:
+    the module list has to be updated. This is that step, followed by discovery,
+    so an app added to the server becomes installable without touching code.
+    """
+    if error := _manage_error(user):
+        return _redirect(f"/apps/{tenant_id}", error=error)
+    tenant = _tenant_or_404(session, tenant_id)
+    try:
+        with _client(tenant) as client:
+            count = odoo_apps.refresh_module_list(client)
+            apps = odoo_apps.list_apps(client)
+    except Exception as exc:  # noqa: BLE001
+        _audit(request, session, user, "apps.rescan", tenant, "*", str(exc), level="error")
+        return _redirect(f"/apps/{tenant.id}", error=f"Could not rescan this tenant: {exc}")
+
+    added = catalogue_service.sync(session, apps, source=tenant.db_name)
+    _audit(request, session, user, "apps.rescan", tenant, "*",
+           f"modules={count} discovered={sorted(added)}", level="warning")
+    flash = f"Rescanned this tenant: {count} modules"
+    if added:
+        flash += f" · discovered {', '.join(sorted(added))} and added to a bouquet"
+    return _redirect(f"/apps/{tenant.id}", flash=flash)
+
+
+# ---------------------------------------------------------------------------
+# The tenant's own Apps menu
+# ---------------------------------------------------------------------------
 @router.post("/{tenant_id}/hide-menu")
 def hide_menu(request: Request, session: SessionDep, user: CurrentUser,
-              tenant_id: int, module: str = Form("saas_tenant_guard")):
+              tenant_id: int, module: str = Form(odoo_apps.GUARD_MODULE)):
     """Install the guard's Apps-menu hiding (needed once per tenant database)."""
     if error := _manage_error(user):
         return _redirect(f"/apps/{tenant_id}", error=error)

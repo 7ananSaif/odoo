@@ -52,30 +52,51 @@ def session_scope() -> Iterator[Session]:
 # an existing one.  Columns added to a model after a database already exists
 # therefore need an explicit, idempotent DDL step.  Every such step lives here
 # so both ``scripts/init_db.py`` and the container entrypoint pick it up.
+def _add_column(conn, inspector, table: str, column: str, ddl: str) -> bool:
+    """Add ``table.column`` when the table exists but the column does not.
+
+    ``create_all`` never alters an existing table, so a column added to a model
+    after the table was first created needs an explicit ``ALTER``.  Returns
+    True when the column was actually added.
+    """
+    from sqlalchemy import text  # noqa: PLC0415
+
+    if table not in inspector.get_table_names():
+        return False
+    if column in {column_info["name"] for column_info in inspector.get_columns(table)}:
+        return False
+    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {column} {ddl}"))
+    return True
+
+
 def _migrate(conn) -> None:
     """Apply the DDL that ``create_all`` cannot express, idempotently."""
     from sqlalchemy import inspect, text  # noqa: PLC0415
 
     inspector = inspect(conn)
-    if "users" not in inspector.get_table_names():
-        return
 
-    columns = {column["name"] for column in inspector.get_columns("users")}
-    if "role" not in columns:
+    if _add_column(conn, inspector, "users", "role", "VARCHAR(16) NOT NULL DEFAULT 'owner'"):
         # Added with role-based permissions.  Existing rows inherit their
         # legacy ``is_superuser`` flag: superusers become owners, everyone
         # else the least-privileged role.  (The column default is applied
         # first, then corrected, so the ADD COLUMN itself stays trivial.)
         conn.execute(text(
-            "ALTER TABLE users ADD COLUMN role VARCHAR(16) NOT NULL DEFAULT 'owner'"
-        ))
-        conn.execute(text(
             "UPDATE users SET role = CASE WHEN is_superuser THEN 'owner' ELSE 'viewer' END"
         ))
 
-    indexes = {index["name"] for index in inspector.get_indexes("users")}
-    if "ix_users_role" not in indexes:
-        conn.execute(text("CREATE INDEX IF NOT EXISTS ix_users_role ON users (role)"))
+    if "users" in inspector.get_table_names():
+        indexes = {index["name"] for index in inspector.get_indexes("users")}
+        if "ix_users_role" not in indexes:
+            conn.execute(text("CREATE INDEX IF NOT EXISTS ix_users_role ON users (role)"))
+
+    # ``all_apps`` marks a white-label plan (see app.models.plan).  It arrived
+    # after ``plans`` already existed in deployed databases, so the plan that is
+    # meant to be white-label is flagged here in the same step: without it the
+    # white-label bouquet would authorise nothing beyond its explicit list, and
+    # every app outside that list would read "not in the bouquet".
+    if _add_column(conn, inspector, "plans", "all_apps",
+                   "BOOLEAN NOT NULL DEFAULT FALSE"):
+        conn.execute(text("UPDATE plans SET all_apps = TRUE WHERE code = 'everything'"))
 
 
 def run_migrations() -> None:

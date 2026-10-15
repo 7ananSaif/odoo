@@ -2,11 +2,40 @@
 {% block title %}Plans · {{ app_name }}{% endblock %}
 {% block heading %}Plans{% endblock %}
 {% block actions %}
+  <a class="btn btn-ghost" href="/plans/coverage">Bouquet coverage</a>
   <a class="btn btn-primary" href="/plans/new">New plan</a>
 {% endblock %}
 
 {% block content %}
 <section class="card">
+  <h2>Every app belongs to a bouquet</h2>
+  <p class="muted">
+    A tenant can only install an app some bouquet lists — that is what keeps the offer
+    under control. There are <strong>{{ coverage.plans | length }}</strong> bouquets covering
+    <strong>{{ coverage.catalogue_size }}</strong> apps and modules.
+  </p>
+  {% if coverage.uncovered %}
+  <div class="alert alert-danger">
+    {{ coverage.uncovered | length }} app(s) belong to no bouquet:
+    <code>{{ coverage.uncovered | join(", ") }}</code> — a tenant can never install them.
+  </div>
+  {% elif coverage.wildcard_plans %}
+  <p class="help">
+    <span class="badge badge-success">complete</span>
+    {% for p in coverage.wildcard_plans %}<strong>{{ p.name }}</strong> is white-label, so it
+    authorises every app a tenant's database offers — no app can fall outside a bouquet.{% endfor %}
+  </p>
+  {% else %}
+  <p class="help">
+    <span class="badge badge-success">complete</span> Every catalogue app is listed by at least one
+    bouquet. A white-label bouquet would also cover apps added later.
+  </p>
+  {% endif %}
+  <a class="btn btn-ghost btn-sm" href="/plans/coverage">See which bouquet has which app</a>
+</section>
+
+<section class="card">
+  <h2>Bouquets</h2>
   {% if plans %}
   <div class="table-wrap">
   <table class="table">
@@ -22,7 +51,13 @@
       <tr>
         <td><a href="/plans/{{ p.id }}/edit">{{ p.name }}</a></td>
         <td><code>{{ p.code }}</code></td>
-        <td>{{ p.module_names | length }}</td>
+        <td>
+          {% if p.all_apps %}
+            <span class="badge badge-info">all apps</span>
+          {% else %}
+            {{ p.module_names | length }}
+          {% endif %}
+        </td>
         <td>{{ p.max_users }}</td>
         <td>{{ p.max_warehouses }}</td>
         <td>{{ p.max_companies }}</td>

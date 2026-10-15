@@ -11,21 +11,54 @@
 <div class="alert alert-danger">{{ load_error }}</div>
 {% endif %}
 
+{% if just_discovered %}
+<div class="alert alert-success">
+  <strong>New app(s) discovered on this server:</strong>
+  <code>{{ just_discovered | join(", ") }}</code> — recorded in the catalogue and added to the
+  white-label bouquet automatically, so they are installable without editing any plan.
+</div>
+{% endif %}
+
 <section class="card">
   <h2>Tenant</h2>
   <div class="dl">
     <dt>Subdomain</dt><dd class="mono">{{ tenant.subdomain }}</dd>
     <dt>Database</dt><dd class="mono">{{ tenant.db_name }}</dd>
-    <dt>Plan</dt>
+    <dt>Bouquet</dt>
     <dd>
       {% if plan %}
         <a href="/plans/{{ plan.id }}">{{ plan.name }}</a>
-        <span class="muted">· {{ plan_app_count }} of its apps are listed here</span>
+        {% if plan_allows_all %}
+          <span class="badge badge-info">white-label</span>
+          <span class="muted">— authorises every app in this database</span>
+        {% else %}
+          <span class="muted">· {{ plan_app_count }} of its apps are listed here</span>
+        {% endif %}
       {% else %}
-        <span class="muted">no plan — nothing is authorised beyond base and web</span>
+        <span class="muted">no bouquet — nothing is authorised beyond base and web</span>
+      {% endif %}
+    </dd>
+    <dt>Apps allowed</dt>
+    <dd>
+      {{ allowed | length }} apps
+      <span class="muted">· {{ catalogue_size }} known to the manager</span>
+      {% if discovered_count %}
+        <span class="muted">({{ discovered_count }} discovered on a server)</span>
+      {% endif %}
+      {% if manual %}
+        · <strong>{{ manual | length }}</strong> activated for this tenant only
       {% endif %}
     </dd>
     <dt>Installed</dt><dd>{{ installed_count }} of {{ total }} modules in this database</dd>
+    <dt>Hidden</dt>
+    <dd>
+      {% if hidden %}
+        {{ hidden | length }} app(s) hidden from the tenant
+        <span class="muted">— installed, but they do not see them</span>
+      {% else %}
+        <span class="muted">nothing hidden</span>
+      {% endif %}
+    </dd>
     <dt>Odoo's Apps menu</dt>
     <dd>
       {% if menu_active is none %}
@@ -46,11 +79,30 @@
   </div>
   {% if menu_active and not guard_installed %}
   <p class="help">
-    Hiding needs <code>saas_tenant_guard</code> in this database. It rides on every plan —
-    install it below (filter: In the plan), and the Apps menu disappears for the tenant.
+    Hiding needs <code>saas_tenant_guard</code> in this database. It rides on every bouquet —
+    install it below (filter: Allowed by the bouquet), and the Apps menu disappears for the tenant.
   </p>
   {% endif %}
 </section>
+
+{% if orphaned %}
+<section class="card card-warning">
+  <h2>Not part of any bouquet</h2>
+  <p class="help">
+    These apps are installed here but no bouquet lists them, so they cannot be installed for
+    another tenant. This happens when no bouquet is marked white-label: open
+    <a href="/plans">Plans</a>, edit one and tick <em>White-label</em> — discovery will adopt
+    these apps on the next visit.
+  </p>
+  <div class="actions-row">
+    {% for name in orphaned %}
+    <form method="post" action="/apps/{{ tenant.id }}/{{ name }}/add-to-bouquet" class="inline">
+      <button class="btn btn-ghost btn-sm">Add <code>{{ name }}</code> to a bouquet</button>
+    </form>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
 
 <section class="card">
   <h2>Apps</h2>
@@ -59,7 +111,9 @@
       <span>Filter</span>
       <select name="filter" onchange="this.form.submit()">
         <option value="installed" {{ 'selected' if filter == 'installed' else '' }}>Installed</option>
-        <option value="plan" {{ 'selected' if filter == 'plan' else '' }}>In the plan</option>
+        <option value="plan" {{ 'selected' if filter == 'plan' else '' }}>Allowed by the bouquet</option>
+        <option value="manual" {{ 'selected' if filter == 'manual' else '' }}>Activated for this tenant</option>
+        <option value="hidden" {{ 'selected' if filter == 'hidden' else '' }}>Hidden from the tenant</option>
         <option value="apps" {{ 'selected' if filter == 'apps' else '' }}>All apps</option>
         <option value="all" {{ 'selected' if filter == 'all' else '' }}>All modules</option>
       </select>
@@ -69,6 +123,12 @@
       <input type="search" name="q" value="{{ q }}" placeholder="name or app">
     </label>
     <button class="btn btn-ghost">Show</button>
+    {% if can_manage %}
+    <button class="btn btn-ghost" formaction="/apps/{{ tenant.id }}/rescan" formmethod="post"
+            title="Ask Odoo to re-read its addons paths, then register any new app.">
+      Rescan apps
+    </button>
+    {% endif %}
   </form>
 
   {% if apps %}
@@ -77,18 +137,29 @@
     <thead>
       <tr>
         <th>App</th><th>Category</th><th>Version</th><th>State</th>
-        <th class="right"></th>
+        <th class="right">Actions</th>
       </tr>
     </thead>
     <tbody>
       {% for app in apps %}
-      <tr>
+      {% set in_plan = plan_allows_all or app.name in listed %}
+      {% set is_manual = app.name in manual %}
+      {% set is_hidden = app.name in hidden %}
+      <tr class="{{ 'row-muted' if is_hidden else '' }}">
         <td>
           <strong>{{ app.label }}</strong>
-          {% if app.name in allowed %}<span class="badge badge-info">in plan</span>{% endif %}
+          {% if in_plan %}<span class="badge badge-info">in bouquet</span>{% endif %}
+          {% if is_manual %}<span class="badge badge-warning">activated</span>{% endif %}
+          {% if is_hidden %}<span class="badge badge-muted">hidden</span>{% endif %}
           {% if not app.is_app %}<span class="badge badge-muted">module</span>{% endif %}
           <br><span class="muted mono">{{ app.name }}</span>
           {% if app.summary %}<br><span class="muted">{{ app.summary }}</span>{% endif %}
+          {% if is_manual and not in_plan %}
+          <br><span class="help">
+            On for this tenant only — not part of
+            {{ plan.name if plan else "any bouquet" }}.
+          </span>
+          {% endif %}
         </td>
         <td class="muted">{{ app.category or '—' }}</td>
         <td class="mono muted">{{ app.installed_version or app.latest_version or '—' }}</td>
@@ -102,6 +173,20 @@
               <form method="post" action="/apps/{{ tenant.id }}/{{ app.name }}/upgrade" class="inline">
                 <button class="btn btn-ghost btn-sm">Upgrade</button>
               </form>
+              {% endif %}
+              {% if app.can_uninstall %}
+                {% if is_hidden %}
+                <form method="post" action="/apps/{{ tenant.id }}/{{ app.name }}/unhide" class="inline">
+                  <button class="btn btn-ghost btn-sm">Unhide</button>
+                </form>
+                {% else %}
+                <form method="post" action="/apps/{{ tenant.id }}/{{ app.name }}/hide" class="inline"
+                      onsubmit="return confirm('Hide {{ app.label }} from {{ tenant.name }}? It stays installed, but the tenant stops seeing it.')">
+                  <button class="btn btn-ghost btn-sm">Hide</button>
+                </form>
+                {% endif %}
+              {% endif %}
+              {% if app.can_uninstall %}
               <form method="post" action="/apps/{{ tenant.id }}/{{ app.name }}/uninstall" class="inline"
                     onsubmit="return confirm('Remove {{ app.label }} from {{ tenant.name }}? Its data goes with it.');">
                 <button class="btn btn-danger btn-sm">Remove</button>
@@ -109,12 +194,23 @@
               {% else %}
               <span class="muted">required</span>
               {% endif %}
-            {% elif app.name in allowed %}
+            {% elif in_plan or is_manual %}
               <form method="post" action="/apps/{{ tenant.id }}/{{ app.name }}/install" class="inline">
                 <button class="btn btn-primary btn-sm">Install</button>
               </form>
             {% else %}
-              <span class="muted" title="Not part of this tenant's plan">not in plan</span>
+              <form method="post" action="/apps/{{ tenant.id }}/{{ app.name }}/activate" class="inline"
+                    onsubmit="return confirm('Activate {{ app.label }} for {{ tenant.name }} only? Their bouquet does not include it.')">
+                <input type="hidden" name="install" value="true">
+                <button class="btn btn-ghost btn-sm">Activate for this tenant</button>
+              </form>
+              <span class="muted">not in this bouquet</span>
+            {% endif %}
+            {# An activation can be revoked whether or not the app got installed. #}
+            {% if is_manual %}
+            <form method="post" action="/apps/{{ tenant.id }}/{{ app.name }}/deactivate" class="inline">
+              <button class="btn btn-ghost btn-sm">Stop activation</button>
+            </form>
             {% endif %}
           {% else %}
             <span class="muted">—</span>
@@ -125,7 +221,12 @@
     </tbody>
   </table>
   </div>
-  <p class="help">{{ apps | length }} shown. Installations run immediately in the tenant's database.</p>
+  <p class="help">
+    {{ apps | length }} shown. <strong>Install</strong> runs immediately in the tenant's
+    database. <strong>Activate for this tenant</strong> turns an app on for this tenant alone,
+    without changing the bouquet every other tenant on it shares. <strong>Hide</strong> keeps the
+    app installed and its data intact while removing it from the tenant's menus.
+  </p>
   {% else %}
   <p class="muted">Nothing matches this filter.</p>
   {% endif %}

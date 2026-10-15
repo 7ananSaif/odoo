@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from app.models.base import PkMixin, TimestampMixin
 from app.models.billing import CreditNote, Invoice, InvoiceLine, Payment, Subscription
+from app.models.catalogue_module import CatalogueModule
 from app.models.enums import (
     AuditLevel,
     BillingCycle,
@@ -17,6 +18,7 @@ from app.models.ops import AuditLog, Backup, JobLog, OdooVersion, UpdateJob, Upd
 from app.models.plan import Plan, PlanModule
 from app.models.settings import Setting
 from app.models.tenant import Tenant
+from app.models.tenant_module import TenantModule
 from app.models.user import User
 
 __all__ = [
@@ -24,6 +26,7 @@ __all__ = [
     "AuditLog",
     "Backup",
     "BillingCycle",
+    "CatalogueModule",
     "CreditNote",
     "Invoice",
     "InvoiceLine",
@@ -41,6 +44,7 @@ __all__ = [
     "Subscription",
     "SubscriptionStatus",
     "Tenant",
+    "TenantModule",
     "TenantStatus",
     "TimestampMixin",
     "UpdateJob",
