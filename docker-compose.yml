@@ -476,16 +476,35 @@ services:
       # --- entrypoint: create the DB + schema on the web role only ---------
       SAAS_CREATE_DB: "1"
       SAAS_DB_INIT: "1"
+      # --- Apps panel: start / stop / restart the stack's app containers ----
+      # DOCKER_SOCKET is the daemon socket *inside this container*; the volume
+      # below bind-mounts the host's socket to that path. APP_SERVICES lists the
+      # compose services the panel may control — the database, redis, rabbitmq,
+      # certbot and the manager itself are refused in code (see
+      # app/services/docker_control.py) whatever this list says.
+      DOCKER_SOCKET: /var/run/docker.sock
+      COMPOSE_PROJECT: ${COMPOSE_PROJECT_NAME:-odoo}
+      APP_SERVICES: ${SAAS_APP_SERVICES:-odoo,odoo-control,worker,invoice-ai,nginx}
     ports:
       # Loopback only — the owner reaches it through an SSH tunnel. The host
       # port is configurable (SAAS_MANAGER_PORT) so a conflict with a port
       # already bound on the host can be worked around from .env alone.
       - "127.0.0.1:${SAAS_MANAGER_PORT:-8080}:8080"
+    group_add:
+      # The panel runs as the unprivileged `saas` user, so it needs a group that
+      # may open the root-owned Docker socket mounted below. Group 0 grants no
+      # capability beyond reading/writing files that are already group-root.
+      - "0"
     volumes:
       # Tenant backups (pg_dump + filestore zips) survive container recreation.
       - saas-manager-backups:/app/backups
       # The Odoo filestore, so backups capture it and restores can write it back.
       - odoo-web-data:/var/lib/odoo
+      # The Docker daemon socket — this is what powers the Apps page. It is
+      # root-equivalent access to the host's Docker daemon, so delete this line
+      # (and DOCKER_SOCKET above) if you would rather not have it; the Apps page
+      # then renders an explanation instead of controls.
+      - /var/run/docker.sock:/var/run/docker.sock
     healthcheck:
       test: [ "CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/health', timeout=5)\"" ]
       interval: 30s

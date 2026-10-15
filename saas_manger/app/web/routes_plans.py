@@ -9,7 +9,7 @@ from sqlalchemy import select
 
 from app.deps import CurrentUser, SessionDep, client_ip
 from app.models.plan import Plan, PlanModule
-from app.services import audit, permissions, plan_service
+from app.services import app_catalogue, audit, catalogue_service, permissions, plan_service
 from app.web import guards
 from app.web.templating import render
 
@@ -48,7 +48,66 @@ def _parse_modules(raw: str) -> list[str]:
 @router.get("", response_class=HTMLResponse)
 def list_view(request: Request, session: SessionDep, user: CurrentUser):
     plans = list(session.scalars(select(Plan).order_by(Plan.name)).all())
-    return render(request, "plans/list.html", {"plans": plans})
+    return render(request, "plans/list.html", {"plans": plans, "coverage": _coverage(session)})
+
+
+@router.get("/coverage", response_class=HTMLResponse)
+def coverage_view(request: Request, session: SessionDep, user: CurrentUser):
+    """Every app in the catalogue, and the bouquets that include it.
+
+    This is the "is every app part of a bouquet?" screen. An app that no
+    bouquet lists could never be installed for a tenant, so the page flags it.
+    """
+    return render(request, "plans/coverage.html", _coverage(session))
+
+
+def _coverage(session) -> dict:
+    """Coverage of the live catalogue by the plans that exist in the database.
+
+    The catalogue is the shipped list **plus** whatever discovery found on the
+    servers, so an app added to the installation shows up here as soon as it is
+    known rather than being invisible to the coverage screen.
+    """
+    plans = list(session.scalars(select(Plan).order_by(Plan.name)).all())
+    wildcard_plans = [plan for plan in plans if plan.all_apps]
+    shipped = app_catalogue.known_set()
+    discovered = catalogue_service.discovered_names(session)
+    known = shipped | discovered
+
+    included: dict[str, list[str]] = {}
+    listed_anywhere: set[str] = set()
+    for plan in plans:
+        for name in plan.module_names:
+            listed_anywhere.add(name)
+            included.setdefault(name, []).append(plan.code)
+
+    names = app_catalogue.known_modules() + sorted(discovered - shipped)
+    apps = []
+    for name in names:
+        plans_listing = included.get(name, [])
+        apps.append({
+            "name": name,
+            "plans": plans_listing,
+            "base": name in app_catalogue.BASE_MODULES,
+            "discovered": name in discovered,
+            # A white-label plan authorises everything, so an app it does not
+            # list by name is still installable through it.
+            "covered": bool(plans_listing) or bool(wildcard_plans),
+            "wildcard_only": not plans_listing and bool(wildcard_plans),
+        })
+
+    uncovered = [row["name"] for row in apps if not row["covered"]]
+    extra = sorted(listed_anywhere - known)
+    return {
+        "plans": plans,
+        "apps": apps,
+        "catalogue_size": len(names),
+        "discovered_count": len(discovered),
+        "uncovered": uncovered,
+        "extra": extra,
+        "wildcard_plans": wildcard_plans,
+        "ladder_problems": app_catalogue.ladder_problems(),
+    }
 
 
 @router.get("/new", response_class=HTMLResponse)
@@ -77,6 +136,7 @@ def create(
     price_extra_warehouse: str = Form("0"),
     tax_rate: str = Form("0"),
     trial_days: int = Form(14),
+    all_apps: bool = Form(False),
 ):
     if error := guards.permission_error(user, permissions.PERM_PLANS_MANAGE, "create plans"):
         return _redirect("/plans/new", error=error)
@@ -90,7 +150,7 @@ def create(
         price_month=_decimal(price_month), price_year=_decimal(price_year),
         setup_fee=_decimal(setup_fee), price_extra_user=_decimal(price_extra_user),
         price_extra_warehouse=_decimal(price_extra_warehouse), tax_rate=_decimal(tax_rate),
-        trial_days=trial_days,
+        trial_days=trial_days, all_apps=all_apps,
     )
     session.add(plan)
     session.flush()
@@ -133,6 +193,7 @@ def update(
     tax_rate: str = Form("0"),
     trial_days: int = Form(14),
     active: bool = Form(False),
+    all_apps: bool = Form(False),
 ):
     if error := guards.permission_error(user, permissions.PERM_PLANS_MANAGE, "edit plans"):
         return _redirect("/plans", error=error)
@@ -157,6 +218,7 @@ def update(
     plan.tax_rate = _decimal(tax_rate)
     plan.trial_days = trial_days
     plan.active = active
+    plan.all_apps = all_apps
 
     # Replace the allowed modules.
     for module in list(plan.modules):

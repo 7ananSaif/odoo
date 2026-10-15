@@ -15,6 +15,14 @@
     plan does not include is refused, and every install, removal or upgrade is written to the
     audit log.
   </p>
+  <p class="help">
+    The catalogue is not a fixed list: opening a tenant registers every application its Odoo
+    reports, and <strong>Rescan apps</strong> makes Odoo re-read its addons paths first — so a
+    module folder added on the server is installable without editing any code.
+    {% if discovered_count %}
+    <br><span class="badge badge-info">{{ discovered_count }} discovered on servers</span>
+    {% endif %}
+  </p>
 </section>
 
 <section class="card">
@@ -38,9 +46,18 @@
         <td>
           {% if tenant.plan %}
             <a href="/plans/{{ tenant.plan.id }}">{{ tenant.plan.name }}</a>
-            <br><span class="muted mono">{{ tenant.plan.modules | length }} apps</span>
+            {% if tenant.plan.all_apps %}
+              <span class="badge badge-info">white-label</span>
+              <br><span class="muted">authorises every app</span>
+            {% else %}
+              <br><span class="muted mono">{{ tenant.plan.modules | length }} apps</span>
+            {% endif %}
           {% else %}
-            <span class="muted">no plan</span>
+            <span class="muted">no bouquet</span>
+          {% endif %}
+          {% set overridden = overrides.get(tenant.id, 0) %}
+          {% if overridden %}
+            <br><span class="muted">{{ overridden }} app decision(s)</span>
           {% endif %}
         </td>
         <td><span class="badge badge-{{ tenant.status }}">{{ tenant.status }}</span></td>

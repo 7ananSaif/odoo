@@ -19,6 +19,10 @@ class Plan(Base, PkMixin, TimestampMixin):
     code: Mapped[str] = mapped_column(String(64), unique=True, index=True, nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False, default="")
     active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    # White-label plan: authorises *every* app the tenant's database offers,
+    # not only the ones listed in ``modules``. It is what guarantees no app can
+    # sit outside a bouquet, including apps added after the plan was written.
+    all_apps: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     # Default limits copied onto a new tenant (overridable per tenant).
     max_users: Mapped[int] = mapped_column(Integer, nullable=False, default=5)

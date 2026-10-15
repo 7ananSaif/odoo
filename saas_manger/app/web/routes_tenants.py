@@ -25,6 +25,7 @@ from app.services import (
     permissions,
     plan_service,
     provisioner,
+    tenant_modules,
     tenant_service,
     usage as usage_service,
 )
@@ -256,7 +257,9 @@ def update(
         _apply_plan_change(session, tenant, plan, user.email)
     if push_now:
         try:
-            payload = tenant_service.push_limits_to_database(tenant)
+            payload = tenant_service.push_limits_to_database(
+                tenant, hidden_modules=tenant_modules.hidden_names(session, tenant.id)
+            )
             audit.record(session, action="tenant.push_limits", actor=user.email, target_type="tenant",
                          target_id=tenant.id, detail=limits_service.dumps(payload))
             session.commit()
@@ -266,17 +269,29 @@ def update(
 
 
 def _apply_plan_change(session, tenant: Tenant, plan: Plan | None, actor: str) -> None:
-    """Install/uninstall apps to match a new plan and push the new limits."""
+    """Install/uninstall apps to match a new plan and push the new limits.
+
+    Two things are preserved across the change. A manually activated app is an
+    explicit operator decision, so the plan change never uninstalls it (it is
+    passed as ``keep``). The hidden-app list rides along with the limits, so
+    hiding survives a plan change instead of being silently dropped.
+    """
     try:
+        keep = tenant_modules.manual_names(session, tenant.id)
+        hidden = tenant_modules.hidden_names(session, tenant.id)
         client = tenant_service.authenticated_client(tenant)
         try:
-            diff = plan_service.apply_plan(client, plan)
-            limits_service.push_limits(client, tenant)
+            diff = plan_service.apply_plan(client, plan, keep=keep)
+            limits_service.push_limits(client, tenant, hidden_modules=hidden)
         finally:
             client.close()
+        # An app that was removed cannot be hidden any more.
+        for name in diff.to_uninstall:
+            tenant_modules.reveal(session, tenant.id, name)
         audit.record(session, action="tenant.plan_applied", actor=actor, target_type="tenant",
                      target_id=tenant.id,
-                     detail=f"+{diff.to_install} -{diff.to_uninstall}")
+                     detail=f"+{diff.to_install} -{diff.to_uninstall}"
+                            + (f" kept={sorted(keep)}" if keep else ""))
     except Exception as exc:  # noqa: BLE001
         audit.record(session, action="tenant.plan_apply_failed", actor=actor, target_type="tenant",
                      target_id=tenant.id, level="error", detail=str(exc))
@@ -311,7 +326,9 @@ def push_limits(request: Request, session: SessionDep, user: CurrentUser, tenant
     if tenant is None:
         raise HTTPException(404, "Tenant not found")
     try:
-        payload = tenant_service.push_limits_to_database(tenant)
+        payload = tenant_service.push_limits_to_database(
+            tenant, hidden_modules=tenant_modules.hidden_names(session, tenant.id)
+        )
         audit.record(session, action="tenant.push_limits", actor=user.email, target_type="tenant",
                      target_id=tenant.id, ip=client_ip(request), detail=limits_service.dumps(payload))
         session.commit()
