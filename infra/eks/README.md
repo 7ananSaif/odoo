@@ -13,8 +13,14 @@ and patching. You do not SSH into it, and it is billed separately from the
 worker nodes. It is reachable from your workstation via `kubectl` once you
 `aws eks update-kubeconfig --name odoo-eks --region eu-west-1`.
 
-- **etcd** is encrypted at rest with KMS (EKS default) — the baseline for the
-  "secrets at rest" concern raised in the ConfigMap/Secret module.
+- **etcd** is encrypted at rest for every cluster — and on Kubernetes **1.28+**
+  (this cluster is `1.30`) EKS additionally **envelope-encrypts all Kubernetes
+  API data with AWS KMS by default**, using an AWS-owned key, at no extra cost.
+  That is the baseline for the "secrets at rest" concern raised in the
+  ConfigMap/Secret module; the full analysis and this project's decision
+  (accept the default; source rotating credentials from AWS Secrets Manager via
+  External Secrets) are in
+  [`../k8s/eks-secrets-at-rest.md`](../k8s/eks-secrets-at-rest.md).
 - The control plane is **not** in your VPC subnets; it lives in an AWS-owned
   network and is exposed via a public or private endpoint. We keep the default
   (public with auth) and rely on IAM + the OIDC issuer for identity.

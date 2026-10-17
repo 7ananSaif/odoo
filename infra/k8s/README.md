@@ -18,7 +18,9 @@ onto its future Kubernetes objects. No AWS involved.
 | `kind-cluster.yaml` | kind cluster definition (name `odoo-local`, host port mapping). |
 | `nginx.yaml` | Nginx **Deployment** + **Service** — the core exercise. |
 | `compose-to-k8s-mapping.md` | Every Compose service → its future Kubernetes object. |
-| `config-secret-plan.md` | Every `.env` key → ConfigMap / Secret / AWS Secrets Manager. |
+| `config-secret-plan.md` | Every `.env` key → ConfigMap / Secret / AWS Secrets Manager (+ repo wiring & EKS decision). |
+| `state/` | ConfigMap + Secret + PVC **+ the Postgres test Pod** that mounts all three — runbook: [`state/README.md`](state/README.md). |
+| `eks-secrets-at-rest.md` | Research: how EKS encrypts secrets at rest, and this cluster's decision. |
 | `kind-node-image-pull.py` | Recovery tool: fetches the node image with resume (see Troubleshooting). |
 
 ---
@@ -202,6 +204,32 @@ kind delete cluster --name odoo-local
 This deletes the node container and everything inside it (including any
 PersistentVolumeClaims). The `kindest/node` image stays in Docker's cache, so
 re-creating the cluster is fast.
+
+---
+
+## 5. Next exercise — the three kinds of state (ConfigMap, Secret, PVC)
+
+`nginx.yaml` above is stateless: destroy its Pods and nothing is lost. The next
+exercise adds the three objects that carry state, and proves each one:
+
+- **ConfigMap** and **Secret** — configuration, non-sensitive and sensitive,
+  consumed as env vars *and* as a mounted file
+  (`state/00-configmap.yaml`, `state/01-secret.yaml`,
+  `state/02-env-probe-pod.yaml`).
+- **PersistentVolumeClaim** — durable disk, proven to outlive the Pod that
+  mounts it (`state/03-pvc.yaml`, `state/04-postgres-pod.yaml`).
+
+```powershell
+kubectl apply -f infra/k8s/state/
+kubectl get pod,configmap,secret,pvc -l app.kubernetes.io/component=state-demo
+```
+
+Full runbook — including the delete-and-recreate persistence proof with its
+recorded output — is [`state/README.md`](state/README.md).
+
+> Encryption at rest is a different axis from *which object holds what*. The EKS
+> decision (default KMS envelope encryption; AWS Secrets Manager via External
+> Secrets) is [`eks-secrets-at-rest.md`](eks-secrets-at-rest.md).
 
 ---
 
