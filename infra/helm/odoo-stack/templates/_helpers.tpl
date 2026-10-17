@@ -65,3 +65,29 @@ app.kubernetes.io/name: {{ include "odoo-stack.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 app.kubernetes.io/component: odoo
 {{- end }}
+
+{{/*
+Postgres probe body shared by the startup, readiness and liveness probes.
+
+Postgres has no HTTP endpoint, so `pg_isready` is the Postgres-native check:
+it opens a TCP connection and asks the server whether it is accepting
+connections. Exit 0 = accepting, 1 = rejecting (starting up / shutting down),
+2 = no response, 3 = no attempt.
+
+Usage - pass the root `$` and the probe name, so the command can still read
+postgres.user / postgres.database while the timings come from the named probe:
+  readinessProbe:
+    {{- include "odoo-stack.postgresProbe" (dict "root" $ "probe" "readiness") | nindent 12 }}
+Keeping the command in one place means the three probes can never drift onto
+different checks.
+*/}}
+{{- define "odoo-stack.postgresProbe" -}}
+{{- $postgres := .root.Values.postgres -}}
+{{- $probe := index $postgres.probes .probe -}}
+exec:
+  command: ["sh", "-c", "pg_isready -U {{ $postgres.user }} -d {{ $postgres.database }}"]
+periodSeconds: {{ $probe.periodSeconds }}
+timeoutSeconds: {{ $probe.timeoutSeconds }}
+failureThreshold: {{ $probe.failureThreshold }}
+successThreshold: {{ $probe.successThreshold }}
+{{- end }}
