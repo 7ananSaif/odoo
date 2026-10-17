@@ -29,10 +29,21 @@
 
   <div class="card">
     <h2>Allowed applications (Odoo modules)</h2>
+    <label class="check">
+      <input type="checkbox" name="all_apps" value="true" {{ 'checked' if plan and plan.all_apps else '' }}>
+      White-label — authorise <strong>every</strong> app in a tenant's database
+    </label>
+    <p class="help">
+      Off (the usual case): only the modules listed below can be installed. On: this bouquet
+      allows any app the tenant's Odoo offers, including apps added later, and installing it
+      never removes an app. Keep exactly one white-label bouquet, so no app ever falls outside
+      every bouquet.
+    </p>
     <label class="full">Technical module names, comma or newline separated
       <textarea name="modules" rows="6" placeholder="sale_management, stock, account, mrp">{{ modules_raw }}</textarea>
       <span class="help"><code>base</code> and <code>web</code> are always allowed. Installing this plan adds the
-        missing modules and removes the ones not listed.</span>
+        missing modules and removes the ones not listed — unless the bouquet is white-label, which
+        never removes anything.</span>
     </label>
   </div>
 

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Apps · {{ app_name }}{% endblock %}
+{% block heading %}Apps{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>Apps are managed here</h2>
+  <p class="muted">
+    Odoo's own <strong>Apps</strong> screen is hidden inside every tenant database by
+    <code>saas_tenant_guard</code>: a tenant does not install its own software. The provider
+    does — from here.
+  </p>
+  <p class="help">
+    What a tenant is allowed to run comes from its plan ("bouquet"). Installing an app the
+    plan does not include is refused, and every install, removal or upgrade is written to the
+    audit log.
+  </p>
+  <p class="help">
+    The catalogue is not a fixed list: opening a tenant registers every application its Odoo
+    reports, and <strong>Rescan apps</strong> makes Odoo re-read its addons paths first — so a
+    module folder added on the server is installable without editing any code.
+    {% if discovered_count %}
+    <br><span class="badge badge-info">{{ discovered_count }} discovered on servers</span>
+    {% endif %}
+  </p>
+</section>
+
+<section class="card">
+  <h2>Tenants</h2>
+  {% if tenants %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Tenant</th><th>Plan</th><th>Status</th><th>Database</th>
+        <th class="right"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tenant in tenants %}
+      <tr>
+        <td>
+          <strong>{{ tenant.name }}</strong><br>
+          <span class="muted mono">{{ tenant.subdomain }}</span>
+        </td>
+        <td>
+          {% if tenant.plan %}
+            <a href="/plans/{{ tenant.plan.id }}">{{ tenant.plan.name }}</a>
+            {% if tenant.plan.all_apps %}
+              <span class="badge badge-info">white-label</span>
+              <br><span class="muted">authorises every app</span>
+            {% else %}
+              <br><span class="muted mono">{{ tenant.plan.modules | length }} apps</span>
+            {% endif %}
+          {% else %}
+            <span class="muted">no bouquet</span>
+          {% endif %}
+          {% set overridden = overrides.get(tenant.id, 0) %}
+          {% if overridden %}
+            <br><span class="muted">{{ overridden }} app decision(s)</span>
+          {% endif %}
+        </td>
+        <td><span class="badge badge-{{ tenant.status }}">{{ tenant.status }}</span></td>
+        <td>
+          {% if tenant.provisioned %}
+            <span class="badge badge-success">provisioned</span>
+          {% else %}
+            <span class="badge badge-muted">no database</span>
+          {% endif %}
+        </td>
+        <td class="right nowrap">
+          {% if tenant.provisioned %}
+          <a class="btn btn-primary btn-sm" href="/apps/{{ tenant.id }}">Manage apps</a>
+          {% else %}
+          <a class="btn btn-ghost btn-sm" href="/tenants/{{ tenant.id }}">Provision first</a>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <p class="muted">
+    No tenants yet. <a href="/tenants/new">Create one</a> and its plan will decide which
+    apps it can run.
+  </p>
+  {% endif %}
+</section>
+{% endblock %}

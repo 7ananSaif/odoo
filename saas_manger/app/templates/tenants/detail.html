@@ -2,6 +2,9 @@
 {% block title %}{{ tenant.name }} · {{ app_name }}{% endblock %}
 {% block heading %}{{ tenant.name }}{% endblock %}
 {% block actions %}
+  {% if tenant.provisioned and can('apps.view') %}
+  <a class="btn btn-ghost" href="/apps/{{ tenant.id }}">Apps</a>
+  {% endif %}
   <a class="btn btn-primary" href="/tenants/{{ tenant.id }}/open" target="_blank" rel="noopener">Open in Odoo</a>
   <a class="btn btn-ghost" href="{{ tenant.url }}" target="_blank" rel="noopener">Odoo URL</a>
   <a class="btn btn-ghost" href="/tenants/{{ tenant.id }}/edit">Edit</a>
@@ -76,6 +79,9 @@
     <form method="post" action="/tenants/{{ tenant.id }}/backup"><button class="btn btn-ghost btn-sm">Backup now</button></form>
     {% if tenant.provisioned %}
       <form method="post" action="/tenants/{{ tenant.id }}/test-odoo"><button class="btn btn-ghost btn-sm">Test Odoo</button></form>
+      {% if can('apps.view') %}
+      <a class="btn btn-ghost btn-sm" href="/apps/{{ tenant.id }}">Manage apps</a>
+      {% endif %}
     {% endif %}
     {% if tenant.status == 'suspended' or tenant.maintenance_mode %}
       <form method="post" action="/tenants/{{ tenant.id }}/activate"><button class="btn btn-primary btn-sm">Activate</button></form>
@@ -94,6 +100,8 @@
     <strong>Test Odoo</strong> confirms the manager can sign in to this tenant's database and
     reports its version, user count and installed apps. <strong>Open in Odoo</strong> hands your
     browser a ready session so you land inside the tenant already signed in as its admin.
+    <strong>Manage apps</strong> installs and removes the tenant's Odoo apps from here — the
+    tenant cannot do it itself, because Odoo's own Apps menu is hidden inside its database.
   </p>
 </section>
 

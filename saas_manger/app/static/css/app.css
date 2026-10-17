@@ -195,6 +195,21 @@ code {
     color: var(--ink-soft);
 }
 
+/* A card that carries a warning — the "no bouquet lists this app" panel. */
+.card-warning {
+    background: var(--warning-soft);
+    border-color: #f3dcb4;
+}
+
+.card-warning h2 {
+    color: var(--warning);
+}
+
+/* A table row whose app is hidden from the tenant: present, but dimmed. */
+.table tbody tr.row-muted>td {
+    color: var(--ink-faint);
+}
+
 .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -555,6 +570,18 @@ legend {
 
 .nowrap {
     white-space: nowrap;
+}
+
+/* A <form> wrapping a single button (per-row actions) must not break the row. */
+form.inline,
+.inline {
+    display: inline-block;
+    margin: 0 4px 0 0;
+    vertical-align: middle;
+}
+
+.inline:last-child {
+    margin-right: 0;
 }
 
 .actions-row {
