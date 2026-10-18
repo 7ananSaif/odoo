@@ -222,3 +222,49 @@ The `RDS_SECRET_NAME` + `RDS_SECRET_REGION` already hint at this: `odoo-invoice-
 3. Move prod-sensitive values to **AWS Secrets Manager**; wire an External Secret to sync them into the cluster `Secret`.
 4. Update Pod/Deployment env specs to reference the ConfigMap via `envFrom.configMapRef` and the Secret via `valueFrom.secretKeyRef` (or `envFrom.secretRef` for the whole Secret).
 5. Delete the real `.env` from any committed location; keep only `.env.example` with placeholder values.
+
+---
+
+## Where each class lands in this repo (wiring)
+
+The plan above is abstract on purpose; here is the concrete object the plan
+maps to, so nothing is left implicit.
+
+| Class | Object | In this repo |
+|---|---|---|
+| Non-sensitive config | `ConfigMap` | Demo: [`state/00-configmap.yaml`](state/00-configmap.yaml). Chart: [`../helm/odoo-stack/templates/configmap.yaml`](../helm/odoo-stack/templates/configmap.yaml) (`odoo-stack-config`). |
+| Sensitive values | `Secret` (`type: Opaque`) | Demo: [`state/01-secret.yaml`](state/01-secret.yaml). Chart: [`../helm/odoo-stack/templates/secret.yaml`](../helm/odoo-stack/templates/secret.yaml), rendered **only** when `secret.existingSecret: false` (local); staging/prod set it `true` and reference an out-of-band Secret. |
+| Externally-rotated secrets | **AWS Secrets Manager** → `ExternalSecret` → k8s `Secret` | Not rendered by the chart (a cluster-scoped operator installs it). Rationale + decision: [`eks-secrets-at-rest.md`](eks-secrets-at-rest.md). |
+| Durable disk state | `PersistentVolumeClaim` | Demo: [`state/03-pvc.yaml`](state/03-pvc.yaml). Chart: [`../helm/odoo-stack/templates/odoo-pvc.yaml`](../helm/odoo-stack/templates/odoo-pvc.yaml) + the Postgres `volumeClaimTemplate`. |
+
+All three kinds are proven to mount correctly in
+[`state/04-postgres-pod.yaml`](state/04-postgres-pod.yaml) — a single Postgres
+Pod that consumes a ConfigMap (as env vars **and** a mounted `postgresql.conf`),
+a Secret (as env vars), and a PVC (as the data directory). The runbook and the
+recorded proof live in [`state/README.md`](state/README.md).
+
+---
+
+## EKS decision (summary; full analysis in `eks-secrets-at-rest.md`)
+
+- **etcd / API-data encryption:** EKS clusters on Kubernetes **1.28+** (this
+  project is **1.30**) envelope-encrypt all Kubernetes API data with AWS KMS
+  **by default**, using an AWS-owned key, at **no extra cost**. So no action is
+  required for the "encrypted at rest" requirement.
+- **Customer-managed key (CMK):** not adopted now. It adds key-policy control
+  and CloudTrail visibility but creates an irrecoverable cluster→key
+  dependency. Documented as an upgrade path if compliance demands it.
+- **AWS Secrets Manager:** adopted as the **source of truth** for the
+  high-value, externally-rotated credentials (`ANTHROPIC_API_KEY`,
+  `INVOICE_AI_VOYAGE_API_KEY`, the RDS master password), synced into the cluster
+  with the **External Secrets Operator under IRSA** — the same OIDC/IRSA
+  mechanism already enabled in `../eks/cluster.yaml`.
+- **What to move where:** see the "Managed" lists above; `.env` never ships to
+  the cluster and is never committed — the value is authored in Secrets Manager
+  and never in a manifest.
+
+The distinction this plan keeps insisting on: **the ConfigMap/Secret split is
+about *sensitivity*, and the Secrets-Manager decision is about *provenance***.
+A value can be sensitive (a password) and still be fine as an in-cluster Secret
+(local dev); the same value in production should come from Secrets Manager so it
+has one owner and one rotation story.

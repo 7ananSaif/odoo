@@ -3,6 +3,11 @@
 # Secrets are never committed here: set `secret.existingSecret: true` in
 # staging/prod and reference a Secret you provision out-of-band (External
 # Secrets / AWS Secrets Manager).
+#
+# Resource sizing and probe thresholds are documented and justified in
+# README.md ("Resource sizing" and "Probe choices"). Every number here is
+# traceable to one of two sources: the docker-compose service that runs on the
+# current EC2 deployment, or a Kubernetes-specific reason written down there.
 
 # --- Postgres -------------------------------------------------------------
 postgres:
@@ -15,25 +20,45 @@ postgres:
   port: 5432
   database: odoo
   user: odoo
-  # Resource requests/limits (local baseline; see README for sizing notes)
+  # Resource requests/limits.
+  # Source: docker-compose.yml `deploy.resources` for the `db` service
+  #   reservations.memory 256M -> requests.memory 256Mi
+  #   limits.memory       1G   -> limits.memory   1Gi
+  # CPU has no compose equivalent (compose never limited CPU); 250m/1 is a
+  # small-node baseline derived from the memory ratio.
   resources:
     requests:
       cpu: 250m
-      memory: 512Mi
+      memory: 256Mi
     limits:
       cpu: "1"
       memory: 1Gi
-  # postgres readiness probe uses pg_isready
-  readinessProbe:
-    initialDelaySeconds: 15
-    periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 3
-  livenessProbe:
-    initialDelaySeconds: 30
-    periodSeconds: 15
-    timeoutSeconds: 5
-    failureThreshold: 3
+  # Three probes, three different questions (see README):
+  #   startup   - "has the first initdb / crash recovery finished yet?"
+  #   readiness - "may the Service send queries to this pod right now?"
+  #   liveness  - "is this process wedged and in need of a restart?"
+  # All three use pg_isready, the Postgres-native check.
+  probes:
+    startup:
+      periodSeconds: 5
+      timeoutSeconds: 5
+      # 5s x 60 = 300s budget. A fresh initdb is seconds; replaying WAL on a
+      # 100Gi volume after an unclean shutdown is minutes.
+      failureThreshold: 60
+      successThreshold: 1
+    readiness:
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+    liveness:
+      periodSeconds: 15
+      timeoutSeconds: 5
+      failureThreshold: 4
+      successThreshold: 1
+  # Postgres accepts connections while shutting down; give it room to flush
+  # cleanly instead of SIGKILLing it mid-checkpoint.
+  terminationGracePeriodSeconds: 60
   # persistent storage
   storage:
     size: 8Gi
@@ -48,31 +73,70 @@ odoo:
     pullPolicy: IfNotPresent
   replicaCount: 1
   port: 8069
+  # Odoo's --database target. This matters for the probes: /web/health answers
+  # 500 while no database is loaded, so the server must be pointed at one or
+  # every probe fails forever. On a fresh, empty Postgres the schema still has
+  # to be initialized once - see "First boot" in the README.
+  dbName: odoo
+  # Any extra odoo CLI flags for the container.
+  extraArgs: []
   # filestore / addons persistent volume
   filestore:
     size: 10Gi
     storageClassName: ""
-  # resource requests/limits; see README for baseline rationale
+  # Resource requests/limits.
+  # Source: docker-compose.yml `deploy.resources` for the `odoo` service
+  #   reservations.memory 512M -> requests.memory 512Mi
+  #   limits.memory       2G   -> limits.memory   2Gi
+  # CPU has no compose equivalent; 500m/2 lets a 2-worker pod burst during
+  # report rendering while still leaving the node schedulable.
   resources:
     requests:
       cpu: 500m
-      memory: 1Gi
+      memory: 512Mi
     limits:
       cpu: "2"
       memory: 2Gi
-  # Odoo /web/health endpoint readiness + liveness
-  readinessProbe:
-    path: /web/health
-    initialDelaySeconds: 30
-    periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 3
-  livenessProbe:
-    path: /web/health
-    initialDelaySeconds: 60
-    periodSeconds: 15
-    timeoutSeconds: 5
-    failureThreshold: 3
+  # Odoo probes. The paths are NOT interchangeable - /web/health answers 200
+  # as long as the WSGI process replies, and only the `db_server_status=true`
+  # variant also dials Postgres and returns 500 if it cannot connect
+  # (addons/web/controllers/home.py). Readiness must use the DB-aware form;
+  # liveness must NOT, or a database blip restarts every pod at once.
+  probes:
+    startup:
+      path: /web/health
+      periodSeconds: 5
+      timeoutSeconds: 3
+      # 5s x 60 = 300s budget for the first boot (module install/upgrade).
+      # While this probe runs, readiness and liveness are held off entirely,
+      # so neither of them needs a long initialDelaySeconds.
+      failureThreshold: 60
+    readiness:
+      path: /web/health
+      # Ask Odoo to also dial the database (adds ?db_server_status=true).
+      dbServerStatus: true
+      # httpGet CANNOT carry a query string: kubelet builds the request with
+      # url.URL{Path: ...} and Go percent-encodes the '?' to %3F, so the server
+      # receives /web/health%3Fdb_server_status=true and answers 404 - the pod
+      # would never become ready. The DB-aware readiness check is therefore an
+      # exec probe running python3 against the URL with its query intact.
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 2
+      successThreshold: 1
+    liveness:
+      path: /web/health
+      periodSeconds: 15
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+  # Rolling update that never dips below the desired replica count: the new
+  # pod must pass readiness before an old one is terminated.
+  strategy:
+    maxUnavailable: 0
+    maxSurge: 1
+  # In-flight requests (and a report render) need time to finish on SIGTERM.
+  terminationGracePeriodSeconds: 60
   # optional additional env for the app container
   extraEnv: []
   # extra volumes/volumeMounts placeholder (e.g. custom addons)
@@ -82,7 +146,11 @@ odoo:
 # --- ConfigMap (non-sensitive) -------------------------------------------
 config:
   # These become the Odoo DB connection values used by the entrypoint.
-  odooDbHost: postgres
+  # Empty odooDbHost means "the Postgres Service this chart renders", i.e.
+  # {{ include "odoo-stack.fullname" . }}-postgres. Set it explicitly when
+  # postgres.enabled is false (production: the RDS endpoint), because then
+  # there is no in-cluster Service to fall back to.
+  odooDbHost: ""
   odooDbPort: "5432"
   odooDbUser: odoo
   # extra non-sensitive key/value pairs

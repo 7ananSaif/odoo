@@ -14,22 +14,37 @@ spec:
       {{- include "odoo-stack.odooSelectorLabels" . | nindent 6 }}
   strategy:
     type: RollingUpdate
+    rollingUpdate:
+      # Never take a ready pod out of the Service until its replacement has
+      # passed the readiness probe, and never run more than one extra pod.
+      maxUnavailable: {{ .Values.odoo.strategy.maxUnavailable }}
+      maxSurge: {{ .Values.odoo.strategy.maxSurge }}
   template:
     metadata:
       labels:
         {{- include "odoo-stack.odooSelectorLabels" . | nindent 8 }}
     spec:
+      terminationGracePeriodSeconds: {{ .Values.odoo.terminationGracePeriodSeconds }}
       containers:
         - name: odoo
           image: "{{ .Values.odoo.image.repository }}:{{ .Values.odoo.image.tag }}"
           imagePullPolicy: {{ .Values.odoo.image.pullPolicy }}
+          # args, never `command`: `command` would replace the image's
+          # docker-entrypoint.sh, which is what turns HOST/PORT/USER/PASSWORD
+          # into --db_* flags. These args are appended to that entrypoint.
+          args:
+            - odoo
+            - --database={{ .Values.odoo.dbName }}
+            {{- range .Values.odoo.extraArgs }}
+            - {{ . | quote }}
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.odoo.port }}
               protocol: TCP
           env:
             - name: HOST
-              value: {{ .Values.config.odooDbHost | quote }}
+              value: {{ default (printf "%s-postgres" (include "odoo-stack.fullname" .)) .Values.config.odooDbHost | quote }}
             - name: PORT
               value: {{ .Values.config.odooDbPort | quote }}
             - name: USER
@@ -47,24 +62,57 @@ spec:
             - name: {{ .name }}
               value: {{ .value | quote }}
             {{- end }}
+          {{- with .Values.odoo.resources }}
           resources:
-            {{- toYaml .Values.odoo.resources | nindent 12 }}
-          readinessProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          # --- startup: "has the process finished booting?" -------------------
+          # Gates the other two probes: until this succeeds, neither readiness
+          # nor liveness runs. That is why neither of them carries an
+          # initialDelaySeconds - a slow first boot (module install/upgrade) is
+          # covered by this probe's failureThreshold budget, not by a guessed
+          # delay.
+          # Plain /web/health: booting does not require the DB yet, and a
+          # failure here should only ever mean "still starting".
+          startupProbe:
             httpGet:
-              path: {{ .Values.odoo.readinessProbe.path }}
-              port: {{ .Values.odoo.port }}
-            initialDelaySeconds: {{ .Values.odoo.readinessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.odoo.readinessProbe.periodSeconds }}
-            timeoutSeconds: {{ .Values.odoo.readinessProbe.timeoutSeconds }}
-            failureThreshold: {{ .Values.odoo.readinessProbe.failureThreshold }}
+              path: {{ .Values.odoo.probes.startup.path | quote }}
+              port: http
+            periodSeconds: {{ .Values.odoo.probes.startup.periodSeconds }}
+            timeoutSeconds: {{ .Values.odoo.probes.startup.timeoutSeconds }}
+            failureThreshold: {{ .Values.odoo.probes.startup.failureThreshold }}
+          # --- readiness: "may this pod take traffic?" ------------------------
+          # The DB-aware form of the health route. Odoo answers
+          # /web/health?db_server_status=true with 500 when it cannot open a
+          # connection to Postgres (addons/web/controllers/home.py), so a pod
+          # that is alive but cannot serve is pulled out of the Service's
+          # endpoints instead of answering every request with an error.
+          # exec, not httpGet: an httpGet `path` cannot carry a query string
+          # (kubelet percent-encodes '?' to %3F, so the server answers 404 and
+          # the pod would never become ready).
+          readinessProbe:
+            exec:
+              command:
+                - python3
+                - -c
+                - {{ printf "import urllib.request; urllib.request.urlopen('http://127.0.0.1:%v%s%s', timeout=%v)" (int .Values.odoo.port) .Values.odoo.probes.readiness.path (ternary "?db_server_status=true" "" .Values.odoo.probes.readiness.dbServerStatus) (int .Values.odoo.probes.readiness.timeoutSeconds) | quote }}
+            periodSeconds: {{ .Values.odoo.probes.readiness.periodSeconds }}
+            timeoutSeconds: {{ .Values.odoo.probes.readiness.timeoutSeconds }}
+            failureThreshold: {{ .Values.odoo.probes.readiness.failureThreshold }}
+            successThreshold: {{ .Values.odoo.probes.readiness.successThreshold }}
+          # --- liveness: "is this process wedged?" ---------------------------
+          # Deliberately the PLAIN route, with no DB check: if the database has
+          # a brief outage, restarting every Odoo pod would turn a recoverable
+          # blip into a crash loop. Only a hung WSGI process fails this, and
+          # only that deserves a restart.
           livenessProbe:
             httpGet:
-              path: {{ .Values.odoo.livenessProbe.path }}
-              port: {{ .Values.odoo.port }}
-            initialDelaySeconds: {{ .Values.odoo.livenessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.odoo.livenessProbe.periodSeconds }}
-            timeoutSeconds: {{ .Values.odoo.livenessProbe.timeoutSeconds }}
-            failureThreshold: {{ .Values.odoo.livenessProbe.failureThreshold }}
+              path: {{ .Values.odoo.probes.liveness.path | quote }}
+              port: http
+            periodSeconds: {{ .Values.odoo.probes.liveness.periodSeconds }}
+            timeoutSeconds: {{ .Values.odoo.probes.liveness.timeoutSeconds }}
+            failureThreshold: {{ .Values.odoo.probes.liveness.failureThreshold }}
+            successThreshold: {{ .Values.odoo.probes.liveness.successThreshold }}
           volumeMounts:
             - name: filestore
               mountPath: /var/lib/odoo
