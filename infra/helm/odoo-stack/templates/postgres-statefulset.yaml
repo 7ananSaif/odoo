@@ -18,6 +18,7 @@ spec:
       labels:
         {{- include "odoo-stack.postgresSelectorLabels" . | nindent 8 }}
     spec:
+      terminationGracePeriodSeconds: {{ .Values.postgres.terminationGracePeriodSeconds }}
       containers:
         - name: postgres
           image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
@@ -36,22 +37,29 @@ spec:
                 secretKeyRef:
                   name: {{ $secretName }}
                   key: POSTGRES_PASSWORD
+          {{- with .Values.postgres.resources }}
           resources:
-            {{- toYaml .Values.postgres.resources | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          # --- startup: "is the first initdb / WAL replay done?" --------------
+          # Gives a fresh volume (initdb) and an unclean shutdown (crash
+          # recovery on a large volume) a real budget - 5s x 60 = 300s - before
+          # liveness is even allowed to judge the process. Without this, a
+          # restart during recovery would be misread as a wedged database and
+          # the pod would be killed mid-replay.
+          startupProbe:
+            {{- include "odoo-stack.postgresProbe" (dict "root" $ "probe" "startup") | nindent 12 }}
+          # --- readiness: "may clients connect right now?" -------------------
+          # pg_isready, the Postgres-native check. Until it passes, the
+          # ClusterIP Service has no endpoints for this pod, so Odoo is never
+          # routed to a database that is still starting up or shutting down.
           readinessProbe:
-            exec:
-              command: ["sh", "-c", "pg_isready -U {{ .Values.postgres.user }} -d {{ .Values.postgres.database }}"]
-            initialDelaySeconds: {{ .Values.postgres.readinessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.postgres.readinessProbe.periodSeconds }}
-            timeoutSeconds: {{ .Values.postgres.readinessProbe.timeoutSeconds }}
-            failureThreshold: {{ .Values.postgres.readinessProbe.failureThreshold }}
+            {{- include "odoo-stack.postgresProbe" (dict "root" $ "probe" "readiness") | nindent 12 }}
+          # --- liveness: "should this container be restarted?" ---------------
+          # Same pg_isready check: a postmaster that has stopped accepting
+          # connections altogether is wedged and only a restart clears it.
           livenessProbe:
-            exec:
-              command: ["sh", "-c", "pg_isready -U {{ .Values.postgres.user }} -d {{ .Values.postgres.database }}"]
-            initialDelaySeconds: {{ .Values.postgres.livenessProbe.initialDelaySeconds }}
-            periodSeconds: {{ .Values.postgres.livenessProbe.periodSeconds }}
-            timeoutSeconds: {{ .Values.postgres.livenessProbe.timeoutSeconds }}
-            failureThreshold: {{ .Values.postgres.livenessProbe.failureThreshold }}
+            {{- include "odoo-stack.postgresProbe" (dict "root" $ "probe" "liveness") | nindent 12 }}
           volumeMounts:
             - name: pgdata
               mountPath: /var/lib/postgresql/data

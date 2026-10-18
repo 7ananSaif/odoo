@@ -1,0 +1,70 @@
+# =============================================================================
+# 03-pvc.yaml — the THIRD kind of state: durable data on disk.
+#
+# A ConfigMap and a Secret are the small, structured kinds of state. The third
+# kind is the bytes a process writes to disk — a database's data directory, an
+# upload folder, an append-only log. Kubernetes separates it with a two-object
+# handshake:
+#
+#   PersistentVolume (PV)      the actual piece of storage (an EBS volume, a
+#                              local-path directory on the node, an NFS export).
+#                              Cluster-scoped; provisioned by an admin or a
+#                              dynamic provisioner.
+#   PersistentVolumeClaim (PVC) a REQUEST for storage with an access mode and a
+#                              size. Namespace-scoped; written by whoever runs
+#                              the workload. Kubernetes binds a PVC to a
+#                              suitable PV and keeps that binding for the life
+#                              of the claim.
+#
+# Apply:  kubectl apply -f infra/k8s/state/03-pvc.yaml
+# Status: kubectl get pvc pg-pvc
+#         kubectl describe pvc pg-pvc      # read the Events if it is Pending
+#
+# The point of this file is the DECOUPLING. The PVC has its own lifecycle: it is
+# created before the Pod, it outlives the Pod, and it is what makes the data
+# survive `kubectl delete pod`. The next file (04-postgres-pod.yaml) proves it.
+#
+# Why `storageClassName:` is OMITTED here, not set to ""
+# -----------------------------------------------------
+# This one field is a classic footgun:
+#   * field ABSENT      -> "use the cluster's default StorageClass". kind ships
+#                          `standard` (rancher.io/local-path) marked default, so
+#                          the PV is provisioned on demand. This is what we want.
+#   * field = ""        -> "bind ONLY to a PV that has NO storage class" — an
+#                          explicit opt-out of dynamic provisioning. The claim
+#                          then sits Pending forever unless an admin has
+#                          hand-created a matching PV. This is NOT what we want,
+#                          and it is the difference between a working exercise
+#                          and a mysterious Pending claim.
+#
+# The default StorageClass here uses `volumeBindingMode: WaitForFirstConsumer`:
+# the PV is not created until a Pod actually mounts the claim. A PVC that is
+# Pending with no consumer is therefore EXPECTED, not broken. Set this to
+# `Immediate` when the storage backend can satisfy the claim from anywhere
+# (e.g. EBS CSI in prod) and you want binding to happen up front.
+# =============================================================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pg-pvc
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: state-demo
+    app.kubernetes.io/part-of: odoo
+spec:
+  # ReadWriteOnce = mountable read-write by a SINGLE node at a time. That is
+  # exactly right for a database data directory, and it is the only mode a
+  # local-path / EBS volume offers. It also has a real consequence: a
+  # ReadWriteOnce claim pins its consumer to one node, which is why a
+  # multi-replica Odoo filestore needs ReadWriteMany (EFS) instead — see
+  # infra/k8s/compose-to-k8s-mapping.md, "odoo-web-data".
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      # 1Gi is plenty for the exercise and kind has real disk behind it. Sizes
+      # are a REQUEST: the provisioner may round up, and with a CSI driver that
+      # supports it the claim can later be expanded (not on local-path, and
+      # `allowVolumeExpansion: false` on kind's `standard` class).
+      storage: 1Gi
+  # storageClassName is deliberately absent -> the default class is used.
