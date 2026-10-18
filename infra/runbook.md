@@ -1,7 +1,9 @@
 # Deploy Runbook — odoo-eks (sole path to production)
 
-This is the **only** supported way to ship to production. The old
-SSH + `docker compose` EC2 path has been retired (see "Retired path" below).
+This is the **only** supported way to ship the Odoo stack to production. The old
+SSH + `docker compose` EC2 path for Odoo has been retired (§4). The one workload
+still deployed over SSH is `invoice-ai`, which the Helm chart does not cover —
+see §2, "What still deploys outside Helm".
 
 Deployment is a single `helm upgrade --install` against the **odoo-eks** EKS
 cluster, authenticated via **GitHub Actions OIDC → IAM role** (no long-lived
@@ -40,14 +42,70 @@ helm install external-secrets external-secrets/external-secrets -n external-secr
    `role-to-assume: arn:aws:iam::${ACCOUNT}:role/<github-oidc-deploy-role>` and
    `aws-region: eu-west-1`. The OIDC provider trusts the GitHub repo+environment.
 3. **Update kubeconfig** — `aws eks update-kubeconfig --name odoo-eks`.
-4. **`helm upgrade --install`** the `odoo-stack` chart with the prod values file:
+4. **Chart gate** — `helm lint` and `helm template` the chart with the prod values
+   *before* the release is touched, so a broken template fails in seconds instead
+   of mid-rollout.
+5. **Resolve the image this commit built** — the pipeline deploys
+   `<repo>:${{ github.sha }}`, the tag `docker-push.yml` pushed. The repository
+   comes from the repo variable `ODOO_IMAGE_REPOSITORY` (ECR) or, if unset, from
+   `secrets.DOCKERHUB_USERNAME`/odoo. It then waits (up to 15 min) for the tag to
+   appear in the registry, because the image build is a *separate* workflow on the
+   same push and can finish after the deploy starts.
+6. **`helm upgrade --install`** the `odoo-stack` chart with the prod values file,
+   the image injected as flags so the values file never pins a stale tag:
    ```bash
    helm upgrade --install odoo infra/helm/odoo-stack \
      -f infra/helm/odoo-stack/values.production.yaml \
-     --namespace odoo --create-namespace --atomic
+     --namespace odoo --create-namespace \
+     --set odoo.image.repository=<repo> --set odoo.image.tag=<sha> \
+     [--set-string config.odooDbHost=<rds-endpoint>] \
+     --atomic --timeout 10m
    ```
-5. **Smoke test** — `./scripts/smoke-test.sh <domain>` (HTTPS login + invoice-ai `/healthz`).
-6. **Rollback (auto)** — if the smoke test fails, run `helm rollback odoo <previous_revision>`.
+   `config.odooDbHost` comes from `secrets.ODOO_DB_HOST` when set, so the RDS
+   endpoint never has to be committed to the values file.
+7. **Rollout assert** — resolves the Deployment by label
+   (`app.kubernetes.io/instance=odoo, app.kubernetes.io/component=odoo`) and runs
+   `kubectl rollout status` on it. `--atomic` already waits for readiness, so this
+   is a cheap explicit confirm. It is resolved rather than hardcoded because the
+   rendered name is `odoo-odoo-stack-odoo`, not `odoo-odoo` — `odoo-stack.fullname`
+   only collapses to the release name when the release name *contains* the chart
+   name, which `odoo` does not.
+8. **Smoke test** — `./scripts/smoke-test-eks.sh <domain>`: TLS handshake,
+   certificate expiry, and the Odoo login page rendering (which itself proves the
+   pod can reach RDS). Not `smoke-test.sh` — that one probes the local compose
+   topology (invoice-ai, RabbitMQ, Prometheus on localhost) and cannot pass here.
+9. **Rollback (auto)** — only when the *smoke step itself* failed:
+   `helm rollback odoo <previous_revision> --timeout 5m`, then a rollout assert
+   proving the rollback actually landed. The 5-minute bar matches the old EC2
+   path; beyond it, §3 "Rollback" takes over manually. A release with a single
+   revision reports "nothing to roll back to" instead of silently "rolling back"
+   to the revision already live.
+
+### Required configuration
+
+| Kind | Name | Purpose |
+|---|---|---|
+| Secret | `AWS_EKS_DEPLOY_ROLE_ARN` | IAM role assumed via OIDC (no long-lived keys) |
+| Secret | `DOMAIN` | public hostname the smoke test checks |
+| Secret | `ODOO_DB_HOST` | RDS endpoint, injected as `config.odooDbHost` (optional if it is filled into the values file) |
+| Secret | `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` | registry auth when images come from Docker Hub |
+| Variable | `ODOO_IMAGE_REPOSITORY` | image repository to deploy, e.g. `<account>.dkr.ecr.eu-west-1.amazonaws.com/odoo` |
+
+The first step of the job fails with an actionable message if a required one is
+missing, and warns about any `<placeholder>` left in `values.production.yaml`.
+
+### What still deploys outside Helm (deliberately)
+
+- **`invoice-ai`** — `invoice-ai-deploy.yml` (triggered by `invoice-ai CI`) still
+  ships over SSH + `docker compose` to the EC2 host. It is a *separate service*
+  that the `odoo-stack` chart does not render, so retiring its pipeline without a
+  chart for it would leave it with no way to production. It owns its own image,
+  health gate (`/healthz` + `build_sha` match) and rollback. Folding it into the
+  cluster is a separate piece of work.
+- **`db-collation-repair.yml`** — manual (`workflow_dispatch`) repair for the
+  collation-version mismatch on the *EC2 host's* local Postgres volume. On EKS the
+  database is RDS, so it is EC2-only; it stays during the rollback window and is
+  removed with the EC2 host.
 
 ---
 
@@ -90,8 +148,9 @@ the maintenance window.
    - `odoo.image.repository: <account>.dkr.ecr.eu-west-1.amazonaws.com/odoo`
    - add `service` annotation for the ALB (see `aws-load-balancer-controller.md`).
 5. **Deploy** — run the workflow (the `helm upgrade --install` above).
-6. **Smoke test** — `scripts/smoke-test.sh <domain>`; confirm Odoo login works,
-   invoice-ai `/healthz` is `ok`, and `/web/health` returns 200.
+6. **Smoke test** — `scripts/smoke-test-eks.sh <domain>`: TLS handshake,
+   certificate expiry, and the Odoo login page actually rendering. (`invoice-ai`
+   is not part of the cluster deployment; its own pipeline health-gates it.)
 7. **Cut DNS** — flip the Route 53 record (`cloud-ai-erp.duckdns.org`) to the
    new ALB DNS name. Keep the old ALB/EC2 record for the rollback window.
 8. **Verify data integrity** — spot-check invoices/attachments visible in Odoo,
@@ -116,12 +175,14 @@ The previous `.github/workflows/deploy.yml` SSH-invoked a detached shell script
 (`scripts/deploy_remote.sh`) that ran `docker compose up -d --build`, upgraded
 modules, and health-checked the EC2 app. That path is **removed**:
 
-- No more `appleboy/ssh-action`, `EC2_HOST`, `EC2_USERNAME`, `SSH_PRIVATE_KEY`.
-- No more `docker compose` deploys to a single EC2 host.
+- `.github/workflows/deploy.yml` references no `appleboy/*` action, no `EC2_*`
+  or `SSH_*` secret, and runs no `docker compose`.
+- Those EC2 credentials still exist for exactly **one** other workflow,
+  `invoice-ai-deploy.yml`, which ships the invoice-ai service to the EC2 host
+  (scoped in §2). They disappear when invoice-ai is moved into the cluster.
+- The Odoo host is no longer deployed to over SSH by any workflow.
 - `scripts/deploy_remote.sh`, `scripts/cutover.sh`, `scripts/sync-filestore-to-s3.sh`,
   and `scripts/backup.sh` are kept only as legacy/reference; the EKS + Helm path runs
   deploy, rollback, and the filestore sync (via S3 + EBS) from Kubernetes.
-- `.github/workflows/deploy.yml` no longer references `appleboy/ssh-action` or any
-  `EC2_*` / `SSH_*` secrets.
 - `infra/eks/cluster.yaml` + `infra/runbook.md` are the source of truth for shipping
   to production.
