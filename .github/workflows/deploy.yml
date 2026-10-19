@@ -37,8 +37,8 @@ env:
     NAMESPACE: odoo
     CHART: infra/helm/odoo-stack
     VALUES_FILE: infra/helm/odoo-stack/values.production.yaml
-    AWS_REGION: eu-west-1
-    EKS_CLUSTER: odoo-eks
+    AWS_REGION: ${{ secrets.AWS_REGION }}
+    EKS_CLUSTER: ${{ secrets.EKS_CLUSTER }}
     # How long to wait for the image this commit built to appear in the
     # registry (the image build runs as its own workflow, in parallel).
     IMAGE_WAIT_SECONDS: "900"
@@ -70,6 +70,8 @@ jobs:
                   IMAGE_REPO_VAR: ${{ vars.ODOO_IMAGE_REPOSITORY }}
                   DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
                   DB_HOST: ${{ secrets.ODOO_DB_HOST }}
+                  REGION: ${{ secrets.AWS_REGION }}
+                  CLUSTER: ${{ secrets.EKS_CLUSTER }}
               run: |
                   set -u
                   missing=0
@@ -84,6 +86,16 @@ jobs:
                   if [ -z "$DOMAIN" ]; then
                       echo "::error::secrets.DOMAIN is not set for the 'production' environment."
                       echo "::error::It is the public hostname the post-deploy smoke test checks."
+                      missing=1
+                  fi
+
+                  if [ -z "$REGION" ]; then
+                      echo "::error::secrets.AWS_REGION is not set for the 'production' environment."
+                      missing=1
+                  fi
+
+                  if [ -z "$CLUSTER" ]; then
+                      echo "::error::secrets.EKS_CLUSTER is not set for the 'production' environment."
                       missing=1
                   fi
 
@@ -103,12 +115,12 @@ jobs:
                   # refuse here instead of shipping a broken release.
                   if grep -qE '<[a-z0-9-]+>' "$VALUES_FILE"; then
                       placeholders=$(grep -oE '<[a-z0-9-]+>' "$VALUES_FILE" | sort -u | tr '\n' ' ')
-                      echo "::warning::$VALUES_FILE still contains placeholders: $placeholders"
+                      echo "::warning::$VALUES_FILE still contains placeholders:$placeholders"
                       echo "::warning::They must be overridden by this workflow (image repository, DB host) or filled in by hand."
                   fi
 
                   [ "$missing" -eq 0 ] || exit 1
-                  echo "Deploy role, domain and image registry are configured."
+                  echo "Deploy role, domain, image registry, AWS region, and EKS cluster are configured."
 
             # ------------------------------------------------------------------
             # Resolve the exact image this commit built.
@@ -198,10 +210,10 @@ jobs:
                         | docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
                   fi
 
-                  deadline=$(( $(date +%s) + IMAGE_WAIT_SECONDS ))
+                  deadline=$(($(date +%s) + IMAGE_WAIT_SECONDS ))
                   until docker manifest inspect "$IMAGE_REF" >/dev/null 2>&1; do
-                      if [ "$(date +%s)" -ge "$deadline" ]; then
-                          echo "::error::Image $IMAGE_REF did not appear within ${IMAGE_WAIT_SECONDS}s."
+                      if [ "$(date +\%s)" -ge "$deadline" ]; then
+                          echo "::error::Image $IMAGE_REF did not appear within${IMAGE_WAIT_SECONDS}s."
                           echo "::error::Check the docker-push.yml run for this commit: $GITHUB_SHA"
                           exit 1
                       fi
@@ -227,9 +239,9 @@ jobs:
                       # Column 1 is REVISION. Data rows only: skip the header.
                       revisions=$(helm history "$RELEASE" -n "$NAMESPACE" --max 2 \
                           | awk 'NR>1 {print $1}')
-                      count=$(printf '%s\n' "$revisions" | grep -c . || true)
+                      count=$(printf '\%s\n' "$revisions" | grep -c . || true)
                       if [ "$count" -ge 2 ]; then
-                          PREV=$(printf '%s\n' "$revisions" | sed -n '1p')
+                          PREV=$(printf '\%s\n' "$revisions" | sed -n '1p')
                       fi
                   fi
                   case "$PREV" in
@@ -326,7 +338,7 @@ jobs:
               if: ${{ always() && steps.smoke.outcome == 'failure' }}
               run: |
                   PREV="${{ steps.revision.outputs.prev }}"
-                  if [ -z "$PREV" ] || [ "$PREV" = "0" ]; then
+                  if [ -z "$PREV" ] \vert{}\vert{} [ "$PREV" = "0" ]; then
                       echo "::error::Smoke test failed and there is no previous revision to roll back to — manual intervention required."
                       echo "::error::See infra/runbook.md §3 'Rollback' for the manual procedure."
                       exit 1
