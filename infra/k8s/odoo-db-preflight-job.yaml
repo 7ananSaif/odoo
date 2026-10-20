@@ -1,0 +1,109 @@
+# One-shot preflight Job for the EKS deploy path.
+#
+# Applied by .github/workflows/deploy.yml BEFORE `helm upgrade`, rendered with
+# `envsubst`, so every placeholder below is substituted at apply time from the
+# step's environment (namespace, image, DB endpoint, Secret name and key).
+#
+# Why this exists at all: Odoo's readiness probe is
+# `/web/health?db_server_status=true`, which only opens a connection to the
+# `postgres` maintenance database. RDS always ships that database, so the probe
+# answers 200 even when:
+#   - the `odoo` database was never created or restored,
+#   - the `odoo` database exists but carries no schema,
+#   - the password in the Secret is wrong (the probe uses a different path),
+#   - the VPC security group does not allow the pod subnet to reach RDS.
+# All four look identical from Kubernetes: pods never become Ready, and helm
+# reports nothing but "context deadline exceeded" when its wait budget expires.
+#
+# This Job runs the same image, the same Secret and the same network path Odoo
+# will use, and turns each of those into a single explicit line of log output in
+# about 30 seconds instead of a 12-minute mystery.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ${JOB_NAME}
+  namespace: ${NAMESPACE}
+  labels:
+    app.kubernetes.io/component: db-preflight
+    app.kubernetes.io/part-of: odoo-stack
+spec:
+  # Never retry: a failed preflight is a fact about the environment, not a
+  # transient condition worth burning three more minutes on.
+  backoffLimit: 0
+  activeDeadlineSeconds: 180
+  # Keep the finished Job (and its logs) around for an hour so the workflow can
+  # read them, then let the cluster garbage-collect it.
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: preflight
+          image: ${IMAGE_REF}
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: HOST
+              value: "${DB_HOST}"
+            - name: PORT
+              value: "${DB_PORT}"
+            - name: USER
+              value: "${DB_USER}"
+            - name: DBNAME
+              value: "${DB_NAME}"
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: ${DB_SECRET_NAME}
+                  key: ${DB_SECRET_KEY}
+          command: ["python3", "-c"]
+          args:
+            - |
+              import os
+              import sys
+
+              import psycopg2
+
+              host = os.environ["HOST"]
+              port = os.environ["PORT"]
+              user = os.environ["USER"]
+              password = os.environ["PASSWORD"]
+              dbname = os.environ["DBNAME"]
+              target = "%s@%s:%s/%s" % (user, host, port, dbname)
+
+              try:
+                  conn = psycopg2.connect(
+                      host=host,
+                      port=port,
+                      user=user,
+                      password=password,
+                      dbname=dbname,
+                      connect_timeout=15,
+                  )
+              except psycopg2.OperationalError as exc:
+                  sys.exit("FAIL cannot connect to %s: %s" % (target, exc))
+
+              with conn.cursor() as cur:
+                  cur.execute(
+                      "select 1 from information_schema.tables "
+                      "where table_name = 'ir_module_module'"
+                  )
+                  if cur.fetchone() is None:
+                      sys.exit(
+                          "FAIL %s is reachable but has no Odoo schema "
+                          "(table ir_module_module is missing). Restore the "
+                          "production dump before deploying." % target
+                      )
+                  cur.execute(
+                      "select count(*) from ir_module_module where state = 'installed'"
+                  )
+                  installed = cur.fetchone()[0]
+
+              conn.close()
+              print("OK %s reachable and initialised, %s installed modules" % (target, installed))
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

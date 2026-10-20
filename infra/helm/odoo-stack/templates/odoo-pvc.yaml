@@ -1,4 +1,4 @@
-{{- if .Values.odoo.enabled }}
+{{- if and .Values.odoo.enabled (not .Values.odoo.filestore.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -6,9 +6,19 @@ metadata:
   labels:
     {{- include "odoo-stack.labels" . | nindent 4 }}
     app.kubernetes.io/component: odoo
+  annotations:
+    # Filestore holds customer attachments: keep it when the release is
+    # uninstalled, and do not adopt it into the next release blindly.
+    helm.sh/resource-policy: keep
 spec:
   accessModes:
-    - ReadWriteOnce
+    # ReadWriteOnce is enough for one replica on a block volume (kind
+    # local-path, EBS gp3). Any replicaCount > 1 on a block volume deadlocks:
+    # an EBS volume attaches to a single node, so the second replica stays in
+    # ContainerCreating with "Multi-Attach error" forever and the rollout never
+    # completes. Multi-replica production must set ReadWriteMany on a shared
+    # filesystem (EFS).
+    - {{ .Values.odoo.filestore.accessMode | default "ReadWriteOnce" }}
   {{- if .Values.odoo.filestore.storageClassName }}
   storageClassName: {{ .Values.odoo.filestore.storageClassName | quote }}
   {{- end }}

@@ -36,6 +36,39 @@ jobs:
         working-directory: infra/terraform
 
   # ==========================================================================
+  # Helm: lint + render every value set, and assert the deploy invariants
+  #
+  # Runs on every PR because the failures it catches are invisible to
+  # `helm lint` alone and only surface in-cluster, as a release that never
+  # becomes ready and then reports nothing but "context deadline exceeded":
+  #   - a Deployment with no explicit --workers (Odoo then sizes its worker
+  #     pool from the node's core count and gets OOM-killed),
+  #   - more replicas than the filestore access mode can serve,
+  #   - a missing fsGroup, an EKS PVC with no StorageClass,
+  #   - a deploy workflow that reintroduces `helm --atomic` (which deletes the
+  #     logs that explain the failure) or renders to a path the preflight step
+  #     does not read.
+  # ==========================================================================
+  helm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+        with:
+          version: v3.16.4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Lint and render the chart for every environment
+        run: python3 infra/k8s/verify_chart_and_workflow.py
+
+  # ==========================================================================
   # Observability: validate Prometheus + Alertmanager + Grafana configs
   # ==========================================================================
   observability:
