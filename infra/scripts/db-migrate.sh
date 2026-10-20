@@ -32,7 +32,7 @@ RDS_DB="${RDS_DB:-odoo}"
 RDS_USER="${RDS_USER:-odoo_admin}"
 RDS_PASSWORD="${RDS_PASSWORD:-}"
 RDS_SECRET_NAME="${RDS_SECRET_NAME:-odoo-invoice-agent-production/rds/master-password}"
-RDS_SECRET_REGION="${RDS_SECRET_REGION:-eu-west-1}"
+RDS_SECRET_REGION="${RDS_SECRET_REGION:-eu-north-1}"
 
 # Read RDS password from Secrets Manager if not provided via env
 if [[ -z "$RDS_PASSWORD" ]]; then

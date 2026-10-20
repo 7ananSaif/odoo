@@ -98,7 +98,7 @@ Rules applied:
 | `RDS_USER` | `odoo_admin` | ConfigMap |
 | `RDS_PASSWORD` | *(empty)* | **Secret** (recommend **Managed** — lives in Secrets Manager) |
 | `RDS_SECRET_NAME` | `odoo-invoice-agent-production/rds/master-password` | ConfigMap (the *name* is not sensitive) |
-| `RDS_SECRET_REGION` | `eu-west-1` | ConfigMap |
+| `RDS_SECRET_REGION` | `eu-north-1` | ConfigMap |
 
 ### Locust load testing (invoice-ai/locustfile.py)
 
@@ -168,7 +168,7 @@ data:
   RDS_DB: "odoo"
   RDS_USER: "odoo_admin"
   RDS_SECRET_NAME: "odoo-invoice-agent-production/rds/master-password"
-  RDS_SECRET_REGION: "eu-west-1"
+  RDS_SECRET_REGION: "eu-north-1"
   LOCUST_INVOICE_AI_URL: "http://localhost:8100"
   LOCUST_ODOO_URL: "http://localhost:8069"
   LOCUST_PDF_DIR: "invoice-ai/tests/fixtures"
@@ -212,7 +212,7 @@ Recommendation for prod — put these in **AWS Secrets Manager** (or SSM Paramet
 - `RDS_PASSWORD` (and Odoo's `ODOO_DB_PASSWORD`/`POSTGRES_PASSWORD` if RDS is the DB)
 - `LOCUST_ODOO_PASSWORD` (only if load-testing against prod)
 
-The `RDS_SECRET_NAME` + `RDS_SECRET_REGION` already hint at this: `odoo-invoice-agent-production/rds/master-password` in `eu-west-1`.
+The `RDS_SECRET_NAME` + `RDS_SECRET_REGION` already hint at this: `odoo-invoice-agent-production/rds/master-password` in `eu-north-1`.
 
 ---
 

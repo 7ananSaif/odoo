@@ -25,7 +25,7 @@ postgres:
 odoo:
   replicaCount: 3
   image:
-    repository: <account>.dkr.ecr.eu-west-1.amazonaws.com/odoo # <- ECR repo
+    repository: <account>.dkr.ecr.eu-north-1.amazonaws.com/odoo # <- ECR repo
     tag: prod-<sha> # <- built image tag
     pullPolicy: IfNotPresent
   resources:
@@ -61,7 +61,7 @@ odoo:
 
 # DB host is the RDS endpoint, not the in-cluster service.
 config:
-  odooDbHost: <rds-endpoint>.eu-west-1.rds.amazonaws.com # <- terraform output rds_hostname
+  odooDbHost: <rds-endpoint>.eu-north-1.rds.amazonaws.com # <- terraform output rds_hostname
   odooDbPort: "5432"
   odooDbUser: odoo
 

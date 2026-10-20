@@ -18,7 +18,7 @@ AWS keys stored as secrets).
 eksctl create cluster -f infra/eks/cluster.yaml
 
 # Point kubectl at the cluster
-aws eks update-kubeconfig --name odoo-eks --region eu-west-1
+aws eks update-kubeconfig --name odoo-eks --region eu-north-1
 
 # Install the AWS Load Balancer Controller (ALB support)
 #   see infra/eks/aws-load-balancer-controller.md
@@ -28,7 +28,7 @@ helm repo add external-secrets https://charts.external-secrets.io
 helm repo update
 helm install external-secrets external-secrets/external-secrets -n external-secrets --create-namespace
 #   create an ExternalSecret for odoo-secrets pointing at
-#   arn:aws:secretsmanager:eu-west-1:${ACCOUNT}:secret:odoo-invoice-agent-production/*
+#   arn:aws:secretsmanager:eu-north-1:${ACCOUNT}:secret:odoo-invoice-agent-production/*
 ```
 
 ---
@@ -40,7 +40,7 @@ helm install external-secrets external-secrets/external-secrets -n external-secr
 1. **CI** (reused) — lint/test/build.
 2. **Configure AWS credentials via OIDC** — `configure-aws-credentials` with
    `role-to-assume: arn:aws:iam::${ACCOUNT}:role/<github-oidc-deploy-role>` and
-   `aws-region: eu-west-1`. The OIDC provider trusts the GitHub repo+environment.
+   `aws-region: eu-north-1`. The OIDC provider trusts the GitHub repo+environment.
 3. **Update kubeconfig** — `aws eks update-kubeconfig --name odoo-eks`.
 4. **Chart gate** — `helm lint` and `helm template` the chart with the prod values
    *before* the release is touched, so a broken template fails in seconds instead
@@ -89,7 +89,7 @@ helm install external-secrets external-secrets/external-secrets -n external-secr
 | Secret | `DOMAIN` | public hostname the smoke test checks |
 | Secret | `ODOO_DB_HOST` | RDS endpoint, injected as `config.odooDbHost` (optional if it is filled into the values file) |
 | Secret | `DOCKERHUB_USERNAME` / `DOCKERHUB_TOKEN` | registry auth when images come from Docker Hub |
-| Variable | `ODOO_IMAGE_REPOSITORY` | image repository to deploy, e.g. `<account>.dkr.ecr.eu-west-1.amazonaws.com/odoo` |
+| Variable | `ODOO_IMAGE_REPOSITORY` | image repository to deploy, e.g. `<account>.dkr.ecr.eu-north-1.amazonaws.com/odoo` |
 
 The first step of the job fails with an actionable message if a required one is
 missing, and warns about any `<placeholder>` left in `values.production.yaml`.
@@ -121,7 +121,7 @@ the maintenance window.
 - [ ] RDS is reachable from the EKS node group (security group / NACL allow
       `5432` from the app subnets `10.20.10.0/24`, `10.20.11.0/24`).
 - [ ] ElastiCache Redis reachable from EKS on `6379` (same subnets).
-- [ ] The `odoo` ECR image is built & pushed (`<account>.dkr.ecr.eu-west-1.amazonaws.com/odoo:prod-<sha>`).
+- [ ] The `odoo` ECR image is built & pushed (`<account>.dkr.ecr.eu-north-1.amazonaws.com/odoo:prod-<sha>`).
 - [ ] AWS Secrets Manager holds the RDS password + Odoo admin password
       (already present: `.../rds/master-password`, `.../db_odoo_user`).
 - [ ] An `ExternalSecret` is created in-cluster to sync those into the
@@ -145,7 +145,7 @@ the maintenance window.
    - `config.odooDbHost: <rds-endpoint>` (from `terraform output rds_hostname`)
    - `config.odooDbPort: "5432"`
    - `secret.existingSecret: true` (ExternalSecrets populates it)
-   - `odoo.image.repository: <account>.dkr.ecr.eu-west-1.amazonaws.com/odoo`
+   - `odoo.image.repository: <account>.dkr.ecr.eu-north-1.amazonaws.com/odoo`
    - add `service` annotation for the ALB (see `aws-load-balancer-controller.md`).
 5. **Deploy** — run the workflow (the `helm upgrade --install` above).
 6. **Smoke test** — `scripts/smoke-test-eks.sh <domain>`: TLS handshake,
