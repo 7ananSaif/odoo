@@ -127,15 +127,13 @@ spec:
             failureThreshold: {{ .Values.odoo.probes.readiness.failureThreshold }}
             successThreshold: {{ .Values.odoo.probes.readiness.successThreshold }}
           # --- liveness: "is this process wedged?" ---------------------------
-          # tcpSocket, for the same reason as startup and one more: even the
-          # "plain" /web/health route is 500 while the configured database has
-          # no registry, so an httpGet here would restart every pod of a
-          # correctly-running deployment the moment its database is empty,
-          # unreachable, or being restored. Liveness judges the PROCESS; a
-          # database problem is readiness's business.
+          # The plain route checks that the WSGI process can reply without
+          # checking the database. Database availability belongs to readiness.
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /web/health
               port: http
+              scheme: HTTP
             periodSeconds: {{ .Values.odoo.probes.liveness.periodSeconds }}
             timeoutSeconds: {{ .Values.odoo.probes.liveness.timeoutSeconds }}
             failureThreshold: {{ .Values.odoo.probes.liveness.failureThreshold }}
