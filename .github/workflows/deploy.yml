@@ -10,10 +10,21 @@ name: Deploy — EKS Production
 #   3. Chart gate         helm lint + helm template before anything touches prod
 #   4. Image resolve      pick the exact image this commit built and wait for it
 #   5. OIDC → AWS         short-lived IAM role, no long-lived AWS keys
-#   6. helm upgrade       --install --atomic with the production values file
-#   7. Rollout assert     kubectl rollout status on the rendered Deployment
-#   8. Smoke test         public HTTPS surface (scripts/smoke-test-eks.sh)
-#   9. Auto rollback      helm rollback to the previous revision, 5-minute bar
+#   6. Preflight          Secret, StorageClass and the database itself
+#   7. helm upgrade       --install --wait with the production values file
+#   8. Diagnostics        pods/events/logs dumped if the release did not converge
+#   9. Rollout assert     kubectl rollout status on the rendered Deployment
+#  10. Smoke test         public HTTPS surface (scripts/smoke-test-eks.sh)
+#  11. Rollback           previous revision, or uninstall a failed first install
+#
+# The upgrade deliberately does NOT use `--atomic`. Atomic uninstalls the
+# release the moment the wait budget expires, which also deletes the pods, the
+# events and the container logs - the only evidence of *why* it never became
+# ready. A brand-new production release then fails with the single line
+# "release odoo failed, and has been uninstalled due to atomic being set:
+# context deadline exceeded" and nothing else. The same guarantee is provided
+# explicitly below: dump diagnostics first, then roll back to the previous
+# revision (or uninstall, if this run created the release).
 #
 # Nothing here SSHes anywhere and nothing runs `docker compose`.
 
@@ -42,6 +53,10 @@ env:
     # How long to wait for the image this commit built to appear in the
     # registry (the image build runs as its own workflow, in parallel).
     IMAGE_WAIT_SECONDS: "900"
+    # Budget for `helm upgrade --wait`. Must exceed the chart's startup probe
+    # budget (5s x 60 = 300s) plus the image pull on a cold node plus the EFS
+    # mount. 12m leaves headroom without turning a broken deploy into a stall.
+    HELM_TIMEOUT: 12m
 
 jobs:
     ci:
@@ -99,6 +114,20 @@ jobs:
                       missing=1
                   fi
 
+                  # production runs with postgres.enabled: false (RDS is the
+                  # database), so there is no in-cluster Service to fall back to.
+                  # An empty ODOO_DB_HOST leaves the chart pointing at
+                  # "<release>-odoo-stack-postgres", which production never
+                  # deploys: Odoo then fails its DB-aware readiness probe
+                  # forever and the deploy dies with "context deadline exceeded"
+                  # and no indication that the host was the problem.
+                  if [ -z "$DB_HOST" ]; then
+                      echo "::error::secrets.ODOO_DB_HOST is not set for the 'production' environment."
+                      echo "::error::It is the RDS endpoint (terraform output rds_hostname)."
+                      echo "::error::Without it the chart falls back to an in-cluster Postgres Service that production does not deploy."
+                      missing=1
+                  fi
+
                   # The image reference must come from somewhere explicit. In
                   # order of preference: a repo variable (ECR/other registry),
                   # then the Docker Hub account the build workflow pushes to.
@@ -115,12 +144,12 @@ jobs:
                   # refuse here instead of shipping a broken release.
                   if grep -qE '<[a-z0-9-]+>' "$VALUES_FILE"; then
                       placeholders=$(grep -oE '<[a-z0-9-]+>' "$VALUES_FILE" | sort -u | tr '\n' ' ')
-                      echo "::warning::$VALUES_FILE still contains placeholders:$placeholders"
+                      echo "::warning::$VALUES_FILE still contains placeholders: $placeholders"
                       echo "::warning::They must be overridden by this workflow (image repository, DB host) or filled in by hand."
                   fi
 
                   [ "$missing" -eq 0 ] || exit 1
-                  echo "Deploy role, domain, image registry, AWS region, and EKS cluster are configured."
+                  echo "Deploy role, domain, image registry, AWS region, EKS cluster and DB host are configured."
 
             # ------------------------------------------------------------------
             # Resolve the exact image this commit built.
@@ -153,9 +182,9 @@ jobs:
             # ------------------------------------------------------------------
             # Chart gate — lint and render BEFORE touching production.
             #
-            # helm upgrade --atomic would also fail on a broken template, but by
-            # then the release is already being mutated. Catching it here keeps
-            # the failure cheap and the message readable.
+            # helm upgrade would also fail on a broken template, but by then the
+            # release is already being mutated (or the namespace created).
+            # Catching it here keeps the failure cheap and the message readable.
             # ------------------------------------------------------------------
             - name: Set up Helm
               uses: azure/setup-helm@v4
@@ -166,14 +195,19 @@ jobs:
               run: helm lint "$CHART" -f "$VALUES_FILE"
 
             - name: helm template (render check)
+              env:
+                  # Rendered with the real DB host, so the preflight step below
+                  # inspects exactly the manifest this deploy will apply.
+                  DB_HOST: ${{ secrets.ODOO_DB_HOST }}
               run: |
                   set -euo pipefail
                   helm template "$RELEASE" "$CHART" -f "$VALUES_FILE" \
                     --set odoo.image.repository="${{ steps.image.outputs.repo }}" \
                     --set odoo.image.tag="${{ steps.image.outputs.tag }}" \
-                    > /tmp/rendered.yaml
-                  echo "Rendered $(grep -c '^kind:' /tmp/rendered.yaml) objects:"
-                  grep '^kind:' /tmp/rendered.yaml | sort | uniq -c
+                    --set-string "config.odooDbHost=$DB_HOST" \
+                    > rendered.yaml
+                  echo "Rendered $(grep -c '^kind:' rendered.yaml) objects:"
+                  grep '^kind:' rendered.yaml | sort | uniq -c
 
             # ------------------------------------------------------------------
             # OIDC → AWS. The role's trust policy allows this repo + environment
@@ -210,10 +244,10 @@ jobs:
                         | docker login --username "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
                   fi
 
-                  deadline=$(($(date +%s) + IMAGE_WAIT_SECONDS ))
+                  deadline=$(( $(date +%s) + IMAGE_WAIT_SECONDS ))
                   until docker manifest inspect "$IMAGE_REF" >/dev/null 2>&1; do
-                      if [ "$(date +\%s)" -ge "$deadline" ]; then
-                          echo "::error::Image $IMAGE_REF did not appear within${IMAGE_WAIT_SECONDS}s."
+                      if [ "$(date +%s)" -ge "$deadline" ]; then
+                          echo "::error::Image $IMAGE_REF did not appear within ${IMAGE_WAIT_SECONDS}s."
                           echo "::error::Check the docker-push.yml run for this commit: $GITHUB_SHA"
                           exit 1
                       fi
@@ -221,6 +255,107 @@ jobs:
                       sleep 15
                   done
                   echo "Image is available: $IMAGE_REF"
+
+            # ------------------------------------------------------------------
+            # Cluster prerequisites that helm cannot verify, because the chart
+            # references them instead of creating them.
+            #
+            # Every value below is read out of rendered.yaml - the exact manifest
+            # about to be applied - so these checks cannot drift from the chart.
+            # ------------------------------------------------------------------
+            - name: Check cluster prerequisites
+              run: |
+                  set -euo pipefail
+                  kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml \
+                    | kubectl apply -f -
+
+                  SECRET=$(awk '/secretKeyRef:/{f=1} f && /name:/{print $2; exit}' rendered.yaml)
+                  KEY=$(awk '/secretKeyRef:/{f=1} f && /key:/{print $2; exit}' rendered.yaml)
+                  DB_PORT=$(grep -m1 '^  ODOO_DB_PORT:' rendered.yaml | sed -E 's/.*"([^"]*)".*/\1/')
+                  DB_USER=$(grep -m1 '^  ODOO_DB_USER:' rendered.yaml | sed -E 's/.*"([^"]*)".*/\1/')
+                  DB_NAME=$(grep -m1 -oE '\-\-database=[A-Za-z0-9_]+' rendered.yaml | head -1 | cut -d= -f2)
+                  STORAGE_CLASS=$(grep -m1 '^  storageClassName:' rendered.yaml \
+                    | sed -E 's/^[^:]*: *"?([^"]*)"?$/\1/')
+
+                  echo "DB target: $DB_USER@$DB_HOST:$DB_PORT/$DB_NAME"
+                  echo "DB Secret: $SECRET (key $KEY)"
+                  echo "Filestore StorageClass: ${STORAGE_CLASS:-cluster-default}"
+
+                  if [ -z "$SECRET" ] || [ -z "$KEY" ]; then
+                      echo "::error::Could not read the DB Secret reference from the rendered manifest."
+                      exit 1
+                  fi
+                  {
+                      echo "DB_SECRET_NAME=$SECRET"
+                      echo "DB_SECRET_KEY=$KEY"
+                      echo "DB_PORT=${DB_PORT:-5432}"
+                      echo "DB_USER=${DB_USER:-odoo}"
+                      echo "DB_NAME=${DB_NAME:-odoo}"
+                  } >> "$GITHUB_ENV"
+
+                  # A missing Secret never fails at template time: it makes every
+                  # pod stick in CreateContainerConfigError until the wait budget
+                  # expires - the "context deadline exceeded" that used to be the
+                  # only information this pipeline produced.
+                  if ! kubectl get secret "$SECRET" -n "$NAMESPACE" 2>/dev/null 1>&2; then
+                      echo "::error::Secret $SECRET does not exist in namespace $NAMESPACE."
+                      echo "::error::External Secrets should create it (ExternalSecret to Secret). Current state:"
+                      kubectl get externalsecret -n "$NAMESPACE" || true
+                      kubectl get secret -n "$NAMESPACE" || true
+                      exit 1
+                  fi
+                  if [ -z "$(kubectl get secret "$SECRET" -n "$NAMESPACE" \
+                      -o jsonpath="{.data.$KEY}")" ]; then
+                      echo "::error::Secret $SECRET exists but has no non-empty $KEY key."
+                      kubectl get secret "$SECRET" -n "$NAMESPACE" -o jsonpath='{.data}' \
+                        | python3 -c 'import json,sys; print("keys:", sorted(json.load(sys.stdin)))' || true
+                      exit 1
+                  fi
+                  echo "Secret $SECRET has a non-empty $KEY."
+
+                  # An unbound PVC means the pod never schedules, and the only
+                  # symptom after twelve minutes is the wait timeout.
+                  if [ -n "$STORAGE_CLASS" ] && ! kubectl get storageclass "$STORAGE_CLASS" 2>/dev/null 1>&2; then
+                      echo "::error::StorageClass $STORAGE_CLASS (referenced by the filestore PVC) does not exist."
+                      echo "::error::Install the aws-efs-csi-driver addon and create that class from an EFS filesystem"
+                      echo "::error::in the node VPC, or point odoo.filestore.storageClassName at a class the cluster has."
+                      kubectl get storageclass || true
+                      exit 1
+                  fi
+                  echo "Cluster prerequisites OK."
+
+            # ------------------------------------------------------------------
+            # Prove the database is reachable and initialised, from inside the
+            # cluster, before the release is touched.
+            #
+            # Odoo's readiness probe only proves the DB *port* answers: it dials
+            # the "postgres" maintenance database, which RDS always ships, so it
+            # says nothing about the "odoo" database existing or carrying a
+            # schema. Both failures still surface as "pods never ready" twelve
+            # minutes later. This Job walks the same Secret, endpoint and
+            # security-group path Odoo will use and answers in about 30 seconds.
+            # ------------------------------------------------------------------
+            - name: Preflight database check
+              env:
+                  IMAGE_REF: ${{ steps.image.outputs.ref }}
+                  DB_HOST: ${{ secrets.ODOO_DB_HOST }}
+                  JOB_NAME: odoo-db-preflight-${{ github.run_id }}
+              run: |
+                  set -euo pipefail
+                  command -v envsubst 2>/dev/null 1>&2 \
+                    || { echo "::error::envsubst is missing (package gettext)."; exit 1; }
+
+                  kubectl delete job "$JOB_NAME" -n "$NAMESPACE" --ignore-not-found
+                  envsubst < infra/k8s/odoo-db-preflight-job.yaml | kubectl apply -f -
+
+                  if ! kubectl wait --for=condition=complete "job/$JOB_NAME" \
+                      -n "$NAMESPACE" --timeout=180s; then
+                      echo "::error::The database preflight did not complete. Its log says why:"
+                      kubectl logs "job/$JOB_NAME" -n "$NAMESPACE" || true
+                      kubectl describe "job/$JOB_NAME" -n "$NAMESPACE" || true
+                      exit 1
+                  fi
+                  kubectl logs "job/$JOB_NAME" -n "$NAMESPACE"
 
             # ------------------------------------------------------------------
             # Record the current revision so a failed smoke test can roll back.
@@ -234,15 +369,15 @@ jobs:
               id: revision
               run: |
                   set -euo pipefail
+                  # Pick the newest revision that is DEPLOYED, not simply the
+                  # newest one. After a failed upgrade the newest revision has
+                  # status "failed" (or "uninstalled" after the revert below), and
+                  # rolling back to it would re-apply the chart that just failed.
                   PREV=0
                   if helm history "$RELEASE" -n "$NAMESPACE" >/dev/null 2>&1; then
-                      # Column 1 is REVISION. Data rows only: skip the header.
-                      revisions=$(helm history "$RELEASE" -n "$NAMESPACE" --max 2 \
-                          | awk 'NR>1 {print $1}')
-                      count=$(printf '\%s\n' "$revisions" | grep -c . || true)
-                      if [ "$count" -ge 2 ]; then
-                          PREV=$(printf '\%s\n' "$revisions" | sed -n '1p')
-                      fi
+                      PREV=$(helm history "$RELEASE" -n "$NAMESPACE" -o json \
+                        | python3 -c 'import json,sys; r=[x for x in json.load(sys.stdin) if x.get("status") == "deployed"]; print(r[-1]["revision"] if r else 0)' \
+                        2>/dev/null || echo 0)
                   fi
                   case "$PREV" in
                       ''|*[!0-9]*) PREV=0 ;;
@@ -257,12 +392,15 @@ jobs:
             # ------------------------------------------------------------------
             # THE DEPLOY — one helm upgrade --install.
             #
-            # --atomic: roll the release back automatically if the chart fails to
-            # apply or the new pods never become ready, so production is never
-            # left half-updated. --timeout must exceed the readiness budget of
-            # the chart's startup probes (300s) plus image pull on a cold node.
+            # No --atomic: see the header. --wait blocks until every object in
+            # the release reports ready and honours --timeout, so a broken
+            # release is detected at the same moment --atomic would have detected
+            # it. The difference is what happens next: the pods survive long
+            # enough for the diagnostics step below to explain the failure, and
+            # the revert step then restores the previous state.
             # ------------------------------------------------------------------
             - name: helm upgrade --install
+              id: release
               env:
                   DB_HOST: ${{ secrets.ODOO_DB_HOST }}
               run: |
@@ -281,11 +419,90 @@ jobs:
                     -f "$VALUES_FILE" \
                     -n "$NAMESPACE" --create-namespace \
                     "${SET_ARGS[@]}" \
-                    --atomic --timeout 10m
+                    --description "deploy ${GITHUB_SHA}" \
+                    --wait --timeout "$HELM_TIMEOUT"
 
             # ------------------------------------------------------------------
-            # In-cluster assertion that the rollout completed. --atomic already
-            # waits for readiness; this is a cheap explicit check.
+            # WHY THE RELEASE DID NOT CONVERGE.
+            #
+            # Everything --atomic would have deleted, printed while it still
+            # exists: pod phases and restart counts, container states (image
+            # pull errors, OOMKilled, CreateContainerConfigError from a missing
+            # Secret), scheduler events (unschedulable PVC, insufficient
+            # memory), and the last logs of each Odoo container.
+            # ------------------------------------------------------------------
+            - name: Collect failure diagnostics
+              if: failure()
+              run: |
+                  {
+                    echo "### helm status"
+                    helm status "$RELEASE" -n "$NAMESPACE" || true
+                    echo "### helm history"
+                    helm history "$RELEASE" -n "$NAMESPACE" --max 5 || true
+                    echo "### pods"
+                    kubectl get pods -n "$NAMESPACE" -o wide || true
+                    echo "### persistent volume claims"
+                    kubectl get pvc -n "$NAMESPACE" || true
+                    echo "### storage classes"
+                    kubectl get storageclass || true
+                    echo "### events (oldest first)"
+                    kubectl get events -n "$NAMESPACE" --sort-by=.lastTimestamp || true
+                    echo "### deployment"
+                    kubectl describe deployment -n "$NAMESPACE" \
+                      -l "app.kubernetes.io/instance=$RELEASE" || true
+                    echo "### pod details"
+                    kubectl describe pods -n "$NAMESPACE" \
+                      -l "app.kubernetes.io/instance=$RELEASE" || true
+                    echo "### odoo logs (current container)"
+                    kubectl logs -n "$NAMESPACE" \
+                      -l "app.kubernetes.io/instance=$RELEASE,app.kubernetes.io/component=odoo" \
+                      --all-containers --tail=300 --prefix || true
+                    echo "### odoo logs (previous container: crash loop or OOMKill)"
+                    kubectl logs -n "$NAMESPACE" \
+                      -l "app.kubernetes.io/instance=$RELEASE,app.kubernetes.io/component=odoo" \
+                      --all-containers --tail=300 --prefix --previous || true
+                  } 2>&1 | tee deploy-diagnostics.txt
+
+            - name: Upload failure diagnostics
+              if: failure()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: deploy-diagnostics
+                  path: deploy-diagnostics.txt
+                  retention-days: 14
+                  if-no-files-found: ignore
+
+            # ------------------------------------------------------------------
+            # Keep production consistent when the wait expired.
+            #
+            # Two situations, two actions:
+            #   * a previous revision exists -> roll back to it. It is known
+            #     good: it was serving traffic before this run started.
+            #   * nothing to roll back to (this run created the release) ->
+            #     uninstall, leaving the cluster exactly as it was found.
+            #
+            # The filestore PVC carries helm.sh/resource-policy: keep, so the
+            # attachments survive that uninstall.
+            # ------------------------------------------------------------------
+            - name: Revert the failed release
+              if: ${{ failure() && steps.release.outcome == 'failure' }}
+              run: |
+                  set -euo pipefail
+                  PREV="${{ steps.revision.outputs.prev }}"
+                  if [ -n "$PREV" ] && [ "$PREV" != "0" ]; then
+                      echo "Deploy failed — rolling back to revision $PREV"
+                      helm rollback "$RELEASE" "$PREV" -n "$NAMESPACE" --timeout 5m
+                      echo "Rolled back to revision $PREV."
+                  else
+                      echo "Deploy failed and no previous revision exists — uninstalling the failed release."
+                      helm uninstall "$RELEASE" -n "$NAMESPACE" || true
+                  fi
+
+            # ------------------------------------------------------------------
+            # In-cluster assertion that the rollout completed. --wait already
+            # blocked until the Deployment reported ready; this re-checks it
+            # against the API server and fails loudly if it regressed between
+            # the two calls.
             #
             # The Deployment name is NOT `${RELEASE}-odoo`: odoo-stack.fullname
             # in templates/_helpers.tpl only collapses to the release name when
@@ -338,7 +555,7 @@ jobs:
               if: ${{ always() && steps.smoke.outcome == 'failure' }}
               run: |
                   PREV="${{ steps.revision.outputs.prev }}"
-                  if [ -z "$PREV" ] \vert{}\vert{} [ "$PREV" = "0" ]; then
+                  if [ -z "$PREV" ] || [ "$PREV" = "0" ]; then
                       echo "::error::Smoke test failed and there is no previous revision to roll back to — manual intervention required."
                       echo "::error::See infra/runbook.md §3 'Rollback' for the manual procedure."
                       exit 1

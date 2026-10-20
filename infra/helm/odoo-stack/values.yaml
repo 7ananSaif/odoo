@@ -78,12 +78,55 @@ odoo:
   # every probe fails forever. On a fresh, empty Postgres the schema still has
   # to be initialized once - see "First boot" in the README.
   dbName: odoo
+  # --- worker pool ----------------------------------------------------------
+  # ALWAYS set --workers explicitly. Left unset, Odoo derives the worker count
+  # from multiprocessing.cpu_count(), which reports the NODE's cores, not this
+  # container's CPU limit. On a 16 vCPU EKS node that is 2*16+1 = 33 workers,
+  # each with its own memory arenas: far past the 8Gi limit, so every process
+  # is OOMKilled in turn and the pod never reaches ready - which is exactly how
+  # a helm --atomic install burns its 10m timeout and uninstalls itself.
+  # 4 workers per replica is the sizing used by the compose deployment that
+  # this chart replaces (one HTTP server + 4 workers behind it).
+  workers: 4
+  # Cron must not run in every replica: N replicas x M cron threads means N x M
+  # competing schedulers all trying to claim the same ir.cron rows. One cron
+  # thread per replica is harmless; set to 0 on all but a single replica when
+  # running multi-replica production.
+  maxCronThreads: 0
+  # Cap the ORM connection pool per replica so 3 replicas x many workers cannot
+  # exhaust an RDS instance's max_connections.
+  dbMaxconn: 16
+  # Trust X-Forwarded-* from the ingress/load balancer in front of the Service.
+  proxyMode: true
   # Any extra odoo CLI flags for the container.
   extraArgs: []
   # filestore / addons persistent volume
   filestore:
     size: 10Gi
+    # ReadWriteOnce for a single replica on a block volume (kind local-path,
+    # EBS gp3). Multi-replica REQUIRES ReadWriteMany on a shared filesystem
+    # (EFS): one RWO EBS volume can only attach to one node, so a second
+    # replica on another node never starts.
+    accessMode: ReadWriteOnce
     storageClassName: ""
+    # Set to an existing PVC to skip rendering one (e.g. an EFS claim managed
+    # by terraform instead of by this chart).
+    existingClaim: ""
+  # uid/gid of the `odoo` user in the official image. fsGroup makes the kubelet
+  # chgrp the mounted volume to this gid and grant group write, without which a
+  # fresh EBS/EFS volume is root:root 0755 and Odoo cannot create its filestore.
+  podSecurityContext:
+    fsGroup: 101
+    fsGroupChangePolicy: OnRootMismatch
+  # Postgres' uid/gid in the official postgres image.
+  containerSecurityContext: {}
+  # Spread replicas across nodes so a single node loss cannot take the whole
+  # web tier, and so each replica lands on a node that has room for it.
+  topologySpread:
+    enabled: true
+    maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
   # Resource requests/limits.
   # Source: docker-compose.yml `deploy.resources` for the `odoo` service
   #   reservations.memory 512M -> requests.memory 512Mi
@@ -97,14 +140,18 @@ odoo:
     limits:
       cpu: "2"
       memory: 2Gi
-  # Odoo probes. The paths are NOT interchangeable - /web/health answers 200
-  # as long as the WSGI process replies, and only the `db_server_status=true`
-  # variant also dials Postgres and returns 500 if it cannot connect
-  # (addons/web/controllers/home.py). Readiness must use the DB-aware form;
-  # liveness must NOT, or a database blip restarts every pod at once.
   probes:
     startup:
-      path: /web/health
+      # tcpSocket, NOT /web/health. This is not cosmetic: Odoo is started with
+      # --database=<dbName>, and while that database has no schema the request
+      # is dispatched through the registry, so /web/health answers 500 with
+      # "KeyError: 'ir.http'" instead of 200. Verified on a live cluster:
+      #   GET /web/health HTTP/1.1" 500 - ... KeyError: 'ir.http'
+      # An httpGet startup probe therefore never passes on a fresh database,
+      # its 300s budget expires, and the container restarts forever - which is
+      # one more way to produce "context deadline exceeded" with no useful
+      # message. A startup probe should only ask "is the process listening?".
+      port: http
       periodSeconds: 5
       timeoutSeconds: 3
       # 5s x 60 = 300s budget for the first boot (module install/upgrade).
@@ -125,7 +172,11 @@ odoo:
       failureThreshold: 2
       successThreshold: 1
     liveness:
-      path: /web/health
+      # tcpSocket for the same reason as startup: /web/health is 500 while the
+      # configured database has no registry, and liveness must judge the
+      # PROCESS, not the database. A DB problem is readiness's business; making
+      # liveness depend on it converts a missing schema into a crash loop.
+      port: http
       periodSeconds: 15
       timeoutSeconds: 5
       failureThreshold: 3

@@ -1,5 +1,6 @@
 {{- if .Values.odoo.enabled }}
 {{- $secretName := ternary .Values.secret.name (printf "%s-secret" (include "odoo-stack.fullname" .)) .Values.secret.existingSecret }}
+{{- $claimName := default (printf "%s-filestore" (include "odoo-stack.fullname" .)) .Values.odoo.filestore.existingClaim }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -25,6 +26,14 @@ spec:
         {{- include "odoo-stack.odooSelectorLabels" . | nindent 8 }}
     spec:
       terminationGracePeriodSeconds: {{ .Values.odoo.terminationGracePeriodSeconds }}
+      {{- with .Values.odoo.podSecurityContext }}
+      # fsGroup matters on a fresh volume: an EBS/EFS mount arrives as
+      # root:root 0755, and the image runs as the unprivileged `odoo` user
+      # (uid 100/gid 101). Without this the process cannot create
+      # /var/lib/odoo/filestore and dies during boot.
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: odoo
           image: "{{ .Values.odoo.image.repository }}:{{ .Values.odoo.image.tag }}"
@@ -32,9 +41,23 @@ spec:
           # args, never `command`: `command` would replace the image's
           # docker-entrypoint.sh, which is what turns HOST/PORT/USER/PASSWORD
           # into --db_* flags. These args are appended to that entrypoint.
+          #
+          # --workers is NOT optional. Unset, Odoo sizes its worker pool from
+          # multiprocessing.cpu_count(), which reports the NODE's cores and
+          # ignores limits.cpu. A 16 vCPU node under an 8Gi limit therefore
+          # starts 33 workers, the cgroup OOM-kills them, the container
+          # restarts, and the pod never reports ready - taking the whole
+          # `helm --atomic` install down with "context deadline exceeded".
           args:
             - odoo
             - --database={{ .Values.odoo.dbName }}
+            - --http-port={{ .Values.odoo.port }}
+            - --workers={{ .Values.odoo.workers }}
+            - --max-cron-threads={{ .Values.odoo.maxCronThreads }}
+            - --db_maxconn={{ .Values.odoo.dbMaxconn }}
+            {{- if .Values.odoo.proxyMode }}
+            - --proxy-mode
+            {{- end }}
             {{- range .Values.odoo.extraArgs }}
             - {{ . | quote }}
             {{- end }}
@@ -62,6 +85,10 @@ spec:
             - name: {{ .name }}
               value: {{ .value | quote }}
             {{- end }}
+          {{- with .Values.odoo.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.odoo.resources }}
           resources:
             {{- toYaml . | nindent 12 }}
@@ -75,8 +102,7 @@ spec:
           # Plain /web/health: booting does not require the DB yet, and a
           # failure here should only ever mean "still starting".
           startupProbe:
-            httpGet:
-              path: {{ .Values.odoo.probes.startup.path | quote }}
+            tcpSocket:
               port: http
             periodSeconds: {{ .Values.odoo.probes.startup.periodSeconds }}
             timeoutSeconds: {{ .Values.odoo.probes.startup.timeoutSeconds }}
@@ -101,14 +127,13 @@ spec:
             failureThreshold: {{ .Values.odoo.probes.readiness.failureThreshold }}
             successThreshold: {{ .Values.odoo.probes.readiness.successThreshold }}
           # --- liveness: "is this process wedged?" ---------------------------
-          # Deliberately the PLAIN route, with no DB check: if the database has
-          # a brief outage, restarting every Odoo pod would turn a recoverable
-          # blip into a crash loop. Only a hung WSGI process fails this, and
-          # only that deserves a restart.
+          # The plain route checks that the WSGI process can reply without
+          # checking the database. Database availability belongs to readiness.
           livenessProbe:
             httpGet:
-              path: {{ .Values.odoo.probes.liveness.path | quote }}
+              path: /web/health
               port: http
+              scheme: HTTP
             periodSeconds: {{ .Values.odoo.probes.liveness.periodSeconds }}
             timeoutSeconds: {{ .Values.odoo.probes.liveness.timeoutSeconds }}
             failureThreshold: {{ .Values.odoo.probes.liveness.failureThreshold }}
@@ -123,9 +148,21 @@ spec:
       volumes:
         - name: filestore
           persistentVolumeClaim:
-            claimName: {{ include "odoo-stack.fullname" . }}-filestore
+            claimName: {{ $claimName }}
         {{- range .Values.odoo.extraVolumes }}
         - name: {{ .name }}
           {{- toYaml . | nindent 10 }}
         {{- end }}
+      {{- if .Values.odoo.topologySpread.enabled }}
+      # Spread the web tier across nodes. ScheduleAnyway keeps a 3-replica
+      # rollout schedulable on a small cluster instead of leaving one replica
+      # Pending forever, which would also stall `--atomic`.
+      topologySpreadConstraints:
+        - maxSkew: {{ .Values.odoo.topologySpread.maxSkew }}
+          topologyKey: {{ .Values.odoo.topologySpread.topologyKey }}
+          whenUnsatisfiable: {{ .Values.odoo.topologySpread.whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "odoo-stack.odooSelectorLabels" . | nindent 14 }}
+      {{- end }}
 {{- end }}
