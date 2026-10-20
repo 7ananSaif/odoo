@@ -40,6 +40,59 @@ odoo-stack/
 
 Secrets are never committed: in staging/prod `secret.existingSecret: true` tells the chart to reference an out-of-band Secret (created via AWS Secrets Manager / External Secrets Operator) instead of rendering one.
 
+## Two values that decide whether a release ever becomes ready
+
+Both of these were added after a first production install failed with nothing but
+`release odoo failed, and has been uninstalled due to atomic being set: context deadline exceeded`.
+
+### 1. `odoo.workers` must be explicit
+
+Left unset, Odoo sizes its worker pool from `multiprocessing.cpu_count()`, which reports the
+**node's** core count and ignores `limits.cpu`. On a 16 vCPU EKS node that is `2n+1 = 33` workers
+under an 8Gi limit: the cgroup OOM-kills them one after another, the container restarts, and the pod
+never reports ready. The chart therefore always passes `--workers` (and `--max-cron-threads`,
+`--db_maxconn`, `--proxy-mode`) as explicit `args`.
+
+`maxCronThreads` is per replica. Odoo claims each cron job with a row lock
+(`ir.cron._acquire_one_job`), so `1` on three replicas does not run a job three times.
+
+### 2. The filestore must be shared by every replica
+
+`odoo.filestore.accessMode` defaults to `ReadWriteOnce`, which is correct for one replica on a block
+volume (kind `local-path`, EBS `gp3`). It is **wrong** for more than one:
+
+- An EBS volume attaches to a single node. A second replica scheduled elsewhere stays in
+  `ContainerCreating` with `Multi-Attach error` forever, so the rollout never completes and a
+  `--wait`/`--atomic` install expires.
+- The staging and production overlays therefore set `accessMode: ReadWriteMany` and
+  `storageClassName: efs-sc`. That requires the `aws-efs-csi-driver` addon and an `efs-sc`
+  StorageClass built from an EFS filesystem in the node VPC. Without it the PVC stays `Pending` and
+  the pods never schedule.
+
+`podSecurityContext.fsGroup: 101` is what makes the mount writable: both EBS and EFS deliver a
+`root:root` directory, and the image runs as the unprivileged `odoo` user (uid 100, gid 101).
+
+The filestore PVC carries `helm.sh/resource-policy: keep`, so attachments survive a failed-install
+uninstall or an explicit `helm uninstall`.
+
+## What the deploy pipeline guarantees around this chart
+
+`.github/workflows/deploy.yml` no longer uses `helm upgrade --atomic`: atomic uninstall deletes the
+pods, events and logs at the exact moment they are the only diagnostic. The equivalent guarantee is
+explicit:
+
+1. `helm lint` and `helm template` (output kept as `rendered.yaml`).
+2. **Cluster prerequisites** read from that rendered manifest: the referenced Secret exists and has a
+   non-empty `ODOO_DB_PASSWORD`, and the filestore StorageClass exists.
+3. **Database preflight** (`infra/k8s/odoo-db-preflight-job.yaml`): a one-shot Job using the same
+   image, Secret and network path as Odoo, which fails in ~30s if the `odoo` database is missing,
+   unreachable, or has no `ir_module_module` table. The chart's readiness probe cannot detect any of
+   those: it dials the `postgres` maintenance database, which RDS always ships.
+4. `helm upgrade --install --wait --timeout 12m`.
+5. On failure: full diagnostics (pods, PVCs, events, `describe`, current and previous container logs)
+   uploaded as an artifact, then rollback to the newest **deployed** revision, or uninstall if this
+   run created the release.
+
 ## Install / upgrade (on kind)
 
 ```
@@ -92,8 +145,11 @@ Two details that cost real time if you get them wrong:
 - The Deployment does exactly the same, which is why it sets `args:` for `--database` and never
   `command:` — overriding `command` would replace `docker-entrypoint.sh` and lose the DB flags.
 
-In production the database already exists and is initialized (RDS, carried over by the runbook), so
-this is a local-only step.
+In production the database is expected to exist and be initialized already (RDS, carried over by the
+runbook), so the manual step above is local-only. That expectation is now *checked* rather than
+assumed: the deploy pipeline runs `infra/k8s/odoo-db-preflight-job.yaml` before `helm upgrade`, and
+it fails in about 30 seconds — with a message naming the missing table — if the `odoo` database is
+absent, unreachable, or has no `ir_module_module`.
 
 ---
 
