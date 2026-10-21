@@ -11,7 +11,7 @@ The Kubernetes API server, etcd, scheduler, and controller-manager run inside
 the AWS-managed control plane. AWS fully operates it: HA across AZs, upgrades,
 and patching. You do not SSH into it, and it is billed separately from the
 worker nodes. It is reachable from your workstation via `kubectl` once you
-`aws eks update-kubeconfig --name odoo-eks --region eu-west-1`.
+`aws eks update-kubeconfig --name odoo-eks --region eu-north-1`.
 
 - **etcd** is encrypted at rest for every cluster — and on Kubernetes **1.28+**
   (this cluster is `1.30`) EKS additionally **envelope-encrypts all Kubernetes

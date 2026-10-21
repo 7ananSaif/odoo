@@ -73,10 +73,12 @@ odoo:
     pullPolicy: IfNotPresent
   replicaCount: 1
   port: 8069
-  # Odoo's --database target. This matters for the probes: /web/health answers
-  # 500 while no database is loaded, so the server must be pointed at one or
-  # every probe fails forever. On a fresh, empty Postgres the schema still has
-  # to be initialized once - see "First boot" in the README.
+  # Odoo's --database target: every request is served from this database. A
+  # fresh, empty Postgres still has to have its schema initialised once - see
+  # "First boot" in the README, and infra/k8s/odoo-db-preflight-job.yaml, which
+  # is what the deploy pipeline uses to prove the schema exists before helm runs.
+  # (Measured: the health routes return 200 even when this database does not
+  # exist, so no probe can be used as a schema check.)
   dbName: odoo
   # --- worker pool ----------------------------------------------------------
   # ALWAYS set --workers explicitly. Left unset, Odoo derives the worker count

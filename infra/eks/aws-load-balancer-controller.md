@@ -12,7 +12,7 @@ service account via the cluster OIDC provider.
 ## Prerequisites
 - The EKS cluster is up (`eksctl create cluster -f infra/eks/cluster.yaml`) with OIDC enabled (`iam.withOIDC: true`).
 - `kubectl` is pointed at the cluster:
-  `aws eks update-kubeconfig --name odoo-eks --region eu-west-1`
+  `aws eks update-kubeconfig --name odoo-eks --region eu-north-1`
 - `helm` installed.
 
 ## 1. Create the IAM policy for the controller
@@ -58,7 +58,7 @@ helm install aws-load-balancer-controller eks/aws-load-balancer-controller \
   --set clusterName=odoo-eks \
   --set serviceAccount.create=false \
   --set serviceAccount.name=aws-load-balancer-controller \
-  --set region=eu-west-1 \
+  --set region=eu-north-1 \
   --set vpcId=vpc-XXXXXXXXXXXXXXXX   # <- from terraform output vpc_id
 ```
 
