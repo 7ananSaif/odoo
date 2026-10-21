@@ -60,8 +60,12 @@ for env, extra in ENVS.items():
     readiness_cmd = "".join(container["readinessProbe"]["exec"]["command"])
     check("db_server_status=true" in readiness_cmd,
           env + ": readiness probe lost the db_server_status query")
-    check(container["livenessProbe"].get("httpGet") is not None,
-          env + ": liveness must stay the plain httpGet route")
+    check(container["startupProbe"].get("tcpSocket") is not None,
+          env + ": startup must be tcpSocket; /web/health 500s while the database has no schema")
+    check(container["livenessProbe"].get("tcpSocket") is not None,
+          env + ": liveness must be tcpSocket, or an empty database crash-loops every pod")
+    check(container["livenessProbe"].get("httpGet") is None,
+          env + ": liveness must not use /web/health, which depends on the database")
     check(pod_spec.get("securityContext", {}).get("fsGroup") == 101,
           env + ": pod fsGroup missing, filestore would be unwritable")
     if pvc is not None:
