@@ -9,7 +9,7 @@
 #   eksctl create cluster -f infra/eks/cluster.yaml
 #
 # Verify:
-#   eksctl get cluster --region eu-west-1
+#   eksctl get cluster --region eu-north-1
 #   kubectl get nodes
 #   aws eks describe-cluster --name odoo-eks --query 'cluster.identity.oidc.issuer' --output text
 # =============================================================================
@@ -18,7 +18,7 @@ kind: ClusterConfig
 
 metadata:
   name: odoo-eks
-  region: eu-west-1
+  region: eu-north-1
   version: "1.30"
 
 # IAM OIDC provider — required for IRSA (IAM roles for service accounts),
@@ -33,14 +33,14 @@ iam:
 vpc:
   subnets:
     private:
-      eu-west-1a:
+      eu-north-1a:
         id: subnet-APP_1A # <- terraform output app_subnet_ids[0]
-      eu-west-1b:
+      eu-north-1b:
         id: subnet-APP_1B # <- terraform output app_subnet_ids[1]
     public:
-      eu-west-1a:
+      eu-north-1a:
         id: subnet-PUB_1A # <- terraform output public_subnet_ids[0]
-      eu-west-1b:
+      eu-north-1b:
         id: subnet-PUB_1B # <- terraform output public_subnet_ids[1]
 
 managedNodeGroups:
@@ -51,8 +51,8 @@ managedNodeGroups:
     desiredCapacity: 2
     privateNetworking: true
     subnets:
-      - eu-west-1a
-      - eu-west-1b
+      - eu-north-1a
+      - eu-north-1b
     volumeSize: 100
     volumeType: gp3
     labels:

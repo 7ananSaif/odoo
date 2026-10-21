@@ -123,9 +123,9 @@ in-cluster Service to fall back to (production points it at the RDS endpoint).
 
 ### First boot on an empty database
 
-The container starts with `--database=<odoo.dbName>` because Odoo's `/web/health` answers **500 while
-no database is loaded** (the request needs a registry, and an empty server has none). A brand-new
-Postgres still has no Odoo schema, so initialize it **once**:
+The container starts with `--database=<odoo.dbName>`, so every request is served from that database and
+nothing else. A brand-new Postgres has no Odoo schema in it, and Odoo does not create one on startup,
+so initialize it **once**:
 
 ```
 kubectl -n <ns> run odoo-init --image=odoo:17.0 --restart=Never \
@@ -258,18 +258,36 @@ def health(self, db_server_status=False):
     ...
 ```
 
-- Plain `/web/health` returns **200 as long as the WSGI process replies** — it never touches the
-  database.
-- `/web/health?db_server_status=true` additionally opens a connection to the `postgres` maintenance
-  database and returns **500 when it cannot connect**.
+Two behaviours matter, and both were measured on a live kind cluster against this chart rather than
+assumed from the source:
 
-That asymmetry drives the whole design:
+- **The route is not database-free.** With `--database=<name>` pointing at a database whose registry
+  cannot be built (empty, dropped, mid-restore), `GET /web/health` answered **500**, and the container
+  log showed `KeyError: 'ir.http'` raised out of `_serve_db`: the request is still dispatched through
+  the registry. It answers 200 only when *no* database is selected at all.
+- **`?db_server_status=true` proves the Postgres *server* answers, not that the database exists.** It
+  opens a cursor on the `postgres` maintenance database. Pointed at a database name that does not
+  exist, it still returned **200** — as did plain `/web/health` and `/web/login`, the last of which
+  simply served the database-selector page.
+
+So neither form of the health route is a statement about the schema, and only *one* of the three
+probes may be allowed to depend on the database at all:
 
 | Probe | Kind | Check | Timings | Why |
 |---|---|---|---|---|
-| startup | httpGet | `/web/health` | period `5`, timeout `3`, failureThreshold `60` | 300 s budget for the first boot (module install/upgrade). Plain route: booting does not need the DB yet, and a failure here should only ever mean "still starting". |
-| readiness | **exec** | `python3` → `http://127.0.0.1:8069/web/health?db_server_status=true` | period `10`, timeout `5`, failureThreshold `2` | DB-aware. A pod that cannot reach Postgres cannot serve a login or any ORM request, so it is pulled out of the Service's endpoints and the healthy replicas take the traffic. |
-| liveness | httpGet | `/web/health` | period `15`, timeout `5`, failureThreshold `3` | **Deliberately no DB check.** If a brief database outage flipped readiness *and* liveness, every Odoo pod would be restarted at once and a recoverable blip would become a cluster-wide crash loop. Only a hung WSGI process fails this — and only that deserves a restart. |
+| startup | **tcpSocket** | port `http` (8069) | period `5`, timeout `3`, failureThreshold `60` | Answers "is the WSGI process listening?". 300 s budget covers a slow first boot. It must not be an HTTP check: on a database whose registry cannot be built, `/web/health` is 500, so an `httpGet` startup probe never succeeds, burns its budget and restarts the container forever. |
+| readiness | **exec** | `python3` → `http://127.0.0.1:8069/web/health?db_server_status=true` | period `10`, timeout `5`, failureThreshold `2` | DB-server-aware. A pod that cannot reach Postgres cannot serve a login or any ORM request, so it is pulled out of the Service's endpoints and the healthy replicas take the traffic. |
+| liveness | **tcpSocket** | port `http` (8069) | period `15`, timeout `5`, failureThreshold `3` | **Deliberately no DB check.** `/web/health` 500s while the configured database has no registry, so an `httpGet` here would restart every pod every ~45 s for as long as the database is empty, unreachable or being restored — turning a recoverable condition into a cluster-wide crash loop. |
+
+#### What readiness does *not* prove
+
+Readiness proves the process replies and that the Postgres **server** accepts a connection. It does
+not prove that the configured database exists or that `ir_module_module` was installed — measured:
+with `odoo.dbName` set to a database that does not exist, both health routes and `/web/login` returned
+200 and the pod reported `1/1`. That check belongs to the one-shot preflight Job the pipeline runs
+before `helm upgrade` (see [What the deploy pipeline guarantees](#what-the-deploy-pipeline-guarantees-around-this-chart)),
+which queries `ir_module_module` directly and fails in ~30 s with a message naming the missing table.
+Readiness would have to run SQL to do the same, and a probe is the wrong place to duplicate the gate.
 
 #### Why readiness is an `exec` probe and not an `httpGet`
 
@@ -375,51 +393,68 @@ in production, where `postgres.enabled: false`).
 $ helm lint infra/helm/odoo-stack
 1 chart(s) linted, 0 chart(s) failed
 
-$ kubectl -n probetest get deploy probetest-odoo-stack-odoo -o json   # parsed highlights
+$ kubectl -n odoo-verify get deploy odoo-verify-odoo-stack-odoo -o json   # parsed highlights
 container: odoo
 requests: {"cpu":"500m","memory":"512Mi"}
 limits:   {"cpu":"2","memory":"2Gi"}
-startup:   path=/web/health period=5 fail=60
+startup:   tcpSocket port=http period=5 fail=60
 readiness: exec  python3 .../web/health?db_server_status=true  period=10 fail=2
-liveness:  path=/web/health period=15 fail=3
+liveness:  tcpSocket port=http period=15 fail=3
 strategy:  maxUnavailable=0 maxSurge=1 grace=60
 ```
 
-### The probe distinction, proven by removing the database
+### First install on an empty Postgres: what actually happens
 
-Both pods reached `1/1`, then the Postgres StatefulSet was scaled to `0` — no restart of Odoo, just
-the database gone — and back to `1`:
+This chart was installed on a kind cluster whose Postgres had **no `odoo` database**, which is the
+condition that produced the original `context deadline exceeded`. The measured sequence:
 
 ```
-# 1. healthy: both ready, Service has an endpoint
-probetest-odoo-stack-odoo-...-dkc8l   1/1   Running   0
-probetest-odoo-stack-postgres-0       1/1   Running   0
+# helm install ... --wait --timeout 10m
+$ kubectl -n odoo-verify logs deploy/...-odoo | Select-String 'web/health'
+2026-10-20 07:07:54 - - "GET /web/health HTTP/1.1" 500 - ...
+KeyError: 'ir.http'
 
-# 2. postgres scaled to 0 -> readiness fails, liveness does NOT
-$ kubectl -n probetest scale statefulset probetest-odoo-stack-postgres --replicas=0
-probetest-odoo-stack-odoo-...-dkc8l   0/1   Running   0        <- not ready
-$ kubectl -n probetest get endpoints probetest-odoo-stack-odoo
-NAME                        ENDPOINTS   AGE
-probetest-odoo-stack-odoo               <- empty: out of rotation
-restarts: 0                               <- liveness never fired
-
-# 3. postgres scaled back to 1 -> recovered without a restart
-probetest-odoo-stack-odoo-...-dkc8l   1/1   Running   0
-probetest-odoo-stack-postgres-0       1/1   Running   0
-endpoints: 10.244.0.20 ready=True
+$ kubectl -n odoo-verify get events | Select-String Unhealthy
+Startup probe failed: HTTP probe failed with statuscode: 500
 ```
 
-That is the whole point of separating the two probes:
+With the previous `httpGet` startup probe the only way out of that 500 was a fresh schema, so the
+container restarted its way through the 300 s budget and `--wait` expired without ever naming the
+cause. After initialising the schema once (`odoo -d odoo -i base --stop-after-init`, the documented
+"First boot" step) the same pod reported `1/1` with no chart change — which is what identified the
+probe, and not the manifest, as the thing to fix.
 
-- **`RESTARTS 0`** while the database was gone. The liveness probe is the plain `/web/health`, which
-  still answered 200 because the WSGI process was fine — so nothing was killed during an outage that
-  a restart could not have fixed.
-- **`0/1` and an empty endpoint list** in the same window. The readiness probe is the DB-aware one, so
-  the pod stopped receiving traffic the moment it could not reach Postgres, and the Service sent
-  requests only to replicas that could actually serve them.
-- **No restart to recover.** When Postgres came back, readiness passed again on its own and the
-  endpoint was re-added — the pod was never torn down and rebuilt to achieve that.
+With `startupProbe`/`livenessProbe` on `tcpSocket`, the same empty-database install now converges:
 
-`postgres-0` reaching `1/1` is likewise its `pg_isready` startup probe succeeding and then the
-readiness probe keeping it in the Service: a pod that has *finished starting* and a pod that *may take
-clients* are not the same state.
+```
+$ helm upgrade odoo-verify infra/helm/odoo-stack -n odoo-verify --set odoo.dbName=fresh_never_initialised --wait --timeout 90s
+Release "odoo-verify" has been upgraded. Happy Helming!
+STATUS: deployed
+
+$ kubectl -n odoo-verify get pods -o custom-columns=NAME:.metadata.name,READY:.status.containerStatuses[0].ready,RESTARTS:.status.containerStatuses[0].restartCount
+odoo-verify-odoo-stack-odoo-56d5d948f8-mllgz   true   0
+```
+
+`RESTARTS 0` against a database that does not exist is the point: a missing schema is a readiness or
+preflight question, not a reason to kill a process that is running correctly.
+
+### The health routes, measured rather than assumed
+
+Inside that same pod, against the non-existent database:
+
+```
+$ kubectl exec ... -- python3 -c "...urlopen('http://127.0.0.1:8069/web/health')..."
+plain 200
+$ kubectl exec ... -- python3 -c "...urlopen('http://127.0.0.1:8069/web/health?db_server_status=true')..."
+dbstatus 200
+$ kubectl exec ... -- python3 -c "...urlopen('http://127.0.0.1:8069/web/login')..."
+login 200
+```
+
+All three succeed because no database is selected and Odoo serves the selector page — a status-code
+probe cannot tell that apart from a serving instance. That is why the schema gate is the preflight
+Job (`SELECT ... FROM ir_module_module`), and why this README no longer claims readiness proves it.
+
+`postgres-0` reaching `1/1` is its `pg_isready` startup probe succeeding and then the readiness probe
+keeping it in the Service: a pod that has *finished starting* and a pod that *may take clients* are
+not the same state.

@@ -298,7 +298,7 @@ in git.
 
 ```bash
 # Is secrets/API-data encryption configured on the cluster, and with which key?
-aws eks describe-cluster --name odoo-eks --region eu-west-1 \
+aws eks describe-cluster --name odoo-eks --region eu-north-1 \
   --query 'cluster.encryptionConfig'
 
 # Which key does the API server report? (path is --encryption-provider-config only
