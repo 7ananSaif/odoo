@@ -1,12 +1,11 @@
 """End-to-end verification of the chart, the deploy workflow and the preflight Job."""
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
 
+import rendered_config
 import yaml
-
 from verify_workflow_shell import check_workflow as check_workflow_shell
 
 CHART = "infra/helm/odoo-stack"
@@ -20,6 +19,8 @@ def check(condition, message):
     if not condition:
         failures.append(message)
 
+
+rendered_manifests = {}
 
 ENVS = {
     "local": [],
@@ -42,6 +43,7 @@ for env, extra in ENVS.items():
     check(rendered.returncode == 0, env + ": helm template failed: " + rendered.stderr)
     if rendered.returncode != 0:
         continue
+    rendered_manifests[env] = rendered.stdout
 
     docs = [d for d in yaml.safe_load_all(rendered.stdout) if d]
     kinds = {d["kind"]: d for d in docs}
@@ -244,32 +246,131 @@ check(len(detected) == 1 and "NEVER_SET" in detected[0],
       repr(detected) + ") - it would not have caught the DB_HOST failure")
 
 # ---------------------------------------------------------------------------
-# The render step extracts the published host with an actual grep|sed:
-#   grep -m1 '^  ODOO_DB_HOST:' rendered.yaml | sed -E 's/^[^:]*: *"?([^"]*)"?$/\1/'
-# Prove that exact pipeline against the manifest helm really produces, so a
-# chart indentation change cannot silently publish an empty or quoted host.
-# Runs only where sed exists (the ubuntu CI runner); skipped elsewhere.
+# Reading the rendered values back out.
+#
+# The values published to $GITHUB_ENV (DB_HOST, DB_PORT, DB_USER, the filestore
+# StorageClass) are read out of rendered.yaml, so that what the preflight Job
+# checks and what helm deploys are the same endpoint. That read must produce the
+# value the manifest holds.
+#
+# It used to be `grep | sed -E 's/...([^"]*).../\1/'`, which is not portable:
+# sed implementations disagree about a back-reference in the *replacement*, and
+# the one that ran the deploy check expanded `\1` to the octal escape 0x01. The
+# published DB host would have been a single control byte, and the deploy would
+# have failed against a host that is not a host. So:
+#   * no step may parse rendered.yaml with sed,
+#   * both reading steps must use infra/k8s/rendered_config.py,
+#   * that reader is exercised here against the manifest helm really produces.
 # ---------------------------------------------------------------------------
-if shutil.which("sed"):
-    sample = subprocess.run(["helm", "template", "odoo", CHART] +
-                            ENVS["production"],
-                            capture_output=True, text=True, check=False).stdout
-    host_line = next((line for line in sample.splitlines()
-                      if line.startswith("  ODOO_DB_HOST:")), "")
-    check(bool(host_line),
-          "production render has no '  ODOO_DB_HOST:' ConfigMap entry")
-    if host_line:
-        extracted = subprocess.run(
-            ["sed", "-E", 's/^[^:]*: *"?([^"]*)"?$/\1/'],
-            input=host_line, capture_output=True, text=True,
-            check=False).stdout.strip()
-        check(extracted == "db.example.rds.amazonaws.com",
-              "the render step's grep|sed extracts " + repr(extracted) +
-              " from " + repr(host_line) + " instead of the DB host, so the "
-              "value published to $GITHUB_ENV would be wrong")
-        print("DB host extraction:", repr(extracted))
-else:
-    print("DB host extraction: sed not available here, check skipped")
+EXTRACTOR = "infra/k8s/rendered_config.py"
+EXPECTED_DB_HOST = "db.example.rds.amazonaws.com"
+
+for step in steps:
+    body = step.get("run") or ""
+    code_lines = [line for line in body.splitlines()
+                  if not line.lstrip().startswith("#")]
+    if "rendered.yaml" not in "\n".join(code_lines):
+        continue
+    check("sed" not in "\n".join(code_lines),
+          "step '" + str(step.get("name")) + "' parses rendered.yaml with sed: "
+          "a back-reference in a sed replacement is not portable (one sed "
+          "expands '\\1' to the octal escape 0x01), so the value published to "
+          "$GITHUB_ENV can be a control byte instead of the DB host. Read it "
+          "with " + EXTRACTOR + " instead.")
+
+for reader in ["helm template (render check)", "Check cluster prerequisites"]:
+    reader_step = next(s for s in steps if s.get("name") == reader)
+    check(EXTRACTOR in reader_step["run"],
+          reader + ": does not read the rendered values with " + EXTRACTOR +
+          ", so the published DB target is parsed by hand")
+
+render_run = render_step["run"]
+check(render_run.index("rendered.yaml") < render_run.index(EXTRACTOR),
+      "render step reads the DB host before it has rendered anything")
+
+production_render = rendered_manifests.get("production", "")
+local_render = rendered_manifests.get("local", "")
+
+
+def check_rendered_value(label, manifest, kind, dotted_path, expected):
+    actual = rendered_config.read_value(manifest, kind, dotted_path)
+    check(actual == expected,
+          label + ": expected " + repr(expected) + ", read " + repr(actual))
+    return actual
+
+
+read_host = check_rendered_value(
+    "production ConfigMap ODOO_DB_HOST", production_render,
+    "ConfigMap", "data.ODOO_DB_HOST", EXPECTED_DB_HOST)
+check(read_host is None or all(0x20 < ord(char) < 0x7f for char in read_host),
+      "the DB host read out of the render contains a control byte (" +
+      repr(read_host) + ") - exactly what a sed '\\1' replacement published")
+
+check_rendered_value("production ConfigMap ODOO_DB_PORT", production_render,
+                     "ConfigMap", "data.ODOO_DB_PORT", "5432")
+check_rendered_value("production ConfigMap ODOO_DB_USER", production_render,
+                     "ConfigMap", "data.ODOO_DB_USER", "odoo")
+check_rendered_value("production PVC storageClassName", production_render,
+                     "PersistentVolumeClaim", "spec.storageClassName", "efs-sc")
+check_rendered_value("local render has no filestore StorageClass", local_render,
+                     "PersistentVolumeClaim", "spec.storageClassName", None)
+check_rendered_value("a key that is not in the render", production_render,
+                     "ConfigMap", "data.NOT_A_KEY", None)
+check_rendered_value("a field of the wrong document kind", production_render,
+                     "Service", "data.ODOO_DB_HOST", None)
+
+# The reader also has to survive the shapes a value can take, since a quoted
+# host is only one of them: unquoted, single-quoted, CRLF (a shell on Windows
+# that redirects helm output), a value containing a colon (host:port endpoint),
+# and a Service whose fields must not be mistaken for ConfigMap data.
+READER_CASES = [
+    ('  ODOO_DB_HOST: "' + EXPECTED_DB_HOST + '"', EXPECTED_DB_HOST),
+    ("  ODOO_DB_HOST: " + EXPECTED_DB_HOST, EXPECTED_DB_HOST),
+    ("  ODOO_DB_HOST: '" + EXPECTED_DB_HOST + "'", EXPECTED_DB_HOST),
+    ('  ODOO_DB_HOST: "' + EXPECTED_DB_HOST + '"\r', EXPECTED_DB_HOST),
+    ('  ODOO_DB_HOST: "pg.internal:6432"', "pg.internal:6432"),
+]
+
+for host_line, expected in READER_CASES:
+    manifest = (
+        "apiVersion: v1\nkind: Service\nmetadata:\n  name: not-a-configmap\n"
+        "spec:\n  type: ClusterIP\n---\n"
+        "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: config\n"
+        "data:\n" + host_line + "\n  ODOO_DB_PORT: \"5432\"\n"
+    )
+    check(rendered_config.read_value(manifest, "ConfigMap", "data.ODOO_DB_HOST")
+          == expected,
+          "the render reader does not handle " + repr(host_line))
+
+# And the command the workflow actually runs, end to end: exit status, stdout,
+# and the empty answer that lets an optional value stay optional.
+with tempfile.NamedTemporaryFile("w", suffix=".yaml", delete=False,
+                                 encoding="utf-8") as handle:
+    handle.write(production_render)
+    rendered_manifest_path = handle.name
+
+try:
+    invoked = subprocess.run(
+        [sys.executable, EXTRACTOR, rendered_manifest_path,
+         "ConfigMap", "data.ODOO_DB_HOST"],
+        capture_output=True, text=True, check=False)
+    absent = subprocess.run(
+        [sys.executable, EXTRACTOR, rendered_manifest_path,
+         "PersistentVolumeClaim", "spec.noSuchField"],
+        capture_output=True, text=True, check=False)
+finally:
+    os.unlink(rendered_manifest_path)
+
+check(invoked.returncode == 0 and invoked.stdout.strip() == EXPECTED_DB_HOST,
+      "running " + EXTRACTOR + " as the workflow does returns exit " +
+      str(invoked.returncode) + " and " + repr(invoked.stdout) +
+      " instead of the DB host")
+check(absent.returncode == 1 and not absent.stdout.strip(),
+      "an absent value must print nothing and exit 1 so `|| true` keeps "
+      "optional values optional; got exit " + str(absent.returncode) +
+      " and " + repr(absent.stdout))
+
+print("DB host extraction:", repr(read_host))
 
 if failures:
     print("\nFAILURES:")

@@ -22,6 +22,10 @@ onto its future Kubernetes objects. No AWS involved.
 | `state/` | ConfigMap + Secret + PVC **+ the Postgres test Pod** that mounts all three — runbook: [`state/README.md`](state/README.md). |
 | `eks-secrets-at-rest.md` | Research: how EKS encrypts secrets at rest, and this cluster's decision. |
 | `kind-node-image-pull.py` | Recovery tool: fetches the node image with resume (see Troubleshooting). |
+| `odoo-db-preflight-job.yaml` | The Job `.github/workflows/deploy.yml` runs before `helm upgrade`: proves the RDS endpoint, the Secret and the Odoo schema are reachable. |
+| `rendered_config.py` | Reads one value (ConfigMap entry, PVC field) out of a `helm template` render — how the deploy publishes the DB host it actually rendered. |
+| `verify_chart_and_workflow.py` | End-to-end check: `helm lint`/`helm template` per environment, the workflow's steps, the preflight Job, and the render reader. Run it after touching the chart or the deploy workflow. |
+| `verify_workflow_shell.py` | Static guard: every shell variable a deploy step reads is declared or published to `$GITHUB_ENV` (the `DB_HOST: unbound variable` class of failure). |
 
 ---
 

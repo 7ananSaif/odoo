@@ -221,8 +221,16 @@ jobs:
                   # itself then cannot disagree, and no step can inherit an
                   # undefined DB_HOST (which under `set -u` aborts the run with
                   # the unhelpful "DB_HOST: unbound variable").
-                  RENDERED_DB_HOST=$(grep -m1 '^  ODOO_DB_HOST:' rendered.yaml \
-                    | sed -E 's/^[^:]*: *"?([^"]*)"?$/\1/' || true)
+                  #
+                  # The read is NOT `grep | sed -E 's/..."([^"]*)".../\1/'`:
+                  # sed implementations disagree about what `\1` means in a
+                  # replacement, and at least one expands it to the octal escape
+                  # 0x01 - the value published to $GITHUB_ENV would then be a
+                  # single control byte instead of a host, and the deploy would
+                  # fail looking for a database called "\x01". The parser below
+                  # has one meaning everywhere.
+                  RENDERED_DB_HOST=$(python3 infra/k8s/rendered_config.py \
+                    rendered.yaml ConfigMap data.ODOO_DB_HOST || true)
                   if [ -z "$RENDERED_DB_HOST" ]; then
                       echo "::error::The rendered ConfigMap carries no ODOO_DB_HOST."
                       exit 1
@@ -303,17 +311,21 @@ jobs:
 
                   SECRET=$(awk '/secretKeyRef:/{f=1} f && /name:/{print $2; exit}' rendered.yaml)
                   KEY=$(awk '/secretKeyRef:/{f=1} f && /key:/{print $2; exit}' rendered.yaml)
-                  DB_PORT=$(grep -m1 '^  ODOO_DB_PORT:' rendered.yaml \
-                    | sed -E 's/.*"([^"]*)".*/\1/' || true)
-                  DB_USER=$(grep -m1 '^  ODOO_DB_USER:' rendered.yaml \
-                    | sed -E 's/.*"([^"]*)".*/\1/' || true)
+                  # Same reader as the render step: reading a rendered value is
+                  # a parse, not a text substitution, and sed's replacement
+                  # syntax is not portable (see the render step for the 0x01
+                  # that `\1` produced).
+                  DB_PORT=$(python3 infra/k8s/rendered_config.py \
+                    rendered.yaml ConfigMap data.ODOO_DB_PORT || true)
+                  DB_USER=$(python3 infra/k8s/rendered_config.py \
+                    rendered.yaml ConfigMap data.ODOO_DB_USER || true)
                   DB_NAME=$(grep -m1 -oE '\-\-database=[A-Za-z0-9_]+' rendered.yaml \
                     | head -1 | cut -d= -f2 || true)
                   # The PVC omits storageClassName entirely when the values file
                   # leaves it empty (cluster default), so "no match" is a valid
                   # answer here, not an error - hence the `|| true`.
-                  STORAGE_CLASS=$(grep -m1 '^  storageClassName:' rendered.yaml \
-                    | sed -E 's/^[^:]*: *"?([^"]*)"?$/\1/' || true)
+                  STORAGE_CLASS=$(python3 infra/k8s/rendered_config.py \
+                    rendered.yaml PersistentVolumeClaim spec.storageClassName || true)
 
                   if [ -z "${DB_HOST:-}" ]; then
                       echo "::error::DB_HOST was not published by the render step - refusing to guess a database target."
