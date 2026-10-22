@@ -200,6 +200,55 @@ for consumer in ["Check cluster prerequisites", "helm upgrade --install"]:
           "falls back to the in-cluster Postgres Service production never runs")
 
 # ---------------------------------------------------------------------------
+# Cluster access.
+#
+# The deploy died with
+#   error: unable to recognize "STDIN": the server has asked for the client to
+#   provide credentials
+# from `kubectl apply`, which is what EKS answers when the assumed role is not
+# mapped into the cluster (aws-auth ConfigMap or an API access entry). Assuming
+# an IAM role is not the same as being a cluster identity, and that error names
+# neither the role nor the missing mapping.
+#
+# The workflow must therefore prove access immediately after writing kubeconfig
+# - and fail, not merely print - naming the caller ARN and the exact command
+# that grants it.
+# ---------------------------------------------------------------------------
+ACCESS_STEP = "Verify cluster access"
+check(ACCESS_STEP in names, "workflow is missing step: " + ACCESS_STEP)
+
+if ACCESS_STEP in names:
+    access_step = next(s for s in steps if s.get("name") == ACCESS_STEP)
+    access_run = access_step["run"]
+    access_index = names.index(ACCESS_STEP)
+
+    check(names.index("Update kubeconfig") < access_index,
+          ACCESS_STEP + " runs before kubeconfig is written")
+    check(names.index("Wait for the built image to be available") > access_index,
+          ACCESS_STEP + " runs after the image wait: a role that is not mapped "
+          "into the cluster would then burn the full IMAGE_WAIT_SECONDS before "
+          "saying so")
+    check("aws sts get-caller-identity" in access_run,
+          ACCESS_STEP + " never reports which identity it is using")
+    check("create-access-entry" in access_run
+          and "iamidentitymapping" in access_run,
+          ACCESS_STEP + " does not tell the operator how to map the deploy role "
+          "into the cluster (access entry or aws-auth)")
+    check("Forbidden" in access_run,
+          ACCESS_STEP + " does not distinguish 403 (mapped but unauthorized) "
+          "from 401 (not mapped at all)")
+    check(access_run.count("exit 1") >= 3,
+          ACCESS_STEP + " has a branch that prints a diagnosis but does not fail: "
+          "the deploy would carry on and die later with the same opaque error")
+
+runbook = open("infra/runbook.md", encoding="utf-8").read()
+check("create-access-entry" in runbook and "iamidentitymapping" in runbook,
+      "infra/runbook.md does not document mapping the deploy role into the "
+      "cluster - the step the deploy depends on and cannot do for itself")
+check("provide credentials" in runbook,
+      "infra/runbook.md does not name the symptom of a missing cluster identity")
+
+# ---------------------------------------------------------------------------
 # Static shell guard: no step may read a variable from nowhere.
 #
 # Run against the real workflow, and the guard itself is exercised against a
