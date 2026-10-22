@@ -307,7 +307,7 @@ jobs:
               run: |
                   set -euo pipefail
                   kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml \
-                    | kubectl apply -f -
+                    | kubectl apply --validate=false -f -
 
                   SECRET=$(awk '/secretKeyRef:/{f=1} f && /name:/{print $2; exit}' rendered.yaml)
                   KEY=$(awk '/secretKeyRef:/{f=1} f && /key:/{print $2; exit}' rendered.yaml)
