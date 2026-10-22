@@ -20,6 +20,30 @@ eksctl create cluster -f infra/eks/cluster.yaml
 # Point kubectl at the cluster
 aws eks update-kubeconfig --name odoo-eks --region eu-north-1
 
+# --- Map the GitHub OIDC deploy role into the cluster (required, once) ------
+# The deploy workflow assumes an IAM role through OIDC and then talks to the
+# API server AS that role. AWS credentials are not cluster credentials: until
+# the role is mapped, the first kubectl call in the deploy fails with
+#
+#   error: unable to recognize "STDIN": the server has asked for the client to
+#   provide credentials
+#
+# which names neither the role nor the missing mapping. Run this from an admin
+# context, once per cluster (and again if the role is recreated with a new ARN):
+ROLE_ARN=$(aws iam get-role --role-name <github-oidc-deploy-role> \
+  --query Role.Arn --output text)
+aws eks create-access-entry --cluster-name odoo-eks --region eu-north-1 \
+  --principal-arn "$ROLE_ARN" --type STANDARD
+aws eks associate-access-policy --cluster-name odoo-eks --region eu-north-1 \
+  --principal-arn "$ROLE_ARN" \
+  --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy \
+  --access-scope type=cluster
+
+# A cluster whose aws-auth ConfigMap is still authoritative (created without
+# authentication_mode=API_AND_CONFIG_MAP) uses an identity mapping instead:
+eksctl create iamidentitymapping --cluster odoo-eks --region eu-north-1 \
+  --arn "$ROLE_ARN" --group system:masters --username github-deploy
+
 # Install the AWS Load Balancer Controller (ALB support)
 #   see infra/eks/aws-load-balancer-controller.md
 
@@ -41,7 +65,16 @@ helm install external-secrets external-secrets/external-secrets -n external-secr
 2. **Configure AWS credentials via OIDC** — `configure-aws-credentials` with
    `role-to-assume: arn:aws:iam::${ACCOUNT}:role/<github-oidc-deploy-role>` and
    `aws-region: eu-north-1`. The OIDC provider trusts the GitHub repo+environment.
-3. **Update kubeconfig** — `aws eks update-kubeconfig --name odoo-eks`.
+3. **Update kubeconfig, then verify cluster access** — `aws eks update-kubeconfig
+   --name odoo-eks`, followed immediately by a cluster-scoped read
+   (`kubectl get namespace odoo`) *before* the image wait. Assuming the deploy
+   role is not the same as being a cluster identity (§1), so this step separates
+   the three ways it goes wrong: `401` (role not mapped — prints the caller ARN
+   and the exact `create-access-entry` / `iamidentitymapping` command), `403`
+   (mapped but not authorized — needs the cluster admin access policy), and a
+   missing namespace (fine; the release creates it). Without it the first
+   symptom is the same 401 from `kubectl apply` after fifteen minutes of waiting
+   for an image.
 4. **Chart gate** — `helm lint` and `helm template` the chart with the prod values
    *before* the release is touched, so a broken template fails in seconds instead
    of mid-rollout.
@@ -58,15 +91,24 @@ helm install external-secrets external-secrets/external-secrets -n external-secr
      -f infra/helm/odoo-stack/values.production.yaml \
      --namespace odoo --create-namespace \
      --set odoo.image.repository=<repo> --set odoo.image.tag=<sha> \
-     [--set-string config.odooDbHost=<rds-endpoint>] \
-     --atomic --timeout 10m
+     --set-string config.odooDbHost=<rds-endpoint> \
+     --wait --timeout 12m
    ```
-   `config.odooDbHost` comes from `secrets.ODOO_DB_HOST` when set, so the RDS
-   endpoint never has to be committed to the values file.
+   `config.odooDbHost` is the host the workflow read back out of its own
+   `helm template` render (`secrets.ODOO_DB_HOST` in, rendered ConfigMap out,
+   published to `$GITHUB_ENV`), so the RDS endpoint never has to be committed to
+   the values file and the preflight Job inspects exactly what is deployed.
+
+   `--atomic` is deliberately **not** used: it uninstalls the release the moment
+   the wait budget expires, taking the pods, events and container logs with it -
+   the only evidence of why it never became ready. The workflow dumps diagnostics
+   first, then rolls back to the previous revision (or uninstalls, if this run
+   created the release).
 7. **Rollout assert** — resolves the Deployment by label
    (`app.kubernetes.io/instance=odoo, app.kubernetes.io/component=odoo`) and runs
-   `kubectl rollout status` on it. `--atomic` already waits for readiness, so this
-   is a cheap explicit confirm. It is resolved rather than hardcoded because the
+   `kubectl rollout status` on it. `--wait` already blocked until the Deployment
+   reported ready, so this is a cheap explicit re-check against the API server.
+   It is resolved rather than hardcoded because the
    rendered name is `odoo-odoo-stack-odoo`, not `odoo-odoo` — `odoo-stack.fullname`
    only collapses to the release name when the release name *contains* the chart
    name, which `odoo` does not.

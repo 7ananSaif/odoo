@@ -259,6 +259,83 @@ jobs:
               run: aws eks update-kubeconfig --name "$EKS_CLUSTER" --region "$AWS_REGION"
 
             # ------------------------------------------------------------------
+            # Prove the cluster accepts this identity BEFORE the deploy spends
+            # anything on it.
+            #
+            # Being able to assume the deploy role is not the same as being a
+            # cluster identity. EKS authenticates with an aws-auth ConfigMap (or
+            # API access entries, on clusters created with
+            # authentication_mode=API_AND_CONFIG_MAP): a role that is not mapped
+            # there gets a bare
+            #
+            #   error: unable to recognize "STDIN": the server has asked for
+            #   the client to provide credentials
+            #
+            # from the first kubectl call, which explains nothing and arrives
+            # after the 15-minute image wait. This step turns that into an
+            # immediate failure that names the missing mapping and how to add it.
+            # ------------------------------------------------------------------
+            - name: Verify cluster access
+              run: |
+                  set -euo pipefail
+                  CALLER_ARN=$(aws sts get-caller-identity --query Arn --output text 2>/dev/null || true)
+                  if [ -z "$CALLER_ARN" ]; then
+                      echo "::error::aws sts get-caller-identity failed: the workflow's AWS credentials are not usable."
+                      echo "::error::Check secrets.AWS_EKS_DEPLOY_ROLE_ARN and the OIDC trust policy for this repo + environment."
+                      exit 1
+                  fi
+                  echo "AWS identity: $CALLER_ARN"
+                  echo "Cluster:      $EKS_CLUSTER ($AWS_REGION)"
+
+                  # A cluster-scoped read is the cheapest proof that the API
+                  # server accepted the token. It is deliberately not `kubectl
+                  # version` or /readyz: those answer without authenticating.
+                  set +e
+                  READ_ERROR=$(kubectl get namespace "$NAMESPACE" \
+                    --request-timeout=20s 2>&1)
+                  READ_STATUS=$?
+                  set -e
+
+                  if [ "$READ_STATUS" -eq 0 ]; then
+                      echo "EKS accepted $CALLER_ARN (namespace $NAMESPACE is readable)."
+                      exit 0
+                  fi
+
+                  case "$READ_ERROR" in
+                      *"provide credentials"* | *Unauthorized* | *"must be logged in"* | *"getting credentials"*)
+                          echo "::error::EKS rejected $CALLER_ARN: the role is not mapped into cluster $EKS_CLUSTER."
+                          echo "::error::authenticated=false - the API server answered 401, the token itself was refused."
+                          echo "::error::Grant the deploy role access from an admin context (one time, per cluster):"
+                          echo "::error::  aws eks create-access-entry --cluster-name $EKS_CLUSTER --region $AWS_REGION \\"
+                          echo "::error::    --principal-arn $CALLER_ARN --type STANDARD"
+                          echo "::error::  aws eks associate-access-policy --cluster-name $EKS_CLUSTER --region $AWS_REGION \\"
+                          echo "::error::    --principal-arn $CALLER_ARN --access-scope type=cluster \\"
+                          echo "::error::    --policy-arn arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+                          echo "::error::On a cluster whose aws-auth ConfigMap is still authoritative use:"
+                          echo "::error::  eksctl create iamidentitymapping --cluster $EKS_CLUSTER --region $AWS_REGION \\"
+                          echo "::error::    --arn $CALLER_ARN --group system:masters --username github-deploy"
+                          echo "::error::See infra/runbook.md section 1."
+                          exit 1
+                          ;;
+                      *Forbidden* | *"cannot get resource"*)
+                          echo "::error::EKS accepted $CALLER_ARN but its RBAC denies reading namespaces in $NAMESPACE."
+                          echo "::error::authenticated=true, authorized=false - the cluster identity needs a role that can manage the release."
+                          echo "::error::attached access policy must be AmazonEKSClusterAdminPolicy (or equivalent) - see infra/runbook.md section 1."
+                          exit 1
+                          ;;
+                      *NotFound* | *"not found"*)
+                          # Authenticated, no such namespace yet. helm creates it.
+                          echo "EKS accepted $CALLER_ARN (namespace $NAMESPACE does not exist yet; the release will create it)."
+                          ;;
+                      *)
+                          echo "::error::kubectl cannot read cluster $EKS_CLUSTER as $CALLER_ARN:"
+                          echo "::error::$READ_ERROR"
+                          echo "::error::Check that the cluster exists in $AWS_REGION and that kubeconfig was written by the step above."
+                          exit 1
+                          ;;
+                  esac
+
+            # ------------------------------------------------------------------
             # Wait for the image to exist.
             #
             # The image build (docker-push.yml) runs on the same push, in
