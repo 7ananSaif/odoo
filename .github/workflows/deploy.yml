@@ -84,7 +84,10 @@ jobs:
                   DOMAIN: ${{ secrets.DOMAIN }}
                   IMAGE_REPO_VAR: ${{ vars.ODOO_IMAGE_REPOSITORY }}
                   DOCKERHUB_USER: ${{ secrets.DOCKERHUB_USERNAME }}
-                  DB_HOST: ${{ secrets.ODOO_DB_HOST }}
+                  # SECRET_DB_HOST, not DB_HOST: DB_HOST is published once, by
+                  # the render step, and read from $GITHUB_ENV thereafter. A
+                  # second declaration here would be a second source of truth.
+                  SECRET_DB_HOST: ${{ secrets.ODOO_DB_HOST }}
                   REGION: ${{ secrets.AWS_REGION }}
                   CLUSTER: ${{ secrets.EKS_CLUSTER }}
               run: |
@@ -121,7 +124,7 @@ jobs:
                   # deploys: Odoo then fails its DB-aware readiness probe
                   # forever and the deploy dies with "context deadline exceeded"
                   # and no indication that the host was the problem.
-                  if [ -z "$DB_HOST" ]; then
+                  if [ -z "$SECRET_DB_HOST" ]; then
                       echo "::error::secrets.ODOO_DB_HOST is not set for the 'production' environment."
                       echo "::error::It is the RDS endpoint (terraform output rds_hostname)."
                       echo "::error::Without it the chart falls back to an in-cluster Postgres Service that production does not deploy."
@@ -197,17 +200,42 @@ jobs:
             - name: helm template (render check)
               env:
                   # Rendered with the real DB host, so the preflight step below
-                  # inspects exactly the manifest this deploy will apply.
-                  DB_HOST: ${{ secrets.ODOO_DB_HOST }}
+                  # inspects exactly the manifest this deploy will apply. Named
+                  # SECRET_DB_HOST, not DB_HOST: the authoritative DB_HOST is
+                  # the one published below, read back out of the render.
+                  SECRET_DB_HOST: ${{ secrets.ODOO_DB_HOST }}
               run: |
                   set -euo pipefail
                   helm template "$RELEASE" "$CHART" -f "$VALUES_FILE" \
                     --set odoo.image.repository="${{ steps.image.outputs.repo }}" \
                     --set odoo.image.tag="${{ steps.image.outputs.tag }}" \
-                    --set-string "config.odooDbHost=$DB_HOST" \
+                    --set-string "config.odooDbHost=$SECRET_DB_HOST" \
                     > rendered.yaml
-                  echo "Rendered $(grep -c '^kind:' rendered.yaml) objects:"
-                  grep '^kind:' rendered.yaml | sort | uniq -c
+                  echo "Rendered $(grep -c '^kind:' rendered.yaml || true) objects:"
+                  grep '^kind:' rendered.yaml | sort | uniq -c || true
+
+                  # Read the DB host back out of the rendered ConfigMap - the
+                  # object that actually feeds Odoo's HOST env var - and publish
+                  # it to every later step through $GITHUB_ENV. One value, one
+                  # source: the preflight Job, the prerequisite report and helm
+                  # itself then cannot disagree, and no step can inherit an
+                  # undefined DB_HOST (which under `set -u` aborts the run with
+                  # the unhelpful "DB_HOST: unbound variable").
+                  RENDERED_DB_HOST=$(grep -m1 '^  ODOO_DB_HOST:' rendered.yaml \
+                    | sed -E 's/^[^:]*: *"?([^"]*)"?$/\1/' || true)
+                  if [ -z "$RENDERED_DB_HOST" ]; then
+                      echo "::error::The rendered ConfigMap carries no ODOO_DB_HOST."
+                      exit 1
+                  fi
+                  case "$RENDERED_DB_HOST" in
+                      *"<"* | *">"*)
+                          echo "::error::Rendered ODOO_DB_HOST is still a placeholder: $RENDERED_DB_HOST"
+                          echo "::error::Set the ODOO_DB_HOST secret to the RDS endpoint (terraform output rds_hostname)."
+                          exit 1
+                          ;;
+                  esac
+                  echo "Rendered DB host: $RENDERED_DB_HOST"
+                  echo "DB_HOST=$RENDERED_DB_HOST" >> "$GITHUB_ENV"
 
             # ------------------------------------------------------------------
             # OIDC → AWS. The role's trust policy allows this repo + environment
@@ -264,6 +292,10 @@ jobs:
             # about to be applied - so these checks cannot drift from the chart.
             # ------------------------------------------------------------------
             - name: Check cluster prerequisites
+              # DB_HOST arrives from $GITHUB_ENV, published by the render step
+              # above out of rendered.yaml. It is deliberately NOT a step-level
+              # env: `env:` wins over $GITHUB_ENV, so a locally declared copy
+              # would silently be a second source of truth for the same value.
               run: |
                   set -euo pipefail
                   kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml \
@@ -271,11 +303,22 @@ jobs:
 
                   SECRET=$(awk '/secretKeyRef:/{f=1} f && /name:/{print $2; exit}' rendered.yaml)
                   KEY=$(awk '/secretKeyRef:/{f=1} f && /key:/{print $2; exit}' rendered.yaml)
-                  DB_PORT=$(grep -m1 '^  ODOO_DB_PORT:' rendered.yaml | sed -E 's/.*"([^"]*)".*/\1/')
-                  DB_USER=$(grep -m1 '^  ODOO_DB_USER:' rendered.yaml | sed -E 's/.*"([^"]*)".*/\1/')
-                  DB_NAME=$(grep -m1 -oE '\-\-database=[A-Za-z0-9_]+' rendered.yaml | head -1 | cut -d= -f2)
+                  DB_PORT=$(grep -m1 '^  ODOO_DB_PORT:' rendered.yaml \
+                    | sed -E 's/.*"([^"]*)".*/\1/' || true)
+                  DB_USER=$(grep -m1 '^  ODOO_DB_USER:' rendered.yaml \
+                    | sed -E 's/.*"([^"]*)".*/\1/' || true)
+                  DB_NAME=$(grep -m1 -oE '\-\-database=[A-Za-z0-9_]+' rendered.yaml \
+                    | head -1 | cut -d= -f2 || true)
+                  # The PVC omits storageClassName entirely when the values file
+                  # leaves it empty (cluster default), so "no match" is a valid
+                  # answer here, not an error - hence the `|| true`.
                   STORAGE_CLASS=$(grep -m1 '^  storageClassName:' rendered.yaml \
-                    | sed -E 's/^[^:]*: *"?([^"]*)"?$/\1/')
+                    | sed -E 's/^[^:]*: *"?([^"]*)"?$/\1/' || true)
+
+                  if [ -z "${DB_HOST:-}" ]; then
+                      echo "::error::DB_HOST was not published by the render step - refusing to guess a database target."
+                      exit 1
+                  fi
 
                   echo "DB target: $DB_USER@$DB_HOST:$DB_PORT/$DB_NAME"
                   echo "DB Secret: $SECRET (key $KEY)"
@@ -336,14 +379,30 @@ jobs:
             # security-group path Odoo will use and answers in about 30 seconds.
             # ------------------------------------------------------------------
             - name: Preflight database check
+              # DB_HOST, DB_PORT, DB_USER, DB_NAME, DB_SECRET_NAME and
+              # DB_SECRET_KEY all come from $GITHUB_ENV (published by the two
+              # steps above, out of rendered.yaml), so this Job walks exactly
+              # the endpoint and credentials the chart is about to deploy.
               env:
                   IMAGE_REF: ${{ steps.image.outputs.ref }}
-                  DB_HOST: ${{ secrets.ODOO_DB_HOST }}
                   JOB_NAME: odoo-db-preflight-${{ github.run_id }}
               run: |
                   set -euo pipefail
                   command -v envsubst 2>/dev/null 1>&2 \
                     || { echo "::error::envsubst is missing (package gettext)."; exit 1; }
+
+                  # envsubst without a variable list substitutes *every*
+                  # ${...} it finds and leaves nothing behind to notice a
+                  # missing one: an unset DB_HOST would render
+                  # `value: ""` and the Job would fail against a blank host
+                  # instead of here. Check the whole set first.
+                  for required in DB_HOST DB_PORT DB_USER DB_NAME \
+                                  DB_SECRET_NAME DB_SECRET_KEY NAMESPACE IMAGE_REF; do
+                      if [ -z "${!required:-}" ]; then
+                          echo "::error::$required is empty - refusing to render a preflight Job with a blank field."
+                          exit 1
+                      fi
+                  done
 
                   kubectl delete job "$JOB_NAME" -n "$NAMESPACE" --ignore-not-found
                   envsubst < infra/k8s/odoo-db-preflight-job.yaml | kubectl apply -f -
@@ -401,19 +460,20 @@ jobs:
             # ------------------------------------------------------------------
             - name: helm upgrade --install
               id: release
-              env:
-                  DB_HOST: ${{ secrets.ODOO_DB_HOST }}
               run: |
                   set -euo pipefail
+                  # DB host comes from $GITHUB_ENV (rendered.yaml -> ConfigMap),
+                  # the same value the preflight Job just proved reachable, so
+                  # what is checked and what is deployed are the same endpoint.
+                  if [ -z "${DB_HOST:-}" ]; then
+                      echo "::error::DB_HOST is empty - the chart would fall back to an in-cluster Postgres Service that production does not deploy."
+                      exit 1
+                  fi
                   SET_ARGS=(
                     --set "odoo.image.repository=${{ steps.image.outputs.repo }}"
                     --set "odoo.image.tag=${{ steps.image.outputs.tag }}"
+                    --set-string "config.odooDbHost=${DB_HOST}"
                   )
-                  # DB host: a secret wins over the values file, so the RDS
-                  # endpoint never has to be committed to git.
-                  if [ -n "${DB_HOST:-}" ]; then
-                      SET_ARGS+=(--set-string "config.odooDbHost=${DB_HOST}")
-                  fi
 
                   helm upgrade --install "$RELEASE" "$CHART" \
                     -f "$VALUES_FILE" \

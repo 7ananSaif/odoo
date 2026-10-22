@@ -1,9 +1,13 @@
 """End-to-end verification of the chart, the deploy workflow and the preflight Job."""
 import os
+import shutil
 import subprocess
 import sys
+import tempfile
 
 import yaml
+
+from verify_workflow_shell import check_workflow as check_workflow_shell
 
 CHART = "infra/helm/odoo-stack"
 WORKFLOW = ".github/workflows/deploy.yml"
@@ -158,6 +162,114 @@ print("preflight Job: substituted and parsed OK")
 
 check(os.path.exists("scripts/smoke-test-eks.sh"),
       "scripts/smoke-test-eks.sh referenced by the workflow does not exist")
+
+# ---------------------------------------------------------------------------
+# DB host plumbing.
+#
+# The deploy died with "line 13: DB_HOST: unbound variable": the
+# "Check cluster prerequisites" step printed $DB_HOST under `set -u`, but it
+# had never been given the value. The fix is that the render step publishes the
+# host it actually rendered (read back out of rendered.yaml) to $GITHUB_ENV,
+# and nothing else declares DB_HOST - one value, one source.
+# ---------------------------------------------------------------------------
+render_step = next(s for s in steps if s.get("name") == "helm template (render check)")
+check("DB_HOST=" in render_step["run"] and "GITHUB_ENV" in render_step["run"],
+      "render step does not publish the rendered DB host to $GITHUB_ENV")
+
+# The publish line must sit *inside* the render script, after the manifest was
+# written - publishing a value the step never rendered would be worse than not
+# publishing one at all.
+check(render_step["run"].index("rendered.yaml") <
+      render_step["run"].index('echo "DB_HOST='),
+      "render step publishes DB_HOST before it renders, so the value cannot "
+      "come from rendered.yaml")
+
+for step in steps:
+    declared = set((step.get("env") or {}).keys())
+    check("DB_HOST" not in declared,
+          "step '" + str(step.get("name")) + "' declares its own DB_HOST; it "
+          "would shadow the value published to $GITHUB_ENV, so the deploy "
+          "could validate one database while pointing Odoo at another")
+
+for consumer in ["Check cluster prerequisites", "helm upgrade --install"]:
+    consumer_step = next(s for s in steps if s.get("name") == consumer)
+    check("DB_HOST" in consumer_step["run"],
+          consumer + ": does not gate on DB_HOST - an empty host silently "
+          "falls back to the in-cluster Postgres Service production never runs")
+
+# ---------------------------------------------------------------------------
+# Static shell guard: no step may read a variable from nowhere.
+#
+# Run against the real workflow, and the guard itself is exercised against a
+# deliberately broken one, so a regex that quietly stops matching cannot make
+# the check vacuous.
+# ---------------------------------------------------------------------------
+for shell_failure in check_workflow_shell(WORKFLOW):
+    failures.append("undeclared shell variable - " + shell_failure)
+
+BROKEN_WORKFLOW = """
+on: push
+env:
+  DEFINED: x
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: publishes
+        run: |
+          set -euo pipefail
+          echo "PUBLISHED=1" >> "$GITHUB_ENV"
+      - name: reads what exists
+        run: |
+          set -euo pipefail
+          echo "$DEFINED $PUBLISHED"
+      - name: reads what does not
+        run: |
+          set -euo pipefail
+          echo "$NEVER_SET"
+"""
+
+with tempfile.NamedTemporaryFile("w", suffix=".yml", delete=False,
+                                 encoding="utf-8") as handle:
+    handle.write(BROKEN_WORKFLOW)
+    broken_workflow_path = handle.name
+
+try:
+    detected = check_workflow_shell(broken_workflow_path)
+finally:
+    os.unlink(broken_workflow_path)
+
+check(len(detected) == 1 and "NEVER_SET" in detected[0],
+      "the shell-variable guard does not catch undeclared variables (got " +
+      repr(detected) + ") - it would not have caught the DB_HOST failure")
+
+# ---------------------------------------------------------------------------
+# The render step extracts the published host with an actual grep|sed:
+#   grep -m1 '^  ODOO_DB_HOST:' rendered.yaml | sed -E 's/^[^:]*: *"?([^"]*)"?$/\1/'
+# Prove that exact pipeline against the manifest helm really produces, so a
+# chart indentation change cannot silently publish an empty or quoted host.
+# Runs only where sed exists (the ubuntu CI runner); skipped elsewhere.
+# ---------------------------------------------------------------------------
+if shutil.which("sed"):
+    sample = subprocess.run(["helm", "template", "odoo", CHART] +
+                            ENVS["production"],
+                            capture_output=True, text=True, check=False).stdout
+    host_line = next((line for line in sample.splitlines()
+                      if line.startswith("  ODOO_DB_HOST:")), "")
+    check(bool(host_line),
+          "production render has no '  ODOO_DB_HOST:' ConfigMap entry")
+    if host_line:
+        extracted = subprocess.run(
+            ["sed", "-E", 's/^[^:]*: *"?([^"]*)"?$/\1/'],
+            input=host_line, capture_output=True, text=True,
+            check=False).stdout.strip()
+        check(extracted == "db.example.rds.amazonaws.com",
+              "the render step's grep|sed extracts " + repr(extracted) +
+              " from " + repr(host_line) + " instead of the DB host, so the "
+              "value published to $GITHUB_ENV would be wrong")
+        print("DB host extraction:", repr(extracted))
+else:
+    print("DB host extraction: sed not available here, check skipped")
 
 if failures:
     print("\nFAILURES:")
