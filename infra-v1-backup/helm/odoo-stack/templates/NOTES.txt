@@ -1,0 +1,17 @@
+Thank you for installing {{ .Chart.Name }} (version {{ .Chart.Version }}).
+
+The release {{ .Release.Name }} is now installed.
+
+Useful commands:
+  helm status {{ .Release.Name }}
+  helm get manifest {{ .Release.Name }}
+  helm upgrade {{ .Release.Name }} . -f values.production.yaml
+
+Get the Odoo service:
+  kubectl get svc -l app.kubernetes.io/instance={{ .Release.Name }}
+
+Port-forward Odoo to the host:
+  kubectl port-forward svc/{{ include "odoo-stack.fullname" . }}-odoo 8069:{{ .Values.service.odooPort }}
+
+Watch Postgres become ready:
+  kubectl rollout status statefulset/{{ include "odoo-stack.fullname" . }}-postgres

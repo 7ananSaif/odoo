@@ -1,0 +1,79 @@
+# =============================================================================
+# 00-configmap.yaml — the FIRST kind of state: non-sensitive configuration.
+#
+# A ConfigMap holds configuration that is not a secret: hostnames, ports, user
+# names, feature flags, tuning values, and even whole config files. It is a
+# first-class API object with its OWN lifecycle — you create and update it
+# independently of any Pod, and a Pod that mounts it merely READS from it.
+#
+# Apply:  kubectl apply -f infra/k8s/state/00-configmap.yaml
+# Read:   kubectl get configmap app-config -o yaml
+#         kubectl describe configmap app-config
+#
+# Why a ConfigMap and not `env:` literals in the Pod spec
+# --------------------------------------------------------
+# The same reasoning as the Compose `env_file` → ConfigMap mapping in
+# infra/k8s/compose-to-k8s-mapping.md: config that differs per environment must
+# not be baked into the workload. The Odoo stack runs with ODOO_DB_HOST=db on a
+# laptop and ODOO_DB_HOST=<rds-endpoint> in production; if that value lives in
+# the Pod template you must rebuild/redeploy the workload to change it. Living
+# in a ConfigMap, it is a one-line edit and (for env mounts) a Pod restart.
+#
+# Two mount styles are demonstrated by the Pods that consume this object:
+#   * keys read as ENVIRONMENT VARIABLES  -> via `configMapKeyRef`
+#     (the scalars below: POSTGRES_DB, POSTGRES_USER, ...)
+#   * keys projected as FILES in a volume -> via a `configMap` volume
+#     (the `postgresql.conf` key below, mounted at /etc/postgresql/)
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: state-demo
+    app.kubernetes.io/part-of: odoo
+  # A ConfigMap is NOT namespaced storage for secrets. Everything here is safe
+  # to read by anyone with get rights on the namespace. Real credentials live
+  # in 01-secret.yaml.
+data:
+  # --- scalar values, consumed as env vars --------------------------------
+  APP_MODE: "production"
+  POSTGRES_DB: "odoo"
+  POSTGRES_USER: "odoo"
+  # PGDATA points at a SUBDIRECTORY of the mount, never the mount root: on a
+  # freshly-formatted volume the root can contain a `lost+found` directory
+  # (and a non-empty data dir makes `initdb` refuse to run). One level down is
+  # the standard fix and mirrors the compose `odoo-db-data` volume layout.
+  PGDATA: "/var/lib/postgresql/data/pgdata"
+  # The Odoo application (not the database) reads these — same object, one
+  # source of truth, which is exactly what the migration plan
+  # (infra/k8s/config-secret-plan.md) proposes for the real stack.
+  ODOO_DB_HOST: "postgres"
+  ODOO_DB_PORT: "5432"
+  ODOO_DB_USER: "odoo"
+
+  # --- a whole config FILE, consumed as a projected volume ----------------
+  # `kubectl apply` stores this verbatim; the Pod mounts it read-only at
+  # /etc/postgresql/postgresql.conf and is pointed at it with
+  # `-c config_file=/etc/postgresql/postgresql.conf`. This is how the Odoo
+  # stack's docker/odoo.conf becomes a ConfigMap (see compose-to-k8s-mapping).
+  postgresql.conf: |
+    # Managed by ConfigMap `app-config` (key: postgresql.conf).
+    # Mounted read-only at /etc/postgresql/postgresql.conf.
+    #
+    # When config_file is set explicitly, Postgres no longer derives the other
+    # file locations from the (empty) current directory, so data_directory and
+    # the HBA/ident locations must be stated here. They point back into PGDATA.
+    data_directory = '/var/lib/postgresql/data/pgdata'
+    hba_file       = '/var/lib/postgresql/data/pgdata/pg_hba.conf'
+    ident_file     = '/var/lib/postgresql/data/pgdata/pg_ident.conf'
+
+    listen_addresses = '*'
+    port             = 5432
+    max_connections  = 100
+    # Small, kind-friendly buffers. In production these are sized from the
+    # node's memory class; see infra/helm/odoo-stack/README.md.
+    shared_buffers   = 128MB
+    # Slow-query logging, the same intent as docker-compose.yml's db command.
+    log_min_duration_statement = 200

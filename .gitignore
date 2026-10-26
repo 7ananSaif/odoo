@@ -8,6 +8,10 @@ _build/
 !.gitkeep
 !.github
 !.githooks
+# The template a clone copies to .env — without it `cp .env.example .env`
+# (the first step in every guide, including docs/saas-manager-docker.md §2)
+# cannot be run at all. `.env` itself stays ignored.
+!.env.example
 !.mailmap
 !.weblate.json
 # compiled python files
@@ -88,3 +92,16 @@ infra/terraform/.terraform
 .terraform/
 
 *.tfstate*
+docs/
+sphinx_docs/
+scripts/srs_docx/
+infra - Copy
+
+# v1 snapshot of ./infra, kept as a git-recoverable copy in infra-v1-backup/.
+# The blanket `*.json`, `*.log` and `docs/` rules above would otherwise drop
+# files from that snapshot, so re-include the tree — but keep the Terraform
+# state ignored: it holds live AWS resource attributes and credentials.
+!infra-v1-backup/
+!infra-v1-backup/**
+infra-v1-backup/terraform/*.tfstate*
+infra-v1-backup/terraform/.terraform/
