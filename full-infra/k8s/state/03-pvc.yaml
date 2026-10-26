@@ -16,7 +16,7 @@
 #                              suitable PV and keeps that binding for the life
 #                              of the claim.
 #
-# Apply:  kubectl apply -f infra/k8s/state/03-pvc.yaml
+# Apply:  kubectl apply -f full-infra/k8s/state/03-pvc.yaml
 # Status: kubectl get pvc pg-pvc
 #         kubectl describe pvc pg-pvc      # read the Events if it is Pending
 #
@@ -57,7 +57,7 @@ spec:
   # local-path / EBS volume offers. It also has a real consequence: a
   # ReadWriteOnce claim pins its consumer to one node, which is why a
   # multi-replica Odoo filestore needs ReadWriteMany (EFS) instead — see
-  # infra/k8s/compose-to-k8s-mapping.md, "odoo-web-data".
+  # full-infra/k8s/compose-to-k8s-mapping.md, "odoo-web-data".
   accessModes:
     - ReadWriteOnce
   resources:

@@ -9,7 +9,7 @@ cluster has its etcd volumes encrypted at the disk level, and every cluster runn
 **Kubernetes 1.28 or later** additionally envelope-encrypts *all* Kubernetes API
 data (Secrets, ConfigMaps, everything) with AWS KMS **by default**, using an
 AWS-owned key, at no extra cost and with no action required. The project's cluster
-(`infra/eks/cluster.yaml`) is `version: "1.30"`, so it already has this. The only
+(`full-infra/eks/cluster.yaml`) is `version: "1.30"`, so it already has this. The only
 decision left is whether to (a) accept the default AWS-owned key, (b) bring a
 customer-managed KMS key (CMK) for control/auditability, and/or (c) keep secrets
 out of etcd entirely by sourcing them from **AWS Secrets Manager**. The
@@ -191,8 +191,8 @@ and the cluster stops being the place it is authored.
 
 There are two idiomatic bridges, both running with **IRSA** (IAM Roles for
 Service Accounts — the EKS OIDC pattern already enabled in
-`infra/eks/cluster.yaml` via `iam.withOIDC: true`, and described in
-`infra/eks/README.md`):
+`full-infra/eks/cluster.yaml` via `iam.withOIDC: true`, and described in
+`full-infra/eks/README.md`):
 
 ### 4.1 External Secrets Operator (ESO) — sync into a k8s `Secret`
 
@@ -282,9 +282,9 @@ them.**
 |---|---|---|
 | API-data / Secret encryption in etcd | **Rely on the EKS 1.28+ default** (AWS-owned key). Do nothing. | Cluster is 1.30; it is already on, free, and needs no permissions. This is the correct "use what the platform gives you" answer. |
 | Customer-managed KMS key (CMK) | **Not now; documented as the upgrade path.** | A CMK buys key-policy control and CloudTrail visibility at $1/month, but creates an irrecoverable dependency (disable/delete = degraded or dead cluster). Not worth it until a compliance requirement, an external audit, or a key-rotation policy demands it. If adopted: create the CMK, set a CloudWatch alarm on its state, and scope `kms:CreateGrant`/`kms:Decrypt` least-privilege. |
-| High-value, externally-owned credentials (`ANTHROPIC_API_KEY`, `INVOICE_AI_VOYAGE_API_KEY`, RDS master password) | **Source from AWS Secrets Manager via External Secrets Operator**, with IRSA. | These rotate outside the cluster and must have one audit trail. ESO keeps the app's env-var contract intact. `infra/terraform/ssm.tf` + `iam.tf` already provision the parameter/policies; `infra/eks/README.md` already names ESO as an IRSA consumer. |
+| High-value, externally-owned credentials (`ANTHROPIC_API_KEY`, `INVOICE_AI_VOYAGE_API_KEY`, RDS master password) | **Source from AWS Secrets Manager via External Secrets Operator**, with IRSA. | These rotate outside the cluster and must have one audit trail. ESO keeps the app's env-var contract intact. `full-infra/terraform/ssm.tf` + `iam.tf` already provision the parameter/policies; `full-infra/eks/README.md` already names ESO as an IRSA consumer. |
 | Secrets authored in the repo | **Never.** `.env` stays a local-only, git-ignored file; `.env.example` carries placeholders; real values live in Secrets Manager. | Encryption at rest cannot protect a copy you committed. This is the highest-leverage change in the whole plan. |
-| The `db-secret` used by the local kind exercise (`infra/k8s/state/01-secret.yaml`) | **Keep as a documented placeholder.** | It is a throwaway value for a laptop cluster; production never renders it (`secret.existingSecret: true` in the Helm chart — see `infra/helm/odoo-stack/README.md`). |
+| The `db-secret` used by the local kind exercise (`full-infra/k8s/state/01-secret.yaml`) | **Keep as a documented placeholder.** | It is a throwaway value for a laptop cluster; production never renders it (`secret.existingSecret: true` in the Helm chart — see `full-infra/helm/odoo-stack/README.md`). |
 
 **One-line version:** let EKS do the etcd encryption (it already does, by
 default, for free); put the credentials that rotate in **AWS Secrets Manager**

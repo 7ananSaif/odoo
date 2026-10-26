@@ -8,9 +8,9 @@ import rendered_config
 import yaml
 from verify_workflow_shell import check_workflow as check_workflow_shell
 
-CHART = "infra/helm/odoo-stack"
+CHART = "full-infra/helm/odoo-stack"
 WORKFLOW = ".github/workflows/deploy.yml"
-PREFLIGHT = "infra/k8s/odoo-db-preflight-job.yaml"
+PREFLIGHT = "full-infra/k8s/odoo-db-preflight-job.yaml"
 
 failures = []
 
@@ -241,12 +241,12 @@ if ACCESS_STEP in names:
           ACCESS_STEP + " has a branch that prints a diagnosis but does not fail: "
           "the deploy would carry on and die later with the same opaque error")
 
-runbook = open("infra/runbook.md", encoding="utf-8").read()
+runbook = open("full-infra/runbook.md", encoding="utf-8").read()
 check("create-access-entry" in runbook and "iamidentitymapping" in runbook,
-      "infra/runbook.md does not document mapping the deploy role into the "
+      "full-infra/runbook.md does not document mapping the deploy role into the "
       "cluster - the step the deploy depends on and cannot do for itself")
 check("provide credentials" in runbook,
-      "infra/runbook.md does not name the symptom of a missing cluster identity")
+      "full-infra/runbook.md does not name the symptom of a missing cluster identity")
 
 # ---------------------------------------------------------------------------
 # Static shell guard: no step may read a variable from nowhere.
@@ -308,10 +308,10 @@ check(len(detected) == 1 and "NEVER_SET" in detected[0],
 # published DB host would have been a single control byte, and the deploy would
 # have failed against a host that is not a host. So:
 #   * no step may parse rendered.yaml with sed,
-#   * both reading steps must use infra/k8s/rendered_config.py,
+#   * both reading steps must use full-infra/k8s/rendered_config.py,
 #   * that reader is exercised here against the manifest helm really produces.
 # ---------------------------------------------------------------------------
-EXTRACTOR = "infra/k8s/rendered_config.py"
+EXTRACTOR = "full-infra/k8s/rendered_config.py"
 EXPECTED_DB_HOST = "db.example.rds.amazonaws.com"
 
 for step in steps:

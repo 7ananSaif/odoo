@@ -86,9 +86,9 @@ custom_addons/library/
 *.tfstate.*
 .terraform/
 *.tfvars
-!infra/
-!infra/**
-infra/terraform/.terraform
+!full-infra/
+!full-infra/**
+full-infra/terraform/.terraform
 .terraform/
 
 *.tfstate*
@@ -105,3 +105,9 @@ infra - Copy
 !infra-v1-backup/**
 infra-v1-backup/terraform/*.tfstate*
 infra-v1-backup/terraform/.terraform/
+
+# lite-infra / k8s-local: same treatment — treat them as source, not artifacts.
+!lite-infra/
+!lite-infra/**
+!k8s-local/
+!k8s-local/**

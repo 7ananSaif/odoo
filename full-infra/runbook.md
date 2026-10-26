@@ -15,7 +15,7 @@ AWS keys stored as secrets).
 
 ```bash
 # Provision control plane + node group + OIDC + EBS CSI addon
-eksctl create cluster -f infra/eks/cluster.yaml
+eksctl create cluster -f full-infra/eks/cluster.yaml
 
 # Point kubectl at the cluster
 aws eks update-kubeconfig --name odoo-eks --region eu-north-1
@@ -45,7 +45,7 @@ eksctl create iamidentitymapping --cluster odoo-eks --region eu-north-1 \
   --arn "$ROLE_ARN" --group system:masters --username github-deploy
 
 # Install the AWS Load Balancer Controller (ALB support)
-#   see infra/eks/aws-load-balancer-controller.md
+#   see full-infra/eks/aws-load-balancer-controller.md
 
 # Install External Secrets Operator (populates Secret from AWS Secrets Manager)
 helm repo add external-secrets https://charts.external-secrets.io
@@ -87,8 +87,8 @@ helm install external-secrets external-secrets/external-secrets -n external-secr
 6. **`helm upgrade --install`** the `odoo-stack` chart with the prod values file,
    the image injected as flags so the values file never pins a stale tag:
    ```bash
-   helm upgrade --install odoo infra/helm/odoo-stack \
-     -f infra/helm/odoo-stack/values.production.yaml \
+   helm upgrade --install odoo full-infra/helm/odoo-stack \
+     -f full-infra/helm/odoo-stack/values.production.yaml \
      --namespace odoo --create-namespace \
      --set odoo.image.repository=<repo> --set odoo.image.tag=<sha> \
      --set-string config.odooDbHost=<rds-endpoint> \
@@ -182,7 +182,7 @@ the maintenance window.
    (uploads `/var/lib/odoo` attachments to the `attachments` S3 bucket) so the
    EKS `filestore` PVC can be seeded, or mount the same S3 bucket via the
    `s3_storage` addon config.
-4. **Point the chart at RDS** — `infra/helm/odoo-stack/values.production.yaml`:
+4. **Point the chart at RDS** — `full-infra/helm/odoo-stack/values.production.yaml`:
    - `postgres.enabled: false` (no in-cluster Postgres on prod)
    - `config.odooDbHost: <rds-endpoint>` (from `terraform output rds_hostname`)
    - `config.odooDbPort: "5432"`
@@ -226,5 +226,5 @@ modules, and health-checked the EC2 app. That path is **removed**:
 - `scripts/deploy_remote.sh`, `scripts/cutover.sh`, `scripts/sync-filestore-to-s3.sh`,
   and `scripts/backup.sh` are kept only as legacy/reference; the EKS + Helm path runs
   deploy, rollback, and the filestore sync (via S3 + EBS) from Kubernetes.
-- `infra/eks/cluster.yaml` + `infra/runbook.md` are the source of truth for shipping
+- `full-infra/eks/cluster.yaml` + `full-infra/runbook.md` are the source of truth for shipping
   to production.

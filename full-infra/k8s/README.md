@@ -67,7 +67,7 @@ Make sure **Docker Desktop is running** first — a stopped daemon gives
 ## 1. Bring up the cluster
 
 ```powershell
-kind create cluster --config infra/k8s/kind-cluster.yaml --image kindest/node:v1.37.0
+kind create cluster --config full-infra/k8s/kind-cluster.yaml --image kindest/node:v1.37.0
 ```
 
 What this does, in order:
@@ -102,7 +102,7 @@ kubectl get nodes
 ## 2. Run Nginx
 
 ```powershell
-kubectl apply -f infra/k8s/nginx.yaml
+kubectl apply -f full-infra/k8s/nginx.yaml
 ```
 
 Watch the Pods come up:
@@ -193,7 +193,7 @@ spec:
 ```
 
 ```powershell
-kubectl apply -f infra/k8s/nginx.yaml
+kubectl apply -f full-infra/k8s/nginx.yaml
 curl.exe -i http://127.0.0.1:8081
 ```
 
@@ -224,7 +224,7 @@ exercise adds the three objects that carry state, and proves each one:
   mounts it (`state/03-pvc.yaml`, `state/04-postgres-pod.yaml`).
 
 ```powershell
-kubectl apply -f infra/k8s/state/
+kubectl apply -f full-infra/k8s/state/
 kubectl get pod,configmap,secret,pvc -l app.kubernetes.io/component=state-demo
 ```
 
@@ -289,7 +289,7 @@ nginx-deployment-…-wpfbm   1/1   Running   10.244.0.6
 | Pod stuck `Pending` | no room on the node / image still pulling | `kubectl describe pod <name>` and read Events |
 | `port-forward` errors: `address already in use` | another process owns that local port | map a different one: `kubectl port-forward svc/nginx-service 18080:80` |
 | `kubectl` talks to the wrong cluster | stale context | `kubectl config use-context kind-odoo-local` |
-| Need to re-create the node image after a `docker system prune` | large layer pulls fail mid-transfer on a slow link | `python infra/k8s/kind-node-image-pull.py` then `docker load` (see that file's docstring) |
+| Need to re-create the node image after a `docker system prune` | large layer pulls fail mid-transfer on a slow link | `python full-infra/k8s/kind-node-image-pull.py` then `docker load` (see that file's docstring) |
 
 Useful commands while learning:
 

@@ -52,7 +52,7 @@ would sit `Pending` — that is the precondition to check first.
 ## 1. Apply everything
 
 ```powershell
-kubectl apply -f infra/k8s/state/
+kubectl apply -f full-infra/k8s/state/
 ```
 
 ```text
@@ -189,7 +189,7 @@ kubectl exec pg-test -- psql -U odoo -d odoo -tAc "select pg_postmaster_start_ti
 kubectl delete pod pg-test
 
 # 3) recreate it from the same file
-kubectl apply -f infra/k8s/state/04-postgres-pod.yaml
+kubectl apply -f full-infra/k8s/state/04-postgres-pod.yaml
 kubectl get pod pg-test -w          # wait for 1/1 Running, Ctrl-C
 ```
 
@@ -232,13 +232,13 @@ before and after — the recreated Pod is backed by the *same* volume.
 
 ```powershell
 # remove the demo (the PV is released by the Delete reclaim policy)
-kubectl delete -f infra/k8s/state/
+kubectl delete -f full-infra/k8s/state/
 
 # nuke the whole cluster, PVCs and all
 kind delete cluster --name odoo-local
 ```
 
-`kubectl delete -f infra/k8s/state/` removes the Pod, the PVC and the config
+`kubectl delete -f full-infra/k8s/state/` removes the Pod, the PVC and the config
 objects. With the `Delete` reclaim policy on the `standard` class, deleting the
 PVC also deletes the underlying local-path volume — so this is destructive to the
 demo data, and the correct way to stop.

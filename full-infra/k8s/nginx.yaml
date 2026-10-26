@@ -1,7 +1,7 @@
 # =============================================================================
 # nginx.yaml - the "hello world" of Kubernetes: one Deployment + one Service.
 #
-# Apply:   kubectl apply -f infra/k8s/nginx.yaml
+# Apply:   kubectl apply -f full-infra/k8s/nginx.yaml
 # Watch:   kubectl get pods -l app=nginx -w
 # Reach:   kubectl port-forward svc/nginx-service 8080:80
 #          curl http://127.0.0.1:8080
@@ -47,7 +47,7 @@ spec:
           # A plain Nginx image. The kind node pulls it on the first Pod start;
           # `IfNotPresent` then avoids re-pulling it on the same node. (The
           # `kind load docker-image` shortcut does not work with Docker
-          # Desktop's containerd image store - see infra/k8s/README.md.)
+          # Desktop's containerd image store - see full-infra/k8s/README.md.)
           # The tag resolves today to the immutable digest
           #   nginx@sha256:4a73073bd557c65b759505da037898b61f1be6cbcc3c2c3aeac22d2a470c1752
           # which is what you pin in a manifest that must never drift. A
@@ -86,7 +86,7 @@ spec:
 # ClusterIP is the default Service type: a virtual IP reachable only from
 # inside the cluster (and via `kubectl port-forward`), which is all the Nginx
 # exercise needs. `type: NodePort` / `LoadBalancer` widen that; see the
-# optional path in infra/k8s/README.md.
+# optional path in full-infra/k8s/README.md.
 apiVersion: v1
 kind: Service
 metadata:

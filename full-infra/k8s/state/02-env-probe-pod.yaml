@@ -8,7 +8,7 @@
 # NAME, so the same Pod template works unchanged against a different ConfigMap
 # or Secret per environment.
 #
-# Apply:  kubectl apply -f infra/k8s/state/02-env-probe-pod.yaml
+# Apply:  kubectl apply -f full-infra/k8s/state/02-env-probe-pod.yaml
 # Logs:   kubectl logs env-probe
 # Exec:   kubectl exec env-probe -- sh -c 'echo "$POSTGRES_DB"'
 #

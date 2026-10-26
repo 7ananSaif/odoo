@@ -10,7 +10,7 @@ static keys. The controller assumes a role bound to the `aws-load-balancer-contr
 service account via the cluster OIDC provider.
 
 ## Prerequisites
-- The EKS cluster is up (`eksctl create cluster -f infra/eks/cluster.yaml`) with OIDC enabled (`iam.withOIDC: true`).
+- The EKS cluster is up (`eksctl create cluster -f full-infra/eks/cluster.yaml`) with OIDC enabled (`iam.withOIDC: true`).
 - `kubectl` is pointed at the cluster:
   `aws eks update-kubeconfig --name odoo-eks --region eu-north-1`
 - `helm` installed.

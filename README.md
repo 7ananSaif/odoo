@@ -139,7 +139,7 @@ See [docs/load-test.md](docs/load-test.md) for the capacity report and cost mode
 │   │   └── metrics.py       # Prometheus metrics (RED method)
 │   ├── locustfile.py        # Load test (Locust)
 │   └── pyproject.toml       # Dependencies + tooling
-├── infra/
+├── full-infra/
 │   ├── terraform/           # IaC: VPC, RDS, S3, Redis, security groups
 │   └── observability/       # Prometheus + Grafana + Alertmanager
 ├── docs/
@@ -161,7 +161,7 @@ See [docs/load-test.md](docs/load-test.md) for the capacity report and cost mode
 
 ## Monitoring
 
-The Grafana SLO dashboard (`infra/observability/grafana/dashboards/agent-slo.json`) shows:
+The Grafana SLO dashboard (`full-infra/observability/grafana/dashboards/agent-slo.json`) shows:
 
 - **Pipeline RED**: request rate, error rate, p95 duration
 - **Worker & Queue**: job throughput, queue depth, retry rate

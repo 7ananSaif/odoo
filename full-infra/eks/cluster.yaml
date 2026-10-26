@@ -2,11 +2,11 @@
 # eksctl cluster config — Odoo Invoice Agent on EKS
 #
 # Region/account/VPC are the ones already created by Terraform
-# (infra/terraform). Subnet IDs below are placeholders: substitute the real IDs
-# from `terraform output` (see infra/terraform/subnets.tf + outputs.tf).
+# (full-infra/terraform). Subnet IDs below are placeholders: substitute the real IDs
+# from `terraform output` (see full-infra/terraform/subnets.tf + outputs.tf).
 #
 # Provision:
-#   eksctl create cluster -f infra/eks/cluster.yaml
+#   eksctl create cluster -f full-infra/eks/cluster.yaml
 #
 # Verify:
 #   eksctl get cluster --region eu-north-1

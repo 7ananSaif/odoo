@@ -23,23 +23,23 @@ coverage report -m ء
 
 
 # التأكد من تنسيق ملفات Terraform
-terraform -chdir=infra/terraform/ fmt -check -recursive
+terraform -chdir=full-infra/terraform/ fmt -check -recursive
 
 # تهيئة بيئة الاختبار المحلية
-terraform -chdir=infra/terraform/ init -backend=false
+terraform -chdir=full-infra/terraform/ init -backend=false
 
 # التحقق من صحة القواعد والـ Syntax
-terraform -chdir=infra/terraform/ validate
+terraform -chdir=full-infra/terraform/ validate
 
 
 # فحص صحة إعدادات Prometheus
-docker run --rm -v "$(pwd)/infra/observability/prometheus:/etc/prometheus" prom/prometheus:v2.53.0 checkconfig /etc/prometheus/prometheus.yml
+docker run --rm -v "$(pwd)/full-infra/observability/prometheus:/etc/prometheus" prom/prometheus:v2.53.0 checkconfig /etc/prometheus/prometheus.yml
 
 # فحص صحة إعدادات Alertmanager
-docker run --rm -v "$(pwd)/infra/observability/alertmanager:/etc/alertmanager" prom/alertmanager:v0.27.0 checkconfig /etc/alertmanager/alertmanager.yml
+docker run --rm -v "$(pwd)/full-infra/observability/alertmanager:/etc/alertmanager" prom/alertmanager:v0.27.0 checkconfig /etc/alertmanager/alertmanager.yml
 
 # التحقق من صحة ملف JSON الخاص بـ Grafana Dashboard
-python3 -c "import json; json.load(open('infra/observability/grafana/dashboards/agent-slo.json'))"
+python3 -c "import json; json.load(open('full-infra/observability/grafana/dashboards/agent-slo.json'))"
 
 
 # فحص ثغرات الملفات والمكتبات في المشروع

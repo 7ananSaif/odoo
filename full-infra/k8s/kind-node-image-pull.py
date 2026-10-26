@@ -16,9 +16,9 @@ never accepted.
 
 Usage (only needed when the node image is NOT already in Docker's cache):
 
-    python infra/k8s/kind-node-image-pull.py
+    python full-infra/k8s/kind-node-image-pull.py
     docker load -i "%TEMP%\\kindnode-v1.37.0\\kindest-node-v1.37.0.tar"
-    kind create cluster --config infra/k8s/kind-cluster.yaml --image kindest/node:v1.37.0
+    kind create cluster --config full-infra/k8s/kind-cluster.yaml --image kindest/node:v1.37.0
 
 The ``--image`` flag matters: Docker Desktop's containerd image store re-digests
 a ``docker load``ed image, so kind's default digest-pinned lookup

@@ -88,7 +88,7 @@ Rules applied:
 | `S3_BACKUP_BUCKET` | *(empty)* | ConfigMap |
 | `RETENTION_DAYS` | `30` | ConfigMap |
 
-### RDS migration (infra/scripts/db-migrate.sh)
+### RDS migration (full-infra/scripts/db-migrate.sh)
 
 | .env key | Example / current | Target |
 |----------|-------------------|--------|

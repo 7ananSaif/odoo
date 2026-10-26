@@ -7,7 +7,7 @@
 #   Secret     -> env var  (POSTGRES_PASSWORD)
 #   PVC        -> the data directory at /var/lib/postgresql/data
 #
-# Apply:  kubectl apply -f infra/k8s/state/04-postgres-pod.yaml
+# Apply:  kubectl apply -f full-infra/k8s/state/04-postgres-pod.yaml
 # Watch:  kubectl get pod pg-test -w
 # Ready:  kubectl get pod pg-test -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}'
 #
@@ -17,7 +17,7 @@
 # there. A StatefulSet would obscure that, because the controller would recreate
 # the Pod for us and re-attach the same claim automatically. The production form
 # of this database IS a StatefulSet (with a `volumeClaimTemplate` instead of a
-# standalone PVC) — see infra/helm/odoo-stack/templates/postgres-statefulset.yaml.
+# standalone PVC) — see full-infra/helm/odoo-stack/templates/postgres-statefulset.yaml.
 # The StatefulSet buys a STABLE POD NAME (db-0) and per-replica storage; the
 # PVC buys durability. This file isolates the second property so it can be seen.
 #

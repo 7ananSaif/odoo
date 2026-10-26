@@ -8,7 +8,7 @@ in the cluster?*
 Two columns of truth, because they genuinely differ:
 
 - **Local (kind)** — what we can actually stand up on a laptop with no cloud.
-- **Prod (EKS)** — what `infra/eks/` + `infra/helm/odoo-stack` target, where
+- **Prod (EKS)** — what `full-infra/eks/` + `full-infra/helm/odoo-stack` target, where
   stateful infrastructure is offloaded to managed AWS services.
 
 The rule of thumb behind every row:
@@ -257,7 +257,7 @@ proxying to `odoo` and `invoice-ai`, terminating Let's Encrypt TLS.
   exercise we skip that and use `port-forward` — but this is the real mapping.
 - **Prod (EKS)**: the **AWS Load Balancer Controller** turns an Ingress into an
   ALB and ACM (or cert-manager) provides the certificate — see
-  `infra/eks/aws-load-balancer-controller.md`. The hand-rolled `nginx` container
+  `full-infra/eks/aws-load-balancer-controller.md`. The hand-rolled `nginx` container
   disappears entirely.
 - If you would rather keep an Nginx you control, it becomes a **Deployment +
   Service of type LoadBalancer** with `nginx/conf.d` as a **ConfigMap**. That is
@@ -318,12 +318,12 @@ needs **EFS** instead.
 
 | Compose service | AWS replacement | Terraform |
 |---|---|---|
-| `db` | **Amazon RDS** (Postgres) | `infra/terraform/rds.tf` |
-| `redis` | **Amazon ElastiCache** | `infra/terraform/elasticache.tf` |
+| `db` | **Amazon RDS** (Postgres) | `full-infra/terraform/rds.tf` |
+| `redis` | **Amazon ElastiCache** | `full-infra/terraform/elasticache.tf` |
 | `rabbitmq` | **Amazon MQ** (or the RabbitMQ Cluster Operator) | — |
-| Odoo filestore | **S3** (`s3_storage` addon) or **EFS** | `infra/terraform/s3.tf` |
-| `.env` secrets | **AWS Secrets Manager / SSM**, injected via External Secrets | `infra/terraform/ssm.tf`, `iam.tf` |
-| certificates | **ACM** (via the ALB) or **cert-manager** | `infra/terraform/routes.tf` |
+| Odoo filestore | **S3** (`s3_storage` addon) or **EFS** | `full-infra/terraform/s3.tf` |
+| `.env` secrets | **AWS Secrets Manager / SSM**, injected via External Secrets | `full-infra/terraform/ssm.tf`, `iam.tf` |
+| certificates | **ACM** (via the ALB) or **cert-manager** | `full-infra/terraform/routes.tf` |
 
 The point of the exercise's local cluster is to get the *object model* right —
 which things are Deployments, which are StatefulSets, which need a Service and

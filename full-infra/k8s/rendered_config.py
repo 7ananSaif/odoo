@@ -16,14 +16,14 @@ not a hostname, published to every later step, with nothing in the logs saying
 why the database could not be resolved.
 
 This file reads the value instead. It has one meaning on every platform, it is
-importable, and infra/k8s/verify_chart_and_workflow.py exercises it against the
+importable, and full-infra/k8s/verify_chart_and_workflow.py exercises it against the
 manifest `helm template` really produces.
 
 Usage
 -----
-    python3 infra/k8s/rendered_config.py rendered.yaml \\
+    python3 full-infra/k8s/rendered_config.py rendered.yaml \\
         ConfigMap data.ODOO_DB_HOST
-    python3 infra/k8s/rendered_config.py rendered.yaml \\
+    python3 full-infra/k8s/rendered_config.py rendered.yaml \\
         PersistentVolumeClaim spec.storageClassName
 
 Prints the unquoted scalar and exits 0. Prints nothing and exits 1 when the

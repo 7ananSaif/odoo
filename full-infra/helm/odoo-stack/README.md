@@ -84,7 +84,7 @@ explicit:
 1. `helm lint` and `helm template` (output kept as `rendered.yaml`).
 2. **Cluster prerequisites** read from that rendered manifest: the referenced Secret exists and has a
    non-empty `ODOO_DB_PASSWORD`, and the filestore StorageClass exists.
-3. **Database preflight** (`infra/k8s/odoo-db-preflight-job.yaml`): a one-shot Job using the same
+3. **Database preflight** (`full-infra/k8s/odoo-db-preflight-job.yaml`): a one-shot Job using the same
    image, Secret and network path as Odoo, which fails in ~30s if the `odoo` database is missing,
    unreachable, or has no `ir_module_module` table. The chart's readiness probe cannot detect any of
    those: it dials the `postgres` maintenance database, which RDS always ships.
@@ -97,10 +97,10 @@ explicit:
 
 ```
 # start the cluster
-kind create cluster --config infra/k8s/kind-cluster.yaml --image kindest/node:v1.37.0
+kind create cluster --config full-infra/k8s/kind-cluster.yaml --image kindest/node:v1.37.0
 
 # local (defaults)
-helm install odoo infra/helm/odoo-stack
+helm install odoo full-infra/helm/odoo-stack
 
 # verify
 kubectl get all -l app.kubernetes.io/instance=odoo
@@ -108,13 +108,13 @@ kubectl rollout status statefulset/odoo-odoo-stack-postgres
 kubectl rollout status deployment/odoo-odoo-stack-odoo
 
 # change a value and upgrade in place
-helm upgrade odoo infra/helm/odoo-stack --set odoo.replicaCount=2
+helm upgrade odoo full-infra/helm/odoo-stack --set odoo.replicaCount=2
 ```
 
 With environment overlays:
 
 ```
-helm install odoo infra/helm/odoo-stack -f infra/helm/odoo-stack/values.production.yaml
+helm install odoo full-infra/helm/odoo-stack -f full-infra/helm/odoo-stack/values.production.yaml
 ```
 
 `config.odooDbHost` is **empty by default**, which means "the Postgres Service this chart renders"
@@ -147,7 +147,7 @@ Two details that cost real time if you get them wrong:
 
 In production the database is expected to exist and be initialized already (RDS, carried over by the
 runbook), so the manual step above is local-only. That expectation is now *checked* rather than
-assumed: the deploy pipeline runs `infra/k8s/odoo-db-preflight-job.yaml` before `helm upgrade`, and
+assumed: the deploy pipeline runs `full-infra/k8s/odoo-db-preflight-job.yaml` before `helm upgrade`, and
 it fails in about 30 seconds — with a message naming the missing table — if the `odoo` database is
 absent, unreachable, or has no `ir_module_module`.
 
@@ -390,7 +390,7 @@ with `startupProbe` + `readinessProbe` + `livenessProbe` and a `resources` block
 in production, where `postgres.enabled: false`).
 
 ```
-$ helm lint infra/helm/odoo-stack
+$ helm lint full-infra/helm/odoo-stack
 1 chart(s) linted, 0 chart(s) failed
 
 $ kubectl -n odoo-verify get deploy odoo-verify-odoo-stack-odoo -o json   # parsed highlights
@@ -427,7 +427,7 @@ probe, and not the manifest, as the thing to fix.
 With `startupProbe`/`livenessProbe` on `tcpSocket`, the same empty-database install now converges:
 
 ```
-$ helm upgrade odoo-verify infra/helm/odoo-stack -n odoo-verify --set odoo.dbName=fresh_never_initialised --wait --timeout 90s
+$ helm upgrade odoo-verify full-infra/helm/odoo-stack -n odoo-verify --set odoo.dbName=fresh_never_initialised --wait --timeout 90s
 Release "odoo-verify" has been upgraded. Happy Helming!
 STATUS: deployed
 

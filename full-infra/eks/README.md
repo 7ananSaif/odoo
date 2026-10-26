@@ -28,7 +28,7 @@ worker nodes. It is reachable from your workstation via `kubectl` once you
 ## Node group (worker nodes)
 
 Worker nodes are EC2 instances in a `managedNodeGroups` entry
-(`infra/eks/cluster.yaml`): `m5.large`, 1–4 desired 2, in the **private app
+(`full-infra/eks/cluster.yaml`): `m5.large`, 1–4 desired 2, in the **private app
 subnets** (`10.20.10.0/24`, `10.20.11.0/24`). Private networking means no public
 IP; egress to RDS (5432), ElastiCache (6379), S3, and Secrets Manager goes via
 the existing NAT gateway.
@@ -78,7 +78,7 @@ Two concrete IRSA consumers here:
 ## Why manage the data plane with eksctl
 
 `eksctl` declaratively defines the cluster, node group, OIDC, and addons in
-`infra/eks/cluster.yaml`. That gives us: versioned cluster config in git, a
+`full-infra/eks/cluster.yaml`. That gives us: versioned cluster config in git, a
 repeatable `eksctl create cluster -f`, and IRSA wired at cluster creation —
 the same "infrastructure as code" instinct already applied to the Terraform for
 VPC/RDS/ElastiCache/S3.

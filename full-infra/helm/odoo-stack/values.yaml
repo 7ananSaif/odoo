@@ -75,7 +75,7 @@ odoo:
   port: 8069
   # Odoo's --database target: every request is served from this database. A
   # fresh, empty Postgres still has to have its schema initialised once - see
-  # "First boot" in the README, and infra/k8s/odoo-db-preflight-job.yaml, which
+  # "First boot" in the README, and full-infra/k8s/odoo-db-preflight-job.yaml, which
   # is what the deploy pipeline uses to prove the schema exists before helm runs.
   # (Measured: the health routes return 200 even when this database does not
   # exist, so no probe can be used as a schema check.)
