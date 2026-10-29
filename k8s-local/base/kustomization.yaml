@@ -1,0 +1,41 @@
+# =============================================================================
+# kustomization.yaml — one `kubectl apply -k` for the whole local stack.
+#
+# Deliberately NOT a list of `kubectl apply -f` calls in the Makefile: with
+# kustomize the ordering and the ownership of the resources are declared here,
+# `kubectl apply -k` is idempotent, and `kubectl diff -k` shows a preview of
+# what a deploy would change before it changes it.
+#
+# The numeric filename prefixes are load-bearing documentation, not ordering
+# (kubectl handles dependency order itself): they record the reasoning order -
+# namespace, credentials, config, database volume+workload, app volume+workload,
+# then the one-shot schema init.
+#
+# Namespace is set per-object in the manifests themselves rather than with
+# `namespace:` here, so that reading any single file tells you where it lands.
+# =============================================================================
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - 00-namespace.yaml
+  - 01-secret.yaml
+  - 02-configmap.yaml
+  - 03-postgres-initdb-configmap.yaml
+  - 04-postgres-statefulset.yaml
+  - 05-postgres-service.yaml
+  - 06-odoo-filestore-pvc.yaml
+  - 07-odoo-deployment.yaml
+  - 08-odoo-service.yaml
+  - 09-odoo-init-job.yaml
+
+# Common labels on every object, so `kubectl get all,pvc -n odoo-local -l
+# app.kubernetes.io/part-of=odoo-invoice-agent` is a complete inventory of this
+# option and nothing else. `includeSelectors: false` because the workloads set
+# their own selectors: injecting extra keys into a live Deployment's selector
+# is immutable and would make the second `apply` fail.
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: odoo-invoice-agent
+      odoo.example.com/option: local-k8s
+    includeSelectors: false

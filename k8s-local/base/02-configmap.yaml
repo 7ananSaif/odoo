@@ -1,0 +1,57 @@
+# =============================================================================
+# 02-configmap.yaml — non-sensitive runtime configuration.
+#
+# Every value here is traceable to something the repo already declares, so this
+# is not a second, drifting source of truth:
+#   * ODOO_DB_HOST/PORT/USER       -> docker-compose.yml `odoo.environment`
+#                                     (HOST/PORT/USER) and full-infra/helm
+#                                     configmap.yaml (ODOO_DB_*).
+#   * ODOO_WORKERS/CRON/DBCONN     -> the chart's `odoo.workers`,
+#                                     `odoo.maxCronThreads`, `odoo.dbMaxconn`,
+#                                     with the reasoning recorded in
+#                                     full-infra/helm/odoo-stack/values.yaml:
+#                                     --workers must be explicit (Odoo sizes the
+#                                     pool from the NODE's core count, not the
+#                                     container limit), and only one component
+#                                     may run cron.
+#   * ODOO_ADDONS_PATH/DATA_DIR    -> Dockerfile (/opt/odoo, /mnt/extra-addons)
+#                                     and docker/odoo.conf.
+#
+# The odoo container maps ODOO_DB_* onto the entrypoint's HOST/PORT/USER env
+# vars (see 07-odoo-deployment.yaml) - the image only understands those names.
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: odoo-config
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/component: odoo
+data:
+  # --- database coordinates (host = the postgres Service, ClusterIP) -------
+  ODOO_DB_HOST: postgres
+  ODOO_DB_PORT: "5432"
+  ODOO_DB_NAME: odoo
+
+  # --- worker sizing -------------------------------------------------------
+  # 2 workers for a laptop cluster: the app is idle most of the time here, and
+  # every worker is a forked Odoo process with its own memory arenas.
+  ODOO_WORKERS: "2"
+  # One cron thread in exactly one deployment. There is a single `odoo`
+  # Deployment in this option, so 1 is safe; a second replica would need 0 and
+  # --max-cron-threads=0 here (see the chart's comment on the same field).
+  ODOO_MAX_CRON_THREADS: "1"
+  # Cap the ORM connection pool so 2 workers cannot exhaust Postgres'
+  # max_connections (default 100 on the pg16 image).
+  ODOO_DB_MAXCONN: "16"
+
+  # --- filesystem layout (mirrors Dockerfile / docker/odoo.conf) -----------
+  ODOO_ADDONS_PATH: /opt/odoo/addons,/mnt/extra-addons
+  ODOO_DATA_DIR: /var/lib/odoo
+
+  # --- HTTP ---------------------------------------------------------------
+  ODOO_HTTP_PORT: "8069"
+  # Behind the kubectl port-forward / NodePort: trust X-Forwarded-* the way
+  # docker-compose.yml sets PROXY_MODE=True.
+  ODOO_PROXY_MODE: "True"

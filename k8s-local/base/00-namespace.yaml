@@ -1,0 +1,23 @@
+# =============================================================================
+# 00-namespace.yaml — the one namespace everything in this option lives in.
+#
+# A dedicated namespace (instead of `default`) so that:
+#   * `make k8s-down` can remove the workload without touching anything else
+#     in the cluster (kind/docker-desktop clusters are often shared with other
+#     exercises),
+#   * the destructive teardown (`kubectl delete namespace odoo-local`) has a
+#     blast radius of exactly this stack, PVCs included.
+#
+# It is NOT declared with `kubectl create namespace` in the Makefile: doing it
+# as a manifest keeps `kubectl apply -k` idempotent and makes the whole option
+# reproducible from the files in this directory.
+# =============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    # Identifies the local option so `kubectl get ns -l option=local` works
+    # even on a cluster shared with the full-infra exercise.
+    odoo.example.com/option: local-k8s

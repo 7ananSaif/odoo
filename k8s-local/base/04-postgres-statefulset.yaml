@@ -1,0 +1,167 @@
+# =============================================================================
+# 04-postgres-statefulset.yaml — local PostgreSQL 16 + pgvector, with a
+# PersistentVolume behind it so the data survives restarts.
+#
+# WHY A STATEFULSET AND NOT A DEPLOYMENT
+# --------------------------------------
+# A Deployment gives pods random names and no stable storage identity: on
+# reschedule the replacement pod would come up against a *different* volume (or
+# none). A StatefulSet binds one pod to one PVC by name (`pgdata-postgres-0`),
+# via `volumeClaimTemplates` - which is also what makes the volume survive
+# `kubectl delete pod`, `kubectl rollout restart`, and `make k8s-down` (that
+# target deletes the StatefulSet but explicitly NOT the PVC).
+#
+# The PVC is what creates the PersistentVolume: the cluster's default
+# StorageClass provisions one on first use (kind ships `standard`/local-path,
+# Docker Desktop ships `hostpath`). That is the "PersistentVolume" in the
+# diagrams below - you do not have to hand-write a PV on either of those
+# clusters. For a cluster with no default provisioner, see
+# k8s-local/optional/static-pv.yaml.
+#
+# IMAGE
+# -----
+# Same pinned image as docker-compose.yml (pgvector/pgvector, Postgres 16 base,
+# digest-pinned there because a floating tag once changed Debian base and
+# silently changed glibc collation under a live volume). Kept identical here so
+# a developer's local data directory has the same collation behaviour as the
+# compose stack.
+#   * arm64 (Apple silicon)? Drop the "@sha256:..." suffix below; that digest
+#     is the amd64 manifest.
+#
+# POSTGRES_* environment is only honoured on an EMPTY data directory: changing
+# the password in 01-secret.yaml later does not change the database user. See
+# the rotation note in that file.
+# =============================================================================
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/component: database
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: postgres
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: odoo-invoice-agent
+        app.kubernetes.io/name: postgres
+        app.kubernetes.io/component: database
+    spec:
+      # Postgres accepts connections while shutting down; give it room to flush
+      # cleanly instead of SIGKILLing it mid-checkpoint (same value as the Helm
+      # chart's postgres.terminationGracePeriodSeconds).
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: postgres
+          image: pgvector/pgvector:0.8.6-pg16-bookworm@sha256:ccc6e83d6e35e931dc7c5def2022729d5a6c370318d099181995567ff1fb4d6b
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: postgres
+              containerPort: 5432
+              protocol: TCP
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-db
+                  key: POSTGRES_DB
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-db
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-db
+                  key: POSTGRES_PASSWORD
+          # --- diagnostics + pgvector, copied from docker-compose.yml --------
+          # pg_stat_statements: per-query stats; track_io_timing: real I/O in
+          # EXPLAIN; log_min_duration_statement=200: log slow queries.
+          args:
+            - postgres
+            - -c
+            - shared_preload_libraries=pg_stat_statements,vector
+            - -c
+            - pg_stat_statements.max=10000
+            - -c
+            - pg_stat_statements.track=all
+            - -c
+            - track_io_timing=on
+            - -c
+            - log_min_duration_statement=200
+          # Resource sizing taken from the Helm chart's postgres.resources,
+          # which in turn traces to docker-compose.yml `deploy.resources`
+          # (reservations 256M -> requests 256Mi, limits 1G -> limits 1Gi).
+          resources:
+            requests:
+              cpu: 250m
+              memory: 256Mi
+            limits:
+              cpu: "1"
+              memory: 1Gi
+          # --- startup: "is the first initdb / WAL replay finished?" ---------
+          # 5s x 60 = a 300s budget. A fresh initdb is seconds; replaying WAL on
+          # a large volume after an unclean shutdown is minutes. Without this,
+          # a restart during recovery is misread as a wedged database.
+          startupProbe:
+            exec:
+              command:
+                ["sh", "-c", 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"']
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 60
+          # --- readiness: "may clients connect right now?" -------------------
+          # Until this passes the Service has no endpoints, so Odoo is never
+          # routed to a database that is still starting or shutting down.
+          readinessProbe:
+            exec:
+              command:
+                ["sh", "-c", 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"']
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          # --- liveness: "is the postmaster wedged?" -------------------------
+          livenessProbe:
+            exec:
+              command:
+                ["sh", "-c", 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"']
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 4
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+            # Idempotent vector bootstrap: runs once on a fresh volume and is a
+            # no-op afterwards (the entrypoint only runs initdb scripts when the
+            # data directory is empty).
+            - name: initdb
+              mountPath: /docker-entrypoint-initdb.d
+              readOnly: true
+      volumes:
+        - name: initdb
+          configMap:
+            name: postgres-initdb
+  # --- THE PERSISTENT VOLUME ------------------------------------------------
+  # One PVC per replica, named `<volumeClaimTemplate>-<statefulset>-<ordinal>`
+  # => `pgdata-postgres-0`. storageClassName is deliberately omitted so the
+  # cluster default provisioner is used (kind: standard/local-path,
+  # Docker Desktop: hostpath). Set it explicitly if your cluster has several
+  # classes and the default is not the one you want.
+  volumeClaimTemplates:
+    - metadata:
+        name: pgdata
+        labels:
+          app.kubernetes.io/part-of: odoo-invoice-agent
+          app.kubernetes.io/component: database
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 8Gi
