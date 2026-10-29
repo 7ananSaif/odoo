@@ -104,23 +104,12 @@ loaded there.
 | kind | <http://localhost:8081> |
 | either, no NodePort | `kubectl port-forward -n odoo-local svc/odoo 8069:8069` → <http://localhost:8069> |
 
-Login: the database was initialised with `--without-demo=all`, so no demo data
-exists — set an admin password on first visit with:
+Login: **admin / admin** — that is the user `--init=base` creates. Change the
+password straight away (Preferences → Account Security), because a NodePort on
+Docker Desktop is reachable by anything running on your machine.
 
-```bash
-kubectl exec -n odoo-local deployment/odoo -- \
-  odoo shell -d odoo --no-http < /dev/null
-```
-
-…or simply use Odoo's *Set a password* flow on the login page if the admin user
-already exists (it does; base init creates `admin` with an unusable password
-plus the `admin_passwd` gate). The shortest reliable path on a fresh local DB:
-
-```bash
-kubectl exec -it -n odoo-local deployment/odoo -- odoo shell -d odoo
-# then, at the >>> prompt:
-#   env['res.users'].browse(2).password = 'admin'
-```
+`--without-demo=all` means there is no sample data: base modules only, and an
+empty chart of accounts until you install more apps.
 
 ---
 

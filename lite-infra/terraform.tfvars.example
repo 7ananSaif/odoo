@@ -1,0 +1,34 @@
+# =============================================================================
+# lite-infra/terraform.tfvars.example
+#   cp terraform.tfvars.example terraform.tfvars   and edit.
+# terraform.tfvars is gitignored; this example is not.
+# =============================================================================
+
+# Where the box lives. Lightsail is only in some regions.
+aws_region        = "eu-north-1"
+availability_zone = "eu-north-1a"
+
+# The $5/month bundle. Keep the nano_ prefix; variables.tf rejects anything else
+# so this option cannot silently become a $20/month box.
+bundle_id = "nano_3_0"
+
+# Subscribe this address to the $5 billing alarm. Empty = alarm exists, nobody
+# is notified by email.
+billing_alarm_email = "you@example.com"
+
+# --- credentials -----------------------------------------------------------
+# PLACEHOLDER. Change it before applying, and never commit terraform.tfvars.
+#   terraform apply -var="db_password=$(openssl rand -base64 24)"
+db_password = "change-me-lite-placeholder"
+
+# --- access ----------------------------------------------------------------
+# Narrow SSH to your own address. Run: curl -s https://checkip.amazonaws.com
+ssh_allowed_cidrs = ["203.0.113.10/32"]
+
+# --- what to run -----------------------------------------------------------
+repo_url    = "https://github.com/7ananSaif/odoo.git"
+repo_branch = "feature/invoice-ai-service"
+
+# Leave empty to build the repo's Dockerfile on the instance (slow first boot),
+# or point at an image you already pushed to skip the build entirely.
+# app_image = "docker.io/youruser/odoo-invoice-agent:1.0"

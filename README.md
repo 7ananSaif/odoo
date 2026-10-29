@@ -68,6 +68,112 @@ docker compose up -d
 # Review the AI-suggested fields in the suggestion panel
 ```
 
+## Three ways to run this
+
+The application is identical in all three; what changes is where it runs and what
+you pay. Pick one.
+
+| | `full-infra/` | `lite-infra/` | `k8s-local/` |
+|---|---|---|---|
+| Orchestrator | EKS | Docker Compose on one box | laptop Kubernetes |
+| Database | RDS | Postgres container + volume | Postgres StatefulSet + PVC |
+| Cost | $$$ (EKS + ALB + NAT + RDS) | **≈$5.10/month** | $0 |
+| Purpose | production-shaped reference | cheapest thing that really works | iterate without a cloud bill |
+
+### Option 1 — `full-infra` (EKS + RDS, the production-shaped stack)
+
+Terraform for the AWS layer, Helm for the workload, eksctl for the cluster.
+
+```bash
+# 1. Infrastructure: VPC, RDS, ElastiCache, S3, IAM, security groups
+cd full-infra/terraform
+terraform init
+terraform plan  -out=tfplan
+terraform apply tfplan
+
+# Subnet/KMS/secret ARNs feed the cluster manifest:
+terraform output
+
+# 2. Cluster (substitute the real subnet IDs in the manifest first)
+eksctl create cluster -f ../eks/cluster.yaml
+
+# 3. Workload
+helm upgrade --install odoo ../helm/odoo-stack \
+  -f ../helm/odoo-stack/values.production.yaml \
+  --namespace odoo --create-namespace --wait
+
+# 4. Operator runbook (upgrades, restores, rotation)
+#    full-infra/runbook.md
+```
+
+The ALB terminates TLS and fronts Odoo; RDS is the database; secrets come from
+AWS Secrets Manager through External Secrets. Full details:
+[`full-infra/runbook.md`](full-infra/runbook.md).
+
+### Option 2 — `lite-infra` (one $5/month Lightsail instance)
+
+One instance, Docker Compose, its own Postgres. No EKS, no ALB, no NAT, no RDS.
+
+```bash
+# 1. Configure
+cd lite-infra
+cp terraform.tfvars.example terraform.tfvars
+#    set billing_alarm_email, ssh_allowed_cidrs (your IP), db_password
+
+# 2. Create the instance (+ static IP, firewall, $5 billing alarm)
+terraform init
+terraform apply
+
+# 3. Watch first boot (installs Docker, builds the image: 30-60 min cold)
+terraform output -raw ssh_private_key > lite-infra-key.pem
+chmod 600 lite-infra-key.pem
+bash ../deploy/lite-aws.sh logs
+
+# 4. Open it
+terraform output app_url        # http://<static-ip>/web/login
+
+# 5. Tear down (DESTRUCTIVE - deletes the database with the instance)
+bash ../deploy/lite-aws.sh snapshot
+bash ../deploy/lite-aws.sh down
+```
+
+Or the wrapper for steps 2-4: `bash deploy/lite-aws.sh up`. Cost breakdown,
+caveats (512 MB + 2 GB swap, the AI pipeline does **not** fit here) and pricing
+sources: [`lite-infra/README.md`](lite-infra/README.md).
+
+### Option 3 — `k8s-local` (Docker Desktop Kubernetes or kind)
+
+Odoo + Postgres on your machine, with a real PersistentVolume so the database
+survives restarts. No cloud account needed.
+
+```bash
+# 0. Prerequisites: Docker Desktop with Kubernetes enabled, kubectl.
+#    (or: kind installed, and use CLUSTER=kind below)
+
+# 1. Build the image and check the cluster
+cd k8s-local
+make k8s-up                 # no make? bash ../deploy/local-k8s.sh up
+
+# 2. Apply, wait for Postgres, initialise the schema, wait for Odoo
+make k8s-deploy             # bash ../deploy/local-k8s.sh deploy
+
+# 3. Open it
+#    Docker Desktop: http://localhost:30080
+#    kind:           http://localhost:8081
+#    either:         kubectl port-forward -n odoo-local svc/odoo 8069:8069
+
+# 4. Day-to-day
+make logs       # follow Odoo
+make db-shell   # psql
+make db-backup  # pg_dump -Fc into ./backups
+make k8s-down   # stop, KEEP data
+make k8s-destroy  # delete namespace + volumes (asks 'yes')
+```
+
+On kind, pass the cluster type once: `make k8s-up CLUSTER=kind`. Full command
+reference, data-survival table and troubleshooting:
+[`k8s-local/README.md`](k8s-local/README.md).
+
 ### Services
 
 | Service | Port | Purpose |
@@ -139,9 +245,20 @@ See [docs/load-test.md](docs/load-test.md) for the capacity report and cost mode
 │   │   └── metrics.py       # Prometheus metrics (RED method)
 │   ├── locustfile.py        # Load test (Locust)
 │   └── pyproject.toml       # Dependencies + tooling
-├── full-infra/
+├── full-infra/              # Option 1: EKS + RDS (the production-shaped stack)
 │   ├── terraform/           # IaC: VPC, RDS, S3, Redis, security groups
+│   ├── helm/odoo-stack/     # the workload
+│   ├── eks/                 # eksctl cluster manifest, ALB controller notes
 │   └── observability/       # Prometheus + Grafana + Alertmanager
+├── lite-infra/              # Option 2: one Lightsail instance, Docker Compose, $5/month
+│   ├── *.tf                 # instance, static IP, firewall, $5 billing alarm
+│   ├── docker-compose.lite.yml
+│   └── boot.sh.tftpl        # cloud-init: docker + compose + schema init
+├── k8s-local/               # Option 3: Docker Desktop K8s or kind, PV-backed Postgres
+│   ├── base/                # kustomize manifests (namespace, deploy, svc, sts, pvc, job)
+│   └── Makefile             # k8s-up / k8s-deploy / k8s-down / db-shell / db-backup / logs
+├── deploy/                  # wrappers: local-k8s.sh, lite-aws.sh
+├── infra-v1-backup/         # untouched pre-rename snapshot of ./infra (tag: infra-v1)
 ├── docs/
 │   ├── architecture.md      # Full architecture with network topology
 │   ├── load-test.md         # Capacity report

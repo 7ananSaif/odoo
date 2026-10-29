@@ -111,3 +111,13 @@ infra-v1-backup/terraform/.terraform/
 !lite-infra/**
 !k8s-local/
 !k8s-local/**
+
+# Those re-includes are broad on purpose (the manifests and *.tf are source),
+# so the artifacts inside them are excluded again here - a later pattern wins.
+lite-infra/.terraform/
+lite-infra/terraform.tfstate*
+lite-infra/terraform.tfvars
+lite-infra/*.pem
+lite-infra/_tf-mirror.tfrc
+lite-infra/_tfinit.log
+k8s-local/backups/
