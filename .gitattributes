@@ -1,0 +1,11 @@
+# Shell scripts must keep LF endings even on Windows checkouts.
+# A CRLF checkout breaks bash line-continuations ("syntax error near unexpected
+# token" at the backslash), which is exactly how deploy/local-k8s.sh broke on
+# this machine. Normative text formats are pinned here so Git never rewrites them.
+*.sh            text eol=lf
+*.tftpl         text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+Dockerfile      text eol=lf
+*.tf            text eol=lf
+*.tfvars        text eol=lf
