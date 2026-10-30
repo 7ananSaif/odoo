@@ -29,6 +29,14 @@ AWS_REGION="${AWS_REGION:-eu-north-1}"
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+# SSH_KEY defaults to a repo-relative path, but the script may be called from
+# anywhere (e.g. from inside lite-infra/). Anchor it to the repo root unless the
+# caller passed an absolute path.
+case "$SSH_KEY" in
+  /*|[A-Za-z]:[\\/]*) ;;
+  *) SSH_KEY="${REPO_ROOT}/${SSH_KEY}" ;;
+esac
+
 say()  { printf '\033[1m>> %s\033[0m\n' "$*"; }
 ok()   { printf '\033[32m   ok\033[0m %s\n' "$*"; }
 warn() { printf '\033[33m   !! %s\033[0m\n' "$*"; }
