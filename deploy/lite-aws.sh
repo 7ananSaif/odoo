@@ -49,8 +49,11 @@ resolve_exe() {
   case "$1" in
     */*) printf '%s' "$1" ;;
     *)
-      if command -v "$1" >/dev/null 2>&1; then printf '%s' "$1"
-      elif command -v "${1}.exe" >/dev/null 2>&1; then printf '%s' "${1}.exe"
+      # .exe first - see the long note in deploy/local-k8s.sh: under WSL,
+      # Docker Desktop's /usr/bin shims fail unless WSL integration is enabled,
+      # while the Windows executables work regardless.
+      if command -v "${1}.exe" >/dev/null 2>&1; then printf '%s' "${1}.exe"
+      elif command -v "$1" >/dev/null 2>&1; then printf '%s' "$1"
       else printf '%s' "$1"
       fi ;;
   esac

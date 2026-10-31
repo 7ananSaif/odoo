@@ -37,6 +37,12 @@
 
 SHELL := /bin/bash
 
+# The prefix every recipe below starts with. Without this line every `>` recipe
+# is "missing separator" - the file documented the trick but never applied it.
+# Must be `.RECIPEPREFIX` (GNU make >= 3.82), and it must stay LF-only: with CRLF
+# the prefix becomes ">\r" and no recipe line matches.
+.RECIPEPREFIX = >
+
 # --- cluster / naming --------------------------------------------------------
 # CLUSTER selects which local Kubernetes `k8s-up` brings up:
 #   docker-desktop (default) -> uses the context Docker Desktop installs
@@ -104,8 +110,12 @@ k8s-up: ## Create/verify the cluster, build+load the image, apply base manifests
 
 .PHONY: k8s-deploy
 k8s-deploy: ## Apply manifests, wait for Postgres, init the schema, wait for Odoo
-> NAMESPACE=$(NAMESPACE) IMAGE=$(IMAGE) KUBECTL=$(KUBECTL) \
->   bash $(DEPLOY_SCRIPT) deploy
+> @# CLUSTER must be forwarded too: `make k8s-up CLUSTER=kind` followed by a
+> @# bare `make k8s-deploy` otherwise deploys against Docker Desktop (the
+> @# script's default) even though the kind context is current.
+> CLUSTER=$(CLUSTER) CLUSTER_NAME=$(CLUSTER_NAME) NAMESPACE=$(NAMESPACE) \
+>   IMAGE=$(IMAGE) KUBECTL=$(KUBECTL) KIND=$(KIND) \
+>   bash $(DEPLOY_SCRIPT) deploy $(CLUSTER)
 
 .PHONY: k8s-status
 k8s-status: ## Show pods, services, PVCs and the init job
@@ -138,11 +148,13 @@ k8s-destroy: ## DESTRUCTIVE: delete the namespace, including the data volumes
 # -----------------------------------------------------------------------------
 .PHONY: db-shell
 db-shell: ## Open psql inside the Postgres pod
-> @# The password comes from the Secret, not from a flag on the command line, so
-> @# it does not end up in the shell history or in `kubectl describe`.
+> @# The password comes from the container's own environment (POSTGRES_PASSWORD,
+> @# injected from the Secret), not from a flag on the command line, so it does
+> @# not land in shell history or in `kubectl describe`. The previous version
+> @# read /run/secrets/db/password, a path this StatefulSet never mounts - it
+> @# failed with "cat: can't open '/run/secrets/db/password'".
 > $(KUBECTL) exec -it statefulset/postgres -n $(NAMESPACE) -- \
->   env PGPASSWORD="$$(cat /run/secrets/db/password)" \
->   psql -U odoo -d odoo
+>   sh -c 'PGPASSWORD="$$POSTGRES_PASSWORD" psql -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"'
 
 .PHONY: db-backup
 db-backup: ## pg_dump the odoo database into ./backups (custom format, verified)
@@ -151,8 +163,10 @@ db-backup: ## pg_dump the odoo database into ./backups (custom format, verified)
 > @# docker/initdb tooling already assume (pg_restore -Fc, not plain SQL).
 > @# Written inside the pod (the volume is the only place with room), then
 > @# copied out and size-checked here.
+> @# Credentials come from the container's environment, like db-shell. Without
+> @# PGPASSWORD the dump prompts for a password and, run from make, just hangs.
 > $(KUBECTL) exec -n $(NAMESPACE) statefulset/postgres -- \
->   sh -c 'pg_dump -U odoo -Fc --no-owner -d odoo -f /tmp/odoo.dump'
+>   sh -c 'PGPASSWORD="$$POSTGRES_PASSWORD" pg_dump -U "$$POSTGRES_USER" -Fc --no-owner -d "$$POSTGRES_DB" -f /tmp/odoo.dump'
 > $(KUBECTL) cp $(NAMESPACE)/postgres-0:/tmp/odoo.dump $(BACKUP_DIR)/odoo-$(shell date +%Y%m%d-%H%M%S).dump
 > $(KUBECTL) exec -n $(NAMESPACE) statefulset/postgres -- rm -f /tmp/odoo.dump
 > @ls -lh $(BACKUP_DIR)/ | tail -3

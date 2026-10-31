@@ -71,8 +71,15 @@ resolve_exe() {
   case "$1" in
     */*) printf '%s' "$1" ;;                                   # an explicit path: leave it alone
     *)
-      if command -v "$1" >/dev/null 2>&1; then printf '%s' "$1"
-      elif command -v "${1}.exe" >/dev/null 2>&1; then printf '%s' "${1}.exe"
+      # ${1}.exe is tried FIRST on purpose. Inside WSL, Docker Desktop also
+      # installs a /usr/bin/docker shim that only works when "WSL integration"
+      # is enabled for this distro; when it is not, that shim prints
+      #   The command 'docker' could not be found in this WSL 2 distro
+      # and exits, even though docker.exe (which talks to the Windows engine)
+      # is on PATH and perfectly usable. Preferring the .exe resolves to the
+      # working binary. On Linux/macOS no .exe exists, so nothing changes.
+      if command -v "${1}.exe" >/dev/null 2>&1; then printf '%s' "${1}.exe"
+      elif command -v "$1" >/dev/null 2>&1; then printf '%s' "$1"
       else printf '%s' "$1"                                    # unresolvable: let require() explain
       fi ;;
   esac
@@ -126,6 +133,17 @@ require() {
 }
 
 # --- cluster selection -------------------------------------------------------
+# The cluster can also be given as a second argument:
+#   bash deploy/local-k8s.sh up kind
+# That exists because an environment variable does not always reach this script:
+# under WSL only the names listed in WSLENV are forwarded from PowerShell, so
+# `$env:CLUSTER="kind"; bash deploy/local-k8s.sh up` silently used the default.
+case "${2:-}" in
+  docker-desktop|kind|none) CLUSTER="$2" ;;
+  "") ;;
+  *) die "unknown cluster '$2' (second argument; expected: docker-desktop | kind | none)" ;;
+esac
+
 use_context() {
   local ctx="$1"
   if $KUBECTL config get-contexts -o name | grep -qx "$ctx"; then

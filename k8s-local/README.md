@@ -77,16 +77,32 @@ make k8s-deploy    # apply, wait for Postgres, init schema, wait for Odoo
 Same operations, same script the Makefile calls:
 
 ```bash
-bash deploy/local-k8s.sh up
+bash deploy/local-k8s.sh up          # docker-desktop (default)
 bash deploy/local-k8s.sh deploy
 ```
+
+The cluster may also be given as the **second argument**, which is the reliable
+way to pick one:
+
+```bash
+bash deploy/local-k8s.sh up kind
+bash deploy/local-k8s.sh deploy kind
+```
+
+(The argument exists because an environment variable set in PowerShell does not
+reach a WSL bash process — only names in `WSLENV` are forwarded — so
+`$env:CLUSTER="kind"` silently fell back to the default.)
 
 ### On kind
 
 ```bash
 cd k8s-local
 make k8s-up CLUSTER=kind
-make k8s-deploy
+make k8s-deploy CLUSTER=kind      # forward CLUSTER on BOTH commands
+
+# or, without make:
+bash deploy/local-k8s.sh up kind
+bash deploy/local-k8s.sh deploy kind
 ```
 
 `k8s-up` creates the cluster if it does not exist and runs
@@ -209,6 +225,6 @@ measurements — the three options should not disagree about how Odoo is run.
 | `odoo-init` fails, `could not connect` | Postgres still starting | it retries 6 times; if it keeps failing, `make logs-db` |
 | PVC `Pending` | no default StorageClass | `kubectl get storageclass`; see `optional/static-pv.yaml` |
 | `exec format error` on ARM (Apple silicon) | the digest in the StatefulSet is amd64 | drop `@sha256:…` from the image in `04-postgres-statefulset.yaml` |
-| `make: missing separator` | tabs were converted to spaces | this Makefile uses `.RECIPEPREFIX = >`; if you edited it, keep the `>` prefix |
+| `make: missing separator` | a recipe line does not start with the file's recipe prefix, or the file was checked out with CRLF (which turns the prefix `>` into `>\r`) | keep the `>` prefix on every recipe line; `.gitattributes` pins `Makefile` to LF — re-checkout if you see CRLF |
 | `bind: address already in use` on 30080 | something else owns the NodePort | change `nodePort` in `08-odoo-service.yaml`, or use port-forward |
 | `\r: command not found` in the script | CRLF line endings | `git config core.autocrlf false` and re-checkout, or `dos2unix deploy/local-k8s.sh` |

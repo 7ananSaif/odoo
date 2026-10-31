@@ -170,8 +170,10 @@ make k8s-down   # stop, KEEP data
 make k8s-destroy  # delete namespace + volumes (asks 'yes')
 ```
 
-On kind, pass the cluster type once: `make k8s-up CLUSTER=kind`. Full command
-reference, data-survival table and troubleshooting:
+On kind, pass the cluster on both commands — `make k8s-up CLUSTER=kind` then
+`make k8s-deploy CLUSTER=kind` — or use the script, which takes it as an
+argument: `bash deploy/local-k8s.sh up kind`. Full command reference,
+data-survival table and troubleshooting:
 [`k8s-local/README.md`](k8s-local/README.md).
 
 ### Services

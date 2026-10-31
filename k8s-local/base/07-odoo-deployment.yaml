@@ -78,6 +78,50 @@ spec:
         # image) cannot create /var/lib/odoo/filestore - the pod dies on boot.
         fsGroup: 101
         fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        # Odoo's entrypoint connects to the database during boot and EXITS when
+        # the connection is refused:
+        #   Database connection failure: connection to server at "postgres"
+        #   ... port 5432 failed: Connection refused
+        # Kubernetes orders nothing between this Deployment and the postgres
+        # StatefulSet, so the app container can legitimately start first and
+        # crash-loop until Postgres catches up. Measured: 0 restarts on Docker
+        # Desktop (the DB wins the race) and 3 restarts on kind (it loses).
+        # Probes cannot fix this - the PROCESS is gone, it is not merely
+        # unready. This gate is the fix: the app container does not start until
+        # a TCP connection to Postgres is accepted.
+        #
+        # It reuses the app image, so there is no extra pull: python3 and the
+        # HOST/PORT env vars (the entrypoint contract) are already there.
+        - name: wait-for-postgres
+          image: odoo-local:19
+          imagePullPolicy: IfNotPresent
+          command:
+            - python3
+            - -c
+            - |
+              import os, socket, sys, time
+              host, port = os.environ["HOST"], int(os.environ["PORT"])
+              for attempt in range(150):          # 150 x 2s = a 300s budget
+                  try:
+                      socket.create_connection((host, port), timeout=3).close()
+                      print("postgres is accepting connections", flush=True)
+                      sys.exit(0)
+                  except OSError as exc:
+                      print(f"waiting for postgres at {host}:{port} ({exc})", flush=True)
+                      time.sleep(2)
+              sys.exit("postgres did not accept a connection within 300s")
+          env:
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: ODOO_DB_HOST
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: ODOO_DB_PORT
       containers:
         - name: odoo
           # Built by k8s-local/Dockerfile.app from the repo's own Dockerfile.

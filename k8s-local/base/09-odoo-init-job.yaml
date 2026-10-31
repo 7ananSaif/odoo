@@ -19,10 +19,10 @@
 #
 # ORDERING
 # --------
-# The initContainer below blocks until `postgres:5432` accepts a TCP
-# connection, so the Job is safe to apply in the same `kubectl apply -k` as the
-# StatefulSet - it waits instead of failing. backoffLimit then covers the case
-# where Postgres is still doing its first initdb when the connection lands.
+# The initContainer below blocks until Postgres completes a real psycopg2
+# handshake, so the Job is safe to apply in the same `kubectl apply -k` as the
+# StatefulSet - it waits instead of failing. backoffLimit stays as a second
+# line of defence for anything the gate cannot see.
 #
 # RE-RUNNING
 # ----------
@@ -62,16 +62,52 @@ spec:
         - name: wait-for-postgres
           image: odoo-local:19
           imagePullPolicy: IfNotPresent
+          # A TCP check is NOT enough: Postgres opens the port before it accepts
+          # queries (first boot runs initdb, then restarts the server). Measured
+          # on kind: with a bare socket check this Job started, hit
+          # "the database system is starting up", and needed one restart.
+          # psycopg2 is already in the Odoo image, so a real handshake costs
+          # nothing and removes that retry.
           command:
-            - /bin/sh
+            - python3
             - -c
             - |
-              echo "waiting for postgres:5432 ..."
-              until python3 -c "import socket; socket.create_connection(('postgres', 5432), 3)" 2>/dev/null; do
-                echo "  not ready yet"
-                sleep 3
-              done
-              echo "postgres is accepting connections"
+              import os, sys, time
+              import psycopg2
+              for attempt in range(100):          # 100 x 3s = a 300s budget
+                  try:
+                      conn = psycopg2.connect(
+                          host=os.environ["HOST"], port=os.environ["PORT"],
+                          user=os.environ["USER"], password=os.environ["PASSWORD"],
+                          dbname="postgres", connect_timeout=3)
+                      conn.close()
+                      print("postgres is ready for queries", flush=True)
+                      sys.exit(0)
+                  except psycopg2.Error as exc:
+                      print(f"waiting for postgres ({str(exc).strip()})", flush=True)
+                      time.sleep(3)
+              sys.exit("postgres was not ready for queries within 300s")
+          env:
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: ODOO_DB_HOST
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: ODOO_DB_PORT
+            - name: USER
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-db
+                  key: ODOO_DB_USER
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-db
+                  key: ODOO_DB_PASSWORD
       containers:
         - name: odoo-init
           image: odoo-local:19
