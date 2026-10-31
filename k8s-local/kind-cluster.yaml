@@ -1,0 +1,34 @@
+# =============================================================================
+# kind-cluster.yaml — the kind cluster this option expects, if you use kind
+# instead of Docker Desktop's built-in Kubernetes.
+#
+# Bring it up:
+#   kind create cluster --config k8s-local/kind-cluster.yaml
+#
+# Why a second config when full-infra/k8s/kind-cluster.yaml exists: that file
+# documents the *full-infra* exercise (it is referenced by the Helm chart README
+# and by CI's verify script) and hard-codes the cluster name `odoo-local`. This
+# one is deliberately the same shape - same cluster name, same host 8081 -> node
+# 30080 mapping - so both paths expose the app on the same port, while keeping
+# the two exercises independently editable.
+#
+# The single control-plane node runs the API server, scheduler, controller
+# manager and etcd in ONE container. Fine for local work; production splits
+# these across a managed control plane (full-infra/eks/).
+#
+# Tear down (destroys the cluster AND its local-path volumes):
+#   kind delete cluster --name odoo-local
+# =============================================================================
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: odoo-local
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # host 8081 -> node 30080, pairing with 08-odoo-service.yaml
+      # (nodePort: 30080). Bound to loopback only - never the LAN.
+      # Reach the app at http://127.0.0.1:8081.
+      - containerPort: 30080
+        hostPort: 8081
+        listenAddress: "127.0.0.1"
+        protocol: TCP

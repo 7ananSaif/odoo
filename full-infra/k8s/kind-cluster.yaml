@@ -1,0 +1,38 @@
+# =============================================================================
+# kind-cluster.yaml - local Kubernetes cluster for the Odoo / invoice-agent stack
+#
+# Bring it up:
+#   kind create cluster --config full-infra/k8s/kind-cluster.yaml
+#
+# Confirm it is alive:
+#   kubectl get nodes
+#
+# Tear it down (destroys the cluster AND its local storage):
+#   kind delete cluster --name odoo-local
+#
+# Why a config file instead of a bare `kind create cluster`:
+#   * `name` gives the cluster a stable identity in `kind get clusters` and a
+#     predictable kubectl context (`kind-odoo-local`), so `kubectl config
+#     use-context kind-odoo-local` always means the same thing.
+#   * `extraPortMappings` publish a fixed host port into the node, so a
+#     NodePort Service is reachable from Windows without `kubectl port-forward`.
+#     The Nginx exercise itself uses port-forward (see full-infra/k8s/README.md), but
+#     this mapping is what will front the real stack once it lands here.
+#
+# The single control-plane node runs the API server, scheduler, controller
+# manager and etcd in ONE container. That is fine for local work; production
+# (see full-infra/eks/) splits these across managed control-plane nodes.
+# =============================================================================
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+name: odoo-local
+nodes:
+  - role: control-plane
+    extraPortMappings:
+      # host 8081 -> node 30080. Pair this with a Service of type NodePort
+      # (nodePort: 30080) to reach a workload from the host at
+      # http://127.0.0.1:8081. Bound to loopback only - never the LAN.
+      - containerPort: 30080
+        hostPort: 8081
+        listenAddress: "127.0.0.1"
+        protocol: TCP

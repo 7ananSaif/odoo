@@ -1,0 +1,231 @@
+# Default values (LOCAL environment).
+# Overrides live in values.staging.yaml and values.production.yaml.
+# Secrets are never committed here: set `secret.existingSecret: true` in
+# staging/prod and reference a Secret you provision out-of-band (External
+# Secrets / AWS Secrets Manager).
+#
+# Resource sizing and probe thresholds are documented and justified in
+# README.md ("Resource sizing" and "Probe choices"). Every number here is
+# traceable to one of two sources: the docker-compose service that runs on the
+# current EC2 deployment, or a Kubernetes-specific reason written down there.
+
+# --- Postgres -------------------------------------------------------------
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: "16"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  port: 5432
+  database: odoo
+  user: odoo
+  # Resource requests/limits.
+  # Source: docker-compose.yml `deploy.resources` for the `db` service
+  #   reservations.memory 256M -> requests.memory 256Mi
+  #   limits.memory       1G   -> limits.memory   1Gi
+  # CPU has no compose equivalent (compose never limited CPU); 250m/1 is a
+  # small-node baseline derived from the memory ratio.
+  resources:
+    requests:
+      cpu: 250m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+  # Three probes, three different questions (see README):
+  #   startup   - "has the first initdb / crash recovery finished yet?"
+  #   readiness - "may the Service send queries to this pod right now?"
+  #   liveness  - "is this process wedged and in need of a restart?"
+  # All three use pg_isready, the Postgres-native check.
+  probes:
+    startup:
+      periodSeconds: 5
+      timeoutSeconds: 5
+      # 5s x 60 = 300s budget. A fresh initdb is seconds; replaying WAL on a
+      # 100Gi volume after an unclean shutdown is minutes.
+      failureThreshold: 60
+      successThreshold: 1
+    readiness:
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+    liveness:
+      periodSeconds: 15
+      timeoutSeconds: 5
+      failureThreshold: 4
+      successThreshold: 1
+  # Postgres accepts connections while shutting down; give it room to flush
+  # cleanly instead of SIGKILLing it mid-checkpoint.
+  terminationGracePeriodSeconds: 60
+  # persistent storage
+  storage:
+    size: 8Gi
+    storageClassName: "" # empty -> cluster default (kind local-path)
+
+# --- Odoo web -------------------------------------------------------------
+odoo:
+  enabled: true
+  image:
+    repository: odoo
+    tag: "17.0"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  port: 8069
+  # Odoo's --database target: every request is served from this database. A
+  # fresh, empty Postgres still has to have its schema initialised once - see
+  # "First boot" in the README, and full-infra/k8s/odoo-db-preflight-job.yaml, which
+  # is what the deploy pipeline uses to prove the schema exists before helm runs.
+  # (Measured: the health routes return 200 even when this database does not
+  # exist, so no probe can be used as a schema check.)
+  dbName: odoo
+  # --- worker pool ----------------------------------------------------------
+  # ALWAYS set --workers explicitly. Left unset, Odoo derives the worker count
+  # from multiprocessing.cpu_count(), which reports the NODE's cores, not this
+  # container's CPU limit. On a 16 vCPU EKS node that is 2*16+1 = 33 workers,
+  # each with its own memory arenas: far past the 8Gi limit, so every process
+  # is OOMKilled in turn and the pod never reaches ready - which is exactly how
+  # a helm --atomic install burns its 10m timeout and uninstalls itself.
+  # 4 workers per replica is the sizing used by the compose deployment that
+  # this chart replaces (one HTTP server + 4 workers behind it).
+  workers: 4
+  # Cron must not run in every replica: N replicas x M cron threads means N x M
+  # competing schedulers all trying to claim the same ir.cron rows. One cron
+  # thread per replica is harmless; set to 0 on all but a single replica when
+  # running multi-replica production.
+  maxCronThreads: 0
+  # Cap the ORM connection pool per replica so 3 replicas x many workers cannot
+  # exhaust an RDS instance's max_connections.
+  dbMaxconn: 16
+  # Trust X-Forwarded-* from the ingress/load balancer in front of the Service.
+  proxyMode: true
+  # Any extra odoo CLI flags for the container.
+  extraArgs: []
+  # filestore / addons persistent volume
+  filestore:
+    size: 10Gi
+    # ReadWriteOnce for a single replica on a block volume (kind local-path,
+    # EBS gp3). Multi-replica REQUIRES ReadWriteMany on a shared filesystem
+    # (EFS): one RWO EBS volume can only attach to one node, so a second
+    # replica on another node never starts.
+    accessMode: ReadWriteOnce
+    storageClassName: ""
+    # Set to an existing PVC to skip rendering one (e.g. an EFS claim managed
+    # by terraform instead of by this chart).
+    existingClaim: ""
+  # uid/gid of the `odoo` user in the official image. fsGroup makes the kubelet
+  # chgrp the mounted volume to this gid and grant group write, without which a
+  # fresh EBS/EFS volume is root:root 0755 and Odoo cannot create its filestore.
+  podSecurityContext:
+    fsGroup: 101
+    fsGroupChangePolicy: OnRootMismatch
+  # Postgres' uid/gid in the official postgres image.
+  containerSecurityContext: {}
+  # Spread replicas across nodes so a single node loss cannot take the whole
+  # web tier, and so each replica lands on a node that has room for it.
+  topologySpread:
+    enabled: true
+    maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+  # Resource requests/limits.
+  # Source: docker-compose.yml `deploy.resources` for the `odoo` service
+  #   reservations.memory 512M -> requests.memory 512Mi
+  #   limits.memory       2G   -> limits.memory   2Gi
+  # CPU has no compose equivalent; 500m/2 lets a 2-worker pod burst during
+  # report rendering while still leaving the node schedulable.
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+  probes:
+    startup:
+      # tcpSocket, NOT /web/health. This is not cosmetic: Odoo is started with
+      # --database=<dbName>, and while that database has no schema the request
+      # is dispatched through the registry, so /web/health answers 500 with
+      # "KeyError: 'ir.http'" instead of 200. Verified on a live cluster:
+      #   GET /web/health HTTP/1.1" 500 - ... KeyError: 'ir.http'
+      # An httpGet startup probe therefore never passes on a fresh database,
+      # its 300s budget expires, and the container restarts forever - which is
+      # one more way to produce "context deadline exceeded" with no useful
+      # message. A startup probe should only ask "is the process listening?".
+      port: http
+      periodSeconds: 5
+      timeoutSeconds: 3
+      # 5s x 60 = 300s budget for the first boot (module install/upgrade).
+      # While this probe runs, readiness and liveness are held off entirely,
+      # so neither of them needs a long initialDelaySeconds.
+      failureThreshold: 60
+    readiness:
+      path: /web/health
+      # Ask Odoo to also dial the database (adds ?db_server_status=true).
+      dbServerStatus: true
+      # httpGet CANNOT carry a query string: kubelet builds the request with
+      # url.URL{Path: ...} and Go percent-encodes the '?' to %3F, so the server
+      # receives /web/health%3Fdb_server_status=true and answers 404 - the pod
+      # would never become ready. The DB-aware readiness check is therefore an
+      # exec probe running python3 against the URL with its query intact.
+      periodSeconds: 10
+      timeoutSeconds: 5
+      failureThreshold: 2
+      successThreshold: 1
+    liveness:
+      # tcpSocket for the same reason as startup: /web/health is 500 while the
+      # configured database has no registry, and liveness must judge the
+      # PROCESS, not the database. A DB problem is readiness's business; making
+      # liveness depend on it converts a missing schema into a crash loop.
+      port: http
+      periodSeconds: 15
+      timeoutSeconds: 5
+      failureThreshold: 3
+      successThreshold: 1
+  # Rolling update that never dips below the desired replica count: the new
+  # pod must pass readiness before an old one is terminated.
+  strategy:
+    maxUnavailable: 0
+    maxSurge: 1
+  # In-flight requests (and a report render) need time to finish on SIGTERM.
+  terminationGracePeriodSeconds: 60
+  # optional additional env for the app container
+  extraEnv: []
+  # extra volumes/volumeMounts placeholder (e.g. custom addons)
+  extraVolumes: []
+  extraVolumeMounts: []
+
+# --- ConfigMap (non-sensitive) -------------------------------------------
+config:
+  # These become the Odoo DB connection values used by the entrypoint.
+  # Empty odooDbHost means "the Postgres Service this chart renders", i.e.
+  # {{ include "odoo-stack.fullname" . }}-postgres. Set it explicitly when
+  # postgres.enabled is false (production: the RDS endpoint), because then
+  # there is no in-cluster Service to fall back to.
+  odooDbHost: ""
+  odooDbPort: "5432"
+  odooDbUser: odoo
+  # extra non-sensitive key/value pairs
+  extra: {}
+
+# --- Secret (sensitive) ---------------------------------------------------
+secret:
+  # When true, the chart does NOT render a Secret; it expects an existing
+  # Secret named `secret.name` to be present. Use for staging/prod.
+  existingSecret: false
+  name: odoo-secrets
+  # POSTGRES_PASSWORD + ODOO_DB_PASSWORD. LOCAL-ONLY placeholders.
+  postgresPassword: "change-me"
+  odooDbPassword: "change-me"
+  # Only used when existingSecret is false.
+
+# --- Services -------------------------------------------------------------
+service:
+  type: ClusterIP
+  odooPort: 8069
+  postgresPort: 5432
+
+# --- Release metadata -----------------------------------------------------
+labels:
+  app: odoo-stack

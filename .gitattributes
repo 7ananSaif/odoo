@@ -1,0 +1,20 @@
+# Shell scripts must keep LF endings even on Windows checkouts.
+# A CRLF checkout breaks bash line-continuations ("syntax error near unexpected
+# token" at the backslash), which is exactly how deploy/local-k8s.sh broke on
+# this machine. Normative text formats are pinned here so Git never rewrites them.
+*.sh            text eol=lf
+*.tftpl         text eol=lf
+*.yml           text eol=lf
+*.yaml          text eol=lf
+Dockerfile      text eol=lf
+*.tf            text eol=lf
+*.tfvars        text eol=lf
+
+# The Makefile is not optional here: k8s-local/Makefile sets
+# `.RECIPEPREFIX = >`, and a CRLF checkout turns that into the two-character
+# prefix ">\r". No recipe line then matches it and every target dies with
+#   Makefile:70: *** missing separator.  Stop.
+# (Measured with GNU Make 4.3 in a clean container against a Windows checkout.)
+Makefile        text eol=lf
+*.mk            text eol=lf
+makefile        text eol=lf

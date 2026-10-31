@@ -1,0 +1,107 @@
+# =============================================================================
+# nginx.yaml - the "hello world" of Kubernetes: one Deployment + one Service.
+#
+# Apply:   kubectl apply -f full-infra/k8s/nginx.yaml
+# Watch:   kubectl get pods -l app=nginx -w
+# Reach:   kubectl port-forward svc/nginx-service 8080:80
+#          curl http://127.0.0.1:8080
+#
+# The object chain (this is the whole point of the exercise):
+#
+#   Deployment  owns ->  ReplicaSet  owns ->  Pod(s)
+#   "keep 2 nginx       "reconcile the        "the smallest deployable
+#    Pods running"       replica count"        unit: one or more containers"
+#
+#   Service (nginx-service)  ->  a stable ClusterIP + DNS name in front of the
+#   Pods, selecting them by label (app=nginx). Pods are mortal; the Service IP
+#   is not. When a Pod is replaced, the Service's endpoints list is updated
+#   automatically and clients keep talking to the same address.
+#
+# The Deployment's selector.matchLabels MUST match template.metadata.labels -
+# that label (`app: nginx`) is the single thread that ties all three objects
+# together, and it is also exactly what the Service selects on.
+# =============================================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+    app.kubernetes.io/name: nginx
+    app.kubernetes.io/component: web
+spec:
+  # Ask the controller for 2 Pods. Delete one and the ReplicaSet creates a new
+  # one within seconds - that self-healing is the point of a Deployment.
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+        app.kubernetes.io/name: nginx
+    spec:
+      containers:
+        - name: nginx
+          # A plain Nginx image. The kind node pulls it on the first Pod start;
+          # `IfNotPresent` then avoids re-pulling it on the same node. (The
+          # `kind load docker-image` shortcut does not work with Docker
+          # Desktop's containerd image store - see full-infra/k8s/README.md.)
+          # The tag resolves today to the immutable digest
+          #   nginx@sha256:4a73073bd557c65b759505da037898b61f1be6cbcc3c2c3aeac22d2a470c1752
+          # which is what you pin in a manifest that must never drift. A
+          # floating `latest` would let two Pods created minutes apart run
+          # different code - reproducibility starts with a fixed reference.
+          image: nginx:alpine
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 80
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          # readinessProbe gates traffic: a Pod is only added to the Service's
+          # endpoint list once `GET /` succeeds. Without it, the Service would
+          # route to Pods that are not yet serving.
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 3
+            periodSeconds: 5
+          # livenessProbe restarts a wedged container: N consecutive failures
+          # and kubelet kills + recreates it.
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+---
+# ClusterIP is the default Service type: a virtual IP reachable only from
+# inside the cluster (and via `kubectl port-forward`), which is all the Nginx
+# exercise needs. `type: NodePort` / `LoadBalancer` widen that; see the
+# optional path in full-infra/k8s/README.md.
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  labels:
+    app: nginx
+spec:
+  type: ClusterIP
+  # Selecting on `app: nginx` is what makes this "stable identity in front of
+  # Pods that come and go": the Service tracks whatever Pods currently carry
+  # the label, regardless of their names or IPs.
+  selector:
+    app: nginx
+  ports:
+    - name: http
+      port: 80 # the port the Service listens on (ClusterIP:80)
+      targetPort: http # the container port to forward to (named: http -> 80)
+      protocol: TCP

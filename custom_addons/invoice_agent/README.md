@@ -12,11 +12,11 @@ It **extends core accounting** (`account.move`, `account.move.line`, `account.jo
 
 | Path | What |
 |---|---|
-| `infra/runbook.md` | Operational record of the AWS environment. Append-only. |
+| `full-infra/runbook.md` | Operational record of the AWS environment. Append-only. |
 
 ## Deployment
 
-Docker on AWS EC2 (`me-south-1`), deployed by GitHub Actions. See `infra/runbook.md` for the
+Docker on AWS EC2 (`me-south-1`), deployed by GitHub Actions. See `full-infra/runbook.md` for the
 live environment's instance ID, Elastic IP, and the SSH command that works.
 
 AI-powered invoice extraction module for Odoo 19.

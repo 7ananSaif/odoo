@@ -1,0 +1,41 @@
+# =============================================================================
+# 08-odoo-service.yaml — how a browser reaches Odoo on a laptop cluster.
+#
+# NodePort 30080, chosen to line up with the port mapping the repo's kind
+# cluster already declares (full-infra/k8s/kind-cluster.yaml maps host 8081 ->
+# node 30080), so this Service works on both supported local clusters:
+#
+#   Docker Desktop : NodePorts are published on localhost automatically
+#                    -> http://localhost:30080
+#   kind           : the node port is only reachable through the container's
+#                    published port (extraPortMappings 30080 -> 8081)
+#                    -> http://localhost:8081
+#
+# If you would rather not depend on that mapping at all:
+#     kubectl port-forward -n odoo-local svc/odoo 8069:8069
+#     -> http://localhost:8069
+# (port-forward works identically on both clusters and needs no config.)
+#
+# NodePort rather than LoadBalancer: a LoadBalancer on kind/docker-desktop
+# either stays <pending> forever or spins up an extra tunnel component - both
+# are worse than a fixed port for local work.
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: odoo
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/name: odoo
+    app.kubernetes.io/component: odoo
+spec:
+  type: NodePort
+  selector:
+    app.kubernetes.io/name: odoo
+  ports:
+    - name: http
+      port: 8069
+      targetPort: http
+      nodePort: 30080
+      protocol: TCP

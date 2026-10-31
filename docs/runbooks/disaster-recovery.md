@@ -107,7 +107,7 @@ aws rds delete-db-instance \
 ### 1. Terraform — provision infrastructure (~5 min)
 
 ```bash
-cd infra/terraform
+cd full-infra/terraform
 terraform apply -auto-approve
 cd ../..
 ```
@@ -115,10 +115,10 @@ cd ../..
 ### 2. Get RDS endpoint from Terraform output
 
 ```bash
-RDS_HOST=$(cd infra/terraform && terraform output -raw rds_endpoint)
-REDIS_HOST=$(cd infra/terraform && terraform output -raw redis_endpoint)
-S3_BACKUP_BUCKET=$(cd infra/terraform && terraform output -raw backups_bucket)
-S3_ATTACHMENT_BUCKET=$(cd infra/terraform && terraform output -raw attachments_bucket)
+RDS_HOST=$(cd full-infra/terraform && terraform output -raw rds_endpoint)
+REDIS_HOST=$(cd full-infra/terraform && terraform output -raw redis_endpoint)
+S3_BACKUP_BUCKET=$(cd full-infra/terraform && terraform output -raw backups_bucket)
+S3_ATTACHMENT_BUCKET=$(cd full-infra/terraform && terraform output -raw attachments_bucket)
 
 echo "RDS: $RDS_HOST"
 echo "Redis: $REDIS_HOST"

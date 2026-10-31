@@ -8,7 +8,7 @@
 # (15672), Prometheus (9090) and Grafana (3000) on localhost.
 #
 # Neither half of that assumption holds for the EKS deployment:
-#   * infra/helm/odoo-stack deploys Odoo + filestore PVC only (Postgres is RDS,
+#   * full-infra/helm/odoo-stack deploys Odoo + filestore PVC only (Postgres is RDS,
 #     see values.production.yaml), so those services are not in the cluster;
 #   * on a GitHub runner, localhost exposes none of them either.
 # The test therefore failed on every run, which - with the automatic rollback -
