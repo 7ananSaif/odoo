@@ -28,12 +28,27 @@ jobs:
         run: terraform init -backend=false
         working-directory: full-infra/terraform
 
+      # Both Terraform trees are checked for formatting. lite-infra keeps its
+      # *.tf at its own root (no terraform/ subdirectory), which is why the
+      # second path is `lite-infra/` and not `lite-infra/terraform/` - pointing
+      # fmt at a directory that does not exist fails the job with
+      #   Error: No file or directory at lite-infra/terraform
       - name: Terraform Format Check
-        run: terraform fmt -check -recursive full-infra/terraform/ lite-infra/terraform/
+        run: terraform fmt -check -recursive full-infra/terraform/ lite-infra/
 
       - name: Terraform Validate
         run: terraform validate
         working-directory: full-infra/terraform
+
+      # lite-infra is a separate root module (its own providers and outputs), so
+      # it needs its own init before it can be validated.
+      - name: Terraform Init (lite-infra)
+        run: terraform init -backend=false
+        working-directory: lite-infra
+
+      - name: Terraform Validate (lite-infra)
+        run: terraform validate
+        working-directory: lite-infra
 
   # ==========================================================================
   # Helm: lint + render every value set, and assert the deploy invariants
