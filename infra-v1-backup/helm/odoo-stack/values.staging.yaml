@@ -1,0 +1,48 @@
+# Staging overlay — merged on top of values.yaml.
+# Secrets are NOT stored here; `secret.existingSecret: true` makes the chart
+# reference a Secret you provision out-of-band (External Secrets).
+#
+# Staging runs on EKS like production, so it shares the same filestore
+# constraint: 2 replicas cannot share an EBS block volume (a ReadWriteOnce
+# volume attaches to one node, so the second replica never leaves
+# ContainerCreating and the rollout never completes).
+
+postgres:
+  resources:
+    requests:
+      cpu: 500m
+      memory: 1Gi
+    limits:
+      cpu: "2"
+      memory: 2Gi
+  storage:
+    size: 20Gi
+
+odoo:
+  replicaCount: 2
+  resources:
+    requests:
+      cpu: 1
+      memory: 2Gi
+    limits:
+      cpu: "3"
+      memory: 4Gi
+  # Explicit: Odoo would otherwise start 2n+1 workers for the node's core
+  # count, far past the 4Gi limit.
+  workers: 3
+  maxCronThreads: 1
+  dbMaxconn: 12
+  filestore:
+    size: 20Gi
+    # ReadWriteMany (EFS). Use ReadWriteOnce AND replicaCount: 1 in any
+    # environment without a shared filesystem - e.g. kind, whose local-path
+    # provisioner serves RWO block volumes only.
+    accessMode: ReadWriteMany
+    storageClassName: efs-sc
+  podSecurityContext:
+    fsGroup: 101
+    fsGroupChangePolicy: OnRootMismatch
+
+secret:
+  existingSecret: true
+  name: odoo-staging-secrets

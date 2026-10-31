@@ -1,0 +1,35 @@
+# =============================================================================
+# 06-odoo-filestore-pvc.yaml — /var/lib/odoo, where Odoo keeps attachments.
+#
+# Separate from the database volume on purpose: the DB and the filestore have
+# completely different backup/restore semantics (pg_dump vs a file tree), and
+# a single PVC holding both would couple them. docker-compose.yml makes the
+# same split with the `odoo-db-data` and `odoo-web-data` named volumes.
+#
+# ReadWriteOnce + a single `odoo` replica. This is the constraint the Helm chart
+# documents: one RWO block volume can attach to only one node, so a second
+# replica on another node would never start. Multi-replica needs ReadWriteMany
+# (EFS/NFS), which is a full-infra concern, not a laptop one.
+#
+# storageClassName is omitted on purpose - same reasoning as the pgdata volume
+# in 04-postgres-statefulset.yaml (use the cluster's default provisioner).
+# =============================================================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: odoo-filestore
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/component: odoo
+  annotations:
+    # Same intent as the chart's filestore PVC: a `helm uninstall` (here:
+    # `kubectl delete -k`) must not take the user's attachments with it. It is
+    # an advisory to Helm; the Makefile's k8s-down honours it by not deleting
+    # PVCs at all, and only `k8s-destroy` removes them (after a warning).
+    helm.sh/resource-policy: keep
+spec:
+  accessModes: ["ReadWriteOnce"]
+  resources:
+    requests:
+      storage: 10Gi

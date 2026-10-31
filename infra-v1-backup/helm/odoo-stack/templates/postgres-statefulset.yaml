@@ -1,0 +1,77 @@
+{{- if .Values.postgres.enabled }}
+{{- $secretName := ternary .Values.secret.name (printf "%s-secret" (include "odoo-stack.fullname" .)) .Values.secret.existingSecret }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "odoo-stack.fullname" . }}-postgres
+  labels:
+    {{- include "odoo-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres
+spec:
+  serviceName: {{ include "odoo-stack.fullname" . }}-postgres-hl
+  replicas: {{ .Values.postgres.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "odoo-stack.postgresSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "odoo-stack.postgresSelectorLabels" . | nindent 8 }}
+    spec:
+      terminationGracePeriodSeconds: {{ .Values.postgres.terminationGracePeriodSeconds }}
+      containers:
+        - name: postgres
+          image: "{{ .Values.postgres.image.repository }}:{{ .Values.postgres.image.tag }}"
+          imagePullPolicy: {{ .Values.postgres.image.pullPolicy }}
+          ports:
+            - name: postgres
+              containerPort: {{ .Values.postgres.port }}
+              protocol: TCP
+          env:
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.database | quote }}
+            - name: POSTGRES_USER
+              value: {{ .Values.postgres.user | quote }}
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $secretName }}
+                  key: POSTGRES_PASSWORD
+          {{- with .Values.postgres.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          # --- startup: "is the first initdb / WAL replay done?" --------------
+          # Gives a fresh volume (initdb) and an unclean shutdown (crash
+          # recovery on a large volume) a real budget - 5s x 60 = 300s - before
+          # liveness is even allowed to judge the process. Without this, a
+          # restart during recovery would be misread as a wedged database and
+          # the pod would be killed mid-replay.
+          startupProbe:
+            {{- include "odoo-stack.postgresProbe" (dict "root" $ "probe" "startup") | nindent 12 }}
+          # --- readiness: "may clients connect right now?" -------------------
+          # pg_isready, the Postgres-native check. Until it passes, the
+          # ClusterIP Service has no endpoints for this pod, so Odoo is never
+          # routed to a database that is still starting up or shutting down.
+          readinessProbe:
+            {{- include "odoo-stack.postgresProbe" (dict "root" $ "probe" "readiness") | nindent 12 }}
+          # --- liveness: "should this container be restarted?" ---------------
+          # Same pg_isready check: a postmaster that has stopped accepting
+          # connections altogether is wedged and only a restart clears it.
+          livenessProbe:
+            {{- include "odoo-stack.postgresProbe" (dict "root" $ "probe" "liveness") | nindent 12 }}
+          volumeMounts:
+            - name: pgdata
+              mountPath: /var/lib/postgresql/data
+  volumeClaimTemplates:
+    - metadata:
+        name: pgdata
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        {{- if .Values.postgres.storage.storageClassName }}
+        storageClassName: {{ .Values.postgres.storage.storageClassName | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.postgres.storage.size }}
+{{- end }}

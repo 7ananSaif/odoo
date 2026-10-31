@@ -13,7 +13,7 @@ Verified on 2026-09-15 with the AWS CLI against account `652631466276`:
 
 | Check | Command | Result |
 |---|---|---|
-| Terraform state | `infra/terraform/terraform.tfstate` | `"outputs": {}`, `"resources": []` (serial 360, written 2026-08-24) |
+| Terraform state | `full-infra/terraform/terraform.tfstate` | `"outputs": {}`, `"resources": []` (serial 360, written 2026-08-24) |
 | VPC `10.20.0.0/16` | `aws ec2 describe-vpcs --region eu-west-1` | absent (only the `172.31.0.0/16` default VPC in `us-east-1`) |
 | EC2 instances | `aws ec2 describe-instances --region eu-west-1` | `[]` |
 | Elastic IPs | `aws ec2 describe-addresses --region eu-west-1` | `[]` |
@@ -30,14 +30,14 @@ which is scheduled for deletion. **The EC2 host and the VPC do not exist**, so
 the only thing that can be verified end-to-end today is the **local Docker
 Compose stack** (`docker-compose.yml`), which this document also describes.
 
-The Terraform in `infra/terraform/` is valid (`terraform validate` → Success)
-and is the recovery path — `terraform apply` inside `infra/terraform/`
+The Terraform in `full-infra/terraform/` is valid (`terraform validate` → Success)
+and is the recovery path — `terraform apply` inside `full-infra/terraform/`
 re-creates the whole topology below. See
 [`docs/runbooks/disaster-recovery.md`](runbooks/disaster-recovery.md) scenario B.
 
 ### Two tracked "temporary free-tier" overrides
 
-`infra/terraform/rds.tf` currently carries `TEMPORARY (free-tier)` overrides
+`full-infra/terraform/rds.tf` currently carries `TEMPORARY (free-tier)` overrides
 that deliberately diverge from the production target. They are called out in
 §4 and must be reverted after the account plan is upgraded.
 
@@ -107,7 +107,7 @@ that deliberately diverge from the production target. They are called out in
 
 > **SSH hardening posture: there is no SSH.** No security group opens port 22 —
 > not even from an admin `/32` — and no key pair or bastion exists. Host access
-> is **SSM Session Manager only**, which is why `infra/terraform/ssm.tf`
+> is **SSM Session Manager only**, which is why `full-infra/terraform/ssm.tf`
 > provisions the three interface endpoints that make it work (`ssm`,
 > `ssmmessages`, `ec2messages`). The app instances live in the private app
 > subnets with **no public IP**, so an SSH port would be unreachable anyway.
@@ -138,7 +138,7 @@ Odoo (8069) → ElastiCache (6379) → Redis replication
 
 ## 4. RDS Configuration
 
-Column 2 is what `infra/terraform/rds.tf` **actually declares today**; column 3 is
+Column 2 is what `full-infra/terraform/rds.tf` **actually declares today**; column 3 is
 the production target to restore after the account plan upgrade. Every
 `TEMPORARY` value is flagged in-line in the Terraform with a `REVERT` comment.
 
@@ -290,7 +290,7 @@ Invoice PDF → Odoo (OCR) → RabbitMQ → invoice-ai (Claude)
 ## 9. File Layout
 
 ```
-├── infra/
+├── full-infra/
 │   ├── terraform/              # IaC for VPC + RDS + S3 + Redis
 │   │   ├── main.tf             # Provider, backend
 │   │   ├── variables.tf        # Input variables
@@ -378,7 +378,7 @@ terraform-fmt:
   steps:
     - uses: actions/checkout@v4
     - uses: hashicorp/setup-terraform@v3
-    - run: terraform fmt -check -recursive infra/terraform/
+    - run: terraform fmt -check -recursive full-infra/terraform/
 
 terraform-validate:
   runs-on: ubuntu-latest
@@ -386,8 +386,8 @@ terraform-validate:
   steps:
     - uses: actions/checkout@v4
     - uses: hashicorp/setup-terraform@v3
-    - run: terraform init -backend=false infra/terraform/
-    - run: terraform validate -chdir=infra/terraform/
+    - run: terraform init -backend=false full-infra/terraform/
+    - run: terraform validate -chdir=full-infra/terraform/
 ```
 
 ## 12. Environment Variables
@@ -480,7 +480,7 @@ The FastAPI service exposes `/metrics` (prometheus_client) with:
 
 ### SLO Dashboard
 
-The Grafana dashboard (`infra/observability/grafana/dashboards/agent-slo.json`)
+The Grafana dashboard (`full-infra/observability/grafana/dashboards/agent-slo.json`)
 is provisioned as code and shows:
 
 1. **SLO Overview**: Error rate, invoices/hour, p95 latency, daily token cost

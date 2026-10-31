@@ -1,0 +1,37 @@
+# =============================================================================
+# 03-postgres-initdb-configmap.yaml — pgvector bootstrap for the odoo database.
+#
+# WHY THIS EXISTS AT ALL
+# ----------------------
+# docker-compose.yml mounts ./docker/initdb at /docker-entrypoint-initdb.d so a
+# fresh volume gets `CREATE EXTENSION vector` before anything can declare a
+# vector column. A Kubernetes volume is not a bind mount, so the same script
+# has to arrive as a ConfigMap mounted at that path instead.
+#
+# WHAT IS INTENTIONALLY LEFT OUT
+# ------------------------------
+# docker/initdb/001-vector-extension.sql also creates a `demo` table with three
+# 1024-dim vectors as a hand-run operator exercise (the <=> ordering check).
+# That table is a learning artefact, not a schema the application needs, and it
+# would be re-created on every fresh laptop volume. This ConfigMap carries only
+# the part the application depends on: the extension itself.
+#
+# The rest of that script's reasoning still applies verbatim: the extension must
+# exist before ANY table can use a vector column, and the init hook only runs
+# when the data directory is empty - so re-applying this file to an existing
+# volume is a no-op, not a migration.
+# =============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-initdb
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/component: database
+data:
+  001-vector-extension.sql: |
+    -- Mirrors docker/initdb/001-vector-extension.sql (extension only).
+    -- The pgvector image ships the binaries; this installs the extension into
+    -- the database named by POSTGRES_DB (odoo).
+    CREATE EXTENSION IF NOT EXISTS vector;

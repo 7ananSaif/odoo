@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   # ==========================================================================
-  # Terraform: format + validate on infra/ changes
+  # Terraform: format + validate on full-infra/ changes
   # ==========================================================================
   terraform:
     runs-on: ubuntu-latest
@@ -26,14 +26,29 @@ jobs:
 
       - name: Terraform Init
         run: terraform init -backend=false
-        working-directory: infra/terraform
+        working-directory: full-infra/terraform
 
+      # Both Terraform trees are checked for formatting. lite-infra keeps its
+      # *.tf at its own root (no terraform/ subdirectory), which is why the
+      # second path is `lite-infra/` and not `lite-infra/terraform/` - pointing
+      # fmt at a directory that does not exist fails the job with
+      #   Error: No file or directory at lite-infra/terraform
       - name: Terraform Format Check
-        run: terraform fmt -check -recursive infra/terraform/
+        run: terraform fmt -check -recursive full-infra/terraform/ lite-infra/
 
       - name: Terraform Validate
         run: terraform validate
-        working-directory: infra/terraform
+        working-directory: full-infra/terraform
+
+      # lite-infra is a separate root module (its own providers and outputs), so
+      # it needs its own init before it can be validated.
+      - name: Terraform Init (lite-infra)
+        run: terraform init -backend=false
+        working-directory: lite-infra
+
+      - name: Terraform Validate (lite-infra)
+        run: terraform validate
+        working-directory: lite-infra
 
   # ==========================================================================
   # Helm: lint + render every value set, and assert the deploy invariants
@@ -66,7 +81,7 @@ jobs:
         run: pip install pyyaml
 
       - name: Lint and render the chart for every environment
-        run: python3 infra/k8s/verify_chart_and_workflow.py
+        run: python3 full-infra/k8s/verify_chart_and_workflow.py
 
   # ==========================================================================
   # Observability: validate Prometheus + Alertmanager + Grafana configs
@@ -78,21 +93,21 @@ jobs:
 
       - name: Validate Prometheus config
         run: |
-          docker run --rm -v "${{ github.workspace }}/infra/observability/prometheus:/etc/prometheus" \
+          docker run --rm -v "${{ github.workspace }}/full-infra/observability/prometheus:/etc/prometheus" \
             --entrypoint promtool \
             prom/prometheus:v2.53.0 \
             check config /etc/prometheus/prometheus.yml
 
       - name: Validate Alertmanager config
         run: |
-          docker run --rm -v "${{ github.workspace }}/infra/observability/alertmanager:/etc/alertmanager" \
+          docker run --rm -v "${{ github.workspace }}/full-infra/observability/alertmanager:/etc/alertmanager" \
             --entrypoint amtool \
             prom/alertmanager:v0.27.0 \
             check-config /etc/alertmanager/alertmanager.yml
 
       - name: Validate Grafana dashboard JSON
         run: |
-          python3 -c "import json, sys; json.load(open('infra/observability/grafana/dashboards/agent-slo.json')); print('Dashboard JSON is valid')"
+          python3 -c "import json, sys; json.load(open('full-infra/observability/grafana/dashboards/agent-slo.json')); print('Dashboard JSON is valid')"
 
   # ==========================================================================
   # Python: lint + test

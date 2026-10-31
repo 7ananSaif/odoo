@@ -1,0 +1,37 @@
+{{- if .Values.postgres.enabled }}
+# Headless service for the StatefulSet (stable network identity / DNS for pods).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "odoo-stack.fullname" . }}-postgres-hl
+  labels:
+    {{- include "odoo-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres
+spec:
+  clusterIP: None
+  selector:
+    {{- include "odoo-stack.postgresSelectorLabels" . | nindent 4 }}
+  ports:
+    - name: postgres
+      port: {{ .Values.postgres.port }}
+      targetPort: {{ .Values.postgres.port }}
+      protocol: TCP
+---
+# ClusterIP service for the Odoo app to reach Postgres (not headless).
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "odoo-stack.fullname" . }}-postgres
+  labels:
+    {{- include "odoo-stack.labels" . | nindent 4 }}
+    app.kubernetes.io/component: postgres
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "odoo-stack.postgresSelectorLabels" . | nindent 4 }}
+  ports:
+    - name: postgres
+      port: {{ .Values.postgres.port }}
+      targetPort: {{ .Values.postgres.port }}
+      protocol: TCP
+{{- end }}

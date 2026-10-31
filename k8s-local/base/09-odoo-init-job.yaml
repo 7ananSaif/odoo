@@ -1,0 +1,163 @@
+# =============================================================================
+# 09-odoo-init-job.yaml — one-shot `--init=base`, the step that creates the
+# schema the Deployment's readiness probe needs.
+#
+# WHY THIS IS A SEPARATE JOB AND NOT `--init` ON THE DEPLOYMENT
+# -------------------------------------------------------------
+# `--init=base` is a migration, and migrations must run once, not on every pod
+# start. Putting it in the Deployment's args would re-run the base module's init
+# on every restart (slow) and would race across replicas if this ever scaled.
+#
+# WHY IT CANNOT BE SKIPPED
+# ------------------------
+# Measured on the EKS cluster (full-infra/helm/odoo-stack/values.yaml): with
+# `--database=odoo` and no schema in that database, Odoo answers /web/health
+# with 500 and `KeyError: 'ir.http'`. The readiness probe is that route, so
+# without this Job the pod stays Running-but-not-Ready forever. Worse, the plain
+# /web/health route still returns 200 when the database does not exist at all -
+# so no probe can be used as a schema check. A Job is the only honest gate.
+#
+# ORDERING
+# --------
+# The initContainer below blocks until Postgres completes a real psycopg2
+# handshake, so the Job is safe to apply in the same `kubectl apply -k` as the
+# StatefulSet - it waits instead of failing. backoffLimit stays as a second
+# line of defence for anything the gate cannot see.
+#
+# RE-RUNNING
+# ----------
+# Jobs are immutable once complete. `make k8s-deploy` deletes this Job before
+# re-applying (see the Makefile); doing it by hand is:
+#   kubectl delete job odoo-init -n odoo-local --ignore-not-found
+# =============================================================================
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: odoo-init
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/name: odoo-init
+    app.kubernetes.io/component: odoo
+spec:
+  # Auto-clean an hour after success so `kubectl get all` stays readable;
+  # long enough that `make logs`/`kubectl logs job/odoo-init` still works while
+  # you are looking at the first boot.
+  ttlSecondsAfterFinished: 3600
+  backoffLimit: 6
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/part-of: odoo-invoice-agent
+        app.kubernetes.io/name: odoo-init
+        app.kubernetes.io/component: odoo
+    spec:
+      restartPolicy: OnFailure
+      securityContext:
+        # Same reason as the Deployment: the filestore volume is shared and the
+        # job writes into it (attachments created during base init).
+        fsGroup: 101
+        fsGroupChangePolicy: OnRootMismatch
+      initContainers:
+        - name: wait-for-postgres
+          image: odoo-local:19
+          imagePullPolicy: IfNotPresent
+          # A TCP check is NOT enough: Postgres opens the port before it accepts
+          # queries (first boot runs initdb, then restarts the server). Measured
+          # on kind: with a bare socket check this Job started, hit
+          # "the database system is starting up", and needed one restart.
+          # psycopg2 is already in the Odoo image, so a real handshake costs
+          # nothing and removes that retry.
+          command:
+            - python3
+            - -c
+            - |
+              import os, sys, time
+              import psycopg2
+              for attempt in range(100):          # 100 x 3s = a 300s budget
+                  try:
+                      conn = psycopg2.connect(
+                          host=os.environ["HOST"], port=os.environ["PORT"],
+                          user=os.environ["USER"], password=os.environ["PASSWORD"],
+                          dbname="postgres", connect_timeout=3)
+                      conn.close()
+                      print("postgres is ready for queries", flush=True)
+                      sys.exit(0)
+                  except psycopg2.Error as exc:
+                      print(f"waiting for postgres ({str(exc).strip()})", flush=True)
+                      time.sleep(3)
+              sys.exit("postgres was not ready for queries within 300s")
+          env:
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: ODOO_DB_HOST
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: ODOO_DB_PORT
+            - name: USER
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-db
+                  key: ODOO_DB_USER
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-db
+                  key: ODOO_DB_PASSWORD
+      containers:
+        - name: odoo-init
+          image: odoo-local:19
+          imagePullPolicy: IfNotPresent
+          args:
+            - odoo
+            - --addons-path=/opt/odoo/addons,/mnt/extra-addons
+            - --database=odoo
+            # Create the base schema. --without-demo=all keeps a laptop database
+            # free of Odoo's demo data (same intent as `--without-demo` on a
+            # production install).
+            - --init=base
+            - --without-demo=all
+            - --stop-after-init
+            - --no-http
+            - --log-level=warn
+          env:
+            - name: HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: ODOO_DB_HOST
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: odoo-config
+                  key: ODOO_DB_PORT
+            - name: USER
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-db
+                  key: ODOO_DB_USER
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: odoo-db
+                  key: ODOO_DB_PASSWORD
+          resources:
+            # A base init is CPU-bound and short; it does not need the
+            # Deployment's full 2Gi, but must not be OOM-killed mid-migration.
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: "1"
+              memory: 2Gi
+          volumeMounts:
+            - name: filestore
+              mountPath: /var/lib/odoo
+      volumes:
+        - name: filestore
+          persistentVolumeClaim:
+            claimName: odoo-filestore

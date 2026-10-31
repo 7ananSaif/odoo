@@ -75,21 +75,21 @@ else {
     $ErrorActionPreference = "Continue"
 
     # 1. fmt check (use '.' because -chdir already changed working directory)
-    & terraform -chdir=infra/terraform/ fmt -check -recursive . 2>&1 | Out-Null
+    & terraform -chdir=full-infra/terraform/ fmt -check -recursive . 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) {
-        Fail-Step "terraform fmt -check failed - run: terraform -chdir=infra/terraform/ fmt -recursive ."
+        Fail-Step "terraform fmt -check failed - run: terraform -chdir=full-infra/terraform/ fmt -recursive ."
     }
     else { Write-Host "    fmt OK" -ForegroundColor Green }
 
     # 2. init check
-    & terraform -chdir=infra/terraform/ init -backend=false 2>&1 | Out-Null
+    & terraform -chdir=full-infra/terraform/ init -backend=false 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) {
         Fail-Step "terraform init failed"
     }
     else { Write-Host "    init OK" -ForegroundColor Green }
 
     # 3. validate check
-    & terraform -chdir=infra/terraform/ validate 2>&1 | Out-Null
+    & terraform -chdir=full-infra/terraform/ validate 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) {
         Fail-Step "terraform validate failed"
     }
@@ -217,19 +217,19 @@ else {
 
     $pwdPath = (Get-Location).Path.Replace('\', '/')
 
-    & docker run --rm --entrypoint /bin/promtool -v "${pwdPath}/infra/observability/prometheus:/etc/prometheus" `
+    & docker run --rm --entrypoint /bin/promtool -v "${pwdPath}/full-infra/observability/prometheus:/etc/prometheus" `
         prom/prometheus:v2.53.0 check config /etc/prometheus/prometheus.yml 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) { Fail-Step "prometheus config invalid" } 
     else { Write-Host "    prometheus OK" -ForegroundColor Green }
 
-    & docker run --rm --entrypoint /bin/amtool -v "${pwdPath}/infra/observability/alertmanager:/etc/alertmanager" `
+    & docker run --rm --entrypoint /bin/amtool -v "${pwdPath}/full-infra/observability/alertmanager:/etc/alertmanager" `
         prom/alertmanager:v0.27.0 check-config /etc/alertmanager/alertmanager.yml 2>&1 | Out-Null
     if ($LASTEXITCODE -ne 0) { Fail-Step "alertmanager config invalid" } 
     else { Write-Host "    alertmanager OK" -ForegroundColor Green }
 
     $grafana = Invoke-PyScript -Name "grafana_json" -Lines @(
         'import json'
-        'json.load(open("infra/observability/grafana/dashboards/agent-slo.json"))'
+        'json.load(open("full-infra/observability/grafana/dashboards/agent-slo.json"))'
         'print("OK")'
     )
     if ($grafana -ne "OK") { Fail-Step "grafana dashboard JSON invalid: $grafana" } 
