@@ -68,83 +68,23 @@ docker compose up -d
 # Review the AI-suggested fields in the suggestion panel
 ```
 
-## Three ways to run this
+## How to run this
 
-The application is identical in all three; what changes is where it runs and what
-you pay. Pick one.
+**Run it locally, on Docker Desktop's Kubernetes. It costs $0 and needs no cloud
+account.** The AWS Terraform in this repo is kept for reference only and is not
+used — see [the note at the end](#aws-options--not-in-use).
 
-| | `full-infra/` | `lite-infra/` | `k8s-local/` |
+| | `k8s-local/` (default) | `full-infra/` | `lite-infra/` |
 |---|---|---|---|
-| Orchestrator | EKS | Docker Compose on one box | laptop Kubernetes |
-| Database | RDS | Postgres container + volume | Postgres StatefulSet + PVC |
-| Cost | $$$ (EKS + ALB + NAT + RDS) | **≈$5.10/month** | $0 |
-| Purpose | production-shaped reference | cheapest thing that really works | iterate without a cloud bill |
+| Runs on | Docker Desktop Kubernetes / kind | EKS | one Lightsail box |
+| Database | Postgres StatefulSet + PVC | RDS | Postgres container |
+| Cost | **$0** | $$$ (EKS + ALB + NAT + RDS) | ≈$5.10/month |
+| Status | **in use** | not in use | not in use |
 
-### Option 1 — `full-infra` (EKS + RDS, the production-shaped stack)
-
-Terraform for the AWS layer, Helm for the workload, eksctl for the cluster.
-
-```bash
-# 1. Infrastructure: VPC, RDS, ElastiCache, S3, IAM, security groups
-cd full-infra/terraform
-terraform init
-terraform plan  -out=tfplan
-terraform apply tfplan
-
-# Subnet/KMS/secret ARNs feed the cluster manifest:
-terraform output
-
-# 2. Cluster (substitute the real subnet IDs in the manifest first)
-eksctl create cluster -f ../eks/cluster.yaml
-
-# 3. Workload
-helm upgrade --install odoo ../helm/odoo-stack \
-  -f ../helm/odoo-stack/values.production.yaml \
-  --namespace odoo --create-namespace --wait
-
-# 4. Operator runbook (upgrades, restores, rotation)
-#    full-infra/runbook.md
-```
-
-The ALB terminates TLS and fronts Odoo; RDS is the database; secrets come from
-AWS Secrets Manager through External Secrets. Full details:
-[`full-infra/runbook.md`](full-infra/runbook.md).
-
-### Option 2 — `lite-infra` (one $5/month Lightsail instance)
-
-One instance, Docker Compose, its own Postgres. No EKS, no ALB, no NAT, no RDS.
-
-```bash
-# 1. Configure
-cd lite-infra
-cp terraform.tfvars.example terraform.tfvars
-#    set billing_alarm_email, ssh_allowed_cidrs (your IP), db_password
-
-# 2. Create the instance (+ static IP, firewall, $5 billing alarm)
-terraform init
-terraform apply
-
-# 3. Watch first boot (installs Docker, builds the image: 30-60 min cold)
-terraform output -raw ssh_private_key > lite-infra-key.pem
-chmod 600 lite-infra-key.pem
-bash ../deploy/lite-aws.sh logs
-
-# 4. Open it
-terraform output app_url        # http://<static-ip>/web/login
-
-# 5. Tear down (DESTRUCTIVE - deletes the database with the instance)
-bash ../deploy/lite-aws.sh snapshot
-bash ../deploy/lite-aws.sh down
-```
-
-Or the wrapper for steps 2-4: `bash deploy/lite-aws.sh up`. Cost breakdown,
-caveats (512 MB + 2 GB swap, the AI pipeline does **not** fit here) and pricing
-sources: [`lite-infra/README.md`](lite-infra/README.md).
-
-### Option 3 — `k8s-local` (Docker Desktop Kubernetes or kind)
+### `k8s-local` — the free local cluster (Docker Desktop or kind)
 
 Odoo + Postgres on your machine, with a real PersistentVolume so the database
-survives restarts. No cloud account needed.
+survives restarts. No cloud account, no bill.
 
 ```bash
 # 0. Prerequisites: Docker Desktop with Kubernetes enabled, kubectl.
@@ -247,18 +187,18 @@ See [docs/load-test.md](docs/load-test.md) for the capacity report and cost mode
 │   │   └── metrics.py       # Prometheus metrics (RED method)
 │   ├── locustfile.py        # Load test (Locust)
 │   └── pyproject.toml       # Dependencies + tooling
-├── full-infra/              # Option 1: EKS + RDS (the production-shaped stack)
+├── k8s-local/               # DEFAULT: Docker Desktop K8s or kind, PV-backed Postgres, $0
+│   ├── base/                # kustomize manifests (namespace, deploy, svc, sts, pvc, job)
+│   └── Makefile             # k8s-up / k8s-deploy / k8s-down / db-shell / db-backup / logs
+├── full-infra/              # NOT IN USE: EKS + RDS (kept for reference, costs money)
 │   ├── terraform/           # IaC: VPC, RDS, S3, Redis, security groups
 │   ├── helm/odoo-stack/     # the workload
 │   ├── eks/                 # eksctl cluster manifest, ALB controller notes
 │   └── observability/       # Prometheus + Grafana + Alertmanager
-├── lite-infra/              # Option 2: one Lightsail instance, Docker Compose, $5/month
+├── lite-infra/              # NOT IN USE: one Lightsail instance, ~$5/month
 │   ├── *.tf                 # instance, static IP, firewall, $5 billing alarm
 │   ├── docker-compose.lite.yml
 │   └── boot.sh.tftpl        # cloud-init: docker + compose + schema init
-├── k8s-local/               # Option 3: Docker Desktop K8s or kind, PV-backed Postgres
-│   ├── base/                # kustomize manifests (namespace, deploy, svc, sts, pvc, job)
-│   └── Makefile             # k8s-up / k8s-deploy / k8s-down / db-shell / db-backup / logs
 ├── deploy/                  # wrappers: local-k8s.sh, lite-aws.sh
 ├── infra-v1-backup/         # untouched pre-rename snapshot of ./infra (tag: infra-v1)
 ├── docs/
@@ -297,6 +237,33 @@ Key alerts: `PipelineErrorRateHigh`, `PipelineLatencyHigh`, `RDSConnectionsNearC
 - **Single-tenant** — no multi-company isolation yet
 - **Claude rate limits** — the RPM cap (100 on Build tier) bounds throughput at ~100 invoices/minute with full caching
 - **No real-time streaming** — the extraction result arrives via RabbitMQ polling, not WebSocket
+
+## AWS options — NOT IN USE
+
+Both AWS stacks exist here, are validated, and are **deliberately not deployed**,
+because they cost money and the local Kubernetes option above does the same job
+for $0.
+
+| Directory | What it would create | Why it is off |
+|---|---|---|
+| `full-infra/` | EKS + RDS + ALB + NAT Gateway | ~$120+/month |
+| `lite-infra/` | one Lightsail `nano` instance + static IP | ~$5.10/month |
+
+Nothing is applied automatically — CI only runs `terraform fmt` and `terraform
+validate`, never `apply`. As of the last audit the AWS account holds **no EKS
+cluster, no RDS, no NAT Gateway and no load balancer**, and the single
+`odoo-agent-server` EC2 instance is **stopped**.
+
+```bash
+# restart the stopped box (keeps its disk and data)
+aws ec2 start-instances --region eu-north-1 --instance-ids i-0fa36cddb156cc98f
+
+# or stand up the cheap stack from scratch (~$5/month)
+cd lite-infra && terraform init && terraform apply
+
+# or the production-shaped one (EKS + RDS)
+cd full-infra/terraform && terraform init && terraform plan
+```
 
 ## License
 
