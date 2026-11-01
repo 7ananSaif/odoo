@@ -1,0 +1,85 @@
+# Version control
+.git/
+.gitattributes
+.gitignore
+.github/
+
+# Claude / AI agents
+.claude/
+.codex/
+.agents/
+AGENTS.md
+CLAUDE.md
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+venv/
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.so
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docs (not needed at runtime)
+doc/
+docs/
+*.md
+*.rst
+
+# Config templates (not the real config)
+config/
+.env
+.env.example
+docker-compose.yml
+
+# Odoo runtime (generated)
+odoo/filestore/
+odoo-db-data/
+odoo-web-data/
+
+# Logs
+*.log
+/var/log/odoo/
+
+# Scripts (dev tools, not for the image)
+bashs/
+setup/
+scripts/
+
+# ============================================================================
+# Odoo core source tree — EXCLUDED from the build context.
+# The odoo:19 base image already ships the complete Odoo codebase at /opt/odoo,
+# and docker-compose mounts ./custom_addons at runtime. The Dockerfile only
+# COPYs custom_addons/invoice_agent/requirements.txt, so including any of the
+# directories below would send 1.5-3 GB of dead weight to the Docker daemon on
+# every build — stalling local builds and blowing up small disks on Windows.
+#
+# custom_addons/ is intentionally NOT listed here (requirements.txt is COPYed
+# from it; the addon itself arrives by bind-mount).
+# ============================================================================
+addons/
+odoo/
+-p/
+debian/
+docker/
+nginx/
+
+# CI
+.github/

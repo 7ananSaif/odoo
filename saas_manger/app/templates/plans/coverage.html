@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% block title %}Bouquet coverage · {{ app_name }}{% endblock %}
+{% block heading %}Bouquet coverage{% endblock %}
+{% block actions %}
+  <a class="btn btn-ghost" href="/plans">Plans</a>
+  <a class="btn btn-primary" href="/plans/new">New plan</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>Which bouquet carries which app</h2>
+  <p class="muted">
+    Every app a tenant can install has to belong to a bouquet. Below is the whole inventory
+    ({{ catalogue_size }} apps and modules: the shipped catalogue, the base modules every
+    bouquet carries{% if discovered_count %}, and {{ discovered_count }} app(s) discovered on a
+    server{% endif %}) against the {{ plans | length }} bouquet(s) defined here.
+  </p>
+  {% if discovered_count %}
+  <p class="help">
+    Rows tagged <span class="badge badge-info">discovered</span> were not in the shipped
+    catalogue: the manager found them on a tenant's Odoo and adopted them automatically, so a
+    module folder added to the server needs no code change to be sellable.
+  </p>
+  {% endif %}
+
+  {% if uncovered %}
+  <div class="alert alert-danger">
+    <strong>{{ uncovered | length }} app(s) belong to no bouquet:</strong>
+    <code>{{ uncovered | join(", ") }}</code>. No tenant can install them until a bouquet lists
+    them or a bouquet is marked white-label.
+  </div>
+  {% elif wildcard_plans %}
+  <p class="help">
+    <span class="badge badge-success">complete</span>
+    {% for p in wildcard_plans %}
+      <strong>{{ p.name }}</strong> is white-label: it authorises every app a tenant's database
+      offers, so the catalogue is covered even for apps added later.
+    {% endfor %}
+  </p>
+  {% else %}
+  <p class="help">
+    <span class="badge badge-warning">listed but not future-proof</span>
+    Every app in the catalogue is listed by a bouquet. An app added to the catalogue later would
+    need a bouquet too — mark one bouquet white-label to cover it automatically.
+  </p>
+  {% endif %}
+
+  {% if ladder_problems %}
+  <div class="alert alert-warning">
+    <strong>The seeded ladder is not sound:</strong>
+    <ul>
+      {% for problem in ladder_problems %}<li>{{ problem }}</li>{% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if extra %}
+  <p class="help">
+    Bouquets also list {{ extra | length }} module(s) that are not in the catalogue:
+    <code>{{ extra | join(", ") }}</code>. They are allowed on purpose (dependency or a local
+    app); add them to <code>app.services.app_catalogue</code> to make them part of the standard
+    ladder.
+  </p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Bouquets</h2>
+  <div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr><th>Bouquet</th><th>Code</th><th>Apps listed</th><th>Coverage</th></tr>
+    </thead>
+    <tbody>
+      {% for p in plans %}
+      <tr>
+        <td><a href="/plans/{{ p.id }}/edit">{{ p.name }}</a></td>
+        <td><code>{{ p.code }}</code></td>
+        <td>{{ p.module_names | length }}</td>
+        <td>
+          {% if p.all_apps %}
+            <span class="badge badge-info">every app</span>
+          {% else %}
+            <span class="badge badge-muted">listed apps only</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Catalogue</h2>
+  <div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr><th>App</th><th>In bouquet(s)</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      {% for row in apps %}
+      <tr>
+        <td class="mono">{{ row.name }}</td>
+        <td>
+          {% if row.plans %}
+            {% for code in row.plans %}<span class="badge badge-info">{{ code }}</span> {% endfor %}
+          {% else %}
+            <span class="muted">— none —</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if row.plans %}
+            <span class="badge badge-success">listed</span>
+          {% elif row.covered %}
+            <span class="badge badge-info">white-label only</span>
+          {% else %}
+            <span class="badge badge-danger">no bouquet</span>
+          {% endif %}
+          {% if row.base %}<span class="badge badge-muted">base</span>{% endif %}
+          {% if row.discovered %}<span class="badge badge-info">discovered</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% endblock %}

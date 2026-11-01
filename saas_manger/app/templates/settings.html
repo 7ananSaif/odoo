@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}Settings · {{ app_name }}{% endblock %}
+{% block heading %}Settings{% endblock %}
+
+{% block content %}
+<form method="post" action="/settings">
+  {% for section in sections %}
+  <div class="card">
+    <h2>{{ section.title }}</h2>
+    <div class="form-grid">
+      {% for f in section.fields %}
+        {% if f.type == 'bool' %}
+        <label class="check">
+          <input type="checkbox" name="{{ f.key }}" value="true" {{ 'checked' if f.checked else '' }}>
+          {{ f.label }}
+        </label>
+        {% elif f.type == 'textarea' %}
+        <label class="full">{{ f.label }}
+          <textarea name="{{ f.key }}" rows="3">{{ f.value }}</textarea>
+        </label>
+        {% elif f.type == 'password' %}
+        <label>{{ f.label }}
+          <input type="password" name="{{ f.key }}" value="" autocomplete="new-password"
+                 placeholder="{{ '•••••••• (leave empty to keep)' if password_set else 'not set' }}">
+        </label>
+        {% elif f.type == 'number' %}
+        <label>{{ f.label }}
+          <input type="number" name="{{ f.key }}" value="{{ f.value }}">
+        </label>
+        {% else %}
+        <label>{{ f.label }}
+          <input type="text" name="{{ f.key }}" value="{{ f.value }}">
+        </label>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% if section.title == 'Email (SMTP)' %}
+    <p class="help">
+      Invoices and dunning reminders are sent through this SMTP server. Leave the
+      password empty to keep the one already stored.
+    </p>
+    {% endif %}
+  </div>
+  {% endfor %}
+
+  <div class="actions-row">
+    <button type="submit" class="btn btn-primary">Save settings</button>
+  </div>
+</form>
+
+<section class="card">
+  <h2>Odoo connection</h2>
+  <dl class="dl">
+    <dt>Base URL</dt><dd class="mono">{{ settings.odoo_base_url }}</dd>
+    <dt>Domain</dt><dd class="mono">{{ settings.odoo_domain }}</dd>
+    <dt>Manager token</dt><dd class="mono">{{ 'configured' if settings.odoo_manager_token and not settings.odoo_manager_token.startswith('change-me') else 'NOT configured' }}</dd>
+    <dt>Secrets key</dt><dd class="mono">{{ 'configured' if settings.secrets_key and not settings.secrets_key.startswith('change-me') else 'NOT configured' }}</dd>
+    <dt>Backup directory</dt><dd class="mono">{{ settings.backup_dir }}</dd>
+    <dt>Celery broker</dt><dd class="mono">{{ settings.celery_broker_url }}</dd>
+  </dl>
+  <p class="help">These come from <code>.env</code>. Change them there and restart the manager.</p>
+</section>
+{% endblock %}

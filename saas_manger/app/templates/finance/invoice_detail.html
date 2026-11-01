@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+{% block title %}Invoice {{ invoice.number }} · {{ app_name }}{% endblock %}
+{% block heading %}Invoice {{ invoice.number }}{% endblock %}
+{% block actions %}
+  <a class="btn btn-ghost" href="/finance/invoices/{{ invoice.id }}/pdf">Download PDF</a>
+  {% if tenant and tenant.email %}
+  <form method="post" action="/finance/invoices/{{ invoice.id }}/email" style="display:inline">
+    <button class="btn btn-primary">Email to {{ tenant.email }}</button>
+  </form>
+  {% endif %}
+  <a class="btn btn-ghost" href="/finance">Back</a>
+{% endblock %}
+
+{% block content %}
+<div class="grid-2">
+  <section class="card">
+    <h2>Invoice</h2>
+    <dl class="dl">
+      <dt>Number</dt><dd class="mono">{{ invoice.number }}</dd>
+      <dt>Status</dt><dd><span class="badge badge-{{ invoice.status | status_color }}">{{ invoice.status }}</span></dd>
+      <dt>Tenant</dt><dd>{% if tenant %}<a href="/tenants/{{ tenant.id }}">{{ tenant.name }}</a>{% else %}—{% endif %}</dd>
+      <dt>Issued</dt><dd>{{ invoice.issue_date | date }}</dd>
+      <dt>Due</dt><dd>{{ invoice.due_date | date }}</dd>
+      <dt>Period</dt><dd>{{ invoice.period_start | date }} → {{ invoice.period_end | date }}</dd>
+      <dt>Currency</dt><dd>{{ invoice.currency }}</dd>
+    </dl>
+  </section>
+
+  <section class="card">
+    <h2>Totals</h2>
+    <dl class="dl">
+      <dt>Subtotal</dt><dd>{{ invoice.subtotal | money(invoice.currency) }}</dd>
+      <dt>Discount</dt><dd>- {{ invoice.discount_total | money(invoice.currency) }}</dd>
+      <dt>Tax</dt><dd>{{ invoice.tax_total | money(invoice.currency) }}</dd>
+      <dt>Late fee</dt><dd>{{ invoice.late_fee | money(invoice.currency) }}</dd>
+      <dt>Total</dt><dd><strong>{{ (invoice.total + invoice.late_fee) | money(invoice.currency) }}</strong></dd>
+      <dt>Paid</dt><dd>{{ invoice.amount_paid | money(invoice.currency) }}</dd>
+      <dt>Balance</dt><dd><strong>{{ invoice.balance | money(invoice.currency) }}</strong></dd>
+    </dl>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Lines</h2>
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Description</th><th class="right">Qty</th><th class="right">Unit</th><th class="right">Amount</th></tr></thead>
+    <tbody>
+      {% for line in invoice.lines %}
+      <tr>
+        <td>{{ line.description }}</td>
+        <td class="right">{{ '%g'|format(line.quantity) }}</td>
+        <td class="right nowrap">{{ line.unit_price | money(invoice.currency) }}</td>
+        <td class="right nowrap">{{ line.line_total | money(invoice.currency) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<section class="card">
+  <h2>Lifecycle</h2>
+  <div class="actions-row">
+    {% if invoice.status == 'draft' %}
+    <form method="post" action="/finance/invoices/{{ invoice.id }}/send"><button class="btn btn-primary btn-sm">Mark as sent</button></form>
+    <form method="post" action="/finance/invoices/{{ invoice.id }}/delete" onsubmit="return confirm('Delete this draft invoice?');">
+      <button class="btn btn-danger btn-sm">Delete draft</button>
+    </form>
+    {% endif %}
+    {% if invoice.status not in ['cancelled', 'paid'] %}
+    <form method="post" action="/finance/invoices/{{ invoice.id }}/cancel"><button class="btn btn-ghost btn-sm">Cancel invoice</button></form>
+    {% endif %}
+  </div>
+  <p class="help">Sent invoices cannot be deleted — cancel them and issue a credit note instead.</p>
+</section>
+
+<div class="grid-2">
+  <section class="card">
+    <h2>Record a payment</h2>
+    <form method="post" action="/finance/invoices/{{ invoice.id }}/pay" class="stack">
+      <label>Amount ({{ invoice.currency }})
+        <input type="text" name="amount" value="{{ invoice.balance }}" required>
+      </label>
+      <label>Method
+        <select name="method">
+          {% for m in methods %}<option value="{{ m }}">{{ m }}</option>{% endfor %}
+        </select>
+      </label>
+      <label>Date
+        <input type="date" name="on_date">
+      </label>
+      <label>Reference
+        <input type="text" name="reference">
+      </label>
+      <label>Notes
+        <input type="text" name="notes">
+      </label>
+      <button class="btn btn-primary btn-sm">Record payment</button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Credit / debit note</h2>
+    <form method="post" action="/finance/invoices/{{ invoice.id }}/credit-note" class="stack">
+      <label>Credit amount ({{ invoice.currency }})
+        <input type="text" name="amount" required>
+      </label>
+      <label>Reason
+        <input type="text" name="reason">
+      </label>
+      <button class="btn btn-ghost btn-sm">Issue credit note</button>
+    </form>
+    <form method="post" action="/finance/invoices/{{ invoice.id }}/debit-note" class="stack"
+          style="margin-top:14px">
+      <label>Debit amount ({{ invoice.currency }})
+        <input type="text" name="amount" required>
+      </label>
+      <label>Reason
+        <input type="text" name="reason">
+      </label>
+      <button class="btn btn-ghost btn-sm">Issue debit note</button>
+    </form>
+    <p class="help">A credit note reduces the balance, a debit note increases it.</p>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Payments ({{ payments | length }})</h2>
+  {% if payments %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead><tr><th>Date</th><th>Method</th><th>Reference</th><th class="right">Amount</th></tr></thead>
+    <tbody>
+      {% for p in payments %}
+      <tr>
+        <td class="nowrap">{{ p.date | date }}</td>
+        <td>{{ p.method }}</td>
+        <td>{{ p.reference }}</td>
+        <td class="right nowrap">{{ p.amount | money(p.currency) }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}<p class="muted">No payments recorded.</p>{% endif %}
+</section>
+{% endblock %}

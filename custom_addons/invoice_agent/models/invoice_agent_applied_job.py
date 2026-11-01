@@ -1,0 +1,79 @@
+"""Idempotency ledger for queue-applied results.
+
+v0.9 — the uniqueness guard proving a redelivered job never creates a second
+draft ``account.move``.
+
+``account.move`` results arrive with at-least-once delivery: a crash between
+"worker sent extract.done" and "Odoo committed the apply" causes the worker
+to send the same result again. The receiver must therefore apply each
+``job_uuid`` exactly once. The ledger does that with the database itself:
+
+    ``invoice.agent.applied.job`` (job_uuid UNIQUE)
+
+Before applying a result, ``invoice.agent.result.service`` runs
+``INSERT ... ON CONFLICT DO NOTHING`` for the ``job_uuid``. If the insert
+reports zero rows created, the job was already applied — the redelivered
+message is a no-op. If one row was created (or the job is new), the apply
+proceeds. Row creation and the apply commit in the same transaction, so a
+crash mid-apply leaves no ledger row and the next delivery retries safely.
+
+This mirrors the classic transactional-outbox pattern (ADR-004) on the
+receiving side: the dedupe decision is atomic with the work it guards.
+"""
+
+from odoo import fields, models
+
+
+class InvoiceAgentAppliedJob(models.Model):
+    _name = "invoice.agent.applied.job"
+    _description = "Idempotency ledger: job_uuid values already applied"
+    _rec_name = "job_uuid"
+
+    job_uuid = fields.Char(
+        string="Job UUID",
+        required=True,
+        index=True,
+        copy=False,
+        help="UUID of an extract.done result that was already applied. "
+        "UNIQUE — a redelivered message for the same uuid is a no-op.",
+    )
+    move_id = fields.Many2one(
+        comodel_name="account.move",
+        string="Invoice",
+        ondelete="set null",
+        index=True,
+        help="The account.move this ledger row applied the result to.",
+    )
+    applied_at = fields.Datetime(
+        string="Applied At",
+        default=fields.Datetime.now,
+        readonly=True,
+        help="When the result was applied (first delivery only).",
+    )
+
+    _job_uuid_unique = models.Constraint(
+        "UNIQUE(job_uuid)",
+        "A job result may only be applied once per job_uuid.",
+    )
+
+    def init(self):
+        """Guarantee the UNIQUE(job_uuid) index on every module load.
+
+        ``models.Constraint`` are only materialized during module
+        install/upgrade; a table created before this constraint existed
+        (or a schema that drifted) can end up WITHOUT the unique index,
+        which makes the receiver's ``INSERT ... ON CONFLICT (job_uuid)
+        DO NOTHING`` in ``result_service.claim_job_uuid`` raise
+        "no unique or exclusion constraint matching the ON CONFLICT
+        specification" and every result fails to apply. This idempotent
+        ``CREATE UNIQUE INDEX IF NOT EXISTS`` closes that gap on every
+        registry load, so ``ON CONFLICT`` always has a constraint to match.
+        """
+        super().init()
+        self.env.cr.execute(
+            """
+            CREATE UNIQUE INDEX IF NOT EXISTS
+            invoice_agent_applied_job_job_uuid_unique_idx
+            ON invoice_agent_applied_job (job_uuid)
+            """
+        )

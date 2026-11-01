@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <!-- ============================================================
+             ir.actions.server: Flag low-confidence bills for review
+             ============================================================ -->
+        <record id="server_action_flag_low_confidence" model="ir.actions.server">
+            <field name="name">Flag Low-Confidence Bill</field>
+            <field name="model_id" ref="account.model_account_move"/>
+            <field name="state">code</field>
+            <field name="code"><![CDATA[
+# This code runs for every low-confidence bill found by the automation.
+# The 'record' variable is the single account.move being processed.
+#
+# Available variables in safe_eval context:
+#   env      : Odoo environment (sudoed)
+#   model    : account.move model
+#   record   : the specific account.move record
+#   records  : all matching records
+#   log(msg) : write to ir.logging
+#   _logger  : restricted Python logger
+#   UserError: exception class
+#   time, datetime, dateutil: Python libraries
+
+_logger.info(
+    'AI Low-Confidence Flag: %s (confidence=%.0f%%)',
+    record.display_name,
+    record.ai_confidence * 100 if record.ai_confidence else 0,
+)
+
+# Post a message in the chatter
+record.message_post(
+    body=(
+        '\u26a0\ufe0f <b>Low AI Extraction Confidence</b><br/>'
+        'Confidence: <b>%.0f%%</b><br/>'
+        'This bill requires manual review before posting.'
+    ) % (record.ai_confidence * 100 if record.ai_confidence else 0),
+    subject='Low AI Confidence: %s' % record.display_name,
+)
+
+# Ensure the bill appears in the AI Agent Queue
+# (Don't overwrite 'validated' or 'failed' — only flag if it's still 'extracted')
+if record.ai_extraction_status == 'extracted':
+    record.write({
+        'ai_review_required': True,
+    })
+]]></field>
+        </record>
+
+        <!-- ============================================================
+             base.automation: Auto-flag low-confidence bills
+
+             Trigger: on_create_or_write
+               - For this trigger Odoo 19 auto-derives trigger_field_ids
+                 from the filter_domain fields (here: ai_confidence), so the
+                 rule fires exactly when ai_confidence is written on a bill.
+             Filter domain: confidence < 0.8 AND confidence is not null
+               - Written as NOT (confidence >= 0.8): SQL NULL comparisons
+                 yield NULL and are excluded, same as the explicit "< 0.8"
+                 plus "!= False" form — without needing a '<' character in
+                 the XML.
+             Action: server_action_flag_low_confidence
+               1. Posts a message (chatter log) warning of low confidence
+               2. Sets ai_review_required = True
+             ============================================================ -->
+        <record id="automation_low_confidence_flag" model="base.automation">
+            <field name="name">AI: Flag Low-Confidence Bills</field>
+            <field name="model_id" ref="account.model_account_move"/>
+            <field name="trigger">on_create_or_write</field>
+            <field name="filter_domain">['!', ('ai_confidence', '>=', 0.8)]</field>
+            <field name="action_server_ids" eval="[(6, 0, [ref('server_action_flag_low_confidence')])]"/>
+        </record>
+
+        <!-- ============================================================
+             ir.cron: Retry stuck extractions every 30 minutes
+
+             This cron calls account.move._cron_retry_stuck_extractions()
+             which finds bills stuck in 'processing' state for > 1 hour
+             and resets them to 'pending'.
+
+             Key fields:
+               - interval_number=30, interval_type='minutes': runs every 30 min
+               - active=True: enabled on install
+               - state='code': runs Python code
+               - code: the Python expression to execute (calls the model method)
+
+             The ir.cron model uses _inherits from ir.actions.server,
+             so it delegates to the server action's fields.
+             ============================================================ -->
+        <record id="cron_retry_stuck_extractions" model="ir.cron">
+            <field name="name">AI: Retry Stuck Extractions</field>
+            <field name="model_id" ref="account.model_account_move"/>
+            <field name="state">code</field>
+            <field name="code">model._cron_retry_stuck_extractions()</field>
+            <field name="interval_number">30</field>
+            <field name="interval_type">minutes</field>
+            <field name="active" eval="True"/>
+            <field name="priority">5</field>
+            <field name="nextcall" eval="(DateTime.now() + timedelta(minutes=5)).strftime('%Y-%m-%d %H:%M:%S')"/>
+        </record>
+    </data>
+</odoo>

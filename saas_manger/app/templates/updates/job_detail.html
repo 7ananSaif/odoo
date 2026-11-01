@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Job {{ job.db_name }} · {{ app_name }}{% endblock %}
+{% block heading %}Job — {{ job.db_name }}{% endblock %}
+{% block actions %}
+  {% if run %}<a class="btn btn-ghost" href="/updates/runs/{{ run.id }}">Back to run</a>{% else %}<a class="btn btn-ghost" href="/updates">Back</a>{% endif %}
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>Status</h2>
+  <dl class="dl">
+    <dt>Database</dt><dd class="mono">{{ job.db_name }}</dd>
+    <dt>Status</dt><dd><span class="badge badge-{{ job.status | status_color }}">{{ job.status }}</span></dd>
+    <dt>Attempt</dt><dd>{{ job.attempt }}</dd>
+    <dt>Rolled back</dt><dd>{{ 'yes' if job.rolled_back else 'no' }}</dd>
+    <dt>Started</dt><dd>{{ job.started_at | dt }}</dd>
+    <dt>Finished</dt><dd>{{ job.finished_at | dt }}</dd>
+  </dl>
+  {% if job.status == 'failed' %}
+  <form method="post" action="/updates/jobs/{{ job.id }}/retry" style="margin-top:12px">
+    <button class="btn btn-primary btn-sm">Retry this job</button>
+  </form>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2>Log</h2>
+  <div class="log-box">{% for entry in job.logs %}<div class="lvl-{{ entry.level }}">{{ entry.created_at | dt('%H:%M:%S') }} [{{ entry.level }}] {{ entry.message }}</div>{% else %}<span class="muted">No log lines.</span>{% endfor %}</div>
+</section>
+{% endblock %}

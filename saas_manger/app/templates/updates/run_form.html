@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}New update run · {{ app_name }}{% endblock %}
+{% block heading %}New update run{% endblock %}
+{% block actions %}<a class="btn btn-ghost" href="/updates">Back</a>{% endblock %}
+
+{% block content %}
+<form method="post" action="/updates/new">
+  <div class="card">
+    <h2>What to update</h2>
+    <div class="form-grid">
+      <label>Registered version
+        <select name="version_id">
+          <option value="0">— none (use modules below) —</option>
+          {% for v in versions %}
+          <option value="{{ v.id }}">{{ v.name }}{% if v.is_current %} (current){% endif %}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Modules to update (empty = all)
+        <input type="text" name="modules" placeholder="stock, sale_management">
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Targets</h2>
+    <label class="check">
+      <input type="checkbox" name="target" value="all"> Update <strong>all</strong> provisioned databases
+    </label>
+    <p class="help">Otherwise tick the databases to update below.</p>
+    <div class="target-list">
+      {% for t in tenants %}
+        {% if t.provisioned %}
+        <label class="check">
+          <input type="checkbox" name="db_names" value="{{ t.db_name }}">
+          {{ t.name }} <code>{{ t.db_name }}</code>
+          <span class="badge badge-{{ t.status | status_color }}">{{ t.status }}</span>
+        </label>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Safety</h2>
+    <label class="check">
+      <input type="checkbox" name="backup_first" value="true" checked>
+      Back up each database before updating
+    </label>
+    <label class="check">
+      <input type="checkbox" name="maintenance_mode" value="true">
+      Put each tenant in maintenance (read-only) while updating
+    </label>
+    <label class="check">
+      <input type="checkbox" name="run_now" value="true" checked>
+      Start the run now (otherwise it stays pending)
+    </label>
+    <p class="help">On failure the job is rolled back from its pre-update backup automatically.</p>
+  </div>
+
+  <div class="actions-row">
+    <button type="submit" class="btn btn-primary">Launch update run</button>
+    <a class="btn btn-ghost" href="/updates">Cancel</a>
+  </div>
+</form>
+{% endblock %}

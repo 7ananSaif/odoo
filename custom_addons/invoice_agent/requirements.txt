@@ -1,0 +1,39 @@
+# Invoice Agent — extra Python dependencies beyond Odoo's built-in requirements.
+# These are installed as a separate pip layer for Docker layer caching.
+# When the source code changes but these deps do not, the layer is reused.
+
+# Anthropic Claude API client — used for structured-output extraction from OCR text.
+# client.messages.parse(output_format=...) requires a Pydantic v2 model.
+anthropic>=0.70.0
+
+# Pydantic v2 — the InvoiceExtraction schema, and the typed output of
+# client.messages.parse(output_format=...). Transitive dep of anthropic but
+# pinned explicitly so the schema module imports standalone.
+pydantic>=2.0.0
+
+# Tesseract OCR Python wrapper — runs the local tesseract binary.
+pytesseract>=0.3.10
+
+# pdf2image — renders PDF pages to PIL images via poppler (pdftoppm).
+# This is the page-rasterization step before Tesseract OCR: pdf2image
+# itself only wraps the poppler binary (no C extension). jpeg4py is an
+# optional dependency of pdf2image whose PyPI releases cap at 0.1.x —
+# do NOT pin it here.
+pdf2image>=1.17.0
+
+# AWS Boto3 — Textract AnalyzeExpense fallback OCR engine (see docs/adr-002-ocr-engine.md).
+# We pin the runtime pieces of boto3 only; botocore is pulled transitively.
+boto3>=1.34.0
+
+# PyJWT — mints the 60-second HS256 service-to-service token for the
+# invoice-ai FastAPI service (see models/llm_service.py).
+PyJWT>=2.8.0
+
+# pika — AMQP 0-9-1 client for publishing extraction jobs to RabbitMQ
+# (queue.publisher AbstractModel + invoice_queue/topology.py at the repo root).
+# Pinned to a 1.x release series: 1.3.x is the current stable line.
+pika>=1.3.2
+
+# Redis — used by session_redis addon (Odoo HTTP sessions in Redis)
+# and by the invoice-ai worker for LLM extraction result caching.
+redis>=5.0.0

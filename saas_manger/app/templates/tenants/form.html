@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% set editing = tenant is not none %}
+{% block title %}{{ 'Edit' if editing else 'New' }} tenant · {{ app_name }}{% endblock %}
+{% block heading %}{{ 'Edit tenant' if editing else 'New tenant' }}{% endblock %}
+{% block actions %}
+  {% if editing %}<a class="btn btn-ghost" href="/tenants/{{ tenant.id }}">Back</a>{% else %}<a class="btn btn-ghost" href="/tenants">Back</a>{% endif %}
+{% endblock %}
+
+{% block content %}
+<form method="post" action="{{ '/tenants/%d/edit'|format(tenant.id) if editing else '/tenants/new' }}">
+  <div class="card">
+    <h2>Identity</h2>
+    <div class="form-grid">
+      <label>Client name
+        <input type="text" name="name" value="{{ tenant.name if editing else '' }}" required>
+      </label>
+      {% if editing %}
+      <label>Subdomain (fixed)
+        <input type="text" value="{{ tenant.subdomain }}" disabled>
+        <span class="help">Database: <code>{{ tenant.db_name }}</code></span>
+      </label>
+      {% else %}
+      <label>Subdomain
+        <input type="text" name="subdomain" placeholder="acme" pattern="[a-z0-9-]+">
+        <span class="help">Leave empty to derive it from the name. Becomes the database name.</span>
+      </label>
+      {% endif %}
+      <label>Contact person
+        <input type="text" name="contact_name" value="{{ tenant.contact_name if editing else '' }}">
+      </label>
+      <label>Email
+        <input type="email" name="email" value="{{ tenant.email if editing else '' }}">
+      </label>
+      <label>Phone
+        <input type="text" name="phone" value="{{ tenant.phone if editing else '' }}">
+      </label>
+      <label>Country
+        <input type="text" name="country" value="{{ tenant.country if editing else '' }}">
+      </label>
+      <label>Tax ID
+        <input type="text" name="tax_id" value="{{ tenant.tax_id if editing else '' }}">
+      </label>
+      <label class="full">Notes
+        <textarea name="notes">{{ tenant.notes if editing else '' }}</textarea>
+      </label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Plan & lifecycle</h2>
+    <div class="form-grid">
+      <label>Plan
+        <select name="plan_id">
+          <option value="0">— none —</option>
+          {% for p in plans %}
+          <option value="{{ p.id }}" {{ 'selected' if editing and tenant.plan_id == p.id else '' }}>
+            {{ p.name }} ({{ p.currency }} {{ p.price_month }}/mo)
+          </option>
+          {% endfor %}
+        </select>
+        <span class="help">Changing the plan installs/removes apps to match the plan's allowed modules.</span>
+      </label>
+
+      {% if editing %}
+      <label>Status
+        <select name="status">
+          {% for s in tenant_statuses %}
+          <option value="{{ s }}" {{ 'selected' if tenant.status == s else '' }}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Expiry date
+        <input type="date" name="expiry_date" value="{{ tenant.expiry_date.isoformat() if tenant.expiry_date else '' }}">
+      </label>
+      <label class="check">
+        <input type="checkbox" name="auto_renew" value="true" {{ 'checked' if tenant.auto_renew else '' }}>
+        Auto-renew
+      </label>
+      {% else %}
+      <label>Trial days
+        <input type="number" name="trial_days" value="{{ default_trial }}" min="0">
+      </label>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Limits</h2>
+    <div class="form-grid">
+      <label>Max users
+        <input type="number" name="max_users" value="{{ tenant.max_users if editing else 5 }}" min="0">
+      </label>
+      <label>Max warehouses
+        <input type="number" name="max_warehouses" value="{{ tenant.max_warehouses if editing else 1 }}" min="0">
+      </label>
+      <label>Max companies
+        <input type="number" name="max_companies" value="{{ tenant.max_companies if editing else 1 }}" min="0">
+      </label>
+      <label>Max storage (MB)
+        <input type="number" name="max_storage_mb" value="{{ tenant.max_storage_mb if editing else 5120 }}" min="0">
+      </label>
+      <label>Max DB size (MB, 0 = unlimited)
+        <input type="number" name="max_db_size_mb" value="{{ tenant.max_db_size_mb if editing else 0 }}" min="0">
+      </label>
+    </div>
+    <label class="check" style="margin-top:10px">
+      <input type="checkbox" name="count_portal_users" value="true"
+             {{ 'checked' if editing and tenant.count_portal_users else '' }}>
+      Count portal / public users against Max users
+    </label>
+    <p class="help">
+      Off by default: only internal users consume the user quota. Turn this on to also
+      count portal and public users for this tenant.
+    </p>
+    <label class="check">
+      <input type="checkbox" name="block_writes" value="true"
+             {{ 'checked' if not editing or tenant.block_writes else '' }}>
+      Force read-only when suspended or expired
+    </label>
+    <p class="help">
+      When off, a suspended/expired tenant still sees an expiry notice but is not made
+      read-only inside the client database.
+    </p>
+    <label class="check">
+      <input type="checkbox" name="push_now" value="true" {{ 'checked' if editing else '' }}>
+      Push limits to the database now
+    </label>
+    <p class="help">Downgrading below current usage is blocked and lists what must be reduced first.</p>
+  </div>
+
+  {% if not editing %}
+  <div class="card">
+    <h2>Provisioning</h2>
+    <label class="check">
+      <input type="checkbox" name="provision_now" value="true" checked>
+      Create and initialise the Odoo database now
+    </label>
+    <label class="check">
+      <input type="checkbox" name="demo" value="true">
+      Install demo data
+    </label>
+    <p class="help">The generated admin password is shown once after creation — store it safely.</p>
+  </div>
+  {% endif %}
+
+  <div class="actions-row">
+    <button type="submit" class="btn btn-primary">{{ 'Save changes' if editing else 'Create tenant' }}</button>
+    {% if editing %}
+    <a class="btn btn-ghost" href="/tenants/{{ tenant.id }}">Cancel</a>
+    {% else %}
+    <a class="btn btn-ghost" href="/tenants">Cancel</a>
+    {% endif %}
+  </div>
+</form>
+{% endblock %}

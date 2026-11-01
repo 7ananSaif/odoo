@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% block title %}Containers · {{ app_name }}{% endblock %}
+{% block heading %}Containers{% endblock %}
+{% block actions %}
+  {% if can_control and apps %}
+  <form method="post" action="/containers/restart-all" class="inline"
+        onsubmit="return confirm('Restart every app container? Tenants will be briefly unavailable.');">
+    <button class="btn btn-ghost">Restart all</button>
+  </form>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+{% if not docker_available %}
+<section class="card">
+  <h2>Container control is switched off</h2>
+  <p class="muted">
+    The manager found no Docker socket at <code>{{ docker_socket }}</code>, so it cannot
+    start or stop containers. To enable this page, give the <code>saas-manager-web</code>
+    service the daemon socket:
+  </p>
+  <ul>
+    <li><code>volumes:</code> → <code>- /var/run/docker.sock:/var/run/docker.sock</code></li>
+    <li><code>group_add:</code> → <code>- "0"</code>, so the non-root panel user may open it</li>
+    <li><code>environment:</code> → <code>- DOCKER_SOCKET=/var/run/docker.sock</code></li>
+  </ul>
+  <p class="help">
+    Be aware of what this grants: the Docker socket is root-equivalent on this host, so
+    anything that can talk to it can control every container. This panel only ever calls
+    start / stop / restart on the services you list in <code>APP_SERVICES</code>, and it
+    refuses the protected ones below outright — but the socket itself is the real boundary,
+    so only mount it on a host you control.
+  </p>
+</section>
+{% else %}
+<section class="card">
+  <h2>Application containers</h2>
+  {% if apps %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Service</th><th>State</th><th>Container</th><th>Image</th><th>Health</th>
+        <th class="right"></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for app in apps %}
+      <tr>
+        <td><strong>{{ app.service }}</strong></td>
+        <td>
+          <span class="badge badge-{{ 'success' if app.is_running else 'muted' }}">{{ app.state_label }}</span>
+        </td>
+        <td class="mono">{{ app.name }}</td>
+        <td class="muted">{{ app.image }}</td>
+        <td>
+          {% if app.health == 'healthy' %}<span class="badge badge-success">healthy</span>
+          {% elif app.health == 'unhealthy' %}<span class="badge badge-danger">unhealthy</span>
+          {% elif app.health %}<span class="badge badge-warning">{{ app.health }}</span>
+          {% else %}<span class="muted">—</span>{% endif %}
+        </td>
+        <td class="right nowrap">
+          {% if can_control %}
+            {% if app.is_running %}
+            <form method="post" action="/containers/{{ app.service }}/restart" class="inline">
+              <button class="btn btn-ghost btn-sm">Restart</button>
+            </form>
+            <form method="post" action="/containers/{{ app.service }}/stop" class="inline"
+                  onsubmit="return confirm('Stop {{ app.service }}? Anything served by it goes offline.');">
+              <button class="btn btn-danger btn-sm">Stop</button>
+            </form>
+            {% else %}
+            <form method="post" action="/containers/{{ app.service }}/start" class="inline">
+              <button class="btn btn-primary btn-sm">Start</button>
+            </form>
+            {% endif %}
+          {% else %}
+            <span class="muted">—</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <p class="muted">
+    No containers found for the configured services. Start the stack, or check that
+    <code>APP_SERVICES</code> and <code>COMPOSE_PROJECT</code> match this deployment.
+  </p>
+  {% endif %}
+</section>
+
+{% if can_control %}
+<section class="card">
+  <h2>Whole stack</h2>
+  <div class="actions-row">
+    <form method="post" action="/containers/start-all" class="inline">
+      <button class="btn btn-primary">Start all</button>
+    </form>
+    <form method="post" action="/containers/restart-all" class="inline"
+          onsubmit="return confirm('Restart every app container? Tenants will be briefly unavailable.');">
+      <button class="btn btn-ghost">Restart all</button>
+    </form>
+    <form method="post" action="/containers/stop-all" class="inline"
+          onsubmit="return confirm('Stop every app container? Tenants will be offline until you start them again.');">
+      <button class="btn btn-danger">Stop all</button>
+    </form>
+  </div>
+  <p class="help">
+    Stopping is safe for your data: containers keep their volumes, and the database,
+    Redis and RabbitMQ keep running. Starting again takes a few seconds per service.
+  </p>
+</section>
+{% endif %}
+{% endif %}
+
+<section class="card">
+  <h2>Scope of this page</h2>
+  <p class="muted">
+    Controllable services (<code>APP_SERVICES</code>):
+    {% for service in allowlist %}<code>{{ service }}</code>{{ ", " if not loop.last else "" }}{% else %}<em>none configured</em>{% endfor %}.
+  </p>
+  <p class="muted">
+    Never touched, even if added to <code>APP_SERVICES</code>:
+    {% for service in protected_services %}<code>{{ service }}</code>{{ ", " if not loop.last else "" }}{% endfor %}.
+    Stopping any of those would take down this panel, the data, or certificate renewal.
+  </p>
+  <p class="help">
+    Looking for the apps a <em>tenant</em> runs inside Odoo? Those are on the
+    <a href="/apps">Apps</a> screen.
+  </p>
+</section>
+{% endblock %}

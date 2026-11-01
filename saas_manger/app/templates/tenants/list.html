@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}Tenants · {{ app_name }}{% endblock %}
+{% block heading %}Tenants{% endblock %}
+{% block actions %}
+  <a class="btn btn-ghost" href="/export/dashboard.csv">Export CSV</a>
+  <a class="btn btn-primary" href="/tenants/new">New tenant</a>
+{% endblock %}
+
+{% block content %}
+<section class="card">
+  <form method="get" action="/tenants" class="actions-row" style="align-items:flex-end">
+    <label style="max-width:220px">Status
+      <select name="status" onchange="this.form.submit()">
+        <option value="">All statuses</option>
+        {% for s in tenant_statuses %}
+          <option value="{{ s }}" {{ 'selected' if status_filter == s else '' }}>{{ s }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </form>
+</section>
+
+<section class="card">
+  {% if tenants %}
+  <div class="table-wrap">
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Tenant</th><th>Subdomain</th><th>Plan</th><th>Status</th>
+        <th>Users</th><th>Warehouses</th><th>DB size</th><th>Expiry</th>
+        <th class="right">Balance</th><th></th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in tenants %}
+      <tr>
+        <td><a href="/tenants/{{ t.id }}">{{ t.name }}</a></td>
+        <td><code>{{ t.subdomain }}</code></td>
+        <td>{{ t.plan.name if t.plan else "—" }}</td>
+        <td><span class="badge badge-{{ t.status | status_color }}">{{ t.status }}</span></td>
+        <td class="nowrap">
+          {{ t.current_users }}/{{ t.max_users }}
+          <div class="meter {{ 'over' if t.usage_percent('users') >= 100 else ('warn' if t.usage_percent('users') >= 80 else '') }}">
+            <span style="width: {{ [t.usage_percent('users'), 100] | min }}%"></span>
+          </div>
+        </td>
+        <td>{{ t.current_warehouses }}/{{ t.max_warehouses }}</td>
+        <td class="nowrap">{{ '%.1f'|format(t.current_db_size_mb) }} MB</td>
+        <td class="nowrap">{{ t.expiry_date | date }}</td>
+        <td class="right nowrap">{{ balances[t.id] | money }}</td>
+        <td class="right"><a class="btn btn-ghost btn-sm" href="/tenants/{{ t.id }}">Open</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  {% else %}
+  <p class="muted">No tenants{{ ' with this status' if status_filter else '' }}.
+    <a href="/tenants/new">Create one</a>.</p>
+  {% endif %}
+</section>
+{% endblock %}

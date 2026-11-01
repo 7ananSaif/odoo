@@ -1,0 +1,172 @@
+# =============================================================================
+# 04-postgres-pod.yaml — the deliverable: ONE Pod that mounts all THREE kinds
+# of state at the same time.
+#
+#   ConfigMap  -> env vars (POSTGRES_DB, POSTGRES_USER, PGDATA, ODOO_DB_*)
+#                 and a projected FILE at /etc/postgresql/postgresql.conf
+#   Secret     -> env var  (POSTGRES_PASSWORD)
+#   PVC        -> the data directory at /var/lib/postgresql/data
+#
+# Apply:  kubectl apply -f infra/k8s/state/04-postgres-pod.yaml
+# Watch:  kubectl get pod pg-test -w
+# Ready:  kubectl get pod pg-test -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}'
+#
+# This pod is deliberately a BARE Pod, not a StatefulSet. The exercise is to
+# show that storage is decoupled from the Pod's lifecycle: we delete this exact
+# Pod by name, recreate it, and the rows written before the delete are still
+# there. A StatefulSet would obscure that, because the controller would recreate
+# the Pod for us and re-attach the same claim automatically. The production form
+# of this database IS a StatefulSet (with a `volumeClaimTemplate` instead of a
+# standalone PVC) — see infra/helm/odoo-stack/templates/postgres-statefulset.yaml.
+# The StatefulSet buys a STABLE POD NAME (db-0) and per-replica storage; the
+# PVC buys durability. This file isolates the second property so it can be seen.
+#
+# Ordering note: with the default `WaitForFirstConsumer` StorageClass the PVC
+# stays Pending until this Pod schedules. If the Pod is created while the PVC is
+# still Pending it simply waits for the bound claim; it does not error.
+# =============================================================================
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pg-test
+  labels:
+    app.kubernetes.io/name: postgres
+    app.kubernetes.io/component: state-demo
+    app.kubernetes.io/part-of: odoo
+spec:
+  # Always: this models a long-lived service. If the postgres process exits the
+  # kubelet restarts THAT container in place — the Pod object (and its mount)
+  # is unchanged, which is a different event from deleting the Pod entirely.
+  restartPolicy: Always
+  # The official postgres image runs as uid/gid 999 (`postgres`). A local-path
+  # volume is created owned by root, so without this the database could not
+  # create its data directory and `initdb` would fail with "permission denied".
+  # fsGroup makes the kubelet chgrp the volume to 999 and grant group write.
+  securityContext:
+    fsGroup: 999
+    fsGroupChangePolicy: OnRootMismatch
+  containers:
+    - name: postgres
+      image: postgres:16
+      imagePullPolicy: IfNotPresent
+      # NO `command:` here, and that is load-bearing. The official postgres
+      # image's ENTRYPOINT is `docker-entrypoint.sh`, whose job includes
+      # initializing the data directory and then DROPPING PRIVILEGES to the
+      # unprivileged `postgres` (uid 999) user via `gosu` before starting the
+      # server. Setting `command:` replaces the entrypoint, so the server would
+      # run as root and immediately refuse:
+      #     "root" execution of the PostgreSQL server is not permitted.
+      # Supplying only `args:` keeps the ENTRYPOINT and appends to it. The
+      # entrypoint sees an argument starting with `-` and prepends the server
+      # name, so the executed line becomes:
+      #     exec gosu postgres postgres -c config_file=/etc/postgresql/postgresql.conf
+      # That is the first flag pointing the server at the ConfigMap-provided
+      # config file while still honouring the image's init + privilege drop.
+      args:
+        - "-c"
+        - "config_file=/etc/postgresql/postgresql.conf"
+      ports:
+        - name: postgres
+          containerPort: 5432
+          protocol: TCP
+      env:
+        # --- non-sensitive: from the ConfigMap ----------------------------
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: POSTGRES_USER
+        - name: PGDATA
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: PGDATA
+        # The same ConfigMap also carries the Odoo-side connection keys. Pulling
+        # them in here is what lets the runbook show `env` proving that ONE
+        # object feeds both the database and the application that talks to it.
+        - name: ODOO_DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: ODOO_DB_HOST
+        - name: ODOO_DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: ODOO_DB_PORT
+        - name: ODOO_DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: ODOO_DB_USER
+        # --- sensitive: from the Secret -----------------------------------
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_PASSWORD
+        - name: ODOO_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: ODOO_DB_PASSWORD
+      volumeMounts:
+        # --- state kind 3: durable disk (the PVC) -------------------------
+        - name: pgdata
+          mountPath: /var/lib/postgresql/data
+        # --- state kind 1: config as a FILE (the ConfigMap) ---------------
+        # Read-only: a container should never write back into a ConfigMap, and
+        # Kubernetes mounts configMap volumes read-only regardless.
+        - name: pgconf
+          mountPath: /etc/postgresql
+          readOnly: true
+      # pg_isready is the Postgres-native readiness signal and needs no
+      # credentials — it reports whether the server accepts connections. The
+      # database is held out of any Service's endpoint list until it answers.
+      readinessProbe:
+        exec:
+          command:
+            ["sh", "-c", 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"']
+        initialDelaySeconds: 10
+        periodSeconds: 5
+        timeoutSeconds: 5
+        failureThreshold: 6
+      # Liveness restarts a WEDGED server; a longer initial delay so a slow
+      # first-time initdb is never mistaken for a dead process.
+      livenessProbe:
+        exec:
+          command:
+            ["sh", "-c", 'pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB"']
+        initialDelaySeconds: 30
+        periodSeconds: 15
+        timeoutSeconds: 5
+        failureThreshold: 6
+      resources:
+        requests:
+          cpu: 100m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+  volumes:
+    # The claim created by 03-pvc.yaml. Note we reference the claim, never a
+    # PersistentVolume directly: the PVC is the portable, namespace-scoped
+    # handle, and the node it binds to is an implementation detail.
+    - name: pgdata
+      persistentVolumeClaim:
+        claimName: pg-pvc
+    # Project ONLY the postgresql.conf key. Without `items`, every key in
+    # app-config (POSTGRES_DB, APP_MODE, ...) would also appear as a file in
+    # /etc/postgresql — harmless here, but `items` keeps the mount exactly the
+    # one file Postgres should read.
+    - name: pgconf
+      configMap:
+        name: app-config
+        items:
+          - key: postgresql.conf
+            path: postgresql.conf

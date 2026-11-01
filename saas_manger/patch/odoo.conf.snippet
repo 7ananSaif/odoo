@@ -1,0 +1,34 @@
+; ============================================================================
+; SAAS-PATCH  --  Odoo core lock switches
+; ============================================================================
+; Add the two keys below to the [options] section of the odoo.conf that the
+; Odoo server actually loads (the file passed with -c / --config).
+; On this machine that is normally  D:\odoo\odoo\odoo.conf
+;
+; Keep `saas_lock` and `saas_manager_token` IDENTICAL on every client instance
+; (or give each client its own token and register it in the SaaS Manager).
+; ----------------------------------------------------------------------------
+
+; Enable every SaaS restriction: no app install/uninstall/upgrade from inside
+; the client database, no database manager, hidden Apps/Technical menus,
+; developer mode disabled for clients, plan limits enforced.
+saas_lock = True
+
+; Secret the SaaS Manager must present to bypass the lock.
+;   * HTTP  : header  X-Saas-Manager-Token: <value>
+;   * RPC   : context key saas_manager_token
+;   * CLI   : -i / -u runs are always allowed (server owner)
+; Generate a strong value once, e.g.:
+;   python -c "import secrets;print(secrets.token_urlsafe(48))"
+saas_manager_token = REPLACE_WITH_A_LONG_RANDOM_SECRET
+
+; ----------------------------------------------------------------------------
+; Recommended companions for a one-database-per-client setup.
+; ----------------------------------------------------------------------------
+; One database per subdomain: %d is the first label of the host
+; (acme.example.com -> acme). The SaaS Manager relies on this convention.
+dbfilter = ^%d$
+
+; Do NOT expose the database list / manager to the public.
+; (The SAAS-PATCH also blocks these, this is belt-and-braces.)
+list_db = False

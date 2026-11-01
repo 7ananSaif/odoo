@@ -1,0 +1,70 @@
+# Production overlay — merged on top of values.yaml.
+# Secrets are NOT stored here; `secret.existingSecret: true` references a
+# Secret provisioned via AWS Secrets Manager / External Secrets Operator.
+#
+# This is the EKS production target:
+#   - Postgres is Amazon RDS (not in-cluster) -> postgres.enabled: false
+#   - Odoo image pulled from ECR (the deploy workflow overrides both
+#     repository and tag with the image this commit built)
+#   - Secret populated by External Secrets Operator
+#   - Filestore on EFS: 3 replicas share one attachments directory, which EBS
+#     cannot do (a RWO block volume attaches to a single node only)
+
+postgres:
+  enabled: false # RDS is the database; no in-cluster StatefulSet
+  resources:
+    requests:
+      cpu: 1
+      memory: 2Gi
+    limits:
+      cpu: "4"
+      memory: 8Gi
+  storage:
+    size: 100Gi
+
+odoo:
+  replicaCount: 3
+  image:
+    repository: <account>.dkr.ecr.eu-north-1.amazonaws.com/odoo # <- ECR repo
+    tag: prod-<sha> # <- built image tag
+    pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: "2"
+      memory: 4Gi
+    limits:
+      cpu: "6"
+      memory: 8Gi
+  # 3 replicas x 4 workers = 12 request-processing workers. The worker count
+  # must stay explicit: Odoo otherwise derives it from the NODE's core count
+  # (2n+1), which on a 16 vCPU node means 33 workers under an 8Gi limit and an
+  # OOMKill loop that never becomes ready.
+  workers: 4
+  # One cron thread per replica. Odoo claims each job with a row lock
+  # (ir.cron._acquire_one_job), so replicas do not run the same job twice.
+  # Set to 0 on every replica and run a dedicated single-replica cron
+  # Deployment if you would rather keep the web tier cron-free.
+  maxCronThreads: 1
+  dbMaxconn: 16
+  filestore:
+    size: 100Gi
+    # Shared attachments directory. Requires an EFS-backed StorageClass: the
+    # aws-efs-csi-driver addon must be installed and `efs-sc` created from an
+    # EFS filesystem in the same VPC as the nodes.
+    accessMode: ReadWriteMany
+    storageClassName: efs-sc
+  # uid 100 / gid 101 = the `odoo` user in the official image. fsGroup lets the
+  # kubelet grant that group write access to the (root-owned) EFS/EBS mount.
+  podSecurityContext:
+    fsGroup: 101
+    fsGroupChangePolicy: OnRootMismatch
+
+# DB host is the RDS endpoint, not the in-cluster service.
+config:
+  odooDbHost: <rds-endpoint>.eu-north-1.rds.amazonaws.com # <- terraform output rds_hostname
+  odooDbPort: "5432"
+  odooDbUser: odoo
+
+secret:
+  existingSecret: true
+  name: odoo-production-secrets

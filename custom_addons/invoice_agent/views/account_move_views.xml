@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ============================================================
+         INHERIT account.view_move_form — AI Extraction Notebook Page
+         ============================================================ -->
+    <record id="view_move_form_ai_extraction" model="ir.ui.view">
+        <field name="name">account.move.form.ai.extraction</field>
+        <field name="model">account.move</field>
+        <field name="inherit_id" ref="account.view_move_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook" position="inside">
+                <!-- AI Extraction Page — only visible on vendor bills -->
+                <page string="AI Extraction" name="ai_extraction_page"
+                      invisible="move_type not in ('in_invoice', 'in_refund')">
+                    <group name="ai_extraction_status_group">
+                        <group string="Extraction Metadata">
+                            <field name="ai_extraction_status" widget="badge"
+                                   decoration-danger="ai_extraction_status == 'failed'"
+                                   decoration-success="ai_extraction_status == 'validated'"
+                                   decoration-warning="ai_extraction_status == 'extracted'"
+                                   decoration-info="ai_extraction_status == 'pending'"/>
+                            <!-- Live queue state: queued → extracting → ready.
+                                 The OWL widget (ai_status_widget) subscribes to
+                                 the invoice_agent bus.bus channel. -->
+                            <field name="ai_job_uuid" widget="ai_status_widget"
+                                   readonly="1"
+                                   invisible="ai_state not in ('queued', 'none')"/>
+                            <field name="ai_review_required" widget="boolean_toggle"/>
+                            <field name="ai_needs_review" widget="boolean_toggle"/>
+                            <field name="ai_confidence" widget="progressbar"/>
+                            <field name="ai_line_confidence_avg" widget="progressbar"/>
+                            <field name="ai_model_used"/>
+                            <field name="ai_source_attachment_id"/>
+                            <field name="ai_extracted_on"/>
+                            <field name="ai_validated_on"/>
+                        </group>
+                        <group string="OCR Pipeline">
+                            <field name="ocr_state" widget="badge"
+                                   decoration-danger="ocr_state == 'failed'"
+                                   decoration-success="ocr_state == 'done'"
+                                   decoration-info="ocr_state == 'pending'"
+                                   decoration-warning="ocr_state == 'running'"/>
+                            <field name="ocr_confidence" widget="progressbar"/>
+                            <field name="ocr_engine"/>
+                            <field name="ocr_error_message"/>
+                        </group>
+                        <group string="Variance">
+                            <field name="amount_total"/>
+                            <field name="ai_extracted_total"/>
+                            <field name="ai_amount_variance"/>
+                            <field name="ai_variance_pct" widget="percentpie"/>
+                        </group>
+                    </group>
+                    <group string="Vendor and Sale Order">
+                        <field name="partner_id"/>
+                        <field name="ai_source_sale_order_id" widget="many2one" options="{'no_create': True}"/>
+                    </group>
+                    <group string="AI Extracted Raw OCR Text">
+                        <field name="ai_ocr_text" nolabel="1" readonly="1"/>
+                    </group>
+                    <group string="Tesseract OCR Text">
+                        <field name="ocr_text" nolabel="1" readonly="1"
+                               invisible="ocr_state != 'done'"/>
+                    </group>
+                    <group string="AI Suggestion Panel">
+                        <!-- OWL widget: Accept/Reject chips. Each accept
+                             calls account.move.apply_suggested_value(field). -->
+                        <field name="extraction_line_ids" nolabel="1"
+                               widget="invoice_suggestion_panel"
+                               readonly="ai_extraction_status != 'extracted'"/>
+                    </group>
+                    <group string="Persisted Extraction Payload">
+                        <field name="extraction_json" nolabel="1" readonly="1"/>
+                        <field name="extraction_model"/>
+                    </group>
+                    <group string="Raw AI Payload">
+                        <field name="ai_extracted_json" nolabel="1" readonly="1"/>
+                    </group>
+                </page>
+            </xpath>
+
+            <!-- Statusbar in the form header showing extraction state -->
+            <xpath expr="//header" position="inside">
+                <field name="ai_extraction_status" widget="statusbar"
+                       statusbar_visible="pending,extracted,validated,failed"
+                       invisible="move_type not in ('in_invoice', 'in_refund')"/>
+
+                <!-- Suggest with AI — header button, Agent Reviewer+ only.
+                     Hidden unless the bill is a draft vendor bill. The Python
+                     handler blocks double submission by checking the
+                     extraction state, and always returns an
+                     ir.actions.client notification. -->
+                <button name="action_suggest_extraction" type="object"
+                        string="Suggest with AI"
+                        icon="fa-magic"
+                        groups="invoice_agent.group_invoice_agent_user"
+                        class="btn-link"
+                        invisible="state != 'draft' or move_type not in ('in_invoice', 'in_refund')"/>
+
+                <!-- Extract — enqueues a durable AMQP job through the
+                     transactional outbox (week 8, ADR-004). The job is
+                     published to extract.request by the drain cron; the
+                     worker runs OCR + Claude off the request path. The
+                     synchronous FastAPI call that this replaced used to
+                     block an HTTP worker for the full 5-20 s round-trip. -->
+                <button name="action_request_ai_extraction" type="object"
+                        string="Extract"
+                        icon="fa-bolt"
+                        groups="invoice_agent.group_invoice_agent_user"
+                        class="btn-primary"
+                        invisible="state != 'draft' or move_type not in ('in_invoice', 'in_refund')"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         INHERIT account.view_move_line_form — add ai_confidence
+         ============================================================ -->
+    <record id="view_move_line_form_ai" model="ir.ui.view">
+        <field name="name">account.move.line.form.ai.inherit</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='account_id']" position="after">
+                <field name="ai_confidence" widget="progressbar" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         INHERIT account.view_move_line_tree — add ai_confidence
+         ============================================================ -->
+    <record id="view_move_line_tree_ai" model="ir.ui.view">
+        <field name="name">account.move.line.tree.ai.inherit</field>
+        <field name="model">account.move.line</field>
+        <field name="inherit_id" ref="account.view_move_line_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='account_id']" position="after">
+                <field name="ai_confidence" widget="progressbar" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- ============================================================
+         List View for invoice.agent.extraction.line model
+         ============================================================ -->
+    <record id="view_invoice_agent_extraction_line_list" model="ir.ui.view">
+        <field name="name">invoice.agent.extraction.line.list</field>
+        <field name="model">invoice.agent.extraction.line</field>
+        <field name="arch" type="xml">
+            <list editable="bottom" multi_edit="1">
+                <field name="field_name"/>
+                <field name="extracted_value"/>
+                <field name="field_confidence" widget="progressbar" optional="show"/>
+            </list>
+        </field>
+    </record>
+</odoo>

@@ -1,0 +1,31 @@
+# =============================================================================
+# SaaS Manager — Celery worker (queues: default, updates, backups)
+#
+# Template: deploy/setup-server.sh substitutes __APP_USER__ and __APP_DIR__ and
+# installs the result as /etc/systemd/system/saas-manager-worker.service.
+#
+# Linux uses the default prefork pool; the Windows NSSM installer uses --pool=solo.
+# .env is read from WorkingDirectory by pydantic-settings.
+# =============================================================================
+[Unit]
+Description=SaaS Manager - Celery worker
+Documentation=file://__APP_DIR__/deploy/README.md
+After=network-online.target redis-server.service redis6.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_USER__
+WorkingDirectory=__APP_DIR__
+ExecStart=__APP_DIR__/venv/bin/python -m celery -A app.workers.celery_app.celery_app worker --loglevel=INFO -Q default,updates,backups
+Restart=always
+RestartSec=5
+KillSignal=SIGTERM
+TimeoutStopSec=60
+NoNewPrivileges=true
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
