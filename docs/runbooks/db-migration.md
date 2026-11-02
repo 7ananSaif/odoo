@@ -76,7 +76,7 @@ RDS_PASS=$(aws secretsmanager get-secret-value \
   --secret-id odoo-invoice-agent-production/rds/master-password \
   --query 'SecretString' --output text | python3 -c "import sys,json; print(json.load(sys.stdin)['password'])")
 
-RDS_HOST=$(terraform -chdir=infra/terraform output -raw rds_hostname)
+RDS_HOST=$(terraform -chdir=full-infra/terraform output -raw rds_hostname)
 
 # Copy dump to RDS host (via local psql client)
 docker compose cp db:/tmp/final-migration.dump /tmp/final-migration.dump
@@ -218,5 +218,5 @@ curl -s -o /dev/null -w "%{http_code}" http://localhost:8069/web/login
 - [ ] Verify CloudWatch alarms fire correctly
 - [ ] Test automated backup restoration from RDS snapshot
 - [ ] Update CI/CD deploy workflow to use RDS overlay
-- [ ] Commit Terraform files: `git add -f infra/`
+- [ ] Commit Terraform files: `git add -f full-infra/`
 - [ ] Commit docs: `git add -f docs/architecture.md docs/runbooks/db-migration.md`

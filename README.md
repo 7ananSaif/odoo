@@ -68,6 +68,54 @@ docker compose up -d
 # Review the AI-suggested fields in the suggestion panel
 ```
 
+## How to run this
+
+**Run it locally, on Docker Desktop's Kubernetes. It costs $0 and needs no cloud
+account.** The AWS Terraform in this repo is kept for reference only and is not
+used — see [the note at the end](#aws-options--not-in-use).
+
+| | `k8s-local/` (default) | `full-infra/` | `lite-infra/` |
+|---|---|---|---|
+| Runs on | Docker Desktop Kubernetes / kind | EKS | one Lightsail box |
+| Database | Postgres StatefulSet + PVC | RDS | Postgres container |
+| Cost | **$0** | $$$ (EKS + ALB + NAT + RDS) | ≈$5.10/month |
+| Status | **in use** | not in use | not in use |
+
+### `k8s-local` — the free local cluster (Docker Desktop or kind)
+
+Odoo + Postgres on your machine, with a real PersistentVolume so the database
+survives restarts. No cloud account, no bill.
+
+```bash
+# 0. Prerequisites: Docker Desktop with Kubernetes enabled, kubectl.
+#    (or: kind installed, and use CLUSTER=kind below)
+
+# 1. Build the image and check the cluster
+cd k8s-local
+make k8s-up                 # no make? bash ../deploy/local-k8s.sh up
+
+# 2. Apply, wait for Postgres, initialise the schema, wait for Odoo
+make k8s-deploy             # bash ../deploy/local-k8s.sh deploy
+
+# 3. Open it
+#    Docker Desktop: http://localhost:30080
+#    kind:           http://localhost:8081
+#    either:         kubectl port-forward -n odoo-local svc/odoo 8069:8069
+
+# 4. Day-to-day
+make logs       # follow Odoo
+make db-shell   # psql
+make db-backup  # pg_dump -Fc into ./backups
+make k8s-down   # stop, KEEP data
+make k8s-destroy  # delete namespace + volumes (asks 'yes')
+```
+
+On kind, pass the cluster on both commands — `make k8s-up CLUSTER=kind` then
+`make k8s-deploy CLUSTER=kind` — or use the script, which takes it as an
+argument: `bash deploy/local-k8s.sh up kind`. Full command reference,
+data-survival table and troubleshooting:
+[`k8s-local/README.md`](k8s-local/README.md).
+
 ### Services
 
 | Service | Port | Purpose |
@@ -139,9 +187,20 @@ See [docs/load-test.md](docs/load-test.md) for the capacity report and cost mode
 │   │   └── metrics.py       # Prometheus metrics (RED method)
 │   ├── locustfile.py        # Load test (Locust)
 │   └── pyproject.toml       # Dependencies + tooling
-├── infra/
+├── k8s-local/               # DEFAULT: Docker Desktop K8s or kind, PV-backed Postgres, $0
+│   ├── base/                # kustomize manifests (namespace, deploy, svc, sts, pvc, job)
+│   └── Makefile             # k8s-up / k8s-deploy / k8s-down / db-shell / db-backup / logs
+├── full-infra/              # NOT IN USE: EKS + RDS (kept for reference, costs money)
 │   ├── terraform/           # IaC: VPC, RDS, S3, Redis, security groups
+│   ├── helm/odoo-stack/     # the workload
+│   ├── eks/                 # eksctl cluster manifest, ALB controller notes
 │   └── observability/       # Prometheus + Grafana + Alertmanager
+├── lite-infra/              # NOT IN USE: one Lightsail instance, ~$5/month
+│   ├── *.tf                 # instance, static IP, firewall, $5 billing alarm
+│   ├── docker-compose.lite.yml
+│   └── boot.sh.tftpl        # cloud-init: docker + compose + schema init
+├── deploy/                  # wrappers: local-k8s.sh, lite-aws.sh
+├── infra-v1-backup/         # untouched pre-rename snapshot of ./infra (tag: infra-v1)
 ├── docs/
 │   ├── architecture.md      # Full architecture with network topology
 │   ├── load-test.md         # Capacity report
@@ -161,7 +220,7 @@ See [docs/load-test.md](docs/load-test.md) for the capacity report and cost mode
 
 ## Monitoring
 
-The Grafana SLO dashboard (`infra/observability/grafana/dashboards/agent-slo.json`) shows:
+The Grafana SLO dashboard (`full-infra/observability/grafana/dashboards/agent-slo.json`) shows:
 
 - **Pipeline RED**: request rate, error rate, p95 duration
 - **Worker & Queue**: job throughput, queue depth, retry rate
@@ -178,6 +237,33 @@ Key alerts: `PipelineErrorRateHigh`, `PipelineLatencyHigh`, `RDSConnectionsNearC
 - **Single-tenant** — no multi-company isolation yet
 - **Claude rate limits** — the RPM cap (100 on Build tier) bounds throughput at ~100 invoices/minute with full caching
 - **No real-time streaming** — the extraction result arrives via RabbitMQ polling, not WebSocket
+
+## AWS options — NOT IN USE
+
+Both AWS stacks exist here, are validated, and are **deliberately not deployed**,
+because they cost money and the local Kubernetes option above does the same job
+for $0.
+
+| Directory | What it would create | Why it is off |
+|---|---|---|
+| `full-infra/` | EKS + RDS + ALB + NAT Gateway | ~$120+/month |
+| `lite-infra/` | one Lightsail `nano` instance + static IP | ~$5.10/month |
+
+Nothing is applied automatically — CI only runs `terraform fmt` and `terraform
+validate`, never `apply`. As of the last audit the AWS account holds **no EKS
+cluster, no RDS, no NAT Gateway and no load balancer**, and the single
+`odoo-agent-server` EC2 instance is **stopped**.
+
+```bash
+# restart the stopped box (keeps its disk and data)
+aws ec2 start-instances --region eu-north-1 --instance-ids i-0fa36cddb156cc98f
+
+# or stand up the cheap stack from scratch (~$5/month)
+cd lite-infra && terraform init && terraform apply
+
+# or the production-shaped one (EKS + RDS)
+cd full-infra/terraform && terraform init && terraform plan
+```
 
 ## License
 

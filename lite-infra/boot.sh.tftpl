@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+# =============================================================================
+# lite-infra/boot.sh.tftpl - cloud-init for the $5 instance.
+#
+# Templated by Terraform (templatefile) and shipped base64-encoded, because
+# Lightsail only accepts single-line user_data. Output goes to
+# /var/log/lite-boot.log and is also echoed by `deploy/lite-aws.sh logs`.
+#
+# Tuning notes for a 512 MB box (the honest part):
+#   * 2 GB of swap - Odoo + Postgres do not fit in 512 MB of RAM, and without
+#     swap the kernel OOM-kills one of them within minutes.
+#   * one Odoo worker only (see the compose file) and a small Postgres shared
+#     buffers, so the pair stays under the RAM+swap budget.
+# =============================================================================
+set -euo pipefail
+
+export DEBIAN_FRONTEND=noninteractive
+
+echo "=== lite boot: $(date -Is) ==="
+
+# --- 1. swap ----------------------------------------------------------------
+if [ ! -f /swapfile ]; then
+  echo "creating 2G swapfile"
+  fallocate -l 2G /swapfile 2>/dev/null || dd if=/dev/zero of=/swapfile bs=1M count=2048
+  chmod 600 /swapfile
+  mkswap /swapfile
+  swapon /swapfile
+  grep -q '^/swapfile' /etc/fstab || echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+
+# --- 2. docker --------------------------------------------------------------
+echo "installing docker"
+apt-get update -y
+apt-get install -y docker.io docker-compose-v2 git curl
+systemctl enable --now docker
+
+# --- 3. compose project -----------------------------------------------------
+mkdir -p /opt/odoo-lite
+echo '${compose_b64}' | base64 -d > /opt/odoo-lite/docker-compose.yml
+
+# --- 4. source --------------------------------------------------------------
+# Only the compose file and the image are needed at runtime; the clone exists so
+# the instance can build the repo's own Dockerfile when no image is supplied.
+if [ ! -d /opt/odoo-src/.git ]; then
+  echo "cloning ${repo_url} (${repo_branch})"
+  git clone --depth 1 --branch '${repo_branch}' '${repo_url}' /opt/odoo-src
+fi
+
+# --- 5. environment ---------------------------------------------------------
+# Placeholder credentials from Terraform: override db_password before applying
+# if this box is reachable from the internet (see README).
+{
+  echo "DB_NAME=${db_name}"
+  echo "DB_USER=${db_user}"
+  echo "DB_PASSWORD=${db_password}"
+  echo "DATABASE_URL=${database_url}"
+  echo "APP_IMAGE=odoo-lite:local"
+} > /opt/odoo-lite/.env
+chmod 600 /opt/odoo-lite/.env
+
+# --- 6. image ---------------------------------------------------------------
+%{ if app_image != "" ~}
+echo "pulling prebuilt image ${app_image}"
+docker pull '${app_image}'
+docker tag '${app_image}' odoo-lite:local
+%{ else ~}
+echo "building odoo-lite:local from /opt/odoo-src (30-60 min on this CPU class)"
+docker build -t odoo-lite:local /opt/odoo-src
+%{ endif ~}
+
+# --- 7. bring it up ---------------------------------------------------------
+cd /opt/odoo-lite
+docker compose up -d db
+
+echo "waiting for postgres"
+for _i in $(seq 1 60); do
+  if docker compose exec -T db pg_isready -U "${db_user}" -d "${db_name}" >/dev/null 2>&1; then
+    echo "postgres is ready"
+    break
+  fi
+  sleep 5
+done
+
+# Schema init once. Re-running it on an existing database is harmless.
+if ! docker compose run --rm --no-deps odoo odoo -d "${db_name}" -i base \
+       --without-demo=all --stop-after-init; then
+  echo "WARNING: --init=base failed; see the log above. The app may still start"
+fi
+
+docker compose up -d
+echo "=== lite boot finished: $(date -Is) ==="
+docker compose ps

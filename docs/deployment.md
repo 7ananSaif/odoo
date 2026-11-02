@@ -8,7 +8,7 @@
 > The Odoo deploy path described in this document (**SSH into a single EC2
 > host and run `docker compose up -d --build`**) has been **retired**. The sole
 > supported path to production for Odoo is now the EKS + Helm workflow — see
-> [`infra/runbook.md`](../infra/runbook.md), which is the source of truth.
+> [`full-infra/runbook.md`](../full-infra/runbook.md), which is the source of truth.
 >
 > Concretely, in the current repo:
 >

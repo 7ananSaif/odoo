@@ -23,18 +23,18 @@ coverage report -m
 # 4. فحوصات Terraform
 # ==============================================================================
 Write-Host "`n=== Validating Terraform Configuration ===" -ForegroundColor Cyan
-terraform -chdir=infra/terraform/ fmt -check -recursive
-terraform -chdir=infra/terraform/ init -backend=false
-terraform -chdir=infra/terraform/ validate
+terraform -chdir=full-infra/terraform/ fmt -check -recursive
+terraform -chdir=full-infra/terraform/ init -backend=false
+terraform -chdir=full-infra/terraform/ validate
 
 # ==============================================================================
 # 5. فحوصات إعدادات المراقبة (Observability via Docker)
 # ==============================================================================
 Write-Host "`n=== Validating Observability Configurations ===" -ForegroundColor Cyan
 $pwdPath = (Get-Location).Path
-docker run --rm -v "${pwdPath}/infra/observability/prometheus:/etc/prometheus" prom/prometheus:v2.53.0 checkconfig /etc/prometheus/prometheus.yml
-docker run --rm -v "${pwdPath}/infra/observability/alertmanager:/etc/alertmanager" prom/alertmanager:v0.27.0 checkconfig /etc/alertmanager/alertmanager.yml
-python -c "import json; json.load(open('infra/observability/grafana/dashboards/agent-slo.json'))"
+docker run --rm -v "${pwdPath}/full-infra/observability/prometheus:/etc/prometheus" prom/prometheus:v2.53.0 checkconfig /etc/prometheus/prometheus.yml
+docker run --rm -v "${pwdPath}/full-infra/observability/alertmanager:/etc/alertmanager" prom/alertmanager:v0.27.0 checkconfig /etc/alertmanager/alertmanager.yml
+python -c "import json; json.load(open('full-infra/observability/grafana/dashboards/agent-slo.json'))"
 
 # ==============================================================================
 # 6. فحص الثغرات والخطة الأمنية (Security & Trivy)

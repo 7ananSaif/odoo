@@ -7,7 +7,7 @@
 
 This note maps the AI invoice pipeline onto Odoo 19's existing accounting models and names the exact
 inheritance targets and fields `invoice_agent` will add. It is the reference for all model/field work
-until superseded. Companion operational doc: [`../infra/runbook.md`](../infra/runbook.md).
+until superseded. Companion operational doc: [`../../../full-infra/runbook.md`](../../../full-infra/runbook.md).
 
 ---
 

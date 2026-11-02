@@ -1,0 +1,125 @@
+# =============================================================================
+# 02-env-probe-pod.yaml — mounting a ConfigMap and a Secret as ENV VARS.
+#
+# This is the purest form of the exercise: a throwaway Pod whose only job is to
+# show that the keys in 00-configmap.yaml and 01-secret.yaml arrive inside the
+# container as ordinary environment variables. It also demonstrates the KEY
+# safety feature of consuming state this way: the Pod references the objects by
+# NAME, so the same Pod template works unchanged against a different ConfigMap
+# or Secret per environment.
+#
+# Apply:  kubectl apply -f full-infra/k8s/state/02-env-probe-pod.yaml
+# Logs:   kubectl logs env-probe
+# Exec:   kubectl exec env-probe -- sh -c 'echo "$POSTGRES_DB"'
+#
+# Two ways to consume a whole object as env
+# -----------------------------------------
+#   * ONE KEY at a time  -> `valueFrom.configMapKeyRef` / `secretKeyRef`
+#     (what this file uses: precise, self-documenting, and it avoids the trap
+#     below).
+#   * EVERY KEY at once  -> `envFrom.configMapRef` / `secretRef`
+#     (convenient when the object holds only env-safe keys).
+#
+# The trap that pushes this file toward per-key references: `app-config` also
+# contains the key `postgresql.conf`. A dot is not legal in an environment
+# variable NAME, so `envFrom` would SKIP that key (kubelet logs a warning and
+# emits an event) rather than import it. Referencing keys explicitly keeps the
+# env surface exactly what you intended and nothing more.
+#
+# `optional: false` (the default) is deliberate: if the ConfigMap or the key is
+# missing, the container must fail to start, not silently run with an empty
+# value. A Pod that boots with a blank password is a Pod that will fail later,
+# somewhere less obvious.
+# =============================================================================
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-probe
+  labels:
+    app.kubernetes.io/name: env-probe
+    app.kubernetes.io/component: state-demo
+    app.kubernetes.io/part-of: odoo
+spec:
+  # A probe Pod is not a service: it runs til it is done and is never restarted
+  # by a controller, so there is no Deployment wrapping it.
+  restartPolicy: Never
+  containers:
+    - name: env-probe
+      image: busybox:1.36
+      imagePullPolicy: IfNotPresent
+      # The probe ASSERTS instead of merely printing: a non-zero exit makes the
+      # failure visible in `kubectl get pod env-probe` (STATUS=Error) and in
+      # `kubectl logs`, rather than "it looked fine" from a wall of echo output.
+      command: ["sh", "-c"]
+      args:
+        - |
+          set -eu
+          echo "--- ConfigMap (app-config) values, resolved as env vars ---"
+          echo "APP_MODE=$APP_MODE"
+          echo "POSTGRES_DB=$POSTGRES_DB"
+          echo "POSTGRES_USER=$POSTGRES_USER"
+          echo "ODOO_DB_HOST=$ODOO_DB_HOST"
+          echo "ODOO_DB_PORT=$ODOO_DB_PORT"
+          echo "ODOO_DB_USER=$ODOO_DB_USER"
+
+          echo "--- Secret (db-secret) value, resolved as an env var ---"
+          # Never print a secret in a log. Prove it arrived by LENGTH and
+          # SHA-256; the runbook compares the digest against the value decoded
+          # from the API to prove it is byte-for-byte what was stored.
+          echo "POSTGRES_PASSWORD is set: ${#POSTGRES_PASSWORD} bytes"
+          echo "POSTGRES_PASSWORD sha256: $(printf '%s' "$POSTGRES_PASSWORD" | sha256sum | cut -d' ' -f1)"
+
+          # --- assertions: fail loudly if anything did not resolve ----------
+          for v in APP_MODE POSTGRES_DB POSTGRES_USER ODOO_DB_HOST POSTGRES_PASSWORD; do
+            eval "value=\$$v"
+            if [ -z "$value" ]; then
+              echo "FAIL: $v is empty - the ConfigMap/Secret mount is broken"
+              exit 1
+            fi
+          done
+          echo "OK: every ConfigMap and Secret key resolved into the container"
+      env:
+        # --- the non-sensitive half comes from the ConfigMap ---------------
+        - name: APP_MODE
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: APP_MODE
+        - name: POSTGRES_DB
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: POSTGRES_DB
+        - name: POSTGRES_USER
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: POSTGRES_USER
+        - name: ODOO_DB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: ODOO_DB_HOST
+        - name: ODOO_DB_PORT
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: ODOO_DB_PORT
+        - name: ODOO_DB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: app-config
+              key: ODOO_DB_USER
+        # --- the sensitive half comes from the Secret ----------------------
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: POSTGRES_PASSWORD
+      resources:
+        requests:
+          cpu: 10m
+          memory: 16Mi
+        limits:
+          cpu: 50m
+          memory: 32Mi

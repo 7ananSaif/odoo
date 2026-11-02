@@ -3,7 +3,7 @@ name: Deploy — EKS Production
 # Sole path to production.
 #
 # Shape of the pipeline (this replaced the old SSH + `docker compose` EC2 path,
-# which is retired — see infra/runbook.md §4):
+# which is retired — see full-infra/runbook.md §4):
 #
 #   1. CI gate            ./.github/workflows/ci.yml (lint, tests, terraform, security)
 #   2. Config guard       fail early on missing secrets / unfilled placeholders
@@ -46,8 +46,8 @@ env:
     # below refers to these instead of repeating literals.
     RELEASE: odoo
     NAMESPACE: odoo
-    CHART: infra/helm/odoo-stack
-    VALUES_FILE: infra/helm/odoo-stack/values.production.yaml
+    CHART: full-infra/helm/odoo-stack
+    VALUES_FILE: full-infra/helm/odoo-stack/values.production.yaml
     AWS_REGION: ${{ secrets.AWS_REGION }}
     EKS_CLUSTER: ${{ secrets.EKS_CLUSTER }}
     # How long to wait for the image this commit built to appear in the
@@ -229,7 +229,7 @@ jobs:
                   # single control byte instead of a host, and the deploy would
                   # fail looking for a database called "\x01". The parser below
                   # has one meaning everywhere.
-                  RENDERED_DB_HOST=$(python3 infra/k8s/rendered_config.py \
+                  RENDERED_DB_HOST=$(python3 full-infra/k8s/rendered_config.py \
                     rendered.yaml ConfigMap data.ODOO_DB_HOST || true)
                   if [ -z "$RENDERED_DB_HOST" ]; then
                       echo "::error::The rendered ConfigMap carries no ODOO_DB_HOST."
@@ -314,13 +314,13 @@ jobs:
                           echo "::error::On a cluster whose aws-auth ConfigMap is still authoritative use:"
                           echo "::error::  eksctl create iamidentitymapping --cluster $EKS_CLUSTER --region $AWS_REGION \\"
                           echo "::error::    --arn $CALLER_ARN --group system:masters --username github-deploy"
-                          echo "::error::See infra/runbook.md section 1."
+                          echo "::error::See full-infra/runbook.md section 1."
                           exit 1
                           ;;
                       *Forbidden* | *"cannot get resource"*)
                           echo "::error::EKS accepted $CALLER_ARN but its RBAC denies reading namespaces in $NAMESPACE."
                           echo "::error::authenticated=true, authorized=false - the cluster identity needs a role that can manage the release."
-                          echo "::error::attached access policy must be AmazonEKSClusterAdminPolicy (or equivalent) - see infra/runbook.md section 1."
+                          echo "::error::attached access policy must be AmazonEKSClusterAdminPolicy (or equivalent) - see full-infra/runbook.md section 1."
                           exit 1
                           ;;
                       *NotFound* | *"not found"*)
@@ -392,16 +392,16 @@ jobs:
                   # a parse, not a text substitution, and sed's replacement
                   # syntax is not portable (see the render step for the 0x01
                   # that `\1` produced).
-                  DB_PORT=$(python3 infra/k8s/rendered_config.py \
+                  DB_PORT=$(python3 full-infra/k8s/rendered_config.py \
                     rendered.yaml ConfigMap data.ODOO_DB_PORT || true)
-                  DB_USER=$(python3 infra/k8s/rendered_config.py \
+                  DB_USER=$(python3 full-infra/k8s/rendered_config.py \
                     rendered.yaml ConfigMap data.ODOO_DB_USER || true)
                   DB_NAME=$(grep -m1 -oE '\-\-database=[A-Za-z0-9_]+' rendered.yaml \
                     | head -1 | cut -d= -f2 || true)
                   # The PVC omits storageClassName entirely when the values file
                   # leaves it empty (cluster default), so "no match" is a valid
                   # answer here, not an error - hence the `|| true`.
-                  STORAGE_CLASS=$(python3 infra/k8s/rendered_config.py \
+                  STORAGE_CLASS=$(python3 full-infra/k8s/rendered_config.py \
                     rendered.yaml PersistentVolumeClaim spec.storageClassName || true)
 
                   if [ -z "${DB_HOST:-}" ]; then
@@ -429,11 +429,34 @@ jobs:
                   # pod stick in CreateContainerConfigError until the wait budget
                   # expires - the "context deadline exceeded" that used to be the
                   # only information this pipeline produced.
+                  #
+                  # It has three distinct causes and each needs a different
+                  # action, so diagnose the state before failing. Printing
+                  # `kubectl get externalsecret` into a cluster that never had
+                  # the CRD installed only yields
+                  #   error: the server doesn't have a resource type "externalsecret"
+                  # which reads like a deploy bug rather than a missing operator.
                   if ! kubectl get secret "$SECRET" -n "$NAMESPACE" 2>/dev/null 1>&2; then
-                      echo "::error::Secret $SECRET does not exist in namespace $NAMESPACE."
-                      echo "::error::External Secrets should create it (ExternalSecret to Secret). Current state:"
-                      kubectl get externalsecret -n "$NAMESPACE" || true
-                      kubectl get secret -n "$NAMESPACE" || true
+                      echo "::error::Secret $SECRET does not exist in namespace $NAMESPACE - the chart renders none, because secret.existingSecret is true."
+
+                      if ! kubectl get crd externalsecrets.external-secrets.io >/dev/null 2>&1; then
+                          echo "::error::External Secrets Operator is not installed here: the cluster has no externalsecrets.external-secrets.io CRD."
+                          echo "::error::Install it, give it an IRSA role and apply the ExternalSecret - once per cluster:"
+                          echo "::error::  full-infra/eks/external-secrets/README.md (IAM policy -> eksctl iamserviceaccount -> helm install -> kubectl apply -f full-infra/eks/external-secrets/)"
+                          exit 1
+                      fi
+
+                      echo "::error::External Secrets Operator is installed, so the ExternalSecret is the missing or failing half."
+                      if ! kubectl get externalsecret "$SECRET" -n "$NAMESPACE" >/dev/null 2>&1; then
+                          echo "::error::No ExternalSecret named $SECRET in namespace $NAMESPACE."
+                          echo "::error::Apply it: kubectl apply -f full-infra/eks/external-secrets/"
+                      else
+                          echo "::error::ExternalSecret $SECRET exists but produced no Secret. Its status conditions say why"
+                          echo "::error::(usually: the IRSA role is not on the operator's service account, the region is wrong, or the remote secret name does not exist)."
+                          kubectl get externalsecret "$SECRET" -n "$NAMESPACE" -o yaml || true
+                      fi
+                      echo "::error::Objects present in $NAMESPACE:"
+                      kubectl get externalsecret,secret -n "$NAMESPACE" || true
                       exit 1
                   fi
                   if [ -z "$(kubectl get secret "$SECRET" -n "$NAMESPACE" \
@@ -494,7 +517,7 @@ jobs:
                   done
 
                   kubectl delete job "$JOB_NAME" -n "$NAMESPACE" --ignore-not-found
-                  envsubst < infra/k8s/odoo-db-preflight-job.yaml | kubectl apply -f -
+                  envsubst < full-infra/k8s/odoo-db-preflight-job.yaml | kubectl apply -f -
 
                   if ! kubectl wait --for=condition=complete "job/$JOB_NAME" \
                       -n "$NAMESPACE" --timeout=180s; then
@@ -706,7 +729,7 @@ jobs:
                   PREV="${{ steps.revision.outputs.prev }}"
                   if [ -z "$PREV" ] || [ "$PREV" = "0" ]; then
                       echo "::error::Smoke test failed and there is no previous revision to roll back to — manual intervention required."
-                      echo "::error::See infra/runbook.md §3 'Rollback' for the manual procedure."
+                      echo "::error::See full-infra/runbook.md §3 'Rollback' for the manual procedure."
                       exit 1
                   fi
                   echo "Smoke test failed — rolling back to revision $PREV"

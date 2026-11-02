@@ -1,0 +1,82 @@
+# =============================================================================
+# static-pv.yaml — ONLY for a cluster with no default StorageClass.
+#
+# You almost certainly do not need this file.
+#
+#   kind            -> ships `standard` (rancher local-path) as the default
+#   Docker Desktop  -> ships `hostpath` as the default
+#
+# On either of those, 04-postgres-statefulset.yaml's volumeClaimTemplates and
+# 06-odoo-filestore-pvc.yaml bind automatically and a PersistentVolume appears
+# on demand. That is the normal path and it is what `make k8s-deploy` uses.
+#
+# WHAT THIS FILE IS FOR
+# ---------------------
+# A cluster with no dynamic provisioner (a bare kubeadm/VM install, some CI
+# sandboxes) leaves those claims Pending forever. There, a PV has to be created
+# by hand for each claim. This template does that with `local` volumes, which
+# bind to one specific node - which is exactly why it cannot be a general
+# default: the node name and the path are properties of YOUR cluster.
+#
+# HOW TO USE
+# ----------
+#   1. Pick the node and a directory the kubelet can see:
+#        kubectl get nodes
+#        kubectl debug node/<node> -- -c "mkdir -p /mnt/odoo-local/pgdata /mnt/odoo-local/filestore"
+#   2. Replace <node-name> below.
+#   3. kubectl apply -f k8s-local/optional/static-pv.yaml
+#   4. Then the normal deploy: make k8s-deploy
+#
+# The claims bind by (capacity, access mode, storageClassName: "") - so the
+# claims in base/ must ALSO declare `storageClassName: ""` for this to work.
+# They do not, by default: they leave it empty so the cluster default is used.
+# Change them, or patch, if you take this path.
+#
+# Verified: this file is syntactically valid YAML and passes kubectl's
+# schema validation (`kubectl apply --dry-run=client`). It has NOT been executed
+# against a provisioner-less cluster - there is no such cluster here to test on.
+# =============================================================================
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: odoo-pgdata-pv
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+spec:
+  capacity:
+    storage: 8Gi
+  accessModes: ["ReadWriteOnce"]
+  persistentVolumeReclaimPolicy: Retain
+  # Empty string: bind only to claims that also ask for no StorageClass.
+  storageClassName: ""
+  local:
+    path: /mnt/odoo-local/pgdata
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values: ["<node-name>"]
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: odoo-filestore-pv
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes: ["ReadWriteOnce"]
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  local:
+    path: /mnt/odoo-local/filestore
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values: ["<node-name>"]

@@ -1,0 +1,78 @@
+# =============================================================================
+# lite-infra/docker-compose.lite.yml - what runs on the $5 box.
+#
+# Two services only: the app and its own PostgreSQL. This is the deliberate
+# contrast with docker-compose.yml at the repo root, which also runs Redis,
+# RabbitMQ, nginx/certbot and the invoice-ai worker - that stack needs several
+# GB of RAM and cannot live on a nano instance.
+#
+# Sized for 512 MB RAM + 2 GB swap:
+#   * Odoo: 1 HTTP worker, 0 cron workers, limits that keep it ~250 MB
+#   * Postgres: 64 MB shared buffers, 20 connections
+#
+# The app is published on host port 80 so the URL has no :8069 suffix. Postgres
+# publishes nothing: it is reachable only over this compose network.
+# =============================================================================
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    command:
+      - postgres
+      - -c
+      - shared_buffers=64MB
+      - -c
+      - max_connections=20
+      - -c
+      - work_mem=2MB
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  odoo:
+    image: ${APP_IMAGE:-odoo-lite:local}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      HOST: db
+      PORT: "5432"
+      USER: ${DB_USER}
+      PASSWORD: ${DB_PASSWORD}
+      # Kept for the addon, which reads DATABASE_URL directly.
+      DATABASE_URL: ${DATABASE_URL}
+    command:
+      - odoo
+      - --db_host=db
+      - --db_port=5432
+      - --db_user=${DB_USER}
+      - --db_name=${DB_NAME}
+      - --workers=1
+      - --max-cron-threads=0
+      - --db_maxconn=8
+      - --log-level=warn
+    ports:
+      - "80:8069"
+    volumes:
+      - filestore:/var/lib/odoo
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:8069/web/login >/dev/null || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+volumes:
+  pgdata:
+  filestore:

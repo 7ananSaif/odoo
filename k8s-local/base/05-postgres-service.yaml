@@ -1,0 +1,33 @@
+# =============================================================================
+# 05-postgres-service.yaml — the in-cluster DNS name `postgres`.
+#
+# ClusterIP, not NodePort/LoadBalancer: the database must be reachable from the
+# odoo pod and from `make db-shell`, and from nowhere else. docker-compose.yml
+# takes the same position by binding 127.0.0.1:5434 on the host instead of
+# 0.0.0.0:5432.
+#
+# The name matters: `postgres` is what ODOO_DB_HOST in 02-configmap.yaml and
+# the DATABASE_URL in 01-secret.yaml point at, and what the StatefulSet's
+# `serviceName` refers to. Renaming it means editing all three.
+#
+# No `clusterIP: None` here. A headless Service is only needed when clients must
+# resolve individual pod IPs (a multi-replica datastore). One replica behind a
+# stable ClusterIP is simpler and is what Odoo wants.
+# =============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: odoo-local
+  labels:
+    app.kubernetes.io/part-of: odoo-invoice-agent
+    app.kubernetes.io/component: database
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: postgres
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+      protocol: TCP
